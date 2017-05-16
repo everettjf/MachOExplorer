@@ -1,0 +1,10 @@
+.idea/
+cmake-build-debug/
+
+.DS_Store
+
+build-debug/
+build-release/
+build-profile/
+
+moex-ui.pro.user
