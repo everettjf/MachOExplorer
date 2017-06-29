@@ -5,7 +5,6 @@
 
 # Feature
 
-- Platform support : macOS,Windows,Linux
 - Basic view MachO file structure (like MachOView).
 - Insert a dylib (like optool).
 - Class dump (like class-dump).
@@ -20,15 +19,8 @@
 
 # How to build
 
-## macOS
-
 ```
-brew install boost
-qmake
+brew install cmake
+brew install boost --c++11
 ```
 
-## Windows
-
-```
-// todo
-```
