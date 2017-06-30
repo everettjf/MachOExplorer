@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("compression")) {
         cout << "Compression level was set to "
              << vm["compression"].as<int>() << ".\n";
+        return 1;
     }
 
     if (vm.count("file")){
@@ -45,7 +46,10 @@ int main(int argc, char* argv[]) {
         cout << "Input file :"
              << vm["file"].as<string>()
              << endl;
+        return 1;
     }
+
+    cout << "default param" <<endl;
 
     return 0;
 }
