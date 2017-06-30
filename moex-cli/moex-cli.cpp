@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     desc.add_options()
             ("help,h", "produce help message")
             ("compression,c", po::value<int>(), "set compression level")
+            ("file,f",po::value<string>(),"input macho file")
             ;
 
     po::variables_map vm;
@@ -37,8 +38,13 @@ int main(int argc, char* argv[]) {
     if (vm.count("compression")) {
         cout << "Compression level was set to "
              << vm["compression"].as<int>() << ".\n";
-    } else {
-        cout << "Compression level was not set.\n";
+    }
+
+    if (vm.count("file")){
+
+        cout << "Input file :"
+             << vm["file"].as<string>()
+             << endl;
     }
 
     return 0;
