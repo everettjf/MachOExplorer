@@ -17,34 +17,54 @@ using namespace std;
 //    cout << "succeed" <<endl;
 //}
 
+class CommandParser{
+private:
+    boost::program_options::variables_map vm;
+    boost::program_options::options_description desc;
+public:
+    CommandParser(int argc,char *argv[]){
+        using namespace boost::program_options;
+
+        desc.add_options()
+                ("help,h", "http://everettjf.com")
+                ("file,f",value<string>(),"MachO file path")
+                ;
+
+
+        store(parse_command_line(argc, (const char* const *)argv, desc), vm);
+        notify(vm);
+    }
+
+    bool exist(const char *option){
+        return vm.count(option);
+    }
+
+    string getString(const char *option){
+        return vm[option].as<string>();
+    }
+
+    int getInteger(const char *option){
+        return vm[option].as<int>();
+    }
+
+    void printHelp(){
+        cout << desc <<endl;
+    }
+};
+
 int main(int argc, char* argv[]) {
-    namespace po = boost::program_options;
-    po::options_description desc("Allowed options");
-    desc.add_options()
-            ("help,h", "produce help message")
-            ("compression,c", po::value<int>(), "set compression level")
-            ("file,f",po::value<string>(),"input macho file")
-            ;
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
-
-    if (vm.count("help")) {
-        cout << desc << "\n";
+    CommandParser cp(argc,argv);
+    if(cp.exist("help")){
+        cp.printHelp();
         return 1;
     }
 
-    if (vm.count("compression")) {
-        cout << "Compression level was set to "
-             << vm["compression"].as<int>() << ".\n";
-        return 1;
-    }
 
-    if (vm.count("file")){
-
+    // Required option file
+    if (cp.exist("file")){
         cout << "Input file :"
-             << vm["file"].as<string>()
+             << cp.getString("file")
              << endl;
         return 1;
     }
