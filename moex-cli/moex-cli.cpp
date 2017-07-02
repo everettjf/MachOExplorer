@@ -20,34 +20,30 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-//    CommandParser cp(argc,argv);
-//    if(cp.Exist("help")){
-//        cp.PrintHelp();
-//        return 1;
-//    }
-//
-//    // Required option file
-//    if (!cp.Exist("file")){
-//        cout << "Input file must be specified."<<endl;
-//        cp.PrintHelp();
-//        return 1;
-//    }
+    CommandParser cp(argc,argv);
+    if(cp.Exist("help")){
+        cp.PrintHelp();
+        return 1;
+    }
+
+    // Required option file
+    if (!cp.Exist("file")){
+        cout << "Input file must be specified."<<endl;
+        cp.PrintHelp();
+        return 1;
+    }
+
+    if(cp.Exist("display")){
+        // Display mode
+
+        // fatheader list
+        if(cp.Exist("fatheader")){
 
 
-    // FatHeader list
-    auto print = BeautyTextPrinterFactory::CreatePrinter(BeautyTextPrinterFactory::Table);
-//    auto print = BeautyTextPrinterFactory::CreatePrinter(BeautyTextPrinterFactory::CSV);
-    print->SetHeaders({"One","Two","Three"});
-    print->Begin();
-    print->AddRow({"1","2","3"});
-    print->AddRow({"1","2","3333"});
-    print->AddRow({"1","2","3"});
-    print->AddRow({"1","2","3"});
-    print->End();
+        }
 
 
-
-
+    }
 
     return 0;
 }

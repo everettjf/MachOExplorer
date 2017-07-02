@@ -19,7 +19,10 @@ public:
 
         desc.add_options()
                 ("help,h", "http://everettjf.com")
-                ("file,f",value<std::string>(),"[required] MachO file path")
+                ("file,f",value<std::string>(),"[required] macho file path")
+
+                ("display,d", "enter display mode")
+                ("fatheader,fat","[display] fatheader list")
                 ;
 
 
