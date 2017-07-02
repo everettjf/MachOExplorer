@@ -27,19 +27,19 @@ public:
         notify(vm);
     }
 
-    bool exist(const char *option){
+    bool Exist(const char *option){
         return vm.count(option);
     }
 
-    std::string getString(const char *option){
+    std::string GetString(const char *option){
         return vm[option].as<std::string>();
     }
 
-    int getInteger(const char *option){
+    int GetInteger(const char *option){
         return vm[option].as<int>();
     }
 
-    void printHelp(){
+    void PrintHelp(){
         std::cout << desc <<std::endl;
     }
 };

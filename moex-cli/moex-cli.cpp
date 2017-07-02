@@ -1,6 +1,7 @@
 #include <iostream>
 #include <libmoex/binary.h>
 #include "util/CommandParser.h"
+#include "util/BeautyTextPrint.h"
 
 using namespace std;
 
@@ -19,21 +20,31 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-    CommandParser cp(argc,argv);
-    if(cp.exist("help")){
-        cp.printHelp();
-        return 1;
-    }
-
-    // Required option file
-    if (!cp.exist("file")){
-        cout << "Input file must be specified."<<endl;
-        cp.printHelp();
-        return 1;
-    }
+//    CommandParser cp(argc,argv);
+//    if(cp.Exist("help")){
+//        cp.PrintHelp();
+//        return 1;
+//    }
+//
+//    // Required option file
+//    if (!cp.Exist("file")){
+//        cout << "Input file must be specified."<<endl;
+//        cp.PrintHelp();
+//        return 1;
+//    }
 
 
     // FatHeader list
+    auto print = BeautyTextPrinterFactory::CreatePrinter(BeautyTextPrinterFactory::Table);
+//    auto print = BeautyTextPrinterFactory::CreatePrinter(BeautyTextPrinterFactory::CSV);
+    print->SetHeaders({"One","Two","Three"});
+    print->Begin();
+    print->AddRow({"1","2","3"});
+    print->AddRow({"1","2","3333"});
+    print->AddRow({"1","2","3"});
+    print->AddRow({"1","2","3"});
+    print->End();
+
 
 
 
