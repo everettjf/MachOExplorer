@@ -27,7 +27,7 @@ PRECOMPILED_HEADER = stable.h
 CONFIG   += precompile_header
 
 
-SOURCES += moex-ui.cpp\
+SOURCES += moex-gui.cpp\
     utility/utility.cpp \
     view/mainwindow.cpp \
     model/placeholdermodel.cpp \
@@ -35,7 +35,6 @@ SOURCES += moex-ui.cpp\
     view/skeletonview.cpp \
     view/contentview.cpp \
     view/logview.cpp \
-    view/documentview.cpp \
     controller/workspace.cpp \
     controller/skeletoncontroller.cpp \
     controller/basecontroller.cpp \
@@ -81,7 +80,6 @@ HEADERS  += \
     view/skeletonview.h \
     view/contentview.h \
     view/logview.h \
-    view/documentview.h \
     stable.h \
     controller/workspace.h \
     controller/skeletoncontroller.h \
@@ -96,7 +94,7 @@ FORMS    +=
 
 
 macx{
-    _BOOSTPATH = /usr/local/Cellar/boost/1.63.0
+    _BOOSTPATH = /usr/local/Cellar/boost/1.64.0_1
     INCLUDEPATH += "$${_BOOSTPATH}/include/"
     LIBS += -L$${_BOOSTPATH}/lib
 }

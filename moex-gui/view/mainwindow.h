@@ -21,7 +21,6 @@ struct MainWindowAction{
     QAction *quit;
 
     QAction *showLogWindow;
-    QAction *showDocumentWindow;
 
     QAction *reportIssue;
     QAction *viewSource;
@@ -53,14 +52,12 @@ public slots:
     void quitApp(bool checked);
 
     void showLogWindow(bool checked);
-    void showDocumentWindow(bool checked);
 
     void reportIssue(bool checked);
     void viewSource(bool checked);
     void aboutApp(bool checked);
 
     void dockLogVisibilityChanged(bool visible);
-    void dockDocumentVisibilityChanged(bool visible);
 };
 
 #endif // MAINWINDOW_H

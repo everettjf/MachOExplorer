@@ -54,16 +54,6 @@ void MainWindow::createUI()
         connect(ui->logDock,SIGNAL(visibilityChanged(bool)),this,SLOT(dockLogVisibilityChanged(bool)));
         addDockWidget(Qt::BottomDockWidgetArea,ui->logDock);
     }
-    // Document View
-    {
-        ui->document = new DocumentView();
-
-        ui->documentDock = new QDockWidget(tr("Document Window"),this);
-        ui->documentDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        ui->documentDock->setWidget(ui->document);
-        connect(ui->documentDock,SIGNAL(visibilityChanged(bool)),this,SLOT(dockDocumentVisibilityChanged(bool)));
-        addDockWidget(Qt::RightDockWidgetArea,ui->documentDock);
-    }
 
     setCorner(Qt::TopLeftCorner,Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner,Qt::LeftDockWidgetArea);
@@ -84,11 +74,6 @@ void MainWindow::createActions()
     action->showLogWindow->setChecked(true);
     connect(action->showLogWindow,SIGNAL(triggered(bool)),this,SLOT(showLogWindow(bool)));
 
-    action->showDocumentWindow = new QAction(tr("Document Window"));
-    action->showDocumentWindow->setCheckable(true);
-    action->showDocumentWindow->setChecked(true);
-    connect(action->showDocumentWindow,SIGNAL(triggered(bool)),this,SLOT(showDocumentWindow(bool)));
-
     action->viewSource = new QAction(tr("View Source"));
     connect(action->viewSource,SIGNAL(triggered(bool)),this,SLOT(viewSource(bool)));
 
@@ -108,7 +93,6 @@ void MainWindow::createMenus()
 
     menu->window = menuBar()->addMenu(tr("Window"));
     menu->window->addAction(action->showLogWindow);
-    menu->window->addAction(action->showDocumentWindow);
 
     menu->help = menuBar()->addMenu(tr("Help"));
     menu->help->addAction(action->viewSource);
@@ -138,11 +122,6 @@ void MainWindow::showLogWindow(bool checked)
     ui->logDock->setVisible(checked);
 }
 
-void MainWindow::showDocumentWindow(bool checked)
-{
-    ui->documentDock->setVisible(checked);
-}
-
 void MainWindow::reportIssue(bool checked)
 {
     util::openURL("https://github.com/everettjf/MachOExplorer/issues");
@@ -162,10 +141,5 @@ void MainWindow::aboutApp(bool checked)
 void MainWindow::dockLogVisibilityChanged(bool visible)
 {
     action->showLogWindow->setChecked(visible);
-}
-
-void MainWindow::dockDocumentVisibilityChanged(bool visible)
-{
-    action->showDocumentWindow->setChecked(visible);
 }
 

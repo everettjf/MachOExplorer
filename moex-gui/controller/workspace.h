@@ -9,7 +9,6 @@
 #include "../view/skeletonview.h"
 #include "../view/contentview.h"
 #include "../view/logview.h"
-#include "../view/documentview.h"
 #include <QDockWidget>
 #include <libmoex/binary.h>
 
@@ -17,12 +16,10 @@ struct WorkspaceUI{
     SkeletonView *skeleton;
     ContentView *content;
     LogView *log;
-    DocumentView *document;
 
     QDockWidget *skeletonDock;
     QDockWidget *contentDock;
     QDockWidget *logDock;
-    QDockWidget *documentDock;
 };
 
 
