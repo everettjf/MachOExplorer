@@ -4,8 +4,10 @@
 
 #include "CommonDisplay.h"
 #include <iostream>
+#include "../util/Utility.h"
 
 using namespace std;
+
 
 bool CommonDisplay::Init(const std::string & filepath,bool is_csv){
     print_ = BeautyTextPrinterFactory::CreatePrinter(is_csv);
@@ -28,17 +30,17 @@ void CommonDisplay::FatList(){
         return;
 
     print_->SetHeaders({"cputype","cpusubtype","offset","size","align"});
-    print_->SetWidths({10,10,10,10,10});
+    print_->SetWidths({10,14,10,10,10});
     print_->Begin();
 
     for(auto & arch : bin_->fath()->archs()){
         const fat_arch & f = arch->data();
         print_->AddRow({
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
+                ToString(f.cputype),
+                ToString(f.cpusubtype),
+                ToString(f.offset),
+                ToString(f.size),
+                ToString(f.align),
                 });
     }
 
