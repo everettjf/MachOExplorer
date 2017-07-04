@@ -9,17 +9,18 @@
 #include <string>
 #include <iostream>
 
-class CommandParser{
+class ArgvParser{
 private:
     boost::program_options::variables_map vm;
     boost::program_options::options_description desc;
 public:
-    CommandParser(int argc,char *argv[]){
+    ArgvParser(int argc,char *argv[]){
         using namespace boost::program_options;
 
         desc.add_options()
                 ("help,h", "http://everettjf.com")
                 ("file,f",value<std::string>(),"[required] macho file path")
+                ("csv",)
 
                 ("display,d", "enter display mode")
                 ("fatheader,fat","[display] fatheader list")
