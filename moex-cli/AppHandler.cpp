@@ -28,21 +28,6 @@ int AppHandler::Run(int argc, char* argv[]){
     return 0;
 }
 
-void AppHandler::SetupOptions(){
-    argv_->desc().add_options()
-            ("help", "display help message")
-            ("file",boost::program_options::value<std::string>(),"[required] macho file path")
-            ("csv","CSV format output")
-
-            // display mode [default]
-            ("fatheader","[display] fatheader list")
-
-            // edit mode
-            ("edit", "enter edit mode")
-            // ...edit mode options
-            ;
-}
-
 bool AppHandler::Prepare(){
     if(argv_->Exist("help")){
         argv_->PrintHelp();
@@ -71,6 +56,24 @@ bool AppHandler::Prepare(){
     return true;
 }
 
+
+void AppHandler::SetupOptions(){
+    argv_->desc().add_options()
+            ("help", "display help message")
+            ("file",boost::program_options::value<std::string>(),"[required] macho file path")
+            ("csv","CSV format output")
+
+            // display mode [default]
+            ("isfat","[display] is fat")
+            ("fatlist","[display] fat list (less info than headerlist)")
+            ("headerlist","[display] header list")
+
+            // edit mode
+            ("edit", "enter edit mode")
+            // ...edit mode options
+            ;
+}
+
 void AppHandler::GoEditMode(){
     cout << "Edit mode [not implemented yet]" <<endl;
 
@@ -82,8 +85,18 @@ void AppHandler::GoDisplayMode(){
         return;
     }
 
-    if(argv_->Exist("fatheader")){
+    if(argv_->Exist("isfat")){
+        display.IsFat();
+        return;
+    }
 
+    if(argv_->Exist("fatlist")){
+        display.FatList();
+        return;
+    }
+
+    if(argv_->Exist("header")){
+        display.HeaderList();
         return;
     }
 

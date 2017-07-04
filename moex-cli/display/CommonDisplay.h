@@ -15,6 +15,10 @@ private:
 public:
     bool Init(const std::string & filepath,bool is_csv);
 
+    // Display
+    void IsFat();
+    void FatList();
+    void HeaderList();
 
 };
 

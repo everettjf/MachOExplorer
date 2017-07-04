@@ -49,6 +49,13 @@ public:
             return mh_.get();
     }
 
+    bool IsFat(){return magic_.IsFat();}
+    bool Is64(){return magic_.Is64();}
+
+    FatHeaderPtr & fath(){return fath_;}
+    MachHeaderPtr & mh(){return mh_;}
+    MachHeader64Ptr & mh64(){return mh64_;}
+
 public:
     Binary(const std::string & filepath) : filepath_(filepath){
         using namespace boost::interprocess;

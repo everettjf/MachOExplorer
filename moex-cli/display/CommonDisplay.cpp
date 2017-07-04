@@ -19,3 +19,35 @@ bool CommonDisplay::Init(const std::string & filepath,bool is_csv){
 
     return true;
 }
+
+void CommonDisplay::IsFat(){
+    cout << (bin_->IsFat() ? "true" : "false") <<endl;
+}
+void CommonDisplay::FatList(){
+    if(!bin_->IsFat())
+        return;
+
+    print_->SetHeaders({"cputype","cpusubtype","offset","size","align"});
+    print_->SetWidths({10,10,10,10,10});
+    print_->Begin();
+
+    for(auto & arch : bin_->fath()->archs()){
+        const fat_arch & f = arch->data();
+        print_->AddRow({
+                "1",
+                "1",
+                "1",
+                "1",
+                "1",
+                });
+    }
+
+    print_->End();
+}
+
+void CommonDisplay::HeaderList(){
+    print_->Begin();
+
+    print_->End();
+}
+
