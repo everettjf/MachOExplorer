@@ -5,12 +5,18 @@
 #ifndef MOEX_COMMONDISPLAY_H
 #define MOEX_COMMONDISPLAY_H
 
-
+#include <libmoex/binary.h>
+#include "../util/BeautyTextPrint.h"
 
 class CommonDisplay {
+private:
+    moex::BinaryPtr bin_;
+    std::shared_ptr<BeautyTextPrinter> print_;
+public:
+    bool Init(const std::string & filepath,bool is_csv);
+
 
 };
-
 
 
 #endif //MOEX_COMMONDISPLAY_H

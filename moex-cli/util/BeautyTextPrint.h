@@ -156,6 +156,9 @@ public:
         Table,
         CSV,
     };
+    static std::shared_ptr<BeautyTextPrinter> CreatePrinter(bool is_csv){
+        return CreatePrinter(is_csv?CSV:Table);
+    }
 
     static std::shared_ptr<BeautyTextPrinter> CreatePrinter(PrinterType type = Table){
         if(type == CSV){

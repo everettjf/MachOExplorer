@@ -25,6 +25,7 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 
 find_package(Boost 1.64 REQUIRED COMPONENTS
         program_options
+        filesystem
         )
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})
