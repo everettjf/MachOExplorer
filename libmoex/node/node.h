@@ -61,6 +61,7 @@ protected:
     T data_;
 public:
     const T & data()const { return data_;}
+    T * data_ptr(){ return &data_;}
 
     void init(void *offset,NodeContextPtr & ctx){
         NodeOffset<T>::init(offset,ctx);

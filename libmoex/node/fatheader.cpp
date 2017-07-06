@@ -16,16 +16,8 @@ void FatArch::init(void *offset, NodeContextPtr &ctx) {
     }
 
     void *mach_offset = (char *)(ctx_->file_start) + data_.offset;
-    Magic magic(mach_offset);
-    if(magic.Is64()){
-        is64_ = true;
-        mh64_ = std::make_shared<MachHeader64>();
-        mh64_->init(mach_offset,ctx_);
-    }else{
-        is64_ = false;
-        mh_ = std::make_shared<MachHeader>();
-        mh_->init(mach_offset,ctx_);
-    }
+    mh_ = std::make_shared<MachHeader>();
+    mh_->init(mach_offset,ctx_);
 }
 
 std::string FatArch::GetDisplayName(){
@@ -45,8 +37,7 @@ std::string FatArch::GetDescription(){
 }
 
 void FatArch::ForEachChild(std::function<void (Node *)> func){
-    if(is64_)func(mh64_.get());
-    else func(mh_.get());
+    func(mh_.get());
 }
 
 void FatHeader::init(void *offset, NodeContextPtr &ctx) {

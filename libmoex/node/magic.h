@@ -17,6 +17,7 @@ public:
     uint32_t magic()const{return magic_;}
 
     Magic(){}
+    Magic(uint32_t magic){ magic_ = magic; }
     Magic(void *memory){ magic_ = *(uint32_t*)memory; }
 
     void Parse(void *memory){ magic_ = *(uint32_t*)memory; }

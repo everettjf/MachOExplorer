@@ -14,8 +14,6 @@ MOEX_NAMESPACE_BEGIN
 class FatArch : public NodeData<fat_arch>{
 private:
     MachHeaderPtr mh_;
-    MachHeader64Ptr mh64_;
-    bool is64_ = false;
 
     bool swap_ = false;
 public:
@@ -23,7 +21,8 @@ public:
 
     void init(void *offset,NodeContextPtr &ctx) override;
 
-    bool is64()const{ return is64_; }
+    bool is64()const{ return mh_->is64(); }
+
     std::string GetTypeName() override{ return "fat_arch";}
     std::string GetDisplayName() override;
     std::string GetDescription() override;

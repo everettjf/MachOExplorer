@@ -32,5 +32,3 @@ if(Boost_FOUND)
     add_executable(moex-cli ${CLISOURCE_FILES})
     target_link_libraries(moex-cli ${Boost_LIBRARIES})
 endif()
-
-
