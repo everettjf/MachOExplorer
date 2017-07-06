@@ -30,14 +30,14 @@ void CommonDisplay::FatList(){
         return;
 
     print_->SetHeaders({"cputype","cpusubtype","offset","size","align"});
-    print_->SetWidths({10,14,10,10,10});
+    print_->SetWidths({15,14,10,10,10});
     print_->Begin();
 
     for(auto & arch : bin_->fath()->archs()){
         const fat_arch & f = arch->data();
         print_->AddRow({
-                ToString(f.cputype),
-                ToString(f.cpusubtype),
+                moex::hp::GetCpuTypeString(f.cputype),
+                moex::hp::GetCpuSubTypeString(f.cpusubtype),
                 ToString(f.offset),
                 ToString(f.size),
                 ToString(f.align),

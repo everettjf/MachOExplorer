@@ -5,4 +5,7 @@
 #ifndef MOEX_MOEX_H
 #define MOEX_MOEX_H
 
+#include "binary.h"
+#include "node/helper.h"
+
 #endif //MOEX_MOEX_H

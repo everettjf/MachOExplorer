@@ -5,7 +5,7 @@
 #ifndef MOEX_COMMONDISPLAY_H
 #define MOEX_COMMONDISPLAY_H
 
-#include <libmoex/binary.h>
+#include <libmoex/moex.h>
 #include "../util/BeautyTextPrint.h"
 
 class CommonDisplay {
