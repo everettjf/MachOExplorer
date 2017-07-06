@@ -20,6 +20,7 @@ public:
     void FatList();
     void HeaderList();
     void SegmentList();
+    void SymbolList();
 
 };
 

@@ -67,7 +67,8 @@ void AppHandler::SetupOptions(){
             ("is_fat","[display] is fat")
             ("fat_list","[display] fat list (less info than headerlist)")
             ("header_list","[display] header list")
-            ("segment_list","[display] segment command list")
+            ("segment_list","[display] segment list")
+            ("symbol_list","[display] symbol list")
 
             // edit mode
             ("edit", "enter edit mode")
@@ -105,8 +106,11 @@ void AppHandler::GoDisplayMode(){
         display.SegmentList();
         return;
     }
-    // other...
 
+    if(argv_->Exist("symbol_list")){
+        display.SymbolList();
+        return;
+    }
 
 
     cout << "Please specified valid options" <<endl;
