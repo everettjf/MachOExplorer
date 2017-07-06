@@ -18,6 +18,7 @@ private:
     bool swap_ = false;
 public:
     void set_swap(bool swap){swap_ = swap;}
+    MachHeaderPtr & mh(){return mh_;}
 
     void init(void *offset,NodeContextPtr &ctx) override;
 

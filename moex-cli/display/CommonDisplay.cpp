@@ -48,8 +48,41 @@ void CommonDisplay::FatList(){
 }
 
 void CommonDisplay::HeaderList(){
+
+    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
+    print_->SetWidths({10,15,14,10,10,10});
     print_->Begin();
+
+    std::vector<moex::MachHeaderPtr> headers;
+
+    if(bin_->IsFat()){
+        for(auto & arch : bin_->fath()->archs()){
+            headers.push_back(arch->mh());
+        }
+    }else{
+        headers.push_back(bin_->mh());
+    }
+
+    for(auto & header : headers){
+        mach_header *h = header->data_ptr();
+        print_->AddRow({
+                ToString(h->magic),
+                moex::hp::GetCpuTypeString(h->cputype),
+                moex::hp::GetCpuSubTypeString(h->cpusubtype),
+                ToString(h->ncmds),
+                ToString(h->sizeofcmds),
+                ToString(h->flags),
+           });
+    }
 
     print_->End();
 }
 
+void CommonDisplay::SegmentList(){
+    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
+    print_->SetWidths({10,15,14,10,10,10});
+    print_->Begin();
+
+
+    print_->End();
+}

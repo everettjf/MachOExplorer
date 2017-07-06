@@ -64,9 +64,10 @@ void AppHandler::SetupOptions(){
             ("csv","CSV format output")
 
             // display mode [default]
-            ("isfat","[display] is fat")
-            ("fatlist","[display] fat list (less info than headerlist)")
-            ("headerlist","[display] header list")
+            ("is_fat","[display] is fat")
+            ("fat_list","[display] fat list (less info than headerlist)")
+            ("header_list","[display] header list")
+            ("segment_list","[display] segment command list")
 
             // edit mode
             ("edit", "enter edit mode")
@@ -85,21 +86,25 @@ void AppHandler::GoDisplayMode(){
         return;
     }
 
-    if(argv_->Exist("isfat")){
+    if(argv_->Exist("is_fat")){
         display.IsFat();
         return;
     }
 
-    if(argv_->Exist("fatlist")){
+    if(argv_->Exist("fat_list")){
         display.FatList();
         return;
     }
 
-    if(argv_->Exist("header")){
+    if(argv_->Exist("header_list")){
         display.HeaderList();
         return;
     }
 
+    if(argv_->Exist("segment_list")){
+        display.SegmentList();
+        return;
+    }
     // other...
 
 

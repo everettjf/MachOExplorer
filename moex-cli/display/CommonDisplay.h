@@ -19,6 +19,7 @@ public:
     void IsFat();
     void FatList();
     void HeaderList();
+    void SegmentList();
 
 };
 

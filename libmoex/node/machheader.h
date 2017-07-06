@@ -73,6 +73,7 @@ private:
     }
 public:
     bool is64()const{return is64_;}
+    mach_header * data_ptr(){return header_;}
 
     void init(void *offset,NodeContextPtr&ctx) {
         magic_.Parse(offset);
