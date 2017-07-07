@@ -67,6 +67,8 @@ void AppHandler::SetupOptions(){
             ("is_fat","[display] is fat")
             ("fat_list","[display] fat list (less info than headerlist)")
             ("header_list","[display] header list")
+            ("loadcommand_list","[display] loadcommand list")
+
             ("segment_list","[display] segment list")
             ("symbol_list","[display] symbol list")
 
@@ -99,6 +101,11 @@ void AppHandler::GoDisplayMode(){
 
     if(argv_->Exist("header_list")){
         display.HeaderList();
+        return;
+    }
+
+    if(argv_->Exist("loadcommand_list")){
+        display.LoadCommandList();
         return;
     }
 

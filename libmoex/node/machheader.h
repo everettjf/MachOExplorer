@@ -45,7 +45,7 @@ private:
     Magic magic_;
 
 private:
-    void Parse(void *offset,NodeContextPtr&ctx) {
+    void Parse(void *offset,NodeContextPtr& ctx) {
         int cur_datasize = 0;
         if(is64_){
             header_ = reinterpret_cast<mach_header*>(mh64_->data_ptr());
@@ -115,6 +115,14 @@ public:
     }
     NodeViewArray GetViews()override {
         return {};
+    }
+
+public:
+
+    void ForEachLoadCommand(std::function<void(LoadCommandPtr cmd)> func){
+        for(auto cmd : loadcmds_){
+            func(cmd);
+        }
     }
 
 };

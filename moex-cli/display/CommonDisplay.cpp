@@ -53,29 +53,44 @@ void CommonDisplay::HeaderList(){
     print_->SetWidths({10,15,14,10,10,10});
     print_->Begin();
 
-    std::vector<moex::MachHeaderPtr> headers;
-
-    if(bin_->IsFat()){
-        for(auto & arch : bin_->fath()->archs()){
-            headers.push_back(arch->mh());
-        }
-    }else{
-        headers.push_back(bin_->mh());
-    }
-
-    for(auto & header : headers){
+    bin_->ForEachHeader([&](moex::MachHeaderPtr header){
         mach_header *h = header->data_ptr();
         print_->AddRow({
-                ToString(h->magic),
-                moex::hp::GetCpuTypeString(h->cputype),
-                moex::hp::GetCpuSubTypeString(h->cpusubtype),
-                ToString(h->ncmds),
-                ToString(h->sizeofcmds),
-                ToString(h->flags),
-           });
-    }
+                               ToString(h->magic),
+                               moex::hp::GetCpuTypeString(h->cputype),
+                               moex::hp::GetCpuSubTypeString(h->cpusubtype),
+                               ToString(h->ncmds),
+                               ToString(h->sizeofcmds),
+                               ToString(h->flags),
+                       });
+    });
 
     print_->End();
+}
+
+void CommonDisplay::LoadCommandList(){
+
+    bin_->ForEachHeader([&](moex::MachHeaderPtr header){
+        std::string cputype = moex::hp::GetCpuTypeString(header->data_ptr()->cputype);
+
+        print_->SetHeaders({cputype + "/ cmd","cmdsize","cmdtype","description"});
+        print_->SetWidths({20,10,25,130});
+        print_->Begin();
+
+        header->ForEachLoadCommand([&](moex::LoadCommandPtr cmd){
+            print_->AddRow({
+                    ToString(cmd->offset()->cmd),
+                    ToString(cmd->offset()->cmdsize),
+                    cmd->GetTypeName(),
+                    cmd->GetDescription()
+                           });
+
+        });
+
+        print_->End();
+        cout << endl;
+    });
+
 }
 
 void CommonDisplay::SegmentList(){
