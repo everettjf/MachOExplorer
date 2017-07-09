@@ -30,17 +30,14 @@ public:
         return true;
     }
 
-    bool Exist(const char *option){
-        return vm_.count(option);
-    }
+    bool Exist(const char *option){ return vm_.count(option); }
+    bool Exist(const std::string &option){ return vm_.count(option); }
 
-    std::string GetString(const char *option){
-        return vm_[option].as<std::string>();
-    }
+    std::string GetString(const char *option){ return vm_[option].as<std::string>(); }
+    std::string GetString(const std::string &option){ return vm_[option].as<std::string>(); }
 
-    int GetInteger(const char *option){
-        return vm_[option].as<int>();
-    }
+    int GetInteger(const char *option){ return vm_[option].as<int>(); }
+    int GetInteger(const std::string &option){ return vm_[option].as<int>(); }
 
     void PrintHelp(){
         std::cout << "Usage:"<<std::endl;

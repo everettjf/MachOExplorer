@@ -27,6 +27,7 @@ public:
     void ArchList();
     void LoadCommandList();
     void SegmentList();
+    void SectionList();
     void SymbolList();
 
 private:

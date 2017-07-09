@@ -168,6 +168,14 @@ void CommonDisplay::SegmentList(){
 
     print_->End();
 }
+void CommonDisplay::SectionList(){
+    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
+    print_->SetWidths({10,15,14,10,10,10});
+    print_->Begin();
+
+
+    print_->End();
+}
 void CommonDisplay::SymbolList(){
     print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
     print_->SetWidths({10,15,14,10,10,10});

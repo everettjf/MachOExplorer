@@ -103,42 +103,24 @@ void AppHandler::GoDisplayMode(){
         display.set_arch(argv_->GetString("arch"));
     }
 
-    // Action
-    if(argv_->Exist("is_fat")){
-        display.IsFat();
-        return;
+    std::vector<std::tuple<std::string,std::function<void()>>> actions = {
+    {"is_fat",[&]{display.IsFat();}},
+    {"fat_list",[&]{display.FatList();}},
+    {"header_list",[&]{display.HeaderList();}},
+    {"arch_list",[&]{display.ArchList();}},
+    {"loadcommand_list",[&]{display.LoadCommandList();}},
+    {"segment_list",[&]{display.SegmentList();}},
+    {"section_list",[&]{display.SectionList();}},
+    {"symbol_list",[&]{display.SymbolList();}},
+    };
+
+    for(auto & action : actions){
+        std::string param = std::get<0>(action);
+        if(argv_->Exist(param.c_str())){
+            std::function<void()> func = std::get<1>(action);
+            func();
+            return;
+        }
     }
-
-    if(argv_->Exist("fat_list")){
-        display.FatList();
-        return;
-    }
-
-    if(argv_->Exist("header_list")){
-        display.HeaderList();
-        return;
-    }
-
-    if(argv_->Exist("arch_list")){
-        display.ArchList();
-        return;
-    }
-
-    if(argv_->Exist("loadcommand_list")){
-        display.LoadCommandList();
-        return;
-    }
-
-    if(argv_->Exist("segment_list")){
-        display.SegmentList();
-        return;
-    }
-
-    if(argv_->Exist("symbol_list")){
-        display.SymbolList();
-        return;
-    }
-
-
     cout << "Please specified valid options" <<endl;
 }
