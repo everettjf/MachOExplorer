@@ -22,6 +22,15 @@ bool CommonDisplay::Init(const std::string & filepath,bool is_csv){
     return true;
 }
 
+void CommonDisplay::ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback){
+    bin_->ForEachHeader([&](moex::MachHeaderPtr header) {
+        std::string arch = moex::hp::GetArchStringFromCpuType(header->data_ptr()->cputype);
+        if(!arch_.empty() && arch != arch_)
+            return;
+        callback(header);
+    });
+}
+
 void CommonDisplay::IsFat(){
     cout << (bin_->IsFat() ? "true" : "false") <<endl;
 }
@@ -68,12 +77,25 @@ void CommonDisplay::HeaderList(){
     print_->End();
 }
 
-void CommonDisplay::LoadCommandList(){
-
+void CommonDisplay::ArchList(){
+    print_->SetHeaders({"arch"});
+    print_->SetWidths({10});
+    print_->Begin();
     bin_->ForEachHeader([&](moex::MachHeaderPtr header){
-        std::string cputype = moex::hp::GetCpuTypeString(header->data_ptr()->cputype);
+        mach_header *h = header->data_ptr();
+        print_->AddRow({
+                        moex::hp::GetArchStringFromCpuType(h->cputype)
+                       });
 
-        print_->SetHeaders({cputype + "/ cmd","cmdsize","cmdtype","description"});
+    });
+    print_->End();
+}
+
+void CommonDisplay::LoadCommandList(){
+    ForEachHeader([&](moex::MachHeaderPtr header){
+        std::string arch = moex::hp::GetArchStringFromCpuType(header->data_ptr()->cputype);
+
+        print_->SetHeaders({arch + "/ cmd","cmdsize","cmdtype","description"});
         print_->SetWidths({20,10,25,130});
         print_->Begin();
 

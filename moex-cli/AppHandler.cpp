@@ -63,6 +63,9 @@ void AppHandler::SetupOptions(){
             ("file",boost::program_options::value<std::string>(),"[required] macho file path")
             ("csv","CSV format output")
 
+            // parameter
+            ("arch",boost::program_options::value<std::string>(),"arch filter")
+
             // display mode [default]
             ("is_fat","[display] is fat")
             ("fat_list","[display] fat list (less info than headerlist)")
@@ -71,6 +74,9 @@ void AppHandler::SetupOptions(){
 
             ("segment_list","[display] segment list")
             ("symbol_list","[display] symbol list")
+
+            // helper
+            ("arch_list","[display] arch list")
 
             // edit mode
             ("edit", "enter edit mode")
@@ -89,6 +95,12 @@ void AppHandler::GoDisplayMode(){
         return;
     }
 
+    // Param
+    if(argv_->Exist("arch")){
+        display.set_arch(argv_->GetString("arch"));
+    }
+
+    // Action
     if(argv_->Exist("is_fat")){
         display.IsFat();
         return;
@@ -101,6 +113,11 @@ void AppHandler::GoDisplayMode(){
 
     if(argv_->Exist("header_list")){
         display.HeaderList();
+        return;
+    }
+
+    if(argv_->Exist("arch_list")){
+        display.ArchList();
         return;
     }
 

@@ -24,10 +24,13 @@ public:
     void IsFat();
     void FatList();
     void HeaderList();
+    void ArchList();
     void LoadCommandList();
     void SegmentList();
     void SymbolList();
 
+private:
+    void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
 };
 
 

@@ -120,6 +120,30 @@ namespace hp {
         }
         return "unknown";
     }
+    std::string GetArchStringFromCpuType(cpu_type_t type){
+        static std::unordered_map<cpu_type_t,std::string> mapper{
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_ANY,any)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_VAX,vax)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_MC680x0,mc680x0)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_X86,x86)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_I386,i386)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_X86_64,x86_64)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_MC98000,mc98000)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_HPPA,hppa)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_ARM,arm)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_ARM64,arm64)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_MC88000,mc88000)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_SPARC,sparc)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_I860,i860)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_POWERPC,powerpc)
+                DECLARE_MAP_ITEM_VALUE(CPU_TYPE_POWERPC64,powerpc64)
+        };
+        try{
+            return mapper.at(type);
+        }catch(std::out_of_range&){
+        }
+        return "unknown";
+    }
 
     std::string GetCpuSubTypeString(cpu_subtype_t type){
         // todo

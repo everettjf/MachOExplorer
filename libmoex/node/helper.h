@@ -10,6 +10,7 @@
 MOEX_NAMESPACE_BEGIN
 
 #define DECLARE_MAP_ITEM(name) {name,#name},
+#define DECLARE_MAP_ITEM_VALUE(name,value) {name,#value},
 
 namespace hp {
 
@@ -17,6 +18,7 @@ std::string FormatUUIDArray(uint8_t d[16]);
 std::string GetLoadCommandType(uint32_t cmd);
 std::string GetMagicString(uint32_t magic);
 std::string GetCpuTypeString(cpu_type_t type);
+std::string GetArchStringFromCpuType(cpu_type_t type);
 std::string GetCpuSubTypeString(cpu_subtype_t type);
 std::string GetMachFileType(uint32_t type);
 std::string GetCmdTypeString(uint32_t cmd);
