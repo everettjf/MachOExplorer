@@ -32,8 +32,10 @@ protected:
 public:
     static constexpr std::size_t data_size_cmd = sizeof(T);
 
-    void init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommand::init(offset,ctx);
+    T *cmd(){return cmd_;}
+
+    void Init(void * offset,NodeContextPtr & ctx)override {
+        LoadCommand::Init(offset,ctx);
         cmd_ = reinterpret_cast<T*>(offset);
     }
 };

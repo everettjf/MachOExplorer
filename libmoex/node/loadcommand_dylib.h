@@ -17,8 +17,8 @@ private:
 public:
     const std::string & dylib_name()const{return dylib_name_;}
 
-    void init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommandImpl::init(offset,ctx);
+    void Init(void * offset,NodeContextPtr & ctx)override {
+        LoadCommandImpl::Init(offset,ctx);
 
         dylib_path_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
 

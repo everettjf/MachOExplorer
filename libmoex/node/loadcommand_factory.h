@@ -72,7 +72,7 @@ public:
     static LoadCommandPtr Create(void * offset,NodeContextPtr & ctx){
         load_command *lc = reinterpret_cast<load_command*>(offset);
         LoadCommandPtr cmd = LoadCommandFactory::GetCommand(lc->cmd);
-        cmd->init(offset,ctx);
+        cmd->Init(offset,ctx);
         return cmd;
     }
 };

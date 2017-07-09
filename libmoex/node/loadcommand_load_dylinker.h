@@ -15,8 +15,8 @@ private:
 public:
     const std::string & dylinker_path_name()const{return dylinker_path_name_;}
 
-    void init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommandImpl::init(offset,ctx);
+    void Init(void * offset,NodeContextPtr & ctx)override {
+        LoadCommandImpl::Init(offset,ctx);
 
         dylinker_path_name_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
     }

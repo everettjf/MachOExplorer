@@ -73,7 +73,10 @@ void AppHandler::SetupOptions(){
             ("loadcommand_list","[display] loadcommand list")
 
             ("segment_list","[display] segment list")
+            ("dylib_list","[display] dylib list")
             ("symbol_list","[display] symbol list")
+
+            ("section_list","[display] section list")
 
             // helper
             ("arch_list","[display] arch list")

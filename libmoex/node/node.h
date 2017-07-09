@@ -43,7 +43,7 @@ public:
 
     const T * offset()const{ return offset_;}
 
-    virtual void init(void *offset,NodeContextPtr &ctx) {
+    virtual void Init(void *offset,NodeContextPtr &ctx) {
         offset_ = static_cast<T*>(offset);
         ctx_ = ctx;
     }
@@ -63,8 +63,8 @@ public:
     const T & data()const { return data_;}
     T * data_ptr(){ return &data_;}
 
-    void init(void *offset,NodeContextPtr & ctx){
-        NodeOffset<T>::init(offset,ctx);
+    void Init(void *offset,NodeContextPtr & ctx){
+        NodeOffset<T>::Init(offset,ctx);
         memcpy(&data_,offset,NodeOffset<T>::DATA_SIZE());
     }
 

@@ -18,14 +18,14 @@ public:
 
     std::string segment_name()const{ return std::string(cmd_->segname,16).c_str();}
 
-    void init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommandImpl::init(offset,ctx);
+    void Init(void * offset,NodeContextPtr & ctx)override {
+        LoadCommandImpl::Init(offset,ctx);
 
         for(uint32_t idx = 0; idx < cmd_->nsects; ++idx){
             section * cur = reinterpret_cast<section*>((char*)offset_ + data_size_cmd + idx * sizeof(section));
 
             MachSectionPtr section = std::make_shared<MachSection>();
-            section->init(cur,ctx);
+            section->Init(cur,ctx);
             sections_.push_back(section);
         }
     }
@@ -55,14 +55,14 @@ public:
 
     std::string segment_name()const{ return std::string(cmd_->segname,16).c_str();}
 
-    void init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommandImpl::init(offset,ctx);
+    void Init(void * offset,NodeContextPtr & ctx)override {
+        LoadCommandImpl::Init(offset,ctx);
 
         for(uint32_t idx = 0; idx < cmd_->nsects; ++idx){
             section * cur = reinterpret_cast<section*>((char*)offset_ + data_size_cmd + idx * sizeof(section_64));
 
             MachSection64Ptr section = std::make_shared<MachSection64>();
-            section->init(cur,ctx);
+            section->Init(cur,ctx);
             sections_.push_back(section);
         }
     }

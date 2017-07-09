@@ -41,10 +41,10 @@ Binary::Binary(const std::string & filepath)
 
     if(magic_.IsFat()){
         fath_ = std::make_shared<FatHeader>();
-        fath_->init(memory_,context);
+        fath_->Init(memory_,context);
     }else{
         mh_ = std::make_shared<MachHeader>();
-        mh_->init(memory_,context);
+        mh_->Init(memory_,context);
     }
 }
 

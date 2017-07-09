@@ -5,6 +5,7 @@
 #include "CommonDisplay.h"
 #include <iostream>
 #include "../util/Utility.h"
+#include <libmoex/node/loadcommand_factory.h>
 
 using namespace std;
 
@@ -116,10 +117,54 @@ void CommonDisplay::LoadCommandList(){
 }
 
 void CommonDisplay::SegmentList(){
-    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
-    print_->SetWidths({10,15,14,10,10,10});
+    print_->SetHeaders({"cmd","cmdsize","segname","vmaddr","vmsize",
+                        "fileoff","filesize","maxprot","initprot","nsects",
+                        "flags","cmdtype"});
+    print_->SetWidths({10,10,20,15,15,
+                       10,10,10,10,10,
+                       10,20});
     print_->Begin();
+    ForEachHeader([&](moex::MachHeaderPtr header){
+        header->ForEachLoadCommand([&](moex::LoadCommandPtr cmd){
+            if(cmd->offset()->cmd == LC_SEGMENT) {
+                moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
+                print_->AddRow({
+                        ToString(seg->cmd()->cmd),
+                        ToString(seg->cmd()->cmdsize),
+                        seg->segment_name(),
+                        ToString(seg->cmd()->vmaddr),
+                        ToString(seg->cmd()->vmsize),
 
+                        ToString(seg->cmd()->fileoff),
+                        ToString(seg->cmd()->filesize),
+                        ToString(seg->cmd()->maxprot),
+                        ToString(seg->cmd()->initprot),
+                        ToString(seg->cmd()->nsects),
+
+                        ToString(seg->cmd()->flags),
+                        seg->GetTypeName(),
+                               });
+            }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
+                moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
+                print_->AddRow({
+                       ToString(seg->cmd()->cmd),
+                       ToString(seg->cmd()->cmdsize),
+                       seg->segment_name(),
+                       ToString(seg->cmd()->vmaddr),
+                       ToString(seg->cmd()->vmsize),
+
+                       ToString(seg->cmd()->fileoff),
+                       ToString(seg->cmd()->filesize),
+                       ToString(seg->cmd()->maxprot),
+                       ToString(seg->cmd()->initprot),
+                       ToString(seg->cmd()->nsects),
+
+                       ToString(seg->cmd()->flags),
+                       seg->GetTypeName(),
+                           });
+            }
+        });
+    });
 
     print_->End();
 }

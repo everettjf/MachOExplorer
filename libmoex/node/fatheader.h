@@ -20,7 +20,7 @@ public:
     void set_swap(bool swap){swap_ = swap;}
     MachHeaderPtr & mh(){return mh_;}
 
-    void init(void *offset,NodeContextPtr &ctx) override;
+    void Init(void *offset,NodeContextPtr &ctx) override;
 
     bool is64()const{ return mh_->is64(); }
 
@@ -36,7 +36,7 @@ class FatHeader : public NodeData<fat_header>{
 private:
     std::vector<FatArchPtr> archs_;
 public:
-    void init(void * offset, NodeContextPtr&ctx) override;
+    void Init(void * offset, NodeContextPtr&ctx) override;
 
     const std::vector<FatArchPtr> & archs()const { return archs_;}
 
