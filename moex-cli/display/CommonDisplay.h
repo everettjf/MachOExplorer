@@ -12,8 +12,13 @@ class CommonDisplay {
 private:
     moex::BinaryPtr bin_;
     std::shared_ptr<BeautyTextPrinter> print_;
+
+    std::string arch_;
 public:
     bool Init(const std::string & filepath,bool is_csv);
+
+    // Default to all archs if not given
+    void set_arch(const std::string & arch){arch_ = arch;}
 
     // Display
     void IsFat();
