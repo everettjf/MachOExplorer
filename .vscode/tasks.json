@@ -2,8 +2,17 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "0.1.0",
-    "command": "echo",
-    "isShellCommand": true,
-    "args": ["Hello World"],
-    "showOutput": "always"
+    "tasks": [
+        {
+            "taskName": "todo",
+            "command": "todo",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "suppressTaskName": true,
+            "echoCommand": true,
+            "args": [
+                "todo"
+            ]
+        }
+    ]
 }

@@ -1,7 +1,15 @@
 .DS_Store
+
+# Clion
 .idea/
 cmake-build-debug/
 cmake-build-release/
+
+# Qt Creator
 build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Debug/
 build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Release/
 build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Profile/
+
+# vscode cmake-tools extension
+build/
+.vscode/.cmaketools.json
