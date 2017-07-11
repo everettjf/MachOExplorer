@@ -7,7 +7,6 @@
 
 #include "common.h"
 #include "helper.h"
-#include "nodeview.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -30,7 +29,6 @@ public:
     virtual std::string GetDisplayName() = 0;
     virtual std::string GetDescription() = 0;
     virtual void ForEachChild(std::function<void(Node*)>) = 0;
-    virtual NodeViewArray GetViews() = 0;
 };
 
 template <typename T>
@@ -52,7 +50,6 @@ public:
     std::string GetDisplayName() override{ return "unknown";}
     std::string GetDescription() override{ return "empty";}
     void ForEachChild(std::function<void(Node*)>) override{}
-    NodeViewArray GetViews() override{ return { std::make_shared<AddressNodeView>(offset_,DATA_SIZE())};}
 };
 
 template <typename T>

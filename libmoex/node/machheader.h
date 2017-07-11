@@ -49,6 +49,7 @@ private:
 public:
     bool is64()const{return is64_;}
     mach_header * data_ptr(){return header_;}
+    std::vector<LoadCommandPtr> &loadcmds_ref(){return loadcmds_;}
 
     void Init(void *offset,NodeContextPtr&ctx);
 
@@ -75,18 +76,6 @@ public:
             func(cmd.get());
         }
     }
-    NodeViewArray GetViews()override {
-        return {};
-    }
-
-public:
-
-    void ForEachLoadCommand(std::function<void(LoadCommandPtr cmd)> func){
-        for(auto cmd : loadcmds_){
-            func(cmd);
-        }
-    }
-
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

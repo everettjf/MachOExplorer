@@ -73,20 +73,4 @@ void FatHeader::ForEachChild(std::function<void (Node *)> func){
     }
 }
 
-NodeViewArray FatHeader::GetViews()
-{
-    TableNodeViewPtr view = std::make_shared<TableNodeView>();
-    view->SetHeaders({"Offset","Data","Member","Value"});
-    view->SetTable({
-                       {hp::AsAddress(&(offset_->magic)),hp::AsData(&(offset_->magic)),"magic",hp::AsValue(offset_->magic)},
-                       {hp::AsAddress(&(offset_->nfat_arch)),hp::AsData(&(offset_->nfat_arch)),"magic",hp::AsValue(offset_->nfat_arch)},
-    });
-
-    return {
-        view,
-        std::make_shared<AddressNodeView>(offset_,DATA_SIZE())
-    };
-}
-
-
 MOEX_NAMESPACE_END

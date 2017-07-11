@@ -100,15 +100,14 @@ void CommonDisplay::LoadCommandList(){
         print_->SetWidths({20,10,25,130});
         print_->Begin();
 
-        header->ForEachLoadCommand([&](moex::LoadCommandPtr cmd){
+        for(auto cmd : header->loadcmds_ref()){
             print_->AddRow({
                     ToString(cmd->offset()->cmd),
                     ToString(cmd->offset()->cmdsize),
                     cmd->GetTypeName(),
                     cmd->GetDescription()
                            });
-
-        });
+        }
 
         print_->End();
         cout << endl;
@@ -125,7 +124,7 @@ void CommonDisplay::SegmentList(){
                        10,20});
     print_->Begin();
     ForEachHeader([&](moex::MachHeaderPtr header){
-        header->ForEachLoadCommand([&](moex::LoadCommandPtr cmd){
+        for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SEGMENT) {
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
                 print_->AddRow({
@@ -163,16 +162,52 @@ void CommonDisplay::SegmentList(){
                        seg->GetTypeName(),
                            });
             }
-        });
+        }
     });
 
     print_->End();
 }
 void CommonDisplay::SectionList(){
-    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
-    print_->SetWidths({10,15,14,10,10,10});
+    print_->SetHeaders({"section","segment","addr","size","offset",
+                        "align","reloff","nreloc","flags"});
+    print_->SetWidths({20,15,10,10,10,
+                       10,10,10,10});
     print_->Begin();
-
+    ForEachHeader([&](moex::MachHeaderPtr header){
+        for(auto cmd : header->loadcmds_ref()){
+            if(cmd->offset()->cmd == LC_SEGMENT) {
+                moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
+                for(auto sect : seg->sections_ref()){
+                    print_->AddRow({
+                            sect->section_name(),
+                            sect->segment_name(),
+                            ToString(sect->offset()->addr),
+                            ToString(sect->offset()->size),
+                            ToString(sect->offset()->offset),
+                            ToString(sect->offset()->align),
+                            ToString(sect->offset()->reloff),
+                            ToString(sect->offset()->nreloc),
+                            ToString(sect->offset()->flags),
+                                   });
+                }
+            }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
+                moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
+                for(auto sect : seg->sections_ref()){
+                    print_->AddRow({
+                                           sect->section_name(),
+                                           sect->segment_name(),
+                                           ToString(sect->offset()->addr),
+                                           ToString(sect->offset()->size),
+                                           ToString(sect->offset()->offset),
+                                           ToString(sect->offset()->align),
+                                           ToString(sect->offset()->reloff),
+                                           ToString(sect->offset()->nreloc),
+                                           ToString(sect->offset()->flags),
+                                   });
+                }
+            }
+        }
+    });
 
     print_->End();
 }

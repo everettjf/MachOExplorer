@@ -44,7 +44,6 @@ public:
     std::string GetDisplayName() override{ return "fat_header";}
     std::string GetDescription() override;
     void ForEachChild(std::function<void(Node*)> func) override;
-    NodeViewArray GetViews() override;
 };
 using FatHeaderPtr = std::shared_ptr<FatHeader>;
 
