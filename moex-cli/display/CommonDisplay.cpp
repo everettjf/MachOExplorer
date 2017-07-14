@@ -94,9 +94,7 @@ void CommonDisplay::ArchList(){
 
 void CommonDisplay::LoadCommandList(){
     ForEachHeader([&](moex::MachHeaderPtr header){
-        std::string arch = moex::hp::GetArchStringFromCpuType(header->data_ptr()->cputype);
-
-        print_->SetHeaders({arch + "/ cmd","cmdsize","cmdtype","description"});
+        print_->SetHeaders({header->GetArch() + "/ cmd","cmdsize","cmdtype","description"});
         print_->SetWidths({20,10,25,130});
         print_->Begin();
 
@@ -116,14 +114,15 @@ void CommonDisplay::LoadCommandList(){
 }
 
 void CommonDisplay::SegmentList(){
-    print_->SetHeaders({"cmd","cmdsize","segname","vmaddr","vmsize",
-                        "fileoff","filesize","maxprot","initprot","nsects",
-                        "flags","cmdtype"});
-    print_->SetWidths({10,10,20,15,15,
-                       10,10,10,10,10,
-                       10,20});
-    print_->Begin();
     ForEachHeader([&](moex::MachHeaderPtr header){
+        print_->SetHeaders({header->GetArch() + " / cmd","cmdsize","segname","vmaddr","vmsize",
+                            "fileoff","filesize","maxprot","initprot","nsects",
+                            "flags","cmdtype"});
+        print_->SetWidths({10,10,20,15,15,
+                           10,10,10,10,10,
+                           10,20});
+        print_->Begin();
+
         for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SEGMENT) {
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
@@ -163,17 +162,18 @@ void CommonDisplay::SegmentList(){
                            });
             }
         }
+        print_->End();
     });
 
-    print_->End();
 }
 void CommonDisplay::SectionList(){
-    print_->SetHeaders({"section","segment","addr","size","offset",
-                        "align","reloff","nreloc","flags"});
-    print_->SetWidths({20,15,10,10,10,
-                       10,10,10,10});
-    print_->Begin();
     ForEachHeader([&](moex::MachHeaderPtr header){
+        print_->SetHeaders({header->GetArch() + " / section","segment","addr","size","offset",
+                            "align","reloff","nreloc","flags"});
+        print_->SetWidths({20,15,10,10,10,
+                           10,10,10,10});
+        print_->Begin();
+
         for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SEGMENT) {
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
@@ -207,9 +207,9 @@ void CommonDisplay::SectionList(){
                 }
             }
         }
+        print_->End();
     });
 
-    print_->End();
 }
 void CommonDisplay::SymbolList(){
     print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});

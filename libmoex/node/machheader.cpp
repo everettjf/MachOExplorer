@@ -50,5 +50,8 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
     }
 }
 
+std::string MachHeader::GetArch(){
+    return hp::GetArchStringFromCpuType(this->data_ptr()->cputype);
+}
 
 MOEX_NAMESPACE_END

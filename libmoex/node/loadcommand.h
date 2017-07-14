@@ -17,6 +17,8 @@ protected:
 public:
     void set_header(MachHeader* header){header_ = header;}
 
+    bool is64();
+
     std::string GetTypeName() override{ return "load_command";}
     std::string GetDisplayName() override{
         return boost::str(boost::format("load_command(type=%1%)") % offset_->cmd );

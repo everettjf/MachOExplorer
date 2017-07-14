@@ -18,8 +18,13 @@
 #include "loadcommand_main.h"
 #include "loadcommand_encryption_info.h"
 #include "loadcommand_linkedit_data.h"
+#include "machheader.h"
 
 MOEX_NAMESPACE_BEGIN
+
+bool LoadCommand::is64() {
+    return header_->is64();
+}
 
 #define DECLARE_LOAD_COMMAND_CASE_STATEMENT_CLASS(commandtag,classtag) \
 case commandtag: return std::make_shared<LoadCommand_##classtag>();

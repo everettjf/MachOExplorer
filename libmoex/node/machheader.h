@@ -76,6 +76,8 @@ public:
             func(cmd.get());
         }
     }
+
+    std::string GetArch();
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 
