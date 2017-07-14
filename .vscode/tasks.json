@@ -2,16 +2,32 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "0.1.0",
+    "command": "${workspaceRoot}/build/moex-cli",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "suppressTaskName": true,
+    "echoCommand": true,
+    "args": [
+        "--file",
+        "/Applications/SizeOptDemo"
+    ],
     "tasks": [
         {
-            "taskName": "todo",
-            "command": "todo",
-            "isShellCommand": true,
-            "showOutput": "always",
-            "suppressTaskName": true,
-            "echoCommand": true,
+            "taskName": "arch-list",
             "args": [
-                "todo"
+                "--arch_list"
+            ]
+        },
+        {
+            "taskName": "section-list",
+            "args": [
+                "--section_list"
+            ]
+        },
+        {
+            "taskName": "help",
+            "args": [
+                "--help"
             ]
         }
     ]
