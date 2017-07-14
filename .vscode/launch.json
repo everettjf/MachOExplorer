@@ -7,6 +7,9 @@
             "request": "launch",
             "program": "${workspaceRoot}/build/moex-cli",
             "args": [
+                "--file",
+                "/Applications/SizeOptDemo",
+                "--section_list"
                 ],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}/build",
