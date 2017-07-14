@@ -11,11 +11,11 @@
 MOEX_NAMESPACE_BEGIN
 
 
-class NList : public NodeOffset<nlist>{
+class NList : public NodeOffset<struct nlist>{
 public:
 
 };
-using NListPtr = std::shared_ptr<NList>;
+using NListPtr = std::shared_ptr<struct NList>;
 
 class NList64 : public NodeOffset<nlist_64>{
 public:

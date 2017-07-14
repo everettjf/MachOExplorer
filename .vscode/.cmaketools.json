@@ -1,5 +1,102 @@
 {
-  "variant": null,
+  "variant": {
+    "label": "Debug",
+    "keywordSettings": {
+      "buildType": "debug"
+    },
+    "description": "Emit debug information without performing optimizations"
+  },
   "activeEnvironments": [],
-  "codeModel": null
+  "codeModel": {
+    "configurations": [
+      {
+        "name": "Debug",
+        "projects": [
+          {
+            "buildDirectory": "/Users/qiwei/github/MOEX/build",
+            "name": "moex",
+            "sourceDirectory": "/Users/qiwei/github/MOEX",
+            "targets": [
+              {
+                "artifacts": [
+                  "/Users/qiwei/github/MOEX/build/moex-cli"
+                ],
+                "buildDirectory": "/Users/qiwei/github/MOEX/build",
+                "fileGroups": [
+                  {
+                    "isGenerated": false,
+                    "sources": [
+                      "libmoex/binary.h",
+                      "libmoex/moex.h",
+                      "libmoex/node/common.h",
+                      "libmoex/node/fatheader.h",
+                      "libmoex/node/helper.h",
+                      "libmoex/node/loadcommand.h",
+                      "libmoex/node/loadcommand_dyld_info.h",
+                      "libmoex/node/loadcommand_dylib.h",
+                      "libmoex/node/loadcommand_dysymtab.h",
+                      "libmoex/node/loadcommand_encryption_info.h",
+                      "libmoex/node/loadcommand_linkedit_data.h",
+                      "libmoex/node/loadcommand_load_dylinker.h",
+                      "libmoex/node/loadcommand_main.h",
+                      "libmoex/node/loadcommand_segment.h",
+                      "libmoex/node/loadcommand_source_version.h",
+                      "libmoex/node/loadcommand_symtab.h",
+                      "libmoex/node/loadcommand_uuid.h",
+                      "libmoex/node/loadcommand_version_min.h",
+                      "libmoex/node/machheader.h",
+                      "libmoex/node/machsection.h",
+                      "libmoex/node/magic.h",
+                      "libmoex/node/node.h",
+                      "libmoex/util/singleton.h",
+                      "moex-cli/AppHandler.h",
+                      "moex-cli/display/CommonDisplay.h",
+                      "moex-cli/util/ArgvParser.h",
+                      "moex-cli/util/BeautyTextPrint.h",
+                      "moex-cli/util/Utility.h"
+                    ]
+                  },
+                  {
+                    "compileFlags": "-g   -std=gnu++11",
+                    "includePath": [
+                      {
+                        "path": "/Users/qiwei/github/MOEX/."
+                      },
+                      {
+                        "path": "/usr/local/include"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "CXX",
+                    "sources": [
+                      "libmoex/binary.cpp",
+                      "libmoex/node/fatheader.cpp",
+                      "libmoex/node/helper.cpp",
+                      "libmoex/node/loadcommand.cpp",
+                      "libmoex/node/machheader.cpp",
+                      "libmoex/node/machsection.cpp",
+                      "libmoex/util/singleton.cpp",
+                      "moex-cli/AppHandler.cpp",
+                      "moex-cli/display/CommonDisplay.cpp",
+                      "moex-cli/moex-cli.cpp"
+                    ]
+                  }
+                ],
+                "fullName": "moex-cli",
+                "linkLanguageFlags": "-g",
+                "linkLibraries": "/usr/local/lib/libboost_program_options-mt.a /usr/local/lib/libboost_filesystem-mt.a /usr/local/lib/libboost_system-mt.a",
+                "linkerLanguage": "CXX",
+                "name": "moex-cli",
+                "sourceDirectory": "/Users/qiwei/github/MOEX",
+                "type": "EXECUTABLE"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "cookie": "0.7018049808824689",
+    "inReplyTo": "codemodel",
+    "type": "reply"
+  }
 }
