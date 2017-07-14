@@ -15,9 +15,9 @@ class NList : public NodeOffset<struct nlist>{
 public:
 
 };
-using NListPtr = std::shared_ptr<struct NList>;
+using NListPtr = std::shared_ptr<NList>;
 
-class NList64 : public NodeOffset<nlist_64>{
+class NList64 : public NodeOffset<struct nlist_64>{
 public:
 
 };
@@ -28,12 +28,7 @@ private:
     std::vector<NListPtr> nlists_;
     std::vector<NList64Ptr> nlist64s_;
 private:
-    void LazyInit(){
-        static std::once_flag f;
-        std::call_once(f,[&]{
-
-        });
-    }
+    void LazyInit();
 public:
     std::vector<NListPtr> & nlists_ref(){
         LazyInit();
@@ -43,6 +38,20 @@ public:
     std::vector<NList64Ptr> nlist64s_ref(){
         LazyInit();
         return nlist64s_;
+    }
+    
+    void * GetSymbolTableOffset(){
+        return (char*)(ctx_->file_start) + cmd_->symoff;
+    }
+    uint32_t GetSymbolTableSize(){
+        return cmd_->nsyms;
+    }
+
+    void * GetStringTableOffset(){
+        return (char*)(ctx_->file_start) + cmd_->stroff;
+    }
+    uint32_t GetStringTableSize(){
+        return cmd_->strsize;
     }
 
 public:
