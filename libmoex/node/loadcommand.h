@@ -9,8 +9,14 @@
 
 MOEX_NAMESPACE_BEGIN
 
+class MachHeader;
+
 class LoadCommand : public NodeOffset<load_command>{
+protected:
+    MachHeader* header_;
 public:
+    void set_header(MachHeader* header){header_ = header;}
+
     std::string GetTypeName() override{ return "load_command";}
     std::string GetDisplayName() override{
         return boost::str(boost::format("load_command(type=%1%)") % offset_->cmd );
@@ -41,6 +47,11 @@ public:
 };
 
 
+class LoadCommandFactory {
+public:
+    static LoadCommandPtr GetCommand(uint32_t cmd);
+    static LoadCommandPtr Create(void * offset,NodeContextPtr & ctx,MachHeader *header);
+};
 
 MOEX_NAMESPACE_END
 

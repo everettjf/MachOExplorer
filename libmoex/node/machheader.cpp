@@ -42,7 +42,7 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
     load_command *cur_cmd = first_cmd;
     for(uint32_t index = 0; index < cmd_count; ++index){
         // current
-        LoadCommandPtr cmd = LoadCommandFactory::Create(cur_cmd,ctx);
+        LoadCommandPtr cmd = LoadCommandFactory::Create(cur_cmd,ctx,this);
         loadcmds_.push_back(cmd);
 
         // next

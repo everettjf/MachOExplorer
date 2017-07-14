@@ -6,7 +6,7 @@
 #define MACHHEADER_H
 
 #include "node.h"
-#include "loadcommand_factory.h"
+#include "loadcommand.h"
 #include "magic.h"
 
 MOEX_NAMESPACE_BEGIN

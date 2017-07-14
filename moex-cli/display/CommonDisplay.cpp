@@ -5,7 +5,7 @@
 #include "CommonDisplay.h"
 #include <iostream>
 #include "../util/Utility.h"
-#include <libmoex/node/loadcommand_factory.h>
+#include <libmoex/node/loadcommand.h>
 
 using namespace std;
 
