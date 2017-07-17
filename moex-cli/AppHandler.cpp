@@ -112,6 +112,7 @@ void AppHandler::GoDisplayMode(){
     {"segment_list",[&]{display.SegmentList();}},
     {"section_list",[&]{display.SectionList();}},
     {"symbol_list",[&]{display.SymbolList();}},
+    {"string_table",[&]{display.SymbolList();}},
     };
 
     for(auto & action : actions){

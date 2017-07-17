@@ -29,6 +29,7 @@ public:
     void SegmentList();
     void SectionList();
     void SymbolList();
+    void StringTable();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);

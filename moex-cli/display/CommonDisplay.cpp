@@ -235,3 +235,18 @@ void CommonDisplay::SymbolList(){
         print_->End();
     });
 }
+void CommonDisplay::StringTable(){
+    ForEachHeader([&](moex::MachHeaderPtr header){
+        print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc","value"});
+        print_->SetWidths({20,15,10,10,20});
+        print_->Begin();
+
+        for(auto cmd : header->loadcmds_ref()){
+            if(cmd->offset()->cmd == LC_SYMTAB) {
+                moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
+                // todo
+            }
+        }
+        print_->End();
+    });
+}

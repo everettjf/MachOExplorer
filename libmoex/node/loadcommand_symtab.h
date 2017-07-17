@@ -82,6 +82,7 @@ using NListPtr = std::shared_ptr<NList>;
 class LoadCommand_LC_SYMTAB : public LoadCommandImpl<symtab_command>{
 private:
     std::vector<NListPtr> nlists_;
+    std::vector<std::string> strings_;
     bool inited_ = false;
 private:
     void LazyInit();
