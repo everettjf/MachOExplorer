@@ -177,7 +177,7 @@ void CommonDisplay::SectionList(){
         for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SEGMENT) {
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
-                for(auto sect : seg->sections_ref()){
+                for(auto & sect : seg->sections_ref()){
                     print_->AddRow({
                             sect->section_name(),
                             sect->segment_name(),
@@ -192,7 +192,7 @@ void CommonDisplay::SectionList(){
                 }
             }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
                 moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
-                for(auto sect : seg->sections_ref()){
+                for(auto & sect : seg->sections_ref()){
                     print_->AddRow({
                                            sect->section_name(),
                                            sect->segment_name(),
@@ -213,8 +213,8 @@ void CommonDisplay::SectionList(){
 }
 void CommonDisplay::SymbolList(){
     ForEachHeader([&](moex::MachHeaderPtr header){
-        print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc"});
-        print_->SetWidths({20,15,10,10});
+        print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc","value"});
+        print_->SetWidths({20,15,10,10,10});
         print_->Begin();
 
         for(auto cmd : header->loadcmds_ref()){
@@ -226,7 +226,8 @@ void CommonDisplay::SymbolList(){
                             ToString(item->offset()->n_un.n_strx),
                             ToString(item->offset()->n_type),
                             ToString(item->offset()->n_sect),
-                            ToString(item->offset()->n_desc)
+                            ToString(item->offset()->n_desc),
+                            ToString(item->offset()->n_value)
                         });
                     }
                 }else{
@@ -235,7 +236,8 @@ void CommonDisplay::SymbolList(){
                             ToString(item->offset()->n_un.n_strx),
                             ToString(item->offset()->n_type),
                             ToString(item->offset()->n_sect),
-                            ToString(item->offset()->n_desc)
+                            ToString(item->offset()->n_desc),
+                            ToString(item->offset()->n_value)
                         });
                     }
                 }
