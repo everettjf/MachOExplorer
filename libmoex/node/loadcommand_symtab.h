@@ -5,28 +5,83 @@
 #ifndef MACHOEXPLORER_LOADCOMMAND_SYMTAB_H
 #define MACHOEXPLORER_LOADCOMMAND_SYMTAB_H
 
+#include <mach-o/nlist.h>
 #include "loadcommand.h"
 #include "common.h"
 
 MOEX_NAMESPACE_BEGIN
 
 
-class NList : public NodeOffset<struct nlist>{
+class NListInternal : public NodeOffset<struct nlist>{
+};
+
+class NList64Internal : public NodeOffset<struct nlist_64>{
+};
+
+class NList : public Node{
+private:
+    bool is64_;
+    std::shared_ptr<NListInternal> nlist_;
+    std::shared_ptr<NList64Internal> nlist64_;
 public:
 
+    void Init(void *offset,NodeContextPtr &ctx,bool is64){
+        is64_ = is64;
+        if(is64_){
+            nlist64_ = std::make_shared<NList64Internal>();
+            nlist64_->Init(offset,ctx);
+        }else{
+            nlist_ = std::make_shared<NListInternal>();
+            nlist_->Init(offset,ctx);
+        }
+    }
+
+    bool is64(){return is64_;}
+    uint32_t n_strx(){
+        return is64_?
+               nlist64_->offset()->n_un.n_strx :
+               nlist_->offset()->n_un.n_strx ;
+    }
+    uint8_t n_type(){
+        return is64_?
+               nlist64_->offset()->n_type :
+               nlist_->offset()->n_type ;
+    }
+
+    uint8_t n_sect(){
+        return is64_?
+               nlist64_->offset()->n_sect :
+               nlist_->offset()->n_sect ;
+    }
+    int16_t n_desc(){
+        return is64_?
+               nlist64_->offset()->n_desc :
+               nlist_->offset()->n_desc ;
+    }
+    uint32_t n_value(){
+        return nlist_->offset()->n_value;
+    }
+    uint64_t n_value64(){
+        return nlist64_->offset()->n_value;
+    }
+
+    std::string GetTypeName() override {
+        return is64_?"nlist":"nlist_64";
+    }
+    std::string GetDisplayName() override {
+        return is64_?"nlist":"nlist_64";
+    }
+    std::string GetDescription() override{
+        return "";// todo
+    }
+    void ForEachChild(std::function<void(Node*)> func) override{
+    }
 };
 using NListPtr = std::shared_ptr<NList>;
-
-class NList64 : public NodeOffset<struct nlist_64>{
-public:
-
-};
-using NList64Ptr = std::shared_ptr<NList64>;
 
 class LoadCommand_LC_SYMTAB : public LoadCommandImpl<symtab_command>{
 private:
     std::vector<NListPtr> nlists_;
-    std::vector<NList64Ptr> nlist64s_;
     bool inited_ = false;
 private:
     void LazyInit();
@@ -36,11 +91,6 @@ public:
         return nlists_;
     }
 
-    std::vector<NList64Ptr> & nlist64s_ref(){
-        LazyInit();
-        return nlist64s_;
-    }
-    
     void * GetSymbolTableOffset(){
         return (char*)(ctx_->file_start) + cmd_->symoff;
     }
