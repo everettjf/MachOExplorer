@@ -3,7 +3,8 @@
         {
             "name": "null",
             "includePath": [
-                "/usr/include/"
+                "/usr/include/",
+                "/usr/local/include/"
             ],
             "defines": [],
             "browse": {
