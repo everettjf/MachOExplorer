@@ -214,13 +214,14 @@ void CommonDisplay::SectionList(){
 void CommonDisplay::SymbolList(){
     ForEachHeader([&](moex::MachHeaderPtr header){
         print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc","value"});
-        print_->SetWidths({20,15,10,10,10});
+        print_->SetWidths({20,15,10,10,20});
         print_->Begin();
 
-        for(auto cmd : header->loadcmds_ref()){
-            if(cmd->offset()->cmd == LC_SYMTAB) {
-                moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
-                if(seg->is64()){
+        if(header->is64()){
+            for(auto cmd : header->loadcmds_ref()){
+                if(cmd->offset()->cmd == LC_SYMTAB) {
+                    moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
+
                     for(auto & item : seg->nlist64s_ref()){
                         print_->AddRow({
                             ToString(item->offset()->n_un.n_strx),
@@ -230,7 +231,13 @@ void CommonDisplay::SymbolList(){
                             ToString(item->offset()->n_value)
                         });
                     }
-                }else{
+                }
+            }
+
+        }else{
+            for(auto cmd : header->loadcmds_ref()){
+                if(cmd->offset()->cmd == LC_SYMTAB) {
+                    moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
                     for(auto & item : seg->nlists_ref()){
                         print_->AddRow({
                             ToString(item->offset()->n_un.n_strx),

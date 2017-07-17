@@ -27,6 +27,7 @@ class LoadCommand_LC_SYMTAB : public LoadCommandImpl<symtab_command>{
 private:
     std::vector<NListPtr> nlists_;
     std::vector<NList64Ptr> nlist64s_;
+    bool inited_ = false;
 private:
     void LazyInit();
 public:

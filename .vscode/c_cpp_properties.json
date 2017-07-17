@@ -2,7 +2,10 @@
     "configurations": [
         {
             "name": "null",
-            "includePath": [],
+            "includePath": [
+                "usr/include",
+                "usr/local/include"
+            ],
             "defines": [],
             "browse": {
                 "path": [],
