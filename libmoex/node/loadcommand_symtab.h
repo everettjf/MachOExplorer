@@ -35,7 +35,7 @@ public:
         return nlists_;
     }
 
-    std::vector<NList64Ptr> nlist64s_ref(){
+    std::vector<NList64Ptr> & nlist64s_ref(){
         LazyInit();
         return nlist64s_;
     }
