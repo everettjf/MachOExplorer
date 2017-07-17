@@ -13,15 +13,21 @@
     ],
     "tasks": [
         {
-            "taskName": "arch-list",
+            "taskName": "arch list",
             "args": [
                 "--arch_list"
             ]
         },
         {
-            "taskName": "section-list",
+            "taskName": "section list",
             "args": [
                 "--section_list"
+            ]
+        },
+        {
+            "taskName": "symbol list",
+            "args": [
+                "--symbol_list"
             ]
         },
         {

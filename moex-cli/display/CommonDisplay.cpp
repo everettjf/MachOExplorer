@@ -212,10 +212,35 @@ void CommonDisplay::SectionList(){
 
 }
 void CommonDisplay::SymbolList(){
-    print_->SetHeaders({"magic","cputype","cpusubtype","ncmds","sizeofcmds","flags"});
-    print_->SetWidths({10,15,14,10,10,10});
-    print_->Begin();
+    ForEachHeader([&](moex::MachHeaderPtr header){
+        print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc"});
+        print_->SetWidths({20,15,10,10});
+        print_->Begin();
 
-
-    print_->End();
+        for(auto cmd : header->loadcmds_ref()){
+            if(cmd->offset()->cmd == LC_SYMTAB) {
+                moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
+                if(seg->is64()){
+                    for(auto & item : seg->nlist64s_ref()){
+                        print_->AddRow({
+                            ToString(item->offset()->n_un.n_strx),
+                            ToString(item->offset()->n_type),
+                            ToString(item->offset()->n_sect),
+                            ToString(item->offset()->n_desc)
+                        });
+                    }
+                }else{
+                    for(auto & item : seg->nlists_ref()){
+                        print_->AddRow({
+                            ToString(item->offset()->n_un.n_strx),
+                            ToString(item->offset()->n_type),
+                            ToString(item->offset()->n_sect),
+                            ToString(item->offset()->n_desc)
+                        });
+                    }
+                }
+            }
+        }
+        print_->End();
+    });
 }
