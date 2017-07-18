@@ -110,7 +110,7 @@ public:
     }
     uint32_t GetStringTableSize(){
         return cmd_->strsize;
-    }
+}
 
 public:
     std::string GetTypeName() override{ return "symtab_command";}

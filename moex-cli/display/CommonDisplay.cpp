@@ -262,14 +262,13 @@ void CommonDisplay::StringTable(){
                         ++cur;
                         continue;
                     }
-                    int len = strlen(cur);
-                    std::string name(cur,len);
+                    std::string name(cur);
                     print_->AddRow({
                         ToString(lineno),
                         name
                     });
 
-                    cur += len;
+                    cur += name.length();
                     ++lineno;
                 }
 
