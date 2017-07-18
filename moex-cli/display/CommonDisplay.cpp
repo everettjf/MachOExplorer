@@ -215,7 +215,7 @@ void CommonDisplay::SectionList(){
 void CommonDisplay::SymbolList(){
     ForEachHeader([&](moex::MachHeaderPtr header){
         print_->SetHeaders({header->GetArch() + " / strx","type","sect","desc","value"});
-        print_->SetWidths({20,15,10,10,20});
+        print_->SetWidths({50,15,10,10,20});
         print_->Begin();
 
         for(auto cmd : header->loadcmds_ref()){
@@ -223,7 +223,7 @@ void CommonDisplay::SymbolList(){
                 moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
                 for(auto & item : seg->nlists_ref()){
                     print_->AddRow({
-                        ToString(item->n_strx()),
+                        seg->GetStringByStrX(item->n_strx()),
 //                        ToString(item->n_type()),
 //                        ToString(item->n_sect()),
                         "","",

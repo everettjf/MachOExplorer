@@ -110,7 +110,13 @@ public:
     }
     uint32_t GetStringTableSize(){
         return cmd_->strsize;
-}
+    }
+
+    std::string GetStringByStrX(uint32_t strx){
+        char * stroffset = (char*)GetStringTableOffsetAddress();
+        std::string name(stroffset + strx);
+        return name;
+    }
 
 public:
     std::string GetTypeName() override{ return "symtab_command";}
