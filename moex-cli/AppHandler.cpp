@@ -73,12 +73,14 @@ void AppHandler::SetupOptions(){
             ("loadcommand_list","[display] loadcommand list")
 
             ("segment_list","[display] segment list")
-            ("dylib_list","[display] dylib list")
+            ("section_list","[display] section list")
+
             ("symbol_list","[display] symbol list")
             ("string_table","[display] string table")
             ("crypt_info","[display] encryption info")
+            ("uuid","[display] uuid")
 
-            ("section_list","[display] section list")
+            ("dylib_list","[display] dylib list")
 
             // helper
             ("arch_list","[display] arch list")
@@ -116,6 +118,8 @@ void AppHandler::GoDisplayMode(){
     {"symbol_list",[&]{display.SymbolList();}},
     {"string_table",[&]{display.StringTable();}},
     {"crypt_info",[&]{display.CryptInfo();}},
+    {"uuid",[&]{display.UUID();}},
+    {"dylib_list",[&]{display.DylibList();}},
     };
 
     for(auto & action : actions){

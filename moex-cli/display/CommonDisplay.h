@@ -31,6 +31,8 @@ public:
     void SymbolList();
     void StringTable();
     void CryptInfo();
+    void UUID();
+    void DylibList();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);

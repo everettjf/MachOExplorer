@@ -21,6 +21,10 @@ public:
                           % hp::FormatUUIDArray(cmd_->uuid)
         );
     }
+
+    std::string GetUUIDString(){
+        return hp::FormatUUIDArray(cmd_->uuid);
+    }
 };
 
 

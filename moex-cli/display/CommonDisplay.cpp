@@ -306,4 +306,33 @@ void CommonDisplay::CryptInfo(){
     });
 }
 
+void CommonDisplay::UUID(){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+            if (cmd->offset()->cmd == LC_UUID) {
+                moex::LoadCommand_LC_UUID *one = static_cast<moex::LoadCommand_LC_UUID*>(cmd.get());
 
+                print_->SetHeaders({
+                                           header->GetArch() + " / uuid",
+                                   });
+                print_->SetWidths({50});
+                print_->Begin();
+
+                print_->AddRow({
+                        one->GetUUIDString()
+                });
+
+                print_->End();
+            }
+        }
+    });
+}
+
+void CommonDisplay::DylibList(){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+//            if (cmd->offset()->cmd == LC_UUID) {
+//            }
+        }
+    });
+}
