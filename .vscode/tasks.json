@@ -9,7 +9,9 @@
     "echoCommand": true,
     "args": [
         "--file",
-        "/Applications/SizeOptDemo"
+        "/Applications/SizeOptDemo",
+        "--arch",
+        "arm"
     ],
     "tasks": [
         {

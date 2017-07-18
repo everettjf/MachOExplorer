@@ -43,6 +43,8 @@ private:
     MachHeaderInternalPtr mh_;
     MachHeader64InternalPtr mh64_;
     Magic magic_;
+    NodeContextPtr ctx_;
+    void *header_start_;
 
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
@@ -50,6 +52,8 @@ public:
     bool is64()const{return is64_;}
     mach_header * data_ptr(){return header_;}
     std::vector<LoadCommandPtr> &loadcmds_ref(){return loadcmds_;}
+    NodeContextPtr & ctx(){return ctx_;}
+    void * header_start(){return header_start_;}
 
     void Init(void *offset,NodeContextPtr&ctx);
 

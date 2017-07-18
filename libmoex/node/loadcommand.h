@@ -16,6 +16,7 @@ protected:
     MachHeader* header_;
 public:
     void set_header(MachHeader* header){header_ = header;}
+    MachHeader * header(){return header_;}
 
     bool is64();
 

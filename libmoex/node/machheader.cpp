@@ -8,6 +8,7 @@
 MOEX_NAMESPACE_BEGIN
 
 void MachHeader::Init(void *offset,NodeContextPtr&ctx) {
+    ctx_ = ctx;
     magic_.Parse(offset);
 
     if(magic_.Is64()){
@@ -24,6 +25,8 @@ void MachHeader::Init(void *offset,NodeContextPtr&ctx) {
 }
 
 void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
+    header_start_ = offset;
+
     int cur_datasize = 0;
     if(is64_){
         header_ = reinterpret_cast<mach_header*>(mh64_->data_ptr());

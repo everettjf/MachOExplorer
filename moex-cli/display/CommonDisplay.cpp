@@ -242,12 +242,15 @@ void CommonDisplay::StringTable(){
         for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SYMTAB) {
                 moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
-                char * stroffset = (char*)seg->GetStringTableOffset();
+                cout << ToHexString((uint64_t)seg->GetStringTableOffset())<<endl;
+                cout << seg->GetStringTableSize() <<endl;
+
+                char * stroffset = (char*)seg->GetStringTableOffsetAddress();
                 uint32_t strsize = seg->GetStringTableSize();
 
                 print_->SetHeaders({
                     header->GetArch() , 
-                    "string (size=" + ToString(strsize) +")"
+                    "string"
                 });
                 print_->SetWidths({10,100});
                 print_->Begin();
@@ -255,19 +258,21 @@ void CommonDisplay::StringTable(){
                 int lineno = 0;
                 int idx = 0;
                 char *cur = stroffset;
+
                 while(idx < strsize){
                     if(*cur == 0){
                         ++idx;
                         continue;
                     }
                     int len = strlen(cur);
-                    std::string name(cur);
+                    std::string name(cur,len);
                     print_->AddRow({
                         ToString(lineno),
                         name
                     });
-                    
+
                     idx += len;
+                    cur += len;
                     ++lineno;
                 }
 

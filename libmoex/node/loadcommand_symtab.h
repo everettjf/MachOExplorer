@@ -8,6 +8,7 @@
 #include <mach-o/nlist.h>
 #include "loadcommand.h"
 #include "common.h"
+#include "machheader.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -82,7 +83,6 @@ using NListPtr = std::shared_ptr<NList>;
 class LoadCommand_LC_SYMTAB : public LoadCommandImpl<symtab_command>{
 private:
     std::vector<NListPtr> nlists_;
-    std::vector<std::string> strings_;
     bool inited_ = false;
 private:
     void LazyInit();
@@ -92,15 +92,21 @@ public:
         return nlists_;
     }
 
-    void * GetSymbolTableOffset(){
-        return (char*)(ctx_->file_start) + cmd_->symoff;
+    uint32_t GetSymbolTableOffset(){
+        return cmd_->symoff;
+    }
+    void * GetSymbolTableOffsetAddress(){
+        return (char*)(header_->header_start()) + cmd_->symoff;
     }
     uint32_t GetSymbolTableSize(){
         return cmd_->nsyms;
     }
 
-    void * GetStringTableOffset(){
-        return (char*)(ctx_->file_start) + cmd_->stroff;
+    uint32_t GetStringTableOffset(){
+        return cmd_->stroff;
+    }
+    void * GetStringTableOffsetAddress(){
+        return (char*)(header_->header_start()) + cmd_->stroff;
     }
     uint32_t GetStringTableSize(){
         return cmd_->strsize;

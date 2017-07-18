@@ -9,7 +9,7 @@ void LoadCommand_LC_SYMTAB::LazyInit(){
     inited_ = true;
 
     // symbol list
-    char * symbol_offset = (char*)GetSymbolTableOffset();
+    char * symbol_offset = (char*)GetSymbolTableOffsetAddress();
     if(header_->is64()){
         for(uint32_t idx = 0; idx < GetSymbolTableSize(); ++idx){
             struct nlist_64 * cur = reinterpret_cast<struct nlist_64*>(symbol_offset + idx * sizeof(struct nlist_64));
@@ -26,11 +26,6 @@ void LoadCommand_LC_SYMTAB::LazyInit(){
         }
     }
 
-    // string table
-    char * stringtable_offset = (char*)GetStringTableOffset();
-    for(uint32_t idx = 0; idx < GetStringTableSize(); ++idx) {
-
-    }
 }
 
 MOEX_NAMESPACE_END

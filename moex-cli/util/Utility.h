@@ -11,5 +11,9 @@ template <typename T>
 std::string ToString(T value){
     return boost::str(boost::format("%1%") % value);
 }
+template <typename T>
+std::string ToHexString(T value){
+    return boost::str(boost::format("0X%X") % value);
+}
 
 #endif //MOEX_UTILITY_H
