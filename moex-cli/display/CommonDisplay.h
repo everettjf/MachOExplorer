@@ -33,6 +33,7 @@ public:
     void CryptInfo();
     void UUID();
     void DylibList();
+    void Main();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);

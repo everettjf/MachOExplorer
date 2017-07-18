@@ -79,6 +79,7 @@ void AppHandler::SetupOptions(){
             ("string_table","[display] string table")
             ("crypt_info","[display] encryption info")
             ("uuid","[display] uuid")
+            ("main","[display] main (entry offset)")
 
             ("dylib_list","[display] dylib list")
 
@@ -120,6 +121,7 @@ void AppHandler::GoDisplayMode(){
     {"crypt_info",[&]{display.CryptInfo();}},
     {"uuid",[&]{display.UUID();}},
     {"dylib_list",[&]{display.DylibList();}},
+    {"main",[&]{display.Main();}},
     };
 
     for(auto & action : actions){

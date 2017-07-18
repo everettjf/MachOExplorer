@@ -336,3 +336,6 @@ void CommonDisplay::DylibList(){
         }
     });
 }
+void CommonDisplay::Main(){
+
+}
