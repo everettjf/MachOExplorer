@@ -41,5 +41,29 @@ public:
     }
 };
 
+class LoadCommandEncryptionInfo{
+private:
+    LoadCommand_LC_ENCRYPTION_INFO *info_ = nullptr;
+    LoadCommand_LC_ENCRYPTION_INFO_64 *info64_ = nullptr;
+    bool is64_ = false;
+
+    encryption_info_command *data_ = nullptr;
+public:
+    encryption_info_command *data(){return data_;};
+
+    LoadCommandEncryptionInfo(LoadCommand * cmd,bool is64){
+        is64_ = is64;
+        if(is64){
+            info_ = static_cast<moex::LoadCommand_LC_ENCRYPTION_INFO*>(cmd);
+            data_ = (encryption_info_command*)info_->offset();
+        }else{
+            info64_ = static_cast<moex::LoadCommand_LC_ENCRYPTION_INFO_64*>(cmd);
+            data_ = (encryption_info_command*)info64_->offset();
+        }
+    }
+};
+
+
+
 MOEX_NAMESPACE_END
 #endif //MACHOEXPLORER_LOADCOMMAND_ENCRYPTION_INFO_H

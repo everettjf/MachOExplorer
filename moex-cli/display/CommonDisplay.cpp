@@ -277,3 +277,33 @@ void CommonDisplay::StringTable(){
         }
     });
 }
+
+void CommonDisplay::CryptInfo(){
+
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+            if (cmd->offset()->cmd == LC_ENCRYPTION_INFO
+                || cmd->offset()->cmd == LC_ENCRYPTION_INFO_64) {
+                moex::LoadCommandEncryptionInfo info(cmd.get(),cmd->offset()->cmd == LC_ENCRYPTION_INFO_64);
+
+                print_->SetHeaders({
+                                   header->GetArch() + " / cryptoff",
+                                   "cryptsize",
+                                   "cryptid"
+                                   });
+                print_->SetWidths({20,20,20});
+                print_->Begin();
+
+                print_->AddRow({
+                        ToHexString(info.data()->cryptoff),
+                        ToString(info.data()->cryptsize),
+                        ToString(info.data()->cryptid)
+                });
+
+                print_->End();
+            }
+        }
+    });
+}
+
+

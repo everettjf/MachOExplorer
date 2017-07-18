@@ -30,6 +30,7 @@ public:
     void SectionList();
     void SymbolList();
     void StringTable();
+    void CryptInfo();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);

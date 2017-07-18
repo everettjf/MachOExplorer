@@ -19,7 +19,7 @@ class NListInternal : public NodeOffset<struct nlist>{
 class NList64Internal : public NodeOffset<struct nlist_64>{
 };
 
-class NList : public Node{
+class NList{
 private:
     bool is64_;
     std::shared_ptr<NListInternal> nlist_;
@@ -64,18 +64,6 @@ public:
     }
     uint64_t n_value64(){
         return nlist64_->offset()->n_value;
-    }
-
-    std::string GetTypeName() override {
-        return is64_?"nlist":"nlist_64";
-    }
-    std::string GetDisplayName() override {
-        return is64_?"nlist":"nlist_64";
-    }
-    std::string GetDescription() override{
-        return "";// todo
-    }
-    void ForEachChild(std::function<void(Node*)> func) override{
     }
 };
 using NListPtr = std::shared_ptr<NList>;

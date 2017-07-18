@@ -76,6 +76,7 @@ void AppHandler::SetupOptions(){
             ("dylib_list","[display] dylib list")
             ("symbol_list","[display] symbol list")
             ("string_table","[display] string table")
+            ("crypt_info","[display] encryption info")
 
             ("section_list","[display] section list")
 
@@ -114,6 +115,7 @@ void AppHandler::GoDisplayMode(){
     {"section_list",[&]{display.SectionList();}},
     {"symbol_list",[&]{display.SymbolList();}},
     {"string_table",[&]{display.StringTable();}},
+    {"crypt_info",[&]{display.CryptInfo();}},
     };
 
     for(auto & action : actions){
