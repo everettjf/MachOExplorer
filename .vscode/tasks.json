@@ -31,6 +31,12 @@
             ]
         },
         {
+            "taskName": "string table",
+            "args": [
+                "--string_table"
+            ]
+        },
+        {
             "taskName": "help",
             "args": [
                 "--help"

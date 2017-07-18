@@ -75,6 +75,7 @@ void AppHandler::SetupOptions(){
             ("segment_list","[display] segment list")
             ("dylib_list","[display] dylib list")
             ("symbol_list","[display] symbol list")
+            ("string_table","[display] string table")
 
             ("section_list","[display] section list")
 
@@ -112,7 +113,7 @@ void AppHandler::GoDisplayMode(){
     {"segment_list",[&]{display.SegmentList();}},
     {"section_list",[&]{display.SectionList();}},
     {"symbol_list",[&]{display.SymbolList();}},
-    {"string_table",[&]{display.SymbolList();}},
+    {"string_table",[&]{display.StringTable();}},
     };
 
     for(auto & action : actions){
