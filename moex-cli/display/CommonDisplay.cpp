@@ -242,8 +242,6 @@ void CommonDisplay::StringTable(){
         for(auto cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SYMTAB) {
                 moex::LoadCommand_LC_SYMTAB *seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
-                cout << ToHexString((uint64_t)seg->GetStringTableOffset())<<endl;
-                cout << seg->GetStringTableSize() <<endl;
 
                 char * stroffset = (char*)seg->GetStringTableOffsetAddress();
                 uint32_t strsize = seg->GetStringTableSize();
