@@ -256,12 +256,12 @@ void CommonDisplay::StringTable(){
                 print_->Begin();
 
                 int lineno = 0;
-                int idx = 0;
                 char *cur = stroffset;
+                char *end = stroffset + strsize;
 
-                while(idx < strsize){
+                while(cur < end){
                     if(*cur == 0){
-                        ++idx;
+                        ++cur;
                         continue;
                     }
                     int len = strlen(cur);
@@ -271,7 +271,6 @@ void CommonDisplay::StringTable(){
                         name
                     });
 
-                    idx += len;
                     cur += len;
                     ++lineno;
                 }
