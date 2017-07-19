@@ -22,6 +22,9 @@ public:
                           % cmd_->stacksize
         );
     }
+
+    uint64_t  entryoff(){return cmd_->entryoff;}
+    uint64_t  stacksize(){return cmd_->stacksize;}
 };
 
 

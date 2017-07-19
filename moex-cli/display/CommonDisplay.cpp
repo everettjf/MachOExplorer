@@ -313,7 +313,7 @@ void CommonDisplay::UUID(){
                 moex::LoadCommand_LC_UUID *one = static_cast<moex::LoadCommand_LC_UUID*>(cmd.get());
 
                 print_->SetHeaders({
-                                           header->GetArch() + " / uuid",
+                                   header->GetArch() + " / uuid",
                                    });
                 print_->SetWidths({50});
                 print_->Begin();
@@ -337,5 +337,25 @@ void CommonDisplay::DylibList(){
     });
 }
 void CommonDisplay::Main(){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+            if (cmd->offset()->cmd == LC_MAIN) {
+                moex::LoadCommand_LC_MAIN *one = static_cast<moex::LoadCommand_LC_MAIN*>(cmd.get());
 
+                print_->SetHeaders({
+                                           header->GetArch() + " / entryoffset",
+                                           "stacksize"
+                                   });
+                print_->SetWidths({20,10});
+                print_->Begin();
+
+                print_->AddRow({
+                        ToHexString(one->entryoff()),
+                        ToString(one->stacksize())
+                               });
+
+                print_->End();
+            }
+        }
+    });
 }
