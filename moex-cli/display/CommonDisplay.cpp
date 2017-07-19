@@ -330,10 +330,37 @@ void CommonDisplay::UUID(){
 
 void CommonDisplay::DylibList(){
     ForEachHeader([&](moex::MachHeaderPtr header) {
+        print_->SetHeaders({
+                           header->GetArch() + " / name",
+                           "flag",
+                           "path"
+                           });
+        print_->SetWidths({25,8,100});
+        print_->Begin();
+
         for (auto cmd : header->loadcmds_ref()) {
-//            if (cmd->offset()->cmd == LC_UUID) {
-//            }
+            if (cmd->offset()->cmd == LC_LOAD_DYLIB
+                || cmd->offset()->cmd == LC_LOAD_WEAK_DYLIB
+                || cmd->offset()->cmd == LC_REEXPORT_DYLIB) {
+                moex::LoadCommand_DYLIB *one = static_cast<moex::LoadCommand_DYLIB*>(cmd.get());
+
+                std::string prefix;
+                if (cmd->offset()->cmd == LC_LOAD_DYLIB) {
+                    prefix = "-";
+                }else if (cmd->offset()->cmd == LC_LOAD_WEAK_DYLIB) {
+                    prefix = "weak";
+                }else if (cmd->offset()->cmd == LC_REEXPORT_DYLIB) {
+                    prefix = "reexport";
+                }
+
+                print_->AddRow({
+                        one->dylib_name(),
+                        prefix,
+                        one->dylib_path()
+                               });
+            }
         }
+        print_->End();
     });
 }
 void CommonDisplay::Main(){

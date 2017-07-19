@@ -16,18 +16,9 @@ private:
     std::string dylib_name_;
 public:
     const std::string & dylib_name()const{return dylib_name_;}
+    const std::string & dylib_path()const{return dylib_path_;}
 
-    void Init(void * offset,NodeContextPtr & ctx)override {
-        LoadCommandImpl::Init(offset,ctx);
-
-        dylib_path_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
-
-        std::vector<std::string> path_items;
-        boost::split(path_items,dylib_path_,boost::is_any_of("/"),boost::token_compress_on);
-        if(path_items.size() > 0){
-            dylib_name_ = path_items.back();
-        }
-    }
+    void Init(void * offset,NodeContextPtr & ctx)override;
 
     std::string GetTypeName() override{ return "dylib_command";}
     std::string GetDisplayName() override{
