@@ -88,32 +88,6 @@ public:
     }
 };
 
-
-// maybe useless for the wrapper below
-//class LoadCommandSegment{
-//private:
-//    LoadCommandPtr cmd_;
-//    bool is64_ = false;
-//    LoadCommand_LC_SEGMENT *seg_ = nullptr;
-//    LoadCommand_LC_SEGMENT_64 *seg64_ = nullptr;
-//
-//public:
-//    LoadCommandSegment(LoadCommandPtr cmd):cmd_(cmd){
-//        if(cmd_->offset()->cmd == LC_SEGMENT) {
-//            is64_ = false;
-//            seg_ = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd_.get());
-//
-//        }else if(cmd_->offset()->cmd == LC_SEGMENT_64){
-//            is64_ = true;
-//            seg64_ = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd_.get());
-//        }else{
-//            // error
-//        }
-//    }
-//
-//
-//};
-
 MOEX_NAMESPACE_END
 
 #endif //MACHOEXPLORER_LOADCOMMAND_SEGMENT_H
