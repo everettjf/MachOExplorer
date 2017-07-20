@@ -15,7 +15,9 @@
 - Restore Symbol : one key to restore symbol.
 
 
-# How to build (macOS only until now)
+# How to build 
+
+macOS only until now, Windows support in the near future.
 
 1. Env
 
