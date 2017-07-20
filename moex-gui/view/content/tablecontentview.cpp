@@ -6,6 +6,5 @@
 
 TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
 {
-    view_ = nullptr;
 
 }

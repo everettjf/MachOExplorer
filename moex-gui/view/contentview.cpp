@@ -70,19 +70,8 @@ void ContentView::openFile(const QString &filePath)
 
 void ContentView::showNode(moex::Node *node)
 {
-    moex::NodeViewArray views = node->GetViews();
-    for(moex::NodeViewPtr & view : views){
-        switch(view->type()){
-        case moex::NodeViewType::Address:{
 
-            break;
-        }
-        case moex::NodeViewType::Table:{
 
-            break;
-        }
-        }
-    }
 }
 
 void ContentView::displayContentTab()
@@ -90,12 +79,5 @@ void ContentView::displayContentTab()
     stack->setCurrentIndex(1);
 }
 
-void ContentView::showAddressNodeView(moex::AddressNodeView *view)
-{
 
-}
 
-void ContentView::showTableNodeView(moex::TableNodeView *view)
-{
-
-}

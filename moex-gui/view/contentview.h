@@ -38,8 +38,7 @@ public:
 
     void displayContentTab();
 private:
-    void showAddressNodeView(moex::AddressNodeView *view);
-    void showTableNodeView(moex::TableNodeView *view);
+
 signals:
 
 public slots:
