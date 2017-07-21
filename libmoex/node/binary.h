@@ -5,7 +5,7 @@
 #ifndef BINARY_H
 #define BINARY_H
 
-#include "node/node.h"
+#include "node.h"
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <fstream>
@@ -14,8 +14,8 @@
 #include <cstring>
 #include <cstddef>
 #include <cstdlib>
-#include "node/fatheader.h"
-#include "node/machheader.h"
+#include "fatheader.h"
+#include "machheader.h"
 
 MOEX_NAMESPACE_BEGIN
 

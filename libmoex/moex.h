@@ -5,7 +5,7 @@
 #ifndef MOEX_MOEX_H
 #define MOEX_MOEX_H
 
-#include "binary.h"
+#include "node/binary.h"
 #include "node/helper.h"
 
 #include "node/loadcommand_segment.h"

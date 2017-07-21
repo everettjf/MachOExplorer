@@ -10,7 +10,7 @@
 #include "../view/contentview.h"
 #include "../view/logview.h"
 #include <QDockWidget>
-#include <libmoex/binary.h>
+#include <libmoex/node/binary.h>
 
 struct WorkspaceUI{
     SkeletonView *skeleton;

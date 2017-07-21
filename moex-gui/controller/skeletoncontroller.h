@@ -6,7 +6,7 @@
 #define SKELETONCONTROLLER_H
 
 #include <QStandardItemModel>
-#include <libmoex/binary.h>
+#include <libmoex/node/binary.h>
 #include "../utility/utility.h"
 #include "basecontroller.h"
 

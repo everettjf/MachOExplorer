@@ -6,7 +6,7 @@
 #define TABLECONTENTVIEW_H
 
 #include <QWidget>
-#include <libmoex/binary.h>
+#include <libmoex/node/binary.h>
 
 class TableContentView : public QWidget
 {
