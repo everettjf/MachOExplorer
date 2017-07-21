@@ -26,8 +26,6 @@ using NodeContextPtr = std::shared_ptr<NodeContext>;
 class Node{
 public:
     virtual std::string GetTypeName() = 0;
-    virtual std::string GetDisplayName() = 0;
-    virtual std::string GetDescription() = 0;
     virtual void ForEachChild(std::function<void(Node*)>) = 0;
 };
 

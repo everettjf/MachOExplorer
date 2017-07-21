@@ -35,6 +35,7 @@
 #include <vector>
 #include <memory>
 #include <tuple>
+#include <cstdint>
 
 
 #endif // COMMON_H
