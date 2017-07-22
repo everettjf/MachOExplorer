@@ -12,17 +12,6 @@ MOEX_NAMESPACE_BEGIN
 class LoadCommand_LC_MAIN : public LoadCommandImpl<entry_point_command>{
 public:
     std::string GetTypeName() override{ return "entry_point_command";}
-    std::string GetDisplayName() override{ return "entry_point";}
-    std::string GetDescription() override{
-        return boost::str(boost::format("%1%(type=%2%,size=%3%,entry offset=%4%, stack size=%5%)")
-                          % this->GetDisplayName()
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize
-                          % cmd_->entryoff
-                          % cmd_->stacksize
-        );
-    }
-
     uint64_t  entryoff(){return cmd_->entryoff;}
     uint64_t  stacksize(){return cmd_->stacksize;}
 };

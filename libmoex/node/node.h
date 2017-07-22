@@ -26,7 +26,6 @@ using NodeContextPtr = std::shared_ptr<NodeContext>;
 class Node{
 public:
     virtual std::string GetTypeName() = 0;
-    virtual void ForEachChild(std::function<void(Node*)>) = 0;
 };
 
 template <typename T>
@@ -45,9 +44,6 @@ public:
     }
 
     std::string GetTypeName() override{ return "node";}
-    std::string GetDisplayName() override{ return "unknown";}
-    std::string GetDescription() override{ return "empty";}
-    void ForEachChild(std::function<void(Node*)>) override{}
 };
 
 template <typename T>

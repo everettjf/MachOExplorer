@@ -21,15 +21,6 @@ public:
         dylinker_path_name_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
     }
     std::string GetTypeName() override{ return "dylinker_command";}
-    std::string GetDisplayName() override{ return "dylinker";}
-    std::string GetDescription() override{
-        return boost::str(boost::format("%1%(type=%2%,size=%3%,dylinker path name=%4%)")
-                          % this->GetDisplayName()
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize
-                          % dylinker_path_name_
-        );
-    }
 };
 
 

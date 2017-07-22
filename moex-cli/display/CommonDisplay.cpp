@@ -95,16 +95,15 @@ void CommonDisplay::ArchList(){
 
 void CommonDisplay::LoadCommandList(){
     ForEachHeader([&](moex::MachHeaderPtr header){
-        print_->SetHeaders({header->GetArch() + "/ cmd","cmdsize","cmdtype","description"});
-        print_->SetWidths({20,10,25,130});
+        print_->SetHeaders({header->GetArch() + "/ cmd","cmdsize","cmdtype"});
+        print_->SetWidths({20,10,25});
         print_->Begin();
 
         for(auto cmd : header->loadcmds_ref()){
             print_->AddRow({
                     ToString(cmd->offset()->cmd),
                     ToString(cmd->offset()->cmdsize),
-                    cmd->GetTypeName(),
-                    cmd->GetDescription()
+                    cmd->GetTypeName()
                            });
         }
 

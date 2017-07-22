@@ -21,14 +21,7 @@ public:
     bool is64();
 
     std::string GetTypeName() override{ return "load_command";}
-    std::string GetDisplayName() override{
-        return boost::str(boost::format("load_command(type=%1%)") % offset_->cmd );
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("type=%1%,size=%2%")
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize);
-    }
+
 };
 
 using LoadCommandPtr = std::shared_ptr<LoadCommand>;

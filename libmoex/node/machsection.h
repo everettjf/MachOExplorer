@@ -19,15 +19,7 @@ public:
     std::string section_name() const {return std::string(offset_->sectname,16).c_str();}
 
     std::string GetTypeName() override{ return "section";}
-    std::string GetDisplayName() override{
-        return this->section_name();
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("section(%1%/%2%)")
-                          % this->segment_name()
-                          % this->section_name()
-        );
-    }
+
 };
 using MachSectionPtr = std::shared_ptr<MachSection>;
 
@@ -39,15 +31,7 @@ public:
     std::string section_name() const {return std::string(offset_->sectname,16).c_str();}
 
     std::string GetTypeName() override{ return "section_64";}
-    std::string GetDisplayName() override{
-        return this->section_name();
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("%1%/%2%")
-                          % this->segment_name()
-                          % this->section_name()
-        );
-    }
+
 };
 using MachSection64Ptr = std::shared_ptr<MachSection64>;
 

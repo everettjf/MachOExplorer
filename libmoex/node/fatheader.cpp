@@ -20,25 +20,6 @@ void FatArch::Init(void *offset, NodeContextPtr &ctx) {
     mh_->Init(mach_offset,ctx_);
 }
 
-std::string FatArch::GetDisplayName(){
-    std::string cpuname = hp::GetCpuTypeString(data_.cputype);
-    boost::algorithm::replace_first(cpuname,"CPU_TYPE_","");
-    return cpuname;
-}
-
-std::string FatArch::GetDescription(){
-    return boost::str(boost::format("cputype=%1%,subcputype=%2%,offset=%3%,size=%4%,align=%5%")
-                      % hp::GetCpuTypeString(data_.cputype)
-                      % (int)data_.cpusubtype
-                      % data_.offset
-                      % data_.size
-                      % data_.align
-                      );
-}
-
-void FatArch::ForEachChild(std::function<void (Node *)> func){
-    func(mh_.get());
-}
 
 void FatHeader::Init(void *offset, NodeContextPtr &ctx) {
     NodeData::Init(offset,ctx);
@@ -60,17 +41,5 @@ void FatHeader::Init(void *offset, NodeContextPtr &ctx) {
     }
 }
 
-std::string FatHeader::GetDescription(){
-    return boost::str(boost::format("magic=%1%,nfat_arch=%2%")
-                      % hp::GetMagicString(data_.magic)
-                      % data_.nfat_arch
-                      );
-}
-
-void FatHeader::ForEachChild(std::function<void (Node *)> func){
-    for(auto arch : archs_){
-        func(arch.get());
-    }
-}
 
 MOEX_NAMESPACE_END

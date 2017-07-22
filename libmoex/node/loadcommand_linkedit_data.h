@@ -12,18 +12,6 @@ MOEX_NAMESPACE_BEGIN
 class LoadCommand_LINKEDIT_DATA : public LoadCommandImpl<linkedit_data_command>{
 public:
     std::string GetTypeName() override{ return "linkedit_data_command";}
-    std::string GetDisplayName() override{
-        return hp::GetLoadCommandType(offset_->cmd);
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("%1%(type=%2%,size=%3%,data offset=%4%, data size=%5%)")
-                          % this->GetDisplayName()
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize
-                          % cmd_->dataoff
-                          % cmd_->datasize
-        );
-    }
 };
 
 

@@ -32,21 +32,6 @@ public:
     }
 
     std::string GetTypeName() override{ return "segment_command";}
-    std::string GetDisplayName() override{
-        return this->segment_name();
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("type=%1%,size=%2%,segname=%3%")
-                          % hp::GetLoadCommandType(cmd_->cmd)
-                          % cmd_->cmdsize
-                          % this->segment_name()
-        );
-    }
-    void ForEachChild(std::function<void(Node*)> func) override{
-        for(auto section : sections_){
-            func(section.get());
-        }
-    }
 };
 
 class LoadCommand_LC_SEGMENT_64 : public LoadCommandImpl<segment_command_64>{
@@ -71,21 +56,6 @@ public:
     }
 
     std::string GetTypeName() override{ return "segment_command_64";}
-    std::string GetDisplayName() override{
-        return this->segment_name();
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("type=%1%,size=%2%,segname=%3%")
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize
-                          % this->segment_name()
-        );
-    }
-    void ForEachChild(std::function<void(Node*)> func) override{
-        for(auto section : sections_){
-            func(section.get());
-        }
-    }
 };
 
 MOEX_NAMESPACE_END

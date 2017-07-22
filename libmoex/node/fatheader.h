@@ -25,9 +25,6 @@ public:
     bool is64()const{ return mh_->is64(); }
 
     std::string GetTypeName() override{ return "fat_arch";}
-    std::string GetDisplayName() override;
-    std::string GetDescription() override;
-    void ForEachChild(std::function<void(Node*)> func) override;
 };
 using FatArchPtr = std::shared_ptr<FatArch>;
 
@@ -41,9 +38,6 @@ public:
     const std::vector<FatArchPtr> & archs()const { return archs_;}
 
     std::string GetTypeName() override{ return "fat_header";}
-    std::string GetDisplayName() override{ return "fat_header";}
-    std::string GetDescription() override;
-    void ForEachChild(std::function<void(Node*)> func) override;
 };
 using FatHeaderPtr = std::shared_ptr<FatHeader>;
 

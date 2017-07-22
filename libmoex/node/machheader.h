@@ -60,27 +60,6 @@ public:
     std::string GetTypeName() override {
         return is64_?"mach_header_64":"mach_header";
     }
-    std::string GetDisplayName() override {
-        return is64_?"mach_header_64":"mach_header";
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format(
-                "magic=%1%,cputype=%2%,subcputype=%3%,filetype=%4%,ncmds=%5%,sizeofcmds=%6%,flags=%7%")
-                          % hp::GetMagicString(header_->magic)
-                          % hp::GetCpuTypeString(header_->cputype)
-                          % hp::GetCpuSubTypeString(header_->cpusubtype)
-                          % hp::GetMachFileType(header_->filetype)
-                          % header_->ncmds
-                          % header_->sizeofcmds
-                          % header_->flags
-        );
-    }
-    void ForEachChild(std::function<void(Node*)> func) override{
-        for(auto cmd : loadcmds_){
-            func(cmd.get());
-        }
-    }
-
     std::string GetArch();
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;

@@ -21,16 +21,6 @@ public:
     void Init(void * offset,NodeContextPtr & ctx)override;
 
     std::string GetTypeName() override{ return "dylib_command";}
-    std::string GetDisplayName() override{
-        return "dylib=" + dylib_name_;
-    }
-    std::string GetDescription() override{
-        return boost::str(boost::format("dylib_command(type=%1%,size=%2%,dylibname=%3%)")
-                          % hp::GetLoadCommandType(offset_->cmd)
-                          % offset_->cmdsize
-                          % dylib_path_
-        );
-    }
 };
 
 MOEX_NAMESPACE_END
