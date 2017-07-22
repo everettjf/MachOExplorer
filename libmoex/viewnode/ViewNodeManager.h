@@ -6,7 +6,7 @@
 #define MOEX_VIEWNODEMANAGER_H
 
 
-#include "viewnodeimpl.h"
+#include "ViewNode.h"
 #include "../node/binary.h"
 
 MOEX_NAMESPACE_BEGIN
