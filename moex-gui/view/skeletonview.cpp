@@ -44,6 +44,6 @@ void SkeletonView::clickedTreeNode(QModelIndex index)
 
     moex::Node *node = static_cast<moex::Node*>(item->data().value<void*>());
 
-    qDebug() << QString::fromStdString(node->GetDisplayName());
+//    qDebug() << QString::fromStdString(node->GetDisplayName());
 
 }

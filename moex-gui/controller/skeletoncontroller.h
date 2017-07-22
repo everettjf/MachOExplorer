@@ -18,7 +18,7 @@ public:
     void setFilePath(const QString & filePath){ filePath_ = filePath;}
 
     bool initModel(QString & error);
-    void initChildren(moex::Node *parentNode,QStandardItem *parentItem);
+//    void initChildren(moex::Node *parentNode,QStandardItem *parentItem);
 
     QStandardItemModel* model(){return model_;}
 

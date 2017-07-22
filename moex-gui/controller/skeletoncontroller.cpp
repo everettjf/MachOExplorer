@@ -39,26 +39,29 @@ bool SkeletonController::initModel(QString & error)
     }
     log("Parse succeed");
 
-    // Root item
-    moex::Node *rootNode = bin_->GetNode();
-    QStandardItem *item = new QStandardItem(QString::fromStdString(rootNode->GetDisplayName()));
-    model_->appendRow(item);
-    model_->setItem(model_->indexFromItem(item).row(),1,new QStandardItem(util::qstr(rootNode->GetTypeName())));
-    item->setData(QVariant::fromValue((void*)rootNode));
+//    // Root item
+//    moex::Node *rootNode = bin_->GetNode();
+//    QStandardItem *item = new QStandardItem(QString::fromStdString(rootNode->GetDisplayName()));
+//    model_->appendRow(item);
+//    model_->setItem(model_->indexFromItem(item).row(),1,new QStandardItem(util::qstr(rootNode->GetTypeName())));
+//    item->setData(QVariant::fromValue((void*)rootNode));
 
-    // Children
-    initChildren(rootNode,item);
+//    // Children
+//    initChildren(rootNode,item);
+
+
+
     return true;
 }
 
-void SkeletonController::initChildren(moex::Node *parentNode,QStandardItem *parentItem){
-    parentNode->ForEachChild([&](moex::Node* node){
-        QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
-        parentItem->appendRow(subItem);
-        parentItem->setChild(subItem->index().row(),1,new QStandardItem(util::qstr(node->GetTypeName())));
-        subItem->setData(QVariant::fromValue((void*)node));
+//void SkeletonController::initChildren(moex::Node *parentNode,QStandardItem *parentItem){
+//    parentNode->ForEachChild([&](moex::Node* node){
+//        QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
+//        parentItem->appendRow(subItem);
+//        parentItem->setChild(subItem->index().row(),1,new QStandardItem(util::qstr(node->GetTypeName())));
+//        subItem->setData(QVariant::fromValue((void*)node));
 
-        // Loop
-        initChildren(node,subItem);
-    });
-}
+//        // Loop
+//        initChildren(node,subItem);
+//    });
+//}
