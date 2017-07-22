@@ -30,21 +30,19 @@ bool SkeletonController::initModel(QString & error)
 
     // Parse file
     std::string filepath = filePath_.toStdString();
-    try{
-        bin_ = std::make_shared<moex::Binary>(filepath);
-    }catch(std::exception & ex){
-        error = QString("Exception : %1").arg(ex.what());
+    std::string init_error;
+    if(!vnm_.Init(filepath,init_error)){
+        error = QString("Exception : %1").arg(init_error.c_str());
         log(error);
         return false;
     }
     log("Parse succeed");
 
-//    // Root item
-//    moex::Node *rootNode = bin_->GetNode();
-//    QStandardItem *item = new QStandardItem(QString::fromStdString(rootNode->GetDisplayName()));
-//    model_->appendRow(item);
-//    model_->setItem(model_->indexFromItem(item).row(),1,new QStandardItem(util::qstr(rootNode->GetTypeName())));
-//    item->setData(QVariant::fromValue((void*)rootNode));
+    // Root item
+    moex::ViewNode *root = vnm_.GetRootNode();
+    QStandardItem *item = new QStandardItem(QString::fromStdString(root->GetDisplayName()));
+    model_->appendRow(item);
+    item->setData(QVariant::fromValue((void*)root));
 
 //    // Children
 //    initChildren(rootNode,item);

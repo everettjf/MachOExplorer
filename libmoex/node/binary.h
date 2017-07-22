@@ -50,6 +50,7 @@ public:
 
     FatHeaderPtr & fath(){return fath_;}
     MachHeaderPtr & mh(){return mh_;}
+
     void ForEachHeader(std::function<void(MachHeaderPtr)> callback){
         if(IsFat()){
             for(auto & arch : fath()->archs()){

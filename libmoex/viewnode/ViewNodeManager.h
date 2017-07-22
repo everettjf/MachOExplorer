@@ -8,12 +8,18 @@
 
 #include "ViewNode.h"
 #include "../node/binary.h"
+#include "FatBinaryViewNode.h"
+#include "ExecutableViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
 class ViewNodeManager{
 private:
     BinaryPtr bin_;
+
+    FatBinaryViewNodePtr fat_;
+    ExecutableViewNodePtr exe_;
+
 public:
     bool Init(const std::string &filepath, std::string &error);
 

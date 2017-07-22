@@ -18,8 +18,9 @@ MOEX_NAMESPACE_BEGIN
 
 class FatBinaryViewNode : public ViewNode{
 private:
-    FatHeaderPtr d;
+    FatHeaderPtr d_;
 public:
+    FatBinaryViewNode(FatHeaderPtr d):d_(d){}
 
     std::string GetDisplayName()override { return "Fat Binary";}
     BinaryViewData* GetBinaryViewData()override {return nullptr;}
@@ -27,7 +28,8 @@ public:
     void ForEachChild(std::function<void(ViewNode*)> callback)override {}
 
 };
-;
+using FatBinaryViewNodePtr = std::shared_ptr<FatBinaryViewNode>;
+
 MOEX_NAMESPACE_END
 
 

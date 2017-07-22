@@ -6,7 +6,7 @@
 #define SKELETONCONTROLLER_H
 
 #include <QStandardItemModel>
-#include <libmoex/node/binary.h>
+#include <libmoex/viewnode/ViewNodeManager.h>
 #include "../utility/utility.h"
 #include "basecontroller.h"
 
@@ -25,7 +25,7 @@ public:
 private:
     QStandardItemModel *model_;
     QString filePath_;
-    moex::BinaryPtr bin_;
+    moex::ViewNodeManager vnm_;
 };
 
 #endif // SKELETONCONTROLLER_H
