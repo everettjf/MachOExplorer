@@ -27,9 +27,8 @@ void LoadCommand_LC_SEGMENT_64::Init(void * offset,NodeContextPtr & ctx){
     LoadCommandImpl::Init(offset,ctx);
 
     for(uint32_t idx = 0; idx < cmd_->nsects; ++idx){
-        section * cur = reinterpret_cast<section*>((char*)offset_ + data_size_cmd + idx * sizeof(section_64));
-
-        MachSection64Ptr section = std::make_shared<MachSection64>();
+        section_64 * cur = reinterpret_cast<section_64*>((char*)offset_ + data_size_cmd + idx * sizeof(section_64));
+        MachSectionPtr section = std::make_shared<MachSection>();
         section->Init(cur,ctx);
         sections_.push_back(section);
     }

@@ -11,13 +11,18 @@ MOEX_NAMESPACE_BEGIN
 
 class SectionViewNode : public ViewNode{
 private:
+    MachSectionPtr d_;
 public:
+    void Init(MachSectionPtr d);
+    std::string GetDisplayName()override;
 
 };
+using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 
 class SectionsViewNode : public ViewNode{
 private:
     MachHeaderPtr mh_;
+    std::vector<SectionViewNodePtr> sections_;
 public:
     void Init(MachHeaderPtr mh);
 

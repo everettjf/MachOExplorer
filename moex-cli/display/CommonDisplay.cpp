@@ -175,7 +175,7 @@ void CommonDisplay::SectionList(){
                            10,10,10,10});
         print_->Begin();
 
-        for(auto cmd : header->loadcmds_ref()){
+        for(auto & cmd : header->loadcmds_ref()){
             if(cmd->offset()->cmd == LC_SEGMENT) {
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
                 for(auto & sect : seg->sections_ref()){
@@ -197,13 +197,13 @@ void CommonDisplay::SectionList(){
                     print_->AddRow({
                                            sect->section_name(),
                                            sect->segment_name(),
-                                           ToString(sect->offset()->addr),
-                                           ToString(sect->offset()->size),
-                                           ToString(sect->offset()->offset),
-                                           ToString(sect->offset()->align),
-                                           ToString(sect->offset()->reloff),
-                                           ToString(sect->offset()->nreloc),
-                                           ToString(sect->offset()->flags),
+                                           ToString(sect->offset64()->addr),
+                                           ToString(sect->offset64()->size),
+                                           ToString(sect->offset64()->offset),
+                                           ToString(sect->offset64()->align),
+                                           ToString(sect->offset64()->reloff),
+                                           ToString(sect->offset64()->nreloc),
+                                           ToString(sect->offset64()->flags),
                                    });
                 }
             }

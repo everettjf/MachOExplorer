@@ -27,10 +27,10 @@ public:
 
 class LoadCommand_LC_SEGMENT_64 : public LoadCommandImpl<segment_command_64>{
 protected:
-    std::vector<MachSection64Ptr> sections_;
+    std::vector<MachSectionPtr> sections_;
 public:
     std::string segment_name()const{ return std::string(cmd_->segname,16).c_str();}
-    std::vector<MachSection64Ptr> & sections_ref(){return sections_;}
+    std::vector<MachSectionPtr> & sections_ref(){return sections_;}
 
     void Init(void * offset,NodeContextPtr & ctx)override ;
 
