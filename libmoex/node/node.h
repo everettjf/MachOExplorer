@@ -6,7 +6,7 @@
 #define NODE_H
 
 #include "common.h"
-#include "helper.h"
+#include "util.h"
 
 MOEX_NAMESPACE_BEGIN
 

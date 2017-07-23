@@ -19,9 +19,10 @@ public:
     MachHeader * header(){return header_;}
 
     bool is64();
+    std::string GetLoadCommandTypeString();
 
     std::string GetTypeName() override{ return "load_command";}
-
+    virtual std::string GetShortCharacteristicDescription(){return "";}
 };
 
 using LoadCommandPtr = std::shared_ptr<LoadCommand>;

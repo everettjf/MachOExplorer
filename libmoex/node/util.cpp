@@ -2,12 +2,12 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "helper.h"
+#include "util.h"
 
 
 MOEX_NAMESPACE_BEGIN
 
-namespace hp {
+namespace util {
 
     std::string FormatUUIDArray(uint8_t d[]){
         char buffer[33];

@@ -12,7 +12,7 @@ MOEX_NAMESPACE_BEGIN
 #define DECLARE_MAP_ITEM(name) {name,#name},
 #define DECLARE_MAP_ITEM_VALUE(name,value) {name,#value},
 
-namespace hp {
+namespace util {
 
 std::string FormatUUIDArray(uint8_t d[16]);
 std::string GetLoadCommandType(uint32_t cmd);

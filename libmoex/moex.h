@@ -6,7 +6,7 @@
 #define MOEX_MOEX_H
 
 #include "node/binary.h"
-#include "node/helper.h"
+#include "libmoex/node/util.h"
 #include "node/loadcommand_segment.h"
 #include "node/loadcommand_dylib.h"
 #include "node/loadcommand_dyld_info.h"

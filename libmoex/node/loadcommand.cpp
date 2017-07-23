@@ -26,6 +26,10 @@ bool LoadCommand::is64() {
     return header_->is64();
 }
 
+std::string LoadCommand::GetLoadCommandTypeString(){
+    return util::GetLoadCommandType(offset()->cmd);
+}
+
 #define DECLARE_LOAD_COMMAND_CASE_STATEMENT_CLASS(commandtag,classtag) \
 case commandtag: return std::make_shared<LoadCommand_##classtag>();
 
