@@ -7,6 +7,7 @@
 #include "../util/Utility.h"
 #include <libmoex/node/loadcommand.h>
 #include <string.h>
+#include <libmoex/viewnode/ViewNodeManager.h>
 
 using namespace std;
 
@@ -385,3 +386,29 @@ void CommonDisplay::Main(){
         }
     });
 }
+
+void CommonDisplay::Tree(){
+    moex::ViewNodeManager manager;
+    manager.Init(bin_);
+
+    moex::ViewNode *rootNode = manager.GetRootNode();
+
+    int level = 0;
+    DisplayViewNode(rootNode,level);
+}
+void CommonDisplay::DisplayViewNode(moex::ViewNode *node,int & level){
+    if(node == nullptr)return;
+
+    for(int i = 0; i < level; ++i){
+        cout << "|-- ";
+    }
+
+    cout << node->GetDisplayName() <<endl;
+
+    ++level;
+    node->ForEachChild([&](moex::ViewNode* child){
+        DisplayViewNode(child,level);
+    });
+    --level;
+}
+

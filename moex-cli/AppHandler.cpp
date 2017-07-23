@@ -85,10 +85,8 @@ void AppHandler::SetupOptions(){
 
             // helper
             ("arch_list","[display] arch list")
+            ("tree","[display] node tree")
 
-            // edit mode
-            ("edit", "enter edit mode")
-            // ...edit mode options
             ;
 }
 
@@ -122,6 +120,7 @@ void AppHandler::GoDisplayMode(){
     {"uuid",[&]{display.UUID();}},
     {"dylib_list",[&]{display.DylibList();}},
     {"main",[&]{display.Main();}},
+    {"tree",[&]{display.Tree();}},
     };
 
     for(auto & action : actions){

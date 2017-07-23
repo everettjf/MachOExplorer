@@ -8,8 +8,8 @@
 
 #include "ViewNode.h"
 #include "../node/binary.h"
-#include "FatBinaryViewNode.h"
-#include "ExecutableViewNode.h"
+#include "FatHeaderViewNode.h"
+#include "MachHeaderViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -17,11 +17,15 @@ class ViewNodeManager{
 private:
     BinaryPtr bin_;
 
-    FatBinaryViewNodePtr fat_;
-    ExecutableViewNodePtr exe_;
+    std::shared_ptr<FatHeaderViewNode> fat_;
+    std::shared_ptr<MachHeaderViewNode> mh_;
+
+private:
+    void ConstructNode();
 
 public:
     bool Init(const std::string &filepath, std::string &error);
+    void Init(BinaryPtr bin);
 
     ViewNode * GetRootNode();
 

@@ -16,21 +16,31 @@ bool ViewNodeManager::Init(const std::string &filepath, std::string &error){
         return false;
     }
 
-    // Construct ViewNode Tree
-    if(bin_->IsFat()){
-        fat_ = std::make_shared<FatBinaryViewNode>(bin_->fath());
-    }else{
-        exe_ = std::make_shared<ExecutableViewNode>(bin_->mh());
-    }
+    ConstructNode();
 
     return true;
+}
+void ViewNodeManager::Init(BinaryPtr bin){
+    bin_ = bin;
+
+    ConstructNode();
 }
 
 ViewNode *ViewNodeManager::GetRootNode() {
     if(bin_->IsFat()){
         return fat_.get();
     }else{
-        return exe_.get();
+        return mh_.get();
     }
 }
+
+void ViewNodeManager::ConstructNode(){
+    // Construct ViewNode Tree
+    if(bin_->IsFat()){
+        fat_ = std::make_shared<FatHeaderViewNode>(bin_->fath());
+    }else{
+        mh_ = std::make_shared<MachHeaderViewNode>(bin_->mh());
+    }
+}
+
 MOEX_NAMESPACE_END

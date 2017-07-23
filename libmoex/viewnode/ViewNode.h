@@ -19,7 +19,18 @@ struct TableViewData{
     std::vector<std::vector<std::string>> rows;
 };
 
+enum class ViewNodeType{
+    Unknown,
+    FatHeader,
+    MachHeader,
+};
+
 class ViewNode {
+protected:
+    ViewNodeType type_ = ViewNodeType::Unknown;
+public:
+    ViewNodeType GetDisplayType(){ return type_;}
+
 public:
     virtual std::string GetDisplayName(){ return "unknown";}
     virtual BinaryViewData* GetBinaryViewData(){return nullptr;}

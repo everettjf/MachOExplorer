@@ -34,9 +34,11 @@ public:
     void UUID();
     void DylibList();
     void Main();
+    void Tree();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
+    void DisplayViewNode(moex::ViewNode *node,int & level);
 };
 
 

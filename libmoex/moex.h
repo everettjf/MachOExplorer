@@ -7,7 +7,6 @@
 
 #include "node/binary.h"
 #include "node/helper.h"
-
 #include "node/loadcommand_segment.h"
 #include "node/loadcommand_dylib.h"
 #include "node/loadcommand_dyld_info.h"
@@ -20,5 +19,7 @@
 #include "node/loadcommand_main.h"
 #include "node/loadcommand_encryption_info.h"
 #include "node/loadcommand_linkedit_data.h"
+
+#include "viewnode/ViewNodeManager.h"
 
 #endif //MOEX_MOEX_H
