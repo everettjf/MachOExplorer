@@ -5,20 +5,20 @@
 #ifndef MOEX_MOEX_H
 #define MOEX_MOEX_H
 
-#include "node/binary.h"
-#include "libmoex/node/util.h"
-#include "node/loadcommand_segment.h"
-#include "node/loadcommand_dylib.h"
-#include "node/loadcommand_dyld_info.h"
-#include "node/loadcommand_symtab.h"
-#include "node/loadcommand_dysymtab.h"
-#include "node/loadcommand_load_dylinker.h"
-#include "node/loadcommand_uuid.h"
-#include "node/loadcommand_version_min.h"
-#include "node/loadcommand_source_version.h"
-#include "node/loadcommand_main.h"
-#include "node/loadcommand_encryption_info.h"
-#include "node/loadcommand_linkedit_data.h"
+#include "libmoex/node/Binary.h"
+#include "libmoex/node/Util.h"
+#include "libmoex/node/LoadCommand_SEGMENT.h"
+#include "libmoex/node/LoadCommand_DYLIB.h"
+#include "libmoex/node/LoadCommand_DYLD_INFO.h"
+#include "libmoex/node/LoadCommand_SYMTAB.h"
+#include "libmoex/node/LoadCommand_DYSYMTAB.h"
+#include "libmoex/node/LoadCommand_LOAD_DYLINKER.h"
+#include "libmoex/node/LoadCommand_UUID.h"
+#include "libmoex/node/LoadCommand_VERSION_MIN.h"
+#include "libmoex/node/LoadCommand_SOURCE_VERSION.h"
+#include "libmoex/node/LoadCommand_MAIN.h"
+#include "libmoex/node/LoadCommand_ENCRYPTION_INFO.h"
+#include "libmoex/node/LoadCommand_LINKEDIT_DATA.h"
 
 
 #endif //MOEX_MOEX_H

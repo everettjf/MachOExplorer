@@ -5,7 +5,7 @@
 #include "CommonDisplay.h"
 #include <iostream>
 #include "../util/Utility.h"
-#include <libmoex/node/loadcommand.h>
+#include <libmoex/node/LoadCommand.h>
 #include <string.h>
 #include <libmoex/viewnode/ViewNodeManager.h>
 

@@ -12,7 +12,7 @@
 #include "content/tablecontentview.h"
 #include "content/binarycontentview.h"
 #include "content/blankcontentview.h"
-#include <libmoex/node/binary.h>
+#include <libmoex/node/Binary.h>
 
 
 class ContentView : public QWidget

@@ -7,7 +7,7 @@
 
 
 #include "ViewNode.h"
-#include "../node/binary.h"
+#include "libmoex/node/Binary.h"
 #include "FatHeaderViewNode.h"
 #include "MachHeaderViewNode.h"
 
