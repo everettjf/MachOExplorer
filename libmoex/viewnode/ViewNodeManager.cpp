@@ -37,9 +37,11 @@ ViewNode *ViewNodeManager::GetRootNode() {
 void ViewNodeManager::ConstructNode(){
     // Construct ViewNode Tree
     if(bin_->IsFat()){
-        fat_ = std::make_shared<FatHeaderViewNode>(bin_->fath());
+        fat_ = std::make_shared<FatHeaderViewNode>();
+        fat_->Init(bin_->fath());
     }else{
-        mh_ = std::make_shared<MachHeaderViewNode>(bin_->mh());
+        mh_ = std::make_shared<MachHeaderViewNode>();
+        mh_->Init(bin_->mh());
     }
 }
 

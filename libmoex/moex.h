@@ -20,6 +20,5 @@
 #include "node/loadcommand_encryption_info.h"
 #include "node/loadcommand_linkedit_data.h"
 
-#include "viewnode/ViewNodeManager.h"
 
 #endif //MOEX_MOEX_H

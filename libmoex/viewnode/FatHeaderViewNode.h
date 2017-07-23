@@ -7,7 +7,6 @@
 
 
 #include "ViewNode.h"
-#include "../node/fatheader.h"
 #include "MachHeaderViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
@@ -16,7 +15,7 @@ private:
     FatHeaderPtr d_;
     std::vector<MachHeaderViewNodePtr> headers_;
 public:
-    FatHeaderViewNode(FatHeaderPtr d);
+    void Init(FatHeaderPtr d);
 
     std::string GetDisplayName()override { return "Fat Header";}
     void ForEachChild(std::function<void(ViewNode*)> callback)override;

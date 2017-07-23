@@ -5,7 +5,7 @@
 #ifndef MOEX_VIEWNODE_H
 #define MOEX_VIEWNODE_H
 
-#include "../node/node.h"
+#include "../moex.h"
 
 MOEX_NAMESPACE_BEGIN
 

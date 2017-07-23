@@ -7,16 +7,23 @@
 
 #include "ViewNode.h"
 #include "../node/machheader.h"
+#include "LoadCommandsViewNode.h"
+#include "SectionsViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
 class MachHeaderViewNode : public ViewNode{
 private:
     MachHeaderPtr d_;
-public:
-    MachHeaderViewNode(MachHeaderPtr d);
 
-    std::string GetDisplayName()override { return "Mach Header";}
+    LoadCommandsViewNodePtr load_commands_;
+    SectionsViewNodePtr sections_;
+public:
+    void Init(MachHeaderPtr d);
+
+    std::string GetDisplayName()override;
+
+    void ForEachChild(std::function<void(ViewNode*)> callback)override;
 };
 using MachHeaderViewNodePtr = std::shared_ptr<MachHeaderViewNode>;
 
