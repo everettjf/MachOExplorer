@@ -9,13 +9,26 @@
 
 MOEX_NAMESPACE_BEGIN
 
+enum class ViewDataMode{
+    Binary,
+    Table,
+};
+class ViewData{
+protected:
+    ViewDataMode mode_;
+public:
+    ViewDataMode mode()const{return mode_;}
 
-struct BinaryViewData{
+};
+
+class BinaryViewData: public ViewData{
+public:
     char * offset;
     uint64_t size;
 };
 
-struct TableViewData{
+class TableViewData : public ViewData{
+public:
     std::vector<std::vector<std::string>> rows;
 };
 
@@ -33,8 +46,7 @@ public:
 
 public:
     virtual std::string GetDisplayName(){ return "unknown";}
-    virtual BinaryViewData* GetBinaryViewData(){return nullptr;}
-    virtual TableViewData* GetTableViewData(){return nullptr;}
+    virtual std::vector<ViewData*> GetViewDatas(){ return {};}
     virtual void ForEachChild(std::function<void(ViewNode*)> callback){}
 };
 

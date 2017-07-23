@@ -9,6 +9,12 @@
 
 MOEX_NAMESPACE_BEGIN
 
+class SectionViewNode : public ViewNode{
+private:
+public:
+
+};
+
 class SectionsViewNode : public ViewNode{
 private:
     MachHeaderPtr mh_;
