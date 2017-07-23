@@ -124,12 +124,12 @@ void MainWindow::showLogWindow(bool checked)
 
 void MainWindow::reportIssue(bool checked)
 {
-    util::openURL("https://github.com/everettjf/MachOExplorer/issues");
+    util::openURL("https://github.com/everettjf/MOEX/issues");
 }
 
 void MainWindow::viewSource(bool checked)
 {
-    util::openURL("https://github.com/everettjf/MachOExplorer");
+    util::openURL("https://github.com/everettjf/MOEX");
 
 }
 

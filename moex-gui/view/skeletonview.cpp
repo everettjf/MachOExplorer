@@ -31,9 +31,10 @@ void SkeletonView::openFile(const QString &filePath)
 
     treeView->setModel(controller->model());
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    treeView->setColumnWidth(0,300);
+
     treeView->expandAll();
-    treeView->setColumnWidth(0,240);
-    treeView->setColumnWidth(1,140);
+
 }
 
 void SkeletonView::clickedTreeNode(QModelIndex index)
@@ -42,8 +43,8 @@ void SkeletonView::clickedTreeNode(QModelIndex index)
     if(!item)
         return;
 
-    moex::Node *node = static_cast<moex::Node*>(item->data().value<void*>());
+    moex::ViewNode *node = static_cast<moex::ViewNode*>(item->data().value<void*>());
 
-//    qDebug() << QString::fromStdString(node->GetDisplayName());
+    qDebug() << QString::fromStdString(node->GetDisplayName());
 
 }

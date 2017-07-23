@@ -25,7 +25,6 @@ bool SkeletonController::initModel(QString & error)
     model_->setHorizontalHeaderLabels(
                 QStringList()
                 << QStringLiteral("name")
-                << QStringLiteral("type")
                 );
 
     // Parse file
@@ -44,22 +43,19 @@ bool SkeletonController::initModel(QString & error)
     model_->appendRow(item);
     item->setData(QVariant::fromValue((void*)root));
 
-//    // Children
-//    initChildren(rootNode,item);
-
-
+    // Children
+    initChildren(root,item);
 
     return true;
 }
 
-//void SkeletonController::initChildren(moex::Node *parentNode,QStandardItem *parentItem){
-//    parentNode->ForEachChild([&](moex::Node* node){
-//        QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
-//        parentItem->appendRow(subItem);
-//        parentItem->setChild(subItem->index().row(),1,new QStandardItem(util::qstr(node->GetTypeName())));
-//        subItem->setData(QVariant::fromValue((void*)node));
+void SkeletonController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem){
+    parentNode->ForEachChild([&](moex::ViewNode* node){
+        QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
+        parentItem->appendRow(subItem);
+        subItem->setData(QVariant::fromValue((void*)node));
 
-//        // Loop
-//        initChildren(node,subItem);
-//    });
-//}
+        // Loop
+        initChildren(node,subItem);
+    });
+}
