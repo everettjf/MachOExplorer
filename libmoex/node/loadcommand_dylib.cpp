@@ -20,5 +20,9 @@ void LoadCommand_DYLIB::Init(void * offset,NodeContextPtr & ctx){
     }
 }
 
+std::string LoadCommand_DYLIB::GetShortCharacteristicDescription(){
+    return dylib_name();
+}
+
 
 MOEX_NAMESPACE_END
