@@ -27,9 +27,21 @@ public:
     uint64_t size;
 };
 
+class TableViewItem{
+public:
+    std::string data;
+};
+using TableViewItemPtr = std::shared_ptr<TableViewItem>;
+
+class TableViewRow{
+public:
+    std::vector<TableViewItemPtr> items;
+};
+using TableViewRowPtr = std::shared_ptr<TableViewRow>;
+
 class TableViewData : public ViewData{
 public:
-    std::vector<std::vector<std::string>> rows;
+    std::vector<TableViewRowPtr> rows;
 };
 
 enum class ViewNodeType{
