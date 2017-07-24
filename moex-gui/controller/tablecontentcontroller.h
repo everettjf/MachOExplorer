@@ -7,6 +7,22 @@
 
 #include "basecontroller.h"
 #include <QStandardItemModel>
+#include <QAbstractTableModel>
+
+class TableContentModel : public QAbstractTableModel{
+public:
+    explicit TableContentModel(QObject *parent=0);
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const ;
+
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const ;
+    virtual QVariant headerData(int section, Qt::Orientation orientation,
+                                int role = Qt::DisplayRole) const;
+
+
+};
+
 
 
 class TableContentController : public BaseController
@@ -16,10 +32,10 @@ public:
 
     void InitModel();
 
-    QStandardItemModel* model(){return model_;}
+    TableContentModel* model(){return model_;}
 
 private:
-    QStandardItemModel *model_;
+    TableContentModel *model_;
 };
 
 #endif // TABLECONTENTCONTROLLER_H
