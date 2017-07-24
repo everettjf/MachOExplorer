@@ -19,4 +19,20 @@ void FatHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
         callback(h.get());
     }
 }
+
+
+std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
+    // Table
+    if(vd_table_.get() == nullptr){
+        vd_table_ = std::make_shared<TableViewData>();
+        vd_table_->SetHeaders({"Offset","Data","Description","Value"});
+    }
+
+    if(vd_binary_.get() == nullptr){
+
+    }
+
+    return {vd_table_.get()};
+}
+
 MOEX_NAMESPACE_END

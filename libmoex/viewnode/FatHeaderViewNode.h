@@ -14,11 +14,16 @@ class FatHeaderViewNode : public ViewNode{
 private:
     FatHeaderPtr d_;
     std::vector<MachHeaderViewNodePtr> headers_;
+
+    BinaryViewDataPtr vd_binary_;
+    TableViewDataPtr  vd_table_;
 public:
     void Init(FatHeaderPtr d);
 
     std::string GetDisplayName()override { return "Fat Header";}
     void ForEachChild(std::function<void(ViewNode*)> callback)override;
+    std::vector<ViewData*> GetViewDatas()override ;
+
 };
 using FatHeaderViewNodePtr = std::shared_ptr<FatHeaderViewNode>;
 

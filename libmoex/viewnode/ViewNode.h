@@ -6,6 +6,7 @@
 #define MOEX_VIEWNODE_H
 
 #include "../moex.h"
+#include <initializer_list>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -26,6 +27,7 @@ public:
     char * offset;
     uint64_t size;
 };
+using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
 
 class TableViewItem{
 public:
@@ -36,6 +38,8 @@ using TableViewItemPtr = std::shared_ptr<TableViewItem>;
 class TableViewRow{
 public:
     std::vector<TableViewItemPtr> items;
+
+    void SetValues(const std::initializer_list<std::string> & vals);
 };
 using TableViewRowPtr = std::shared_ptr<TableViewRow>;
 
@@ -49,12 +53,17 @@ class TableViewData : public ViewData{
 public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
+
+    void SetHeaders(const std::initializer_list<std::string> & vals);
+    void AddRow(const std::initializer_list<std::string> & vals);
 };
+using TableViewDataPtr = std::shared_ptr<TableViewData>;
 
 enum class ViewNodeType{
     Unknown,
     FatHeader,
     MachHeader,
+    //...
 };
 
 class ViewNode {
@@ -65,8 +74,8 @@ public:
 
 public:
     virtual std::string GetDisplayName(){ return "unknown";}
-    virtual std::vector<ViewData*> GetViewDatas(){ return {};}
     virtual void ForEachChild(std::function<void(ViewNode*)> callback){}
+    virtual std::vector<ViewData*> GetViewDatas(){ return {};}
 };
 
 
