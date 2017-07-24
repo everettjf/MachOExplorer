@@ -10,7 +10,8 @@
 #include "../view/contentview.h"
 #include "../view/logview.h"
 #include <QDockWidget>
-#include <libmoex/node/Binary.h>
+#include <libmoex/moex.h>
+#include <libmoex/moex-view.h>
 
 struct WorkspaceUI{
     SkeletonView *skeleton;
@@ -33,7 +34,7 @@ public:
 
     void openFile(const QString & filePath);
     void addLog(const QString & log);
-    void showNode(moex::Node *node);
+    void showNode(moex::ViewNode *node);
 private:
     WorkspaceUI *ui_;
 };

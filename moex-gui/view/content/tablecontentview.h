@@ -6,7 +6,11 @@
 #define TABLECONTENTVIEW_H
 
 #include <QWidget>
-#include <libmoex/node/Binary.h>
+#include <libmoex/moex-view.h>
+#include <QTableView>
+#include "../../controller/tablecontentcontroller.h"
+#include <QModelIndex>
+
 
 class TableContentView : public QWidget
 {
@@ -14,8 +18,12 @@ class TableContentView : public QWidget
 public:
     explicit TableContentView(QWidget *parent = 0);
 
+    void showNode(moex::ViewNode *node);
+
 
 private:
+    QTableView *tableView;
+    TableContentController *controller;
 
 signals:
 

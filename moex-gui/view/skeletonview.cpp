@@ -4,6 +4,8 @@
 //
 #include "skeletonview.h"
 #include "../utility/utility.h"
+#include "../controller/workspacemanager.h"
+
 
 SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
 {
@@ -46,5 +48,6 @@ void SkeletonView::clickedTreeNode(QModelIndex index)
     moex::ViewNode *node = static_cast<moex::ViewNode*>(item->data().value<void*>());
 
     qDebug() << QString::fromStdString(node->GetDisplayName());
+    WorkspaceManager::current()->showNode(node);
 
 }

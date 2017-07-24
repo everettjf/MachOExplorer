@@ -68,10 +68,10 @@ void ContentView::openFile(const QString &filePath)
     displayContentTab();
 }
 
-void ContentView::showNode(moex::Node *node)
+void ContentView::showNode(moex::ViewNode *node)
 {
-
-
+    displayContentTab();
+    table->showNode(node);
 }
 
 void ContentView::displayContentTab()

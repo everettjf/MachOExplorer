@@ -8,3 +8,25 @@ TableContentController::TableContentController()
 {
 
 }
+
+void TableContentController::InitModel()
+{
+    if(model_) delete model_;
+
+    model_ = new QStandardItemModel();
+    model_->setHorizontalHeaderLabels(
+                QStringList()
+                << QStringLiteral("name")
+                << QStringLiteral("name")
+                << QStringLiteral("name")
+                << QStringLiteral("name")
+                );
+
+    QStandardItem * item = new QStandardItem(QStringLiteral("hello"));
+    model_->appendRow(item);
+    int col = 1;
+    model_->setItem(model_->rowCount()-1,col++,new QStandardItem(QStringLiteral("world")));
+    model_->setItem(model_->rowCount()-1,col++,new QStandardItem(QStringLiteral("world")));
+    model_->setItem(model_->rowCount()-1,col++,new QStandardItem(QStringLiteral("world")));
+
+}

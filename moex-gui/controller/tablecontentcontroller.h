@@ -6,12 +6,20 @@
 #define TABLECONTENTCONTROLLER_H
 
 #include "basecontroller.h"
+#include <QStandardItemModel>
 
 
 class TableContentController : public BaseController
 {
 public:
     TableContentController();
+
+    void InitModel();
+
+    QStandardItemModel* model(){return model_;}
+
+private:
+    QStandardItemModel *model_;
 };
 
 #endif // TABLECONTENTCONTROLLER_H

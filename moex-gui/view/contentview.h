@@ -12,7 +12,8 @@
 #include "content/tablecontentview.h"
 #include "content/binarycontentview.h"
 #include "content/blankcontentview.h"
-#include <libmoex/node/Binary.h>
+#include <libmoex/moex.h>
+#include <libmoex/moex-view.h>
 
 
 class ContentView : public QWidget
@@ -34,7 +35,7 @@ public:
     void dropEvent(QDropEvent* event);
 
     void openFile(const QString & filePath);
-    void showNode(moex::Node *node);
+    void showNode(moex::ViewNode *node);
 
     void displayContentTab();
 private:
