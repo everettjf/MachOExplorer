@@ -39,8 +39,15 @@ public:
 };
 using TableViewRowPtr = std::shared_ptr<TableViewRow>;
 
+class TableViewHeaderItem{
+public:
+    std::string data;
+};
+using TableViewHeaderItemPtr = std::shared_ptr<TableViewHeaderItem>;
+
 class TableViewData : public ViewData{
 public:
+    std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
 };
 
