@@ -29,14 +29,6 @@ ContentView::ContentView(QWidget *parent) : QWidget(parent)
     tab = new QTabWidget(this);
     stack->addWidget(tab);
 
-    // Tab - Table
-    table = new TableContentView(this);
-    tab->addTab(table,tr("Data"));
-
-    // Tab - Binary
-    binary = new BinaryContentView(this);
-    tab->addTab(binary,tr("Binary"));
-
     setAcceptDrops(true);
 }
 
@@ -70,8 +62,28 @@ void ContentView::openFile(const QString &filePath)
 
 void ContentView::showNode(moex::ViewNode *node)
 {
+    if(!node)return;
+
     displayContentTab();
-    table->showNode(node);
+    tab->clear();
+
+    for(auto viewdata : node->GetViewDatas()){
+        if(viewdata->mode() == moex::ViewDataMode::Table){
+            // Tab - Table
+            table = new TableContentView(this);
+            tab->addTab(table,tr("Data"));
+            table->showNode(static_cast<moex::TableViewData*>(viewdata));
+        }else if(viewdata->mode() == moex::ViewDataMode::Binary){
+
+            // Tab - Binary
+            binary = new BinaryContentView(this);
+            tab->addTab(binary,tr("Binary"));
+
+        }else{
+
+        }
+    }
+
 }
 
 void ContentView::displayContentTab()

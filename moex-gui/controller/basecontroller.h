@@ -5,6 +5,9 @@
 #ifndef BASECONTROLLER_H
 #define BASECONTROLLER_H
 
+#include <libmoex/moex.h>
+#include <libmoex/moex-view.h>
+
 
 class BaseController
 {

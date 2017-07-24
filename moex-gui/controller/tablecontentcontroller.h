@@ -13,6 +13,8 @@ class TableContentModel : public QAbstractTableModel{
 public:
     explicit TableContentModel(QObject *parent=0);
 
+    void InitModel(moex::TableViewData *data);
+
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const ;
 
@@ -20,7 +22,8 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
 
-
+private:
+    moex::TableViewData *data_;
 };
 
 
@@ -30,7 +33,7 @@ class TableContentController : public BaseController
 public:
     TableContentController();
 
-    void InitModel();
+    void InitModel(moex::TableViewData *data);
 
     TableContentModel* model(){return model_;}
 

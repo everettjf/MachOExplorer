@@ -18,7 +18,7 @@ class TableContentView : public QWidget
 public:
     explicit TableContentView(QWidget *parent = 0);
 
-    void showNode(moex::ViewNode *node);
+    void showNode(moex::TableViewData *node);
 
 
 private:

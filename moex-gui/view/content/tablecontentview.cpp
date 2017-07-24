@@ -16,12 +16,12 @@ TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
 
 }
 
-void TableContentView::showNode(moex::ViewNode *node)
+void TableContentView::showNode(moex::TableViewData *node)
 {
     if(controller) delete controller;
     controller = new TableContentController();
 
-    controller->InitModel();
+    controller->InitModel(node);
     tableView->setModel(controller->model());
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
