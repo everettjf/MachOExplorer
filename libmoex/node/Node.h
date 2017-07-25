@@ -21,7 +21,7 @@ public:
 struct NodeContext{
     void *file_start;
 
-    uint64_t GetRAW(void * addr){
+    uint64_t GetRAW(const void * addr){
         return (uint64_t)addr - (uint64_t)file_start;
     }
 };

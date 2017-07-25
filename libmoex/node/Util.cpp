@@ -222,12 +222,12 @@ namespace util {
         return boost::str(boost::format("%1$016x") % (uint64_t)address);
     }
 
-    std::string AsData(void *address, std::size_t size)
+    std::string AsHexData(void *address, std::size_t size)
     {
         std::string res;
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
-            res += boost::str(boost::format("%1$02x")%(int)pos[idx]);
+            res += boost::str(boost::format("%1$02x")%(uint8_t)pos[idx]);
         }
         return res;
     }

@@ -24,18 +24,26 @@ std::string GetMachFileType(uint32_t type);
 std::string GetCmdTypeString(uint32_t cmd);
 
 std::string AsAddress(void *address);
-std::string AsData(void *address,std::size_t size);
+std::string AsHexData(void *address,std::size_t size);
 
 template <typename T>
-std::string AsData(T *address){
-    return AsData(address,sizeof(T));
+std::string AsHexData(T *address){
+    return AsHexData((void*)address,sizeof(T));
 }
 
 template <typename T>
-std::string AsValue(T v){
-    return boost::str(boost::format("%1%")%v);
+std::string AsString(T value){
+    return boost::str(boost::format("%1%") % value);
+}
+template <typename T>
+std::string AsHexString(T value){
+    return boost::str(boost::format("%X") % value);
 }
 
+template <typename T>
+std::string AsAddress(T value){
+    return boost::str(boost::format("%08X") % value);
+}
 }
 
 MOEX_NAMESPACE_END
