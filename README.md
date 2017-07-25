@@ -1,18 +1,21 @@
 # MOEX - MachO EXplorer
 
-**Under Developing**
-**Under Developing**
-**Under Developing**
+⚠️ This repo is under construction, code may not compile
+
+⚠️ This repo is under construction, code may not compile
+
+⚠️ This repo is under construction, code may not compile
+
 
 - Yet another MachOView, and trying to be a better one.
 
 # Feature
 
-- Basic view MachO file structure (like MachOView).
-- Insert a dylib (like optool).
-- Class dump (like class-dump).
-- Symbolicate static initializers : just drop dSYM into `mod_func_init` section.
-- Restore Symbol : one key to restore symbol.
+- [X] Basic view MachO file structure (like MachOView).
+- [ ] Insert a dylib (like optool).
+- [ ] Class dump (like class-dump).
+- [ ] Symbolicate static initializers : just drop dSYM into `mod_func_init` section.
+- [ ] Restore Symbol : one key to restore symbol.
 
 
 # How to build 
