@@ -26,6 +26,10 @@ class BinaryViewData: public ViewData{
 public:
     char * offset;
     uint64_t size;
+
+    BinaryViewData(){
+        mode_ = ViewDataMode::Binary;
+    }
 };
 using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
 
@@ -53,6 +57,10 @@ class TableViewData : public ViewData{
 public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
+
+    TableViewData(){
+        mode_ = ViewDataMode::Table;
+    }
 
     void SetHeaders(const std::initializer_list<std::string> & vals);
     void AddRow(const std::initializer_list<std::string> & vals);

@@ -26,6 +26,14 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
     if(vd_table_.get() == nullptr){
         vd_table_ = std::make_shared<TableViewData>();
         vd_table_->SetHeaders({"Offset","Data","Description","Value"});
+
+
+        vd_table_->AddRow({
+                "hello",
+                "hello",
+                "hello",
+                "hello",
+                          });
     }
 
     if(vd_binary_.get() == nullptr){

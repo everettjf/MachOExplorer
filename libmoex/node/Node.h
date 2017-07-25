@@ -20,6 +20,10 @@ public:
 
 struct NodeContext{
     void *file_start;
+
+    uint64_t GetRAW(void * addr){
+        return (uint64_t)addr - (uint64_t)file_start;
+    }
 };
 using NodeContextPtr = std::shared_ptr<NodeContext>;
 
@@ -37,6 +41,8 @@ public:
     static constexpr std::size_t DATA_SIZE(){return sizeof(T);}
 
     const T * offset()const{ return offset_;}
+
+    NodeContextPtr ctx(){return ctx_;};
 
     virtual void Init(void *offset,NodeContextPtr &ctx) {
         offset_ = static_cast<T*>(offset);
