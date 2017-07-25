@@ -1,5 +1,8 @@
 # MOEX - MachO EXplorer
 
+Yet another MachOView, and trying to be a better one.
+
+
 ⚠️ This repo is under construction, code may not compile
 
 ⚠️ This repo is under construction, code may not compile
@@ -7,7 +10,6 @@
 ⚠️ This repo is under construction, code may not compile
 
 
-- Yet another MachOView, and trying to be a better one.
 
 # Feature
 
