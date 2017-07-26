@@ -31,14 +31,14 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
 
         vd_table_->AddRow({
                 moex::util::AsAddress(d_->GetRAW(&(h->magic))),
-                moex::util::AsHexString(h->magic),
+                moex::util::AsHexData(&(h->magic)),
                 "Magic Number",
                 moex::util::GetMagicString(h->magic),
                           });
 
         vd_table_->AddRow({
                   moex::util::AsAddress(d_->GetRAW(&(h->nfat_arch))),
-                  moex::util::AsHexString(h->nfat_arch),
+                  moex::util::AsHexData(&(h->nfat_arch)),
                   "Number of Architecture",
                   moex::util::GetMagicString(h->nfat_arch),
                           });

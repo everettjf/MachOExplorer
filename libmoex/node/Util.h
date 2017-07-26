@@ -31,6 +31,7 @@ std::string AsHexData(T *address){
     return AsHexData((void*)address,sizeof(T));
 }
 
+
 template <typename T>
 std::string AsString(T value){
     return boost::str(boost::format("%1%") % value);

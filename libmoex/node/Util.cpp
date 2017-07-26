@@ -3,6 +3,9 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "Util.h"
+#include <iostream>
+using namespace std;
+#include <cstdio>
 
 
 MOEX_NAMESPACE_BEGIN
@@ -224,10 +227,13 @@ namespace util {
 
     std::string AsHexData(void *address, std::size_t size)
     {
+        char *offset = (char*)address;
         std::string res;
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
-            res += boost::str(boost::format("%02X")%(uint32_t)pos[idx]);
+            char sz[3] = {0,0,0};
+            sprintf(sz,"%02X",(uint8_t)offset[idx]);
+            res += std::string(sz);
         }
         return res;
     }

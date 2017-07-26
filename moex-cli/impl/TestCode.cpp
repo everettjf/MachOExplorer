@@ -5,12 +5,14 @@
 #include "TestCode.h"
 #include <boost/format.hpp>
 #include <iostream>
+#include <libmoex/moex.h>
+#include <cstdio>
 
 using namespace std;
 
 
 void TestCode::Test() {
-    char a8 = 10;
+    uint8_t a8 = 10;
     cout << sizeof(a8) << " "<< boost::format("%02X")%(uint32_t)a8 <<endl;
 
     uint16_t a16 = 10;
@@ -22,10 +24,10 @@ void TestCode::Test() {
     uint64_t a64 = 10;
     cout << sizeof(a64) << " " << boost::format("%016X")%(uint64_t)a64 <<endl;
 
-    char c20[20] = "Hello World";
-    cout << sizeof(c20) << " ";
-    for(int i=0;i<sizeof(c20)/sizeof(char);++i){
-        cout << boost::format("%02X")%(uint32_t)c20[i];
-    }
-    cout << endl;
+
+    cout << moex::util::AsHexData(&a8)<<endl;
+    cout << moex::util::AsHexData(&a16)<<endl;
+    cout << moex::util::AsHexData(&a32)<<endl;
+    cout << moex::util::AsHexData(&a64)<<endl;
+
 }
