@@ -77,7 +77,6 @@ namespace util {
         };
         try{
             return mapper.at(cmd);
-
         }catch(std::out_of_range&){
         }
         return "unknown";
@@ -237,6 +236,33 @@ namespace util {
         }
         return res;
     }
+
+    string AsHexData(uint8_t value){
+        char sz[2+1] = {0,0,0};
+        sprintf(sz,"%02X",value);
+        return std::string(sz);
+    }
+
+
+
+    string AsHexData(uint16_t value){
+        char sz[4+1] = {0,0,0,0,0};
+        sprintf(sz,"%04X",value);
+        return std::string(sz);
+    }
+
+
+
+    string AsHexData(uint32_t value){
+        return boost::str(boost::format("%08X")%value);
+    }
+
+    string AsHexData(uint64_t value){
+        return boost::str(boost::format("%016X")%value);
+    }
+
+
+
 
 }
 

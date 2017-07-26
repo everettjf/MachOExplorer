@@ -22,6 +22,8 @@ void FatHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 
 
 std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
+    using namespace moex::util;
+
     // Table
     if(vd_table_.get() == nullptr){
         vd_table_ = std::make_shared<TableViewData>();
@@ -30,17 +32,17 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
         const fat_header * h = d_->offset();
 
         vd_table_->AddRow({
-                moex::util::AsAddress(d_->GetRAW(&(h->magic))),
-                moex::util::AsHexData(&(h->magic)),
+                AsAddress(d_->GetRAW(&(h->magic))),
+                AsHexData(h->magic),
                 "Magic Number",
-                moex::util::GetMagicString(h->magic),
+                GetMagicString(h->magic),
                           });
 
         vd_table_->AddRow({
-                  moex::util::AsAddress(d_->GetRAW(&(h->nfat_arch))),
-                  moex::util::AsHexData(&(h->nfat_arch)),
+                  AsAddress(d_->GetRAW(&(h->nfat_arch))),
+                  AsHexData(h->nfat_arch),
                   "Number of Architecture",
-                  moex::util::GetMagicString(h->nfat_arch),
+                  AsString(d_->data().nfat_arch),
                           });
     }
 

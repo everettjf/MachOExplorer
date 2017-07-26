@@ -25,11 +25,11 @@ std::string GetCmdTypeString(uint32_t cmd);
 
 std::string AsAddress(void *address);
 std::string AsHexData(void *address,std::size_t size);
+std::string AsHexData(uint8_t value);
+std::string AsHexData(uint16_t value);
+std::string AsHexData(uint32_t value);
+std::string AsHexData(uint64_t value);
 
-template <typename T>
-std::string AsHexData(T *address){
-    return AsHexData((void*)address,sizeof(T));
-}
 
 
 template <typename T>
