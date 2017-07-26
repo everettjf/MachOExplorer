@@ -219,19 +219,15 @@ namespace util {
 
     std::string AsAddress(void *address)
     {
-        return boost::str(boost::format("%1$016x") % (uint64_t)address);
+        return boost::str(boost::format("%016x") % (uint64_t)address);
     }
 
     std::string AsHexData(void *address, std::size_t size)
     {
-        static const char * kSize2 = "";
-        if(size == 2){
-
-        }
         std::string res;
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
-            res += boost::str(boost::format("%1$02x")%(uint8_t)pos[idx]);
+            res += boost::str(boost::format("%02X")%(uint32_t)pos[idx]);
         }
         return res;
     }

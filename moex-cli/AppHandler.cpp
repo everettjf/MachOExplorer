@@ -70,6 +70,8 @@ void AppHandler::SetupOptions(){
             ("file",boost::program_options::value<std::string>(),"[required] macho file path")
             ("csv","CSV format output")
 
+            ("test","test code")
+
             // parameter
             ("arch",boost::program_options::value<std::string>(),"arch filter")
 
