@@ -20,10 +20,6 @@ public:
 
 struct NodeContext{
     void *file_start;
-
-    uint64_t GetRAW(const void * addr){
-        return (uint64_t)addr - (uint64_t)file_start;
-    }
 };
 using NodeContextPtr = std::shared_ptr<NodeContext>;
 
@@ -47,6 +43,10 @@ public:
     virtual void Init(void *offset,NodeContextPtr &ctx) {
         offset_ = static_cast<T*>(offset);
         ctx_ = ctx;
+    }
+
+    uint64_t GetRAW(const void * addr){
+        return (uint64_t)addr - (uint64_t)ctx_->file_start;
     }
 
     std::string GetTypeName() override{ return "node";}

@@ -30,15 +30,14 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
         const fat_header * h = d_->offset();
 
         vd_table_->AddRow({
-                moex::util::AsAddress(d_->ctx()->GetRAW(&(h->magic))),
-//                moex::util::AsHexData(&(h->magic)),
+                moex::util::AsAddress(d_->GetRAW(&(h->magic))),
                 moex::util::AsHexString(h->magic),
                 "Magic Number",
                 moex::util::GetMagicString(h->magic),
                           });
 
         vd_table_->AddRow({
-                                  moex::util::AsAddress(d_->ctx()->GetRAW(&(h->nfat_arch))),
+                                  moex::util::AsAddress(d_->GetRAW(&(h->nfat_arch))),
                                   moex::util::AsHexString(h->nfat_arch),
                                   "Number of Architecture",
                                   moex::util::GetMagicString(h->nfat_arch),
