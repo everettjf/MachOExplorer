@@ -224,6 +224,10 @@ namespace util {
 
     std::string AsHexData(void *address, std::size_t size)
     {
+        static const char * kSize2 = "";
+        if(size == 2){
+
+        }
         std::string res;
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){

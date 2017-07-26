@@ -7,7 +7,8 @@
 #include <iostream>
 #include "util/ArgvParser.h"
 #include "util/BeautyTextPrint.h"
-#include "display/CommonDisplay.h"
+#include "impl/CommonDisplay.h"
+#include "impl/TestCode.h"
 
 using namespace std;
 using namespace boost::filesystem;
@@ -34,6 +35,12 @@ bool AppHandler::Prepare(){
         return false;
     }
 
+    if(argv_->Exist("test")){
+        TestCode t;
+        t.Test();
+        return false;
+    }
+
     // Required option file
     if (!argv_->Exist("file")){
         cout << "Input file must be specified."<<endl;
@@ -49,7 +56,7 @@ bool AppHandler::Prepare(){
         // edit mode options
         GoEditMode();
     }else{
-        // default to display mode
+        // default to impl mode
         GoDisplayMode();
     }
 
@@ -59,33 +66,33 @@ bool AppHandler::Prepare(){
 
 void AppHandler::SetupOptions(){
     argv_->desc().add_options()
-            ("help", "display help message")
+            ("help", "impl help message")
             ("file",boost::program_options::value<std::string>(),"[required] macho file path")
             ("csv","CSV format output")
 
             // parameter
             ("arch",boost::program_options::value<std::string>(),"arch filter")
 
-            // display mode [default]
-            ("is_fat","[display] is fat")
-            ("fat_list","[display] fat list (less info than headerlist)")
-            ("header_list","[display] header list")
-            ("loadcommand_list","[display] loadcommand list")
+            // impl mode [default]
+            ("is_fat","[impl] is fat")
+            ("fat_list","[impl] fat list (less info than headerlist)")
+            ("header_list","[impl] header list")
+            ("loadcommand_list","[impl] loadcommand list")
 
-            ("segment_list","[display] segment list")
-            ("section_list","[display] section list")
+            ("segment_list","[impl] segment list")
+            ("section_list","[impl] section list")
 
-            ("symbol_list","[display] symbol list")
-            ("string_table","[display] string table")
-            ("crypt_info","[display] encryption info")
-            ("uuid","[display] uuid")
-            ("main","[display] main (entry offset)")
+            ("symbol_list","[impl] symbol list")
+            ("string_table","[impl] string table")
+            ("crypt_info","[impl] encryption info")
+            ("uuid","[impl] uuid")
+            ("main","[impl] main (entry offset)")
 
-            ("dylib_list","[display] dylib list")
+            ("dylib_list","[impl] dylib list")
 
             // helper
-            ("arch_list","[display] arch list")
-            ("tree","[display] node tree")
+            ("arch_list","[impl] arch list")
+            ("tree","[impl] node tree")
 
             ;
 }
