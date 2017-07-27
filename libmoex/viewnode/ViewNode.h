@@ -58,13 +58,13 @@ public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
 
-    TableViewData(){
-        mode_ = ViewDataMode::Table;
-        SetHeaders({"Offset","Data","Description","Value"});
-    }
+    TableViewData();
 
     void SetHeaders(const std::initializer_list<std::string> & vals);
     void AddRow(const std::initializer_list<std::string> & vals);
+
+    template <typename T>
+    void AddRow(uint64_t addr,T data,const std::string & desc,const std::string & val);
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
 

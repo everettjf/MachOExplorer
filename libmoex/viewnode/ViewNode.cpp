@@ -35,5 +35,11 @@ void TableViewData::AddRow(const std::initializer_list<std::string> & vals){
     rows.push_back(r);
 }
 
+template<typename T>
+void TableViewData::AddRow(uint64_t addr, moex::TableViewData::T data, const std::string &desc, const std::string &val)
+{
+
+}
+
 
 MOEX_NAMESPACE_END
