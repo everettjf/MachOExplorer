@@ -58,10 +58,7 @@ public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
 
-    TableViewData(){
-        mode_ = ViewDataMode::Table;
-        SetHeaders({"Offset","Data","Description","Value"});
-    }
+    TableViewData();
 
     void SetHeaders(const std::initializer_list<std::string> & vals);
     void AddRow(const std::initializer_list<std::string> & vals);

@@ -16,6 +16,11 @@ void TableViewRow::SetValues(const std::initializer_list<std::string> & vals){
 }
 
 
+TableViewData::TableViewData(){
+    mode_ = ViewDataMode::Table;
+    SetHeaders({"Offset","Data","Description","Value"});
+}
+
 void TableViewData::SetHeaders(const std::initializer_list<std::string> & vals){
     headers.clear();
     for(auto & v : vals){
