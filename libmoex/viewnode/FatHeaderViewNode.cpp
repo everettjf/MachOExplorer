@@ -29,19 +29,8 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
         vd_table_ = std::make_shared<TableViewData>();
         const fat_header * h = d_->offset();
 
-        vd_table_->AddRow({
-                AsAddress(d_->GetRAW(&(h->magic))),
-                AsHexData(h->magic),
-                "Magic Number",
-                GetMagicString(h->magic),
-                          });
-
-        vd_table_->AddRow({
-                  AsAddress(d_->GetRAW(&(h->nfat_arch))),
-                  AsHexData(h->nfat_arch),
-                  "Number of Architecture",
-                  AsString(d_->data().nfat_arch),
-                          });
+        vd_table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",GetMagicString(h->magic));
+        vd_table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
     }
 
     if(vd_binary_.get() == nullptr){
