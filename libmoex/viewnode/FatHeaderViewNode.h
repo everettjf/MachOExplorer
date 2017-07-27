@@ -15,8 +15,8 @@ private:
     FatHeaderPtr d_;
     std::vector<MachHeaderViewNodePtr> headers_;
 
-    BinaryViewDataPtr vd_binary_;
-    TableViewDataPtr  vd_table_;
+    BinaryViewDataPtr binary_;
+    TableViewDataPtr  table_;
 public:
     void Init(FatHeaderPtr d);
 

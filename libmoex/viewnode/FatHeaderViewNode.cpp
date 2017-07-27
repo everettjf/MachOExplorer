@@ -25,19 +25,27 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
     using namespace moex::util;
 
     // Table
-    if(vd_table_.get() == nullptr){
-        vd_table_ = std::make_shared<TableViewData>();
+    if(table_.get() == nullptr){
+        table_ = std::make_shared<TableViewData>();
         const fat_header * h = d_->offset();
 
-        vd_table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",GetMagicString(h->magic));
-        vd_table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
+        table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",GetMagicString(h->magic));
+        table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
+
+        table_->AddSeparator();
+
+        for(auto & arch : d_->archs()){
+            const fat_arch * a = arch->offset();
+            table_->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",GetCpuTypeString(arch->data_ptr()->cputype));
+            table_->AddSeparator();
+        }
     }
 
-    if(vd_binary_.get() == nullptr){
+    if(binary_.get() == nullptr){
 
     }
 
-    return {vd_table_.get()};
+    return {table_.get()};
 }
 
 MOEX_NAMESPACE_END

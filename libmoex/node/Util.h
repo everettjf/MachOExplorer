@@ -6,6 +6,7 @@
 #define HELPER_H
 
 #include "Common.h"
+#include <cstdio>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -23,13 +24,6 @@ std::string GetCpuSubTypeString(cpu_subtype_t type);
 std::string GetMachFileType(uint32_t type);
 std::string GetCmdTypeString(uint32_t cmd);
 
-std::string AsAddress(void *address);
-std::string AsHexData(void *address,std::size_t size);
-std::string AsHexData(uint8_t value);
-std::string AsHexData(uint16_t value);
-std::string AsHexData(uint32_t value);
-std::string AsHexData(uint64_t value);
-
 
 
 template <typename T>
@@ -41,9 +35,32 @@ std::string AsHexString(T value){
     return boost::str(boost::format("%X") % value);
 }
 
+std::string AsAddress(void *address);
+
 template <typename T>
 std::string AsAddress(T value){
     return boost::str(boost::format("%08X") % value);
+}
+
+std::string AsHexData(void *address,std::size_t size);
+
+template <typename T>
+std::string AsHexData(T & value){
+    if(sizeof(value) == sizeof(uint8_t)){
+        char sz[2+1] = {0,0,0};
+        sprintf(sz,"%02X",value);
+        return std::string(sz);
+    }else if(sizeof(value) == sizeof(uint16_t)){
+        char sz[4+1] = {0,0,0,0,0};
+        sprintf(sz,"%04X",value);
+        return std::string(sz);
+    }else if(sizeof(value) == sizeof(uint32_t)){
+        return boost::str(boost::format("%08X")%value);
+    }else if(sizeof(value) == sizeof(uint64_t)){
+        return boost::str(boost::format("%016X")%value);
+    }else{
+        return AsHexData(&value,sizeof(value));
+    }
 }
 }
 

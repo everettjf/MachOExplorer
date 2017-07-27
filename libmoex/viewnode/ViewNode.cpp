@@ -40,6 +40,11 @@ void TableViewData::AddRow(uint64_t addr, void *data, size_t size, const std::st
     AddRow({util::AsAddress(addr),util::AsHexData(data,size),desc,val});
 }
 
+void TableViewData::AddSeparator()
+{
+    AddRow({"","","",""});
+}
+
 
 
 MOEX_NAMESPACE_END

@@ -67,6 +67,8 @@ public:
     void AddRow(uint64_t addr,T data,const std::string & desc,const std::string & val);
 
     void AddRow(uint64_t addr,void* data,size_t size,const std::string & desc,const std::string & val);
+
+    void AddSeparator();
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
 
