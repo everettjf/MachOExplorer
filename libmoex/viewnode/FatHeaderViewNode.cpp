@@ -29,14 +29,19 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
         table_ = std::make_shared<TableViewData>();
         const fat_header * h = d_->offset();
 
-        table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",GetMagicString(h->magic));
+        table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",d_->GetMagicString());
         table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
 
         table_->AddSeparator();
 
         for(auto & arch : d_->archs()){
             const fat_arch * a = arch->offset();
-            table_->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",GetCpuTypeString(arch->data_ptr()->cputype));
+            table_->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",arch->GetCpuTypeString());
+            table_->AddRow(d_->GetRAW(&(a->cpusubtype)),a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
+            table_->AddRow(d_->GetRAW(&(a->offset)),a->offset,"Offset",AsString(arch->data().offset));
+            table_->AddRow(d_->GetRAW(&(a->size)),a->size,"Size",AsString(arch->data().size));
+            table_->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(arch->data().align));
+
             table_->AddSeparator();
         }
     }

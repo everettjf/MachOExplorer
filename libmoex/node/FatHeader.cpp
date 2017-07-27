@@ -3,6 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "FatHeader.h"
+#include "Util.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -18,6 +19,16 @@ void FatArch::Init(void *offset, NodeContextPtr &ctx) {
     void *mach_offset = (char *)(ctx_->file_start) + data_.offset;
     mh_ = std::make_shared<MachHeader>();
     mh_->Init(mach_offset,ctx_);
+}
+
+std::string FatArch::GetCpuTypeString()
+{
+    return util::GetCpuTypeString(this->data().cputype);
+}
+
+std::string FatArch::GetCpuSubTypeString()
+{
+    return util::GetCpuSubTypeString(this->data().cpusubtype);
 }
 
 
@@ -39,6 +50,11 @@ void FatHeader::Init(void *offset, NodeContextPtr &ctx) {
 
         archs_.push_back(arch);
     }
+}
+
+std::string FatHeader::GetMagicString()
+{
+    return util::GetMagicString(this->data().magic);
 }
 
 

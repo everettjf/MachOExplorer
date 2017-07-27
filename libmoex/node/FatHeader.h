@@ -25,6 +25,9 @@ public:
     bool is64()const{ return mh_->is64(); }
 
     std::string GetTypeName() override{ return "fat_arch";}
+
+    std::string GetCpuTypeString();
+    std::string GetCpuSubTypeString();
 };
 using FatArchPtr = std::shared_ptr<FatArch>;
 
@@ -38,6 +41,8 @@ public:
     const std::vector<FatArchPtr> & archs()const { return archs_;}
 
     std::string GetTypeName() override{ return "fat_header";}
+
+    std::string GetMagicString();
 };
 using FatHeaderPtr = std::shared_ptr<FatHeader>;
 
