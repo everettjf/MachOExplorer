@@ -40,7 +40,7 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
             table_->AddRow(d_->GetRAW(&(a->cpusubtype)),a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
             table_->AddRow(d_->GetRAW(&(a->offset)),a->offset,"Offset",AsString(arch->data().offset));
             table_->AddRow(d_->GetRAW(&(a->size)),a->size,"Size",AsString(arch->data().size));
-            table_->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(arch->data().align));
+            table_->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
 
             table_->AddSeparator();
         }
