@@ -83,7 +83,7 @@ void ContentView::showNode(moex::ViewNode *node)
             binary->showNode(static_cast<moex::BinaryViewData*>(viewdata));
 
         }else{
-
+            // No such mode
         }
     }
 

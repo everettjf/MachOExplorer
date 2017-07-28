@@ -9,7 +9,7 @@
 BinaryContentModel::BinaryContentModel(QObject *parent)
     :QAbstractTableModel (parent)
 {
-    headers_ = {"Offset","DATA LOW","DATA HIGH","TEXT"};
+    headers_ = {"Offset","Data LO","Data HI","Value"};
 }
 
 void BinaryContentModel::InitModel(moex::BinaryViewData *data)
