@@ -4,6 +4,7 @@
 //
 #include "tablecontentview.h"
 #include "../../utility/utility.h"
+#include <QHBoxLayout>
 
 TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
 {
@@ -24,5 +25,9 @@ void TableContentView::showNode(moex::TableViewData *node)
     controller->InitModel(node);
     tableView->setModel(controller->model());
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+//    tableView->setColumnWidth(0,100);
+//    tableView->setColumnWidth(1,100);
+//    tableView->setColumnWidth(2,200);
 
 }
