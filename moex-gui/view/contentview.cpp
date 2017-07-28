@@ -80,6 +80,7 @@ void ContentView::showNode(moex::ViewNode *node)
             // Tab - Binary
             binary = new BinaryContentView(this);
             tab->addTab(binary,tr("Binary"));
+            binary->showNode(static_cast<moex::BinaryViewData*>(viewdata));
 
         }else{
 
