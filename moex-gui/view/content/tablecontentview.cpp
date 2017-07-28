@@ -12,6 +12,8 @@ TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
     tableView = new QTableView(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+
     layout->addWidget(tableView);
     setLayout(layout);
 

@@ -13,6 +13,7 @@ BlankContentView::BlankContentView(QWidget *parent) : QWidget(parent)
     text->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
     layout->addWidget(text);
     setLayout(layout);
 
