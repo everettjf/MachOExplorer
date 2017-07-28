@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.3.1, 2017-07-25T01:40:56. -->
+<!-- Written by QtCreator 4.3.1, 2017-07-29T01:40:02. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -305,7 +305,7 @@
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">moex-gui.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"></value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">/Users/everettjf/github/moex/build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Debug/moex-ui.app/Contents/MacOS</value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">/Users/everettjf/github/moex/build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Debug/moex-gui.app/Contents/MacOS</value>
     <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>

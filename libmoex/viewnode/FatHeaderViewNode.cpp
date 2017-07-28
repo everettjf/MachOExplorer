@@ -25,7 +25,7 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
     using namespace moex::util;
 
     // Table
-    if(table_.get() == nullptr){
+    if(!table_){
         table_ = std::make_shared<TableViewData>();
         const fat_header * h = d_->offset();
 
@@ -46,11 +46,13 @@ std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
         }
     }
 
-    if(binary_.get() == nullptr){
-
+    if(!binary_){
+        binary_ = std::make_shared<BinaryViewData>();
+        binary_->offset = (char*)d_->offset();
+        binary_->size = d_->DATA_SIZE();
     }
 
-    return {table_.get()};
+    return {table_.get(),binary_.get()};
 }
 
 MOEX_NAMESPACE_END
