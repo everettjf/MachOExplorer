@@ -57,10 +57,12 @@ class TableViewData : public ViewData{
 public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
+    std::vector<uint32_t> widths;
 
     TableViewData();
 
     void SetHeaders(const std::initializer_list<std::string> & vals);
+    void SetWidths(const std::initializer_list<uint32_t> & vals);
     void AddRow(const std::initializer_list<std::string> & vals);
 
     template <typename T>

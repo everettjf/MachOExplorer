@@ -26,8 +26,9 @@ void TableContentView::showNode(moex::TableViewData *node)
     tableView->setModel(controller->model());
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-//    tableView->setColumnWidth(0,100);
-//    tableView->setColumnWidth(1,100);
-//    tableView->setColumnWidth(2,200);
+    for(uint32_t idx = 0; idx < node->widths.size(); ++idx){
+        tableView->setColumnWidth(idx,node->widths.at(idx));
+    }
+    tableView->resizeRowsToContents();
 
 }

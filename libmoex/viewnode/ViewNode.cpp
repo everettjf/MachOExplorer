@@ -19,6 +19,7 @@ void TableViewRow::SetValues(const std::initializer_list<std::string> & vals){
 TableViewData::TableViewData(){
     mode_ = ViewDataMode::Table;
     SetHeaders({"Offset","Data","Description","Value"});
+    SetWidths({100,200,200,200});
 }
 
 void TableViewData::SetHeaders(const std::initializer_list<std::string> & vals){
@@ -27,6 +28,14 @@ void TableViewData::SetHeaders(const std::initializer_list<std::string> & vals){
         TableViewHeaderItemPtr h = std::make_shared<TableViewHeaderItem>();
         h->data = v;
         headers.push_back(h);
+    }
+}
+
+void TableViewData::SetWidths(const std::initializer_list<uint32_t> &vals)
+{
+    widths.clear();
+    for(auto & v:vals){
+        widths.push_back(v);
     }
 }
 void TableViewData::AddRow(const std::initializer_list<std::string> & vals){

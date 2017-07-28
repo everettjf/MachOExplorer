@@ -13,6 +13,7 @@ SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
     treeView = new QTreeView(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
     layout->addWidget(treeView);
     setLayout(layout);
 

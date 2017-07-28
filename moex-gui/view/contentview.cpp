@@ -16,10 +16,12 @@ ContentView::ContentView(QWidget *parent) : QWidget(parent)
     node = nullptr;
 
     // Stack
-    stack = new QStackedWidget(this);
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(stack);
+    layout->setMargin(0);
     setLayout(layout);
+
+    stack = new QStackedWidget(this);
+    layout->addWidget(stack);
 
     // Stack - Blank
     blank = new BlankContentView(this);

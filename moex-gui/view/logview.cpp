@@ -11,6 +11,7 @@ LogView::LogView(QWidget *parent) : QWidget(parent)
     textEdit->setReadOnly(true);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
     layout->addWidget(textEdit);
     setLayout(layout);
 }
