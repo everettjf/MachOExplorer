@@ -11,11 +11,17 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    Q_INIT_RESOURCE(moex);
+
+    QApplication app(argc, argv);
+
+    app.setApplicationName("MOEX");
+    app.setOrganizationName("MOEX");
+    app.setWindowIcon(QIcon(":res/moex.ico"));
 
     MainWindow w;
     w.resize(900,600);
     w.show();
 
-    return a.exec();
+    return app.exec();
 }

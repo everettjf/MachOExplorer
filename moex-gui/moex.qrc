@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/moex.ico</file>
+    </qresource>
+</RCC>

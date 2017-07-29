@@ -43,3 +43,6 @@ macx{
 
 INCLUDEPATH += ./../
 
+RESOURCES += \
+    moex.qrc
+
