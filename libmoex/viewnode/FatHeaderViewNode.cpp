@@ -52,6 +52,9 @@ void FatHeaderViewNode::InitViewDatas(){
         BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
+        for(auto & arch: d_->archs()){
+            b->size += arch->DATA_SIZE();
+        }
         AddViewData(b);
     }
 }
