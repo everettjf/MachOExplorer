@@ -25,6 +25,7 @@ using NodeContextPtr = std::shared_ptr<NodeContext>;
 
 class Node{
 public:
+    virtual ~Node(){}
     virtual std::string GetTypeName() = 0;
 };
 
@@ -38,7 +39,7 @@ public:
 
     const T * offset()const{ return offset_;}
 
-    NodeContextPtr ctx(){return ctx_;};
+    NodeContextPtr ctx(){return ctx_;}
 
     virtual void Init(void *offset,NodeContextPtr &ctx) {
         offset_ = static_cast<T*>(offset);

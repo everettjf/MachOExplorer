@@ -100,6 +100,7 @@ protected:
     }
 public:
     ViewNodeType GetDisplayType(){ return type_;}
+    virtual ~ViewNode(){}
     std::vector<ViewDataPtr> & GetViewDatas(){
         if(view_datas_.empty()){
             InitViewDatas();
@@ -109,8 +110,8 @@ public:
 
 public:
     virtual std::string GetDisplayName(){ return "unknown";}
-    virtual void ForEachChild(std::function<void(ViewNode*)> callback){}
-    virtual void InitViewDatas(){};
+    virtual void ForEachChild(std::function<void(ViewNode*)>){}
+    virtual void InitViewDatas(){}
 };
 
 

@@ -24,7 +24,7 @@ public:
 
     std::string GetDisplayName()override { return "File";}
     void ForEachChild(std::function<void(ViewNode*)> callback)override;
-
+    void InitViewDatas()override;
 };
 using FileViewNodePtr = std::shared_ptr<FileViewNode>;
 

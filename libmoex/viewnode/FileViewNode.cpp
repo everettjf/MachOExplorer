@@ -26,4 +26,9 @@ void FileViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
     }
 
 }
+
+void FileViewNode::InitViewDatas()
+{
+
+}
 MOEX_NAMESPACE_END
