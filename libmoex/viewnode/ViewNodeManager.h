@@ -8,18 +8,14 @@
 
 #include "ViewNode.h"
 #include "libmoex/node/Binary.h"
-#include "FatHeaderViewNode.h"
-#include "MachHeaderViewNode.h"
+#include "FileViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
 class ViewNodeManager{
 private:
     BinaryPtr bin_;
-
-    std::shared_ptr<FatHeaderViewNode> fat_;
-    std::shared_ptr<MachHeaderViewNode> mh_;
-
+    FileViewNodePtr file_;
 private:
     void ConstructNode();
 

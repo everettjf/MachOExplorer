@@ -27,22 +27,12 @@ void ViewNodeManager::Init(BinaryPtr bin){
 }
 
 ViewNode *ViewNodeManager::GetRootNode() {
-    if(bin_->IsFat()){
-        return fat_.get();
-    }else{
-        return mh_.get();
-    }
+    return file_.get();
 }
 
 void ViewNodeManager::ConstructNode(){
-    // Construct ViewNode Tree
-    if(bin_->IsFat()){
-        fat_ = std::make_shared<FatHeaderViewNode>();
-        fat_->Init(bin_->fath());
-    }else{
-        mh_ = std::make_shared<MachHeaderViewNode>();
-        mh_->Init(bin_->mh());
-    }
+    file_ = std::make_shared<FileViewNode>();
+    file_->Init(bin_);
 }
 
 MOEX_NAMESPACE_END

@@ -25,9 +25,4 @@ void TestCode::Test() {
     cout << sizeof(a64) << " " << boost::format("%016X")%(uint64_t)a64 <<endl;
 
 
-    cout << moex::util::AsHexData(&a8)<<endl;
-    cout << moex::util::AsHexData(&a16)<<endl;
-    cout << moex::util::AsHexData(&a32)<<endl;
-    cout << moex::util::AsHexData(&a64)<<endl;
-
 }
