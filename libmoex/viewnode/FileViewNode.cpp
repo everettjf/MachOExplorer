@@ -30,5 +30,12 @@ void FileViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 void FileViewNode::InitViewDatas()
 {
 
+    // Binary
+    {
+        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        b->offset = (char*)bin_->memory();
+        b->size = bin_->memorysize();
+        AddViewData(b);
+    }
 }
 MOEX_NAMESPACE_END

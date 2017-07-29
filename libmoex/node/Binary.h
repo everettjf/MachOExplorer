@@ -48,6 +48,9 @@ public:
 
     bool IsFat(){return magic_.IsFat();}
 
+    char *memory(){return (char*)memory_;}
+    std::size_t memorysize(){return memorysize_;}
+
     FatHeaderPtr & fath(){return fath_;}
     MachHeaderPtr & mh(){return mh_;}
 
