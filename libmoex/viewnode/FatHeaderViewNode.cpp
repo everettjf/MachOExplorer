@@ -21,38 +21,34 @@ void FatHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 }
 
 
-std::vector<ViewData*> FatHeaderViewNode::GetViewDatas(){
+void FatHeaderViewNode::InitViewDatas(){
     using namespace moex::util;
 
     // Table
-    if(!table_){
-        table_ = std::make_shared<TableViewData>();
-        const fat_header * h = d_->offset();
+    TableViewDataPtr  table_ = std::make_shared<TableViewData>();
+    const fat_header * h = d_->offset();
 
-        table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",d_->GetMagicString());
-        table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
+    table_->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",d_->GetMagicString());
+    table_->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
+
+    table_->AddSeparator();
+
+    for(auto & arch : d_->archs()){
+        const fat_arch * a = arch->offset();
+        table_->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",arch->GetCpuTypeString());
+        table_->AddRow(d_->GetRAW(&(a->cpusubtype)),a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
+        table_->AddRow(d_->GetRAW(&(a->offset)),a->offset,"Offset",AsString(arch->data().offset));
+        table_->AddRow(d_->GetRAW(&(a->size)),a->size,"Size",AsString(arch->data().size));
+        table_->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
 
         table_->AddSeparator();
-
-        for(auto & arch : d_->archs()){
-            const fat_arch * a = arch->offset();
-            table_->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",arch->GetCpuTypeString());
-            table_->AddRow(d_->GetRAW(&(a->cpusubtype)),a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
-            table_->AddRow(d_->GetRAW(&(a->offset)),a->offset,"Offset",AsString(arch->data().offset));
-            table_->AddRow(d_->GetRAW(&(a->size)),a->size,"Size",AsString(arch->data().size));
-            table_->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
-
-            table_->AddSeparator();
-        }
     }
+    AddViewData(table_);
 
-    if(!binary_){
-        binary_ = std::make_shared<BinaryViewData>();
-        binary_->offset = (char*)d_->offset();
-        binary_->size = d_->DATA_SIZE();
-    }
-
-    return {table_.get(),binary_.get()};
+    BinaryViewDataPtr binary_ = std::make_shared<BinaryViewData>();
+    binary_->offset = (char*)d_->offset();
+    binary_->size = d_->DATA_SIZE();
+    AddViewData(binary_);
 }
 
 MOEX_NAMESPACE_END

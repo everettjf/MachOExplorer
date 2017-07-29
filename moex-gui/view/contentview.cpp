@@ -74,13 +74,13 @@ void ContentView::showNode(moex::ViewNode *node)
             // Tab - Table
             table = new TableContentView(this);
             tab->addTab(table,tr("Data"));
-            table->showNode(static_cast<moex::TableViewData*>(viewdata));
+            table->showNode(static_cast<moex::TableViewData*>(viewdata.get()));
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
 
             // Tab - Binary
             binary = new BinaryContentView(this);
             tab->addTab(binary,tr("Binary"));
-            binary->showNode(static_cast<moex::BinaryViewData*>(viewdata));
+            binary->showNode(static_cast<moex::BinaryViewData*>(viewdata.get()));
 
         }else{
             // No such mode

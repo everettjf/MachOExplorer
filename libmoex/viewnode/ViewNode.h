@@ -7,6 +7,7 @@
 
 #include "../moex.h"
 #include <initializer_list>
+#include <vector>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -19,8 +20,8 @@ protected:
     ViewDataMode mode_;
 public:
     ViewDataMode mode()const{return mode_;}
-
 };
+using ViewDataPtr = std::shared_ptr<ViewData>;
 
 class BinaryViewData: public ViewData{
 public:
@@ -92,13 +93,24 @@ enum class ViewNodeType{
 class ViewNode {
 protected:
     ViewNodeType type_ = ViewNodeType::Unknown;
+    std::vector<ViewDataPtr> view_datas_;
+protected:
+    void AddViewData(ViewDataPtr val){
+        view_datas_.push_back(val);
+    }
 public:
     ViewNodeType GetDisplayType(){ return type_;}
+    std::vector<ViewDataPtr> & GetViewDatas(){
+        if(view_datas_.empty()){
+            InitViewDatas();
+        }
+        return view_datas_;
+    }
 
 public:
     virtual std::string GetDisplayName(){ return "unknown";}
     virtual void ForEachChild(std::function<void(ViewNode*)> callback){}
-    virtual std::vector<ViewData*> GetViewDatas(){ return {};}
+    virtual void InitViewDatas(){};
 };
 
 
