@@ -28,7 +28,7 @@ std::string FatArch::GetCpuTypeString()
 
 std::string FatArch::GetCpuSubTypeString()
 {
-    return util::GetCpuSubTypeString(this->data().cpusubtype);
+    return util::GetCpuSubTypeString(this->data().cputype, this->data().cpusubtype);
 }
 
 

@@ -145,10 +145,80 @@ namespace util {
         }
         return "unknown";
     }
+    std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype){
+        auto res = GetCpuSubTypeArray(cputype,subtype);
+        if(res.size() == 1) return res[0];
+        if(res.empty()) return "unknown";
 
-    std::string GetCpuSubTypeString(cpu_subtype_t type){
-        // todo
-        return boost::str(boost::format("%1%")%type);
+        return res[0] + "," + res[1]; // no case that 3 or more items
+    }
+    std::vector<std::string> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype){
+        static std::unordered_map<cpu_type_t, std::unordered_map<cpu_subtype_t,std::string>> mapper{
+               {CPU_TYPE_POWERPC ,
+                        {
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_ALL)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_601)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_602)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_603)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_603e)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_603ev)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_604)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_604e)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_620)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_750)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_7400)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_7450)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_970)
+                        }},
+               {CPU_TYPE_ARM,
+                        {
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_ALL)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V4T)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V6)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V5TEJ)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_XSCALE)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7F)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7S)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7K)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V6M)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7M)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V7EM)
+                                DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM_V8)
+                        }},
+               {CPU_TYPE_ARM64,
+                       {
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM64_ALL)
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_ARM64_V8)
+                       }},
+               {CPU_TYPE_I386,
+                       {
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_I386_ALL)
+                       }},
+               {CPU_TYPE_X86_64,
+                       {
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_X86_64_ALL)
+                       }},
+               {CPU_TYPE_ANY,
+                       {
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_MULTIPLE)
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_LITTLE_ENDIAN)
+                               DECLARE_MAP_ITEM(CPU_SUBTYPE_BIG_ENDIAN)
+                       }},
+        };
+
+
+        std::vector<std::string> res;
+        if((subtype & CPU_SUBTYPE_LIB64) == CPU_SUBTYPE_LIB64){
+            res.push_back("CPU_SUBTYPE_LIB64");
+        }
+
+        try{
+            res.push_back(mapper.at(cputype).at(subtype & ~CPU_SUBTYPE_MASK));
+            return res;
+        }catch(std::out_of_range&){
+        }
+        return {};
     }
 
     std::string GetMachFileType(uint32_t type){

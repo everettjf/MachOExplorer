@@ -49,7 +49,7 @@ void CommonDisplay::FatList(){
         const fat_arch & f = arch->data();
         print_->AddRow({
                 moex::util::GetCpuTypeString(f.cputype),
-                moex::util::GetCpuSubTypeString(f.cpusubtype),
+                moex::util::GetCpuSubTypeString(f.cputype,f.cpusubtype),
                 ToString(f.offset),
                 ToString(f.size),
                 ToString(f.align),
@@ -70,7 +70,7 @@ void CommonDisplay::HeaderList(){
         print_->AddRow({
                                ToString(h->magic),
                                moex::util::GetCpuTypeString(h->cputype),
-                               moex::util::GetCpuSubTypeString(h->cpusubtype),
+                               moex::util::GetCpuSubTypeString(h->cputype,h->cpusubtype),
                                ToString(h->ncmds),
                                ToString(h->sizeofcmds),
                                ToString(h->flags),
