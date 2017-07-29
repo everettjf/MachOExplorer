@@ -59,3 +59,8 @@ void SkeletonController::initChildren(moex::ViewNode *parentNode,QStandardItem *
         initChildren(node,subItem);
     });
 }
+
+int SkeletonController::getExpandDepth()
+{
+    return vnm_.IsFat()?2:1;
+}

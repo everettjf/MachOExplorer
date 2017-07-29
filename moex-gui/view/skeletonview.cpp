@@ -36,7 +36,7 @@ void SkeletonView::openFile(const QString &filePath)
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setColumnWidth(0,300);
 
-    treeView->expandAll();
+    treeView->expandToDepth(controller->getExpandDepth());
 
 }
 

@@ -30,6 +30,11 @@ ViewNode *ViewNodeManager::GetRootNode() {
     return file_.get();
 }
 
+bool ViewNodeManager::IsFat()
+{
+    return bin_->IsFat();
+}
+
 void ViewNodeManager::ConstructNode(){
     file_ = std::make_shared<FileViewNode>();
     file_->Init(bin_);

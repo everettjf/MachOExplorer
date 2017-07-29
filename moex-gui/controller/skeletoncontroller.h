@@ -19,6 +19,7 @@ public:
 
     bool initModel(QString & error);
     void initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem);
+    int getExpandDepth();
 
     QStandardItemModel* model(){return model_;}
 

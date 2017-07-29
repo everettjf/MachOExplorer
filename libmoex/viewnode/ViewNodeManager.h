@@ -24,7 +24,7 @@ public:
     void Init(BinaryPtr bin);
 
     ViewNode * GetRootNode();
-
+    bool IsFat();
 };
 
 
