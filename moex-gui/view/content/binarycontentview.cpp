@@ -10,13 +10,12 @@
 
 BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
 {
-    controller = nullptr;
-    tableView = new QTableView(this);
+    hexEdit = new QHexEdit(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
 
-    layout->addWidget(tableView);
+    layout->addWidget(hexEdit);
     setLayout(layout);
 
 }
@@ -24,13 +23,7 @@ BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
 
 void BinaryContentView::showNode(moex::BinaryViewData *node)
 {
-    if(controller) delete controller;
-    controller = new BinaryContentController();
-
-    controller->InitModel(node);
-    tableView->setModel(controller->model());
-    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    tableView->resizeRowsToContents();
+    QByteArray data(node->offset,(int)node->size);
+    hexEdit->setData(data);
 }
 

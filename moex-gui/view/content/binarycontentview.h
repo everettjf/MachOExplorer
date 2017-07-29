@@ -7,10 +7,7 @@
 
 #include <QWidget>
 #include <libmoex/moex-view.h>
-#include <QTableView>
-#include "../../controller/binarycontentcontroller.h"
-#include <QModelIndex>
-
+#include "../qhexedit/qhexedit.h"
 
 
 class BinaryContentView : public QWidget
@@ -20,9 +17,7 @@ public:
     explicit BinaryContentView(QWidget *parent = 0);
     void showNode(moex::BinaryViewData *node);
 private:
-    QTableView *tableView;
-    BinaryContentController *controller;
-
+    QHexEdit *hexEdit;
 signals:
 
 public slots:
