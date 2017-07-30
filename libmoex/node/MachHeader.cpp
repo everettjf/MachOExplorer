@@ -60,8 +60,7 @@ std::string MachHeader::GetFileTypeString(){
     return util::GetMachFileType(this->data_ptr()->filetype);
 }
 std::vector<std::string> MachHeader::GetFlagsArray(){
-
-    return {};
+    return util::GetMachFlagsArray(this->data_ptr()->flags);
 }
 
 MOEX_NAMESPACE_END

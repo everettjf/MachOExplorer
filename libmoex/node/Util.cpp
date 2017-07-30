@@ -241,11 +241,43 @@ namespace util {
         return "unknown";
     }
 
-    std::vector<std::string> GetMachFlagsArray(){
-
-        return {};
+    std::vector<std::string> GetMachFlagsArray(uint32_t flag){
+        static std::vector<std::pair<uint32_t,std::string>> db{
+                DECLARE_PAIR_ITEM(MH_NOUNDEFS)
+                DECLARE_PAIR_ITEM(MH_INCRLINK)
+                DECLARE_PAIR_ITEM(MH_DYLDLINK)
+                DECLARE_PAIR_ITEM(MH_BINDATLOAD)
+                DECLARE_PAIR_ITEM(MH_PREBOUND)
+                DECLARE_PAIR_ITEM(MH_SPLIT_SEGS)
+                DECLARE_PAIR_ITEM(MH_LAZY_INIT)
+                DECLARE_PAIR_ITEM(MH_TWOLEVEL)
+                DECLARE_PAIR_ITEM(MH_FORCE_FLAT)
+                DECLARE_PAIR_ITEM(MH_NOMULTIDEFS)
+                DECLARE_PAIR_ITEM(MH_NOFIXPREBINDING)
+                DECLARE_PAIR_ITEM(MH_PREBINDABLE)
+                DECLARE_PAIR_ITEM(MH_ALLMODSBOUND)
+                DECLARE_PAIR_ITEM(MH_SUBSECTIONS_VIA_SYMBOLS)
+                DECLARE_PAIR_ITEM(MH_CANONICAL)
+                DECLARE_PAIR_ITEM(MH_WEAK_DEFINES)
+                DECLARE_PAIR_ITEM(MH_BINDS_TO_WEAK)
+                DECLARE_PAIR_ITEM(MH_ALLOW_STACK_EXECUTION)
+                DECLARE_PAIR_ITEM(MH_ROOT_SAFE)
+                DECLARE_PAIR_ITEM(MH_SETUID_SAFE)
+                DECLARE_PAIR_ITEM(MH_NO_REEXPORTED_DYLIBS)
+                DECLARE_PAIR_ITEM(MH_PIE)
+                DECLARE_PAIR_ITEM(MH_DEAD_STRIPPABLE_DYLIB)
+                DECLARE_PAIR_ITEM(MH_HAS_TLV_DESCRIPTORS)
+                DECLARE_PAIR_ITEM(MH_NO_HEAP_EXECUTION)
+                DECLARE_PAIR_ITEM(MH_APP_EXTENSION_SAFE)
+        };
+        std::vector<std::string> res;
+        for(auto &item : db){
+            if(item.first & flag){
+                res.push_back(item.second);
+            }
+        }
+        return res;
     }
-
 
     std::string GetCmdTypeString(uint32_t cmd){
         static std::unordered_map<uint32_t ,std::string> mapper{

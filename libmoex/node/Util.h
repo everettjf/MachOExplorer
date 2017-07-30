@@ -10,6 +10,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
+#define DECLARE_PAIR_ITEM(name) {name,#name},
 #define DECLARE_MAP_ITEM(name) {name,#name},
 #define DECLARE_MAP_ITEM_VALUE(name,value) {name,#value},
 
@@ -26,7 +27,7 @@ std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype);
 std::vector<std::string> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype);
 
 std::string GetMachFileType(uint32_t type);
-std::vector<std::string> GetMachFlagsArray();
+std::vector<std::string> GetMachFlagsArray(uint32_t flag);
 
 template <typename T>
 std::string AsString(T value){
