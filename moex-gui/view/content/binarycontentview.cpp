@@ -11,6 +11,7 @@
 BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
 {
     hexEdit = new QHexEdit(this);
+    hexEdit->setOverwriteMode(false);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
@@ -23,7 +24,7 @@ BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
 
 void BinaryContentView::showNode(moex::BinaryViewData *node)
 {
-    QByteArray data(node->offset,(int)node->size);
+    QByteArray data = QByteArray::fromRawData(node->offset,(int)node->size);
     hexEdit->setData(data);
 }
 
