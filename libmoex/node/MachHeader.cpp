@@ -56,5 +56,12 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
 std::string MachHeader::GetArch(){
     return util::GetArchStringFromCpuType(this->data_ptr()->cputype);
 }
+std::string MachHeader::GetFileTypeString(){
+    return util::GetMachFileType(this->data_ptr()->filetype);
+}
+std::vector<std::string> MachHeader::GetFlagsArray(){
+
+    return {};
+}
 
 MOEX_NAMESPACE_END

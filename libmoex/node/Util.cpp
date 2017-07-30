@@ -222,10 +222,29 @@ namespace util {
     }
 
     std::string GetMachFileType(uint32_t type){
-        // todo
-        return boost::str(boost::format("%1%")%type);
+        static std::unordered_map<uint32_t ,std::string> mapper{
+                DECLARE_MAP_ITEM(MH_OBJECT)
+                DECLARE_MAP_ITEM(MH_EXECUTE)
+                DECLARE_MAP_ITEM(MH_FVMLIB)
+                DECLARE_MAP_ITEM(MH_CORE)
+                DECLARE_MAP_ITEM(MH_PRELOAD)
+                DECLARE_MAP_ITEM(MH_DYLIB)
+                DECLARE_MAP_ITEM(MH_DYLINKER)
+                DECLARE_MAP_ITEM(MH_BUNDLE)
+                DECLARE_MAP_ITEM(MH_DYLIB_STUB)
+                DECLARE_MAP_ITEM(MH_DSYM)
+                DECLARE_MAP_ITEM(MH_KEXT_BUNDLE)
+        };
+        try{
+            return mapper.at(type);
+        }catch(std::out_of_range&){}
+        return "unknown";
     }
 
+    std::vector<std::string> GetMachFlagsArray(){
+
+        return {};
+    }
 
 
     std::string GetCmdTypeString(uint32_t cmd){

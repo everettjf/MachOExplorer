@@ -61,6 +61,8 @@ public:
         return is64_?"mach_header_64":"mach_header";
     }
     std::string GetArch();
+    std::string GetFileTypeString();
+    std::vector<std::string> GetFlagsArray();
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 
