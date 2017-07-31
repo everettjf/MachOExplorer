@@ -16,7 +16,9 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     app.setApplicationName("MOEX");
-    app.setOrganizationName("MOEX");
+    app.setOrganizationName("everettjf");
+    app.setOrganizationDomain("everettjf.com");
+    app.setApplicationVersion("0.1");
     app.setWindowIcon(QIcon(":res/moex.ico"));
 
     MainWindow w;
