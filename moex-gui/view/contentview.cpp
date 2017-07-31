@@ -30,6 +30,7 @@ ContentView::ContentView(QWidget *parent) : QWidget(parent)
     // Stack - TabWidget
     tab = new QTabWidget(this);
     stack->addWidget(tab);
+    connect(tab,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
 
     setAcceptDrops(true);
 }
@@ -67,7 +68,6 @@ void ContentView::showNode(moex::ViewNode *node)
     if(!node)return;
 
     displayContentTab();
-
     releaseCurrentTabItems();
 
     for(auto viewdata : node->GetViewDatas()){
@@ -84,6 +84,7 @@ void ContentView::showNode(moex::ViewNode *node)
         }
     }
 
+    loadCurrentTab();
 }
 
 void ContentView::displayContentTab()
@@ -104,8 +105,22 @@ void ContentView::releaseCurrentTabItems()
 void ContentView::addTabItem(ContentViewInterface *view, const QString &title, moex::ViewData *data)
 {
     tab->addTab(view,title);
-    view->showViewData(data);
     tabItems.push_back(std::make_pair(view,data));
+}
+
+void ContentView::loadCurrentTab()
+{
+    int index = tab->currentIndex();
+    if(index < 0 || index >= tabItems.size())
+        return;
+    ContentViewInterface *view = tabItems[index].first;
+    moex::ViewData *data = tabItems[index].second;
+    view->showViewData(data);
+}
+
+void ContentView::currentChanged(int index)
+{
+    loadCurrentTab();
 }
 
 

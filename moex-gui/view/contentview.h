@@ -43,9 +43,11 @@ public:
 private:
     void releaseCurrentTabItems();
     void addTabItem(ContentViewInterface *view,const QString & title,moex::ViewData* data);
+    void loadCurrentTab();
 signals:
 
 public slots:
+    void currentChanged(int index);
 };
 
 #endif // CONTENTVIEW_H
