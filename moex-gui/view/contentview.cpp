@@ -115,6 +115,7 @@ void ContentView::loadCurrentTab()
         return;
     ContentViewInterface *view = tabItems[index].first;
     moex::ViewData *data = tabItems[index].second;
+
     view->showViewData(data);
 }
 

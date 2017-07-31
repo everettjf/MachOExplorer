@@ -10,23 +10,6 @@
 
 BinaryContentView::BinaryContentView(QWidget *parent) : ContentViewInterface(parent)
 {
-
-}
-
-void BinaryContentView::showViewData(moex::ViewData *data)
-{
-    moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
-    lazyInitUI();
-
-    QByteArray bytes = QByteArray::fromRawData(node->offset,(int)node->size);
-    hexEdit->setData(bytes);
-}
-
-void BinaryContentView::lazyInitUI()
-{
-    if(uiInited)return;
-    uiInited = true;
-
     hexEdit = new QHexEdit(this);
     hexEdit->setOverwriteMode(true);
     hexEdit->setReadOnly(true);
@@ -36,6 +19,13 @@ void BinaryContentView::lazyInitUI()
 
     layout->addWidget(hexEdit);
     setLayout(layout);
+}
 
+void BinaryContentView::showViewData(moex::ViewData *data)
+{
+    moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
+
+    QByteArray bytes = QByteArray::fromRawData(node->offset,(int)node->size);
+    hexEdit->setData(bytes);
 }
 
