@@ -11,7 +11,8 @@
 BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
 {
     hexEdit = new QHexEdit(this);
-    hexEdit->setOverwriteMode(false);
+    hexEdit->setOverwriteMode(true);
+    hexEdit->setReadOnly(true);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
