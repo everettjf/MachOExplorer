@@ -28,11 +28,11 @@ QHexEdit::QHexEdit(QWidget *parent) : QAbstractScrollArea(parent)
 
     _chunks = new Chunks(this);
     _undoStack = new UndoStack(_chunks, this);
-#ifdef Q_OS_WIN32
-    setFont(QFont("Courier", 10));
-#else
-    setFont(QFont("Monospace", 10));
-#endif
+
+    QFont def;
+    def.setFamily(def.defaultFamily());
+    setFont(def);
+
     setAddressAreaColor(this->palette().alternateBase().color());
     setHighlightingColor(QColor(0xff, 0xff, 0x99, 0xff));
     setSelectionColor(this->palette().highlight().color());

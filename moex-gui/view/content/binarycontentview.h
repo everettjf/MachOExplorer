@@ -6,18 +6,22 @@
 #define BINARYCONTENTVIEW_H
 
 #include <QWidget>
-#include <libmoex/moex-view.h>
+#include "contentviewinterface.h"
 #include "../qhexedit/qhexedit.h"
 
 
-class BinaryContentView : public QWidget
+class BinaryContentView : public ContentViewInterface
 {
     Q_OBJECT
 public:
     explicit BinaryContentView(QWidget *parent = 0);
-    void showNode(moex::BinaryViewData *node);
+    void showViewData(moex::ViewData *data)override;
+
+private:
+    void lazyInitUI();
 private:
     QHexEdit *hexEdit;
+    bool uiInited = false;
 signals:
 
 public slots:

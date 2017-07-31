@@ -14,7 +14,8 @@
 #include "content/blankcontentview.h"
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
-
+#include <vector>
+#include <map>
 
 class ContentView : public QWidget
 {
@@ -29,6 +30,7 @@ public:
 
     moex::Node *node;
 
+    std::vector<std::pair<ContentViewInterface*,moex::ViewData*>> tabItems;
 public:
     explicit ContentView(QWidget *parent = 0);
     void dragEnterEvent(QDragEnterEvent *event);
@@ -39,7 +41,8 @@ public:
 
     void displayContentTab();
 private:
-
+    void releaseCurrentTabItems();
+    void addTabItem(ContentViewInterface *view,const QString & title,moex::ViewData* data);
 signals:
 
 public slots:

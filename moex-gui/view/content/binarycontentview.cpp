@@ -8,8 +8,25 @@
 #include "../../utility/utility.h"
 #include <QHBoxLayout>
 
-BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
+BinaryContentView::BinaryContentView(QWidget *parent) : ContentViewInterface(parent)
 {
+
+}
+
+void BinaryContentView::showViewData(moex::ViewData *data)
+{
+    moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
+    lazyInitUI();
+
+    QByteArray bytes = QByteArray::fromRawData(node->offset,(int)node->size);
+    hexEdit->setData(bytes);
+}
+
+void BinaryContentView::lazyInitUI()
+{
+    if(uiInited)return;
+    uiInited = true;
+
     hexEdit = new QHexEdit(this);
     hexEdit->setOverwriteMode(true);
     hexEdit->setReadOnly(true);
@@ -20,12 +37,5 @@ BinaryContentView::BinaryContentView(QWidget *parent) : QWidget(parent)
     layout->addWidget(hexEdit);
     setLayout(layout);
 
-}
-
-
-void BinaryContentView::showNode(moex::BinaryViewData *node)
-{
-    QByteArray data = QByteArray::fromRawData(node->offset,(int)node->size);
-    hexEdit->setData(data);
 }
 

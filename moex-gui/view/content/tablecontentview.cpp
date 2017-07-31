@@ -6,7 +6,7 @@
 #include "../../utility/utility.h"
 #include <QHBoxLayout>
 
-TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
+TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(parent)
 {
     controller = nullptr;
     tableView = new QTableView(this);
@@ -19,8 +19,10 @@ TableContentView::TableContentView(QWidget *parent) : QWidget(parent)
 
 }
 
-void TableContentView::showNode(moex::TableViewData *node)
+void TableContentView::showViewData(moex::ViewData *data)
 {
+    moex::TableViewData *node = static_cast<moex::TableViewData*>(data);
+
     if(controller) delete controller;
     controller = new TableContentController();
 
@@ -32,5 +34,4 @@ void TableContentView::showNode(moex::TableViewData *node)
         tableView->setColumnWidth(idx,node->widths.at(idx));
     }
     tableView->resizeRowsToContents();
-
 }

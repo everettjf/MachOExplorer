@@ -32,7 +32,8 @@ MOEX_GUI_HEADER = $$files(../moex-gui/*.h,true)
 MOEX_GUI_SOURCE = $$files(../moex-gui/*.cpp,true)
 
 SOURCES += $$LIBMOEX_SOURCE $$MOEX_GUI_SOURCE
-HEADERS  += $$LIBMOEX_HEADER $$MOEX_GUI_HEADER
+HEADERS  += $$LIBMOEX_HEADER $$MOEX_GUI_HEADER \
+    view/content/contentviewinterface.h
 FORMS    +=
 
 macx{

@@ -67,21 +67,18 @@ void ContentView::showNode(moex::ViewNode *node)
     if(!node)return;
 
     displayContentTab();
-    tab->clear();
+
+    releaseCurrentTabItems();
 
     for(auto viewdata : node->GetViewDatas()){
         if(viewdata->mode() == moex::ViewDataMode::Table){
             // Tab - Table
             table = new TableContentView(this);
-            tab->addTab(table,tr("Data"));
-            table->showNode(static_cast<moex::TableViewData*>(viewdata.get()));
+            addTabItem(table,tr("Data"),viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
-
             // Tab - Binary
             binary = new BinaryContentView(this);
-            tab->addTab(binary,tr("Binary"));
-            binary->showNode(static_cast<moex::BinaryViewData*>(viewdata.get()));
-
+            addTabItem(binary,tr("Binary"),viewdata.get());
         }else{
             // No such mode
         }
@@ -92,6 +89,23 @@ void ContentView::showNode(moex::ViewNode *node)
 void ContentView::displayContentTab()
 {
     stack->setCurrentIndex(1);
+}
+
+void ContentView::releaseCurrentTabItems()
+{
+    tab->clear();
+
+    for(auto & item : tabItems){
+        delete item.first;
+    }
+    tabItems.clear();
+}
+
+void ContentView::addTabItem(ContentViewInterface *view, const QString &title, moex::ViewData *data)
+{
+    tab->addTab(view,title);
+    view->showViewData(data);
+    tabItems.push_back(std::make_pair(view,data));
 }
 
 
