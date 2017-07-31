@@ -24,6 +24,7 @@ public:
     std::string GetDisplayName()override;
 
     void ForEachChild(std::function<void(ViewNode*)> callback)override;
+    void InitViewDatas()override;
 };
 using MachHeaderViewNodePtr = std::shared_ptr<MachHeaderViewNode>;
 

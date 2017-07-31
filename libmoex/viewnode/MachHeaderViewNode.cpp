@@ -28,4 +28,9 @@ void MachHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 
     callback(sections_.get());
 }
+
+void MachHeaderViewNode::InitViewDatas(){
+
+}
+
 MOEX_NAMESPACE_END
