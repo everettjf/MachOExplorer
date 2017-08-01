@@ -39,11 +39,24 @@ void MachHeaderViewNode::InitViewDatas(){
 
         t->AddRow(d_->GetRAW(&(m->magic)),m->magic,"Magic Number",d_->GetMagicString());
         t->AddRow(d_->GetRAW(&(m->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
+
         t->AddRow(d_->GetRAW(&(m->cpusubtype)),m->cpusubtype,"CPU SubType","");
         for(auto & item : d_->GetCpuSubTypeArray()){
             t->AddRow("","",AsHexString(std::get<1>(item)),std::get<2>(item));
         }
 
+        t->AddRow(d_->GetRAW(&(m->filetype)),m->filetype,"File Type",d_->GetFileTypeString());
+        t->AddRow(d_->GetRAW(&(m->ncmds)),m->ncmds,"Number of Load Commands",AsString(m->ncmds));
+        t->AddRow(d_->GetRAW(&(m->sizeofcmds)),m->sizeofcmds,"Size of Load Commands",AsString(m->sizeofcmds));
+
+        t->AddRow(d_->GetRAW(&(m->flags)),m->flags,"Flags","");
+        for(auto & item : d_->GetFlagsArray()){
+            t->AddRow("","",AsHexString(std::get<0>(item)),std::get<1>(item));
+        }
+
+        if(d_->is64()){
+            t->AddRow(d_->GetRAW(&(d_->mh64()->data_ptr()->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
+        }
 
         AddViewData(t);
     }

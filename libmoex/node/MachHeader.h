@@ -71,7 +71,7 @@ public:
     }
     std::string GetArch();
     std::string GetFileTypeString();
-    std::vector<std::string> GetFlagsArray();
+    std::vector<std::tuple<uint32_t,std::string>> GetFlagsArray();
     std::string GetMagicString();
 
     std::string GetCpuTypeString();

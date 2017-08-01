@@ -59,7 +59,7 @@ std::string MachHeader::GetArch(){
 std::string MachHeader::GetFileTypeString(){
     return util::GetMachFileType(this->data_ptr()->filetype);
 }
-std::vector<std::string> MachHeader::GetFlagsArray(){
+std::vector<std::tuple<uint32_t,std::string>> MachHeader::GetFlagsArray(){
     return util::GetMachFlagsArray(this->data_ptr()->flags);
 }
 

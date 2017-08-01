@@ -241,7 +241,7 @@ namespace util {
         return "unknown";
     }
 
-    std::vector<std::string> GetMachFlagsArray(uint32_t flag){
+    std::vector<std::tuple<uint32_t,std::string>> GetMachFlagsArray(uint32_t flag){
         static std::vector<std::pair<uint32_t,std::string>> db{
                 DECLARE_PAIR_ITEM(MH_NOUNDEFS)
                 DECLARE_PAIR_ITEM(MH_INCRLINK)
@@ -270,10 +270,10 @@ namespace util {
                 DECLARE_PAIR_ITEM(MH_NO_HEAP_EXECUTION)
                 DECLARE_PAIR_ITEM(MH_APP_EXTENSION_SAFE)
         };
-        std::vector<std::string> res;
+        std::vector<std::tuple<uint32_t,std::string>> res;
         for(auto &item : db){
             if(item.first & flag){
-                res.push_back(item.second);
+                res.push_back(std::tie(item.first,item.second));
             }
         }
         return res;
