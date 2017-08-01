@@ -23,6 +23,8 @@ public:
 
     QStandardItemModel* model(){return model_;}
 
+    moex::ViewNode *rootNode(){return vnm_.GetRootNode();}
+
 private:
     QStandardItemModel *model_;
     QString filePath_;

@@ -6,7 +6,6 @@
 #include "../utility/utility.h"
 #include "../controller/workspacemanager.h"
 
-
 SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
 {
     controller = nullptr;
@@ -38,6 +37,18 @@ void SkeletonView::openFile(const QString &filePath)
 
     treeView->expandToDepth(controller->getExpandDepth());
 
+    // Auto display root node
+    showViewNode(controller->rootNode());
+}
+
+
+void SkeletonView::showViewNode(moex::ViewNode *node)
+{
+    if(!node)
+        return;
+
+    qDebug() << QString::fromStdString(node->GetDisplayName());
+    WorkspaceManager::current()->showNode(node);
 }
 
 void SkeletonView::clickedTreeNode(QModelIndex index)
@@ -47,8 +58,5 @@ void SkeletonView::clickedTreeNode(QModelIndex index)
         return;
 
     moex::ViewNode *node = static_cast<moex::ViewNode*>(item->data().value<void*>());
-
-    qDebug() << QString::fromStdString(node->GetDisplayName());
-    WorkspaceManager::current()->showNode(node);
-
+    showViewNode(node);
 }

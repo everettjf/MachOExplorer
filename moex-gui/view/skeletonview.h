@@ -18,7 +18,8 @@ class SkeletonView : public QWidget
 private:
     QTreeView *treeView;
     SkeletonController *controller;
-
+private:
+    void showViewNode(moex::ViewNode * node);
 public:
     explicit SkeletonView(QWidget *parent = 0);
 
