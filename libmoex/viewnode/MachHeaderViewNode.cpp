@@ -36,26 +36,29 @@ void MachHeaderViewNode::InitViewDatas(){
     {
         TableViewDataPtr t = std::make_shared<TableViewData>();
         const mach_header *m = d_->data_ptr();
+        const mach_header *offset = (const mach_header*)d_->header_start();
 
-        t->AddRow(d_->GetRAW(&(m->magic)),m->magic,"Magic Number",d_->GetMagicString());
-        t->AddRow(d_->GetRAW(&(m->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
+        t->AddRow(d_->GetRAW(&(offset->magic)),m->magic,"Magic Number",d_->GetMagicString());
+        t->AddRow(d_->GetRAW(&(offset->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
 
-        t->AddRow(d_->GetRAW(&(m->cpusubtype)),m->cpusubtype,"CPU SubType","");
+        t->AddRow(d_->GetRAW(&(offset->cpusubtype)),m->cpusubtype,"CPU SubType","");
         for(auto & item : d_->GetCpuSubTypeArray()){
             t->AddRow("","",AsHexString(std::get<1>(item)),std::get<2>(item));
         }
 
-        t->AddRow(d_->GetRAW(&(m->filetype)),m->filetype,"File Type",d_->GetFileTypeString());
-        t->AddRow(d_->GetRAW(&(m->ncmds)),m->ncmds,"Number of Load Commands",AsString(m->ncmds));
-        t->AddRow(d_->GetRAW(&(m->sizeofcmds)),m->sizeofcmds,"Size of Load Commands",AsString(m->sizeofcmds));
+        t->AddRow(d_->GetRAW(&(offset->filetype)),m->filetype,"File Type",d_->GetFileTypeString());
+        t->AddRow(d_->GetRAW(&(offset->ncmds)),m->ncmds,"Number of Load Commands",AsString(m->ncmds));
+        t->AddRow(d_->GetRAW(&(offset->sizeofcmds)),m->sizeofcmds,"Size of Load Commands",AsString(m->sizeofcmds));
 
-        t->AddRow(d_->GetRAW(&(m->flags)),m->flags,"Flags","");
+        t->AddRow(d_->GetRAW(&(offset->flags)),m->flags,"Flags","");
         for(auto & item : d_->GetFlagsArray()){
             t->AddRow("","",AsHexString(std::get<0>(item)),std::get<1>(item));
         }
 
         if(d_->is64()){
-            t->AddRow(d_->GetRAW(&(d_->mh64()->data_ptr()->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
+            const mach_header_64 *offset64 = (const mach_header_64*)d_->header_start();
+
+            t->AddRow(d_->GetRAW(&(offset64->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
         }
 
         AddViewData(t);

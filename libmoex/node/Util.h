@@ -35,7 +35,7 @@ std::string AsString(T value){
 }
 template <typename T>
 std::string AsHexString(T value){
-    return boost::str(boost::format("%X") % value);
+    return boost::str(boost::format("%08X") % value);
 }
 
 std::string AsAddress(void *address);

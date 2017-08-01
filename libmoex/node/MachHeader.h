@@ -37,7 +37,7 @@ using MachHeader64InternalPtr = std::shared_ptr<MachHeader64Internal>;
 class MachHeader : public Node{
 private:
     bool is64_;
-    mach_header * header_; // points to mach_header and mach_header_64
+    mach_header * header_; // points to mach_header and mach_header_64 (swapped)
     std::vector<LoadCommandPtr> loadcmds_;
 
     MachHeaderInternalPtr mh_;
