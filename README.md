@@ -17,7 +17,7 @@ Yet another MachOView, and trying to be a better one.
 - [ ] Insert a dylib (like optool).
 - [ ] Class dump (like class-dump).
 - [ ] Symbolicate static initializers : just drop dSYM into `mod_func_init` section.
-- [ ] Restore Symbol : one key to restore symbol.
+- [ ] Restore Symbol : one key to restore symbol (include blocks).
 
 
 # How to build 
