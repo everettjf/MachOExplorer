@@ -5,10 +5,17 @@
 #ifndef MOEX_DYNAMICSYMBOLTABLE_H
 #define MOEX_DYNAMICSYMBOLTABLE_H
 
+#include "ViewNode.h"
 
-class DynamicSymbolTable {
+MOEX_NAMESPACE_BEGIN
 
+class DynamicSymbolTable : public ViewNode{
+public:
+    std::string GetDisplayName()override { return "Dynamic Symbol Table";}
+    void InitViewDatas()override;
 };
+using DynamicSymbolTablePtr = std::shared_ptr<DynamicSymbolTable>;
 
+MOEX_NAMESPACE_END
 
 #endif //MOEX_DYNAMICSYMBOLTABLE_H

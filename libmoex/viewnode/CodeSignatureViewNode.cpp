@@ -3,3 +3,15 @@
 //
 
 #include "CodeSignatureViewNode.h"
+
+MOEX_NAMESPACE_BEGIN
+
+
+
+void CodeSignatureViewNode::InitViewDatas()
+{
+
+}
+
+
+MOEX_NAMESPACE_END

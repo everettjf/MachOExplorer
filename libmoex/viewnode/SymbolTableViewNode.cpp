@@ -3,3 +3,15 @@
 //
 
 #include "SymbolTableViewNode.h"
+
+MOEX_NAMESPACE_BEGIN
+
+
+
+
+void SymbolTableViewNode::InitViewDatas()
+{
+
+}
+
+MOEX_NAMESPACE_END

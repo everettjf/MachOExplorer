@@ -5,10 +5,17 @@
 #ifndef MOEX_DYNAMICLOADERINFOVIEWNODE_H
 #define MOEX_DYNAMICLOADERINFOVIEWNODE_H
 
+#include "ViewNode.h"
 
-class DynamicLoaderInfoViewNode {
+MOEX_NAMESPACE_BEGIN
 
+class DynamicLoaderInfoViewNode : public ViewNode{
+public:
+    std::string GetDisplayName()override { return "Dynamic Loader Info";}
+    void InitViewDatas()override;
 };
+using DynamicLoaderInfoViewNodePtr = std::shared_ptr<DynamicLoaderInfoViewNode>;
 
+MOEX_NAMESPACE_END
 
 #endif //MOEX_DYNAMICLOADERINFOVIEWNODE_H

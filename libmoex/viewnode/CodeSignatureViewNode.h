@@ -5,10 +5,17 @@
 #ifndef MOEX_CODESIGNATUREVIEWNODE_H
 #define MOEX_CODESIGNATUREVIEWNODE_H
 
+#include "ViewNode.h"
 
-class CodeSignatureViewNode {
+MOEX_NAMESPACE_BEGIN
 
+class CodeSignatureViewNode : public ViewNode{
+public:
+    std::string GetDisplayName()override { return "Code Signature";}
+    void InitViewDatas()override;
 };
+using CodeSignatureViewNodePtr = std::shared_ptr<CodeSignatureViewNode>;
 
+MOEX_NAMESPACE_END
 
 #endif //MOEX_CODESIGNATUREVIEWNODE_H

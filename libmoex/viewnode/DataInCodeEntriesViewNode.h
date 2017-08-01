@@ -5,10 +5,17 @@
 #ifndef MOEX_DATAINCODEENTRIESVIEWNODE_H
 #define MOEX_DATAINCODEENTRIESVIEWNODE_H
 
+#include "ViewNode.h"
 
-class DataInCodeEntriesViewNode {
+MOEX_NAMESPACE_BEGIN
 
+class DataInCodeEntriesViewNode : public ViewNode{
+public:
+    std::string GetDisplayName()override { return "Data in Code Entries";}
+    void InitViewDatas()override;
 };
+using DataInCodeEntriesViewNodePtr = std::shared_ptr<DataInCodeEntriesViewNode>;
 
+MOEX_NAMESPACE_END
 
 #endif //MOEX_DATAINCODEENTRIESVIEWNODE_H

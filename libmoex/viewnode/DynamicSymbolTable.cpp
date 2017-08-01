@@ -3,3 +3,15 @@
 //
 
 #include "DynamicSymbolTable.h"
+
+MOEX_NAMESPACE_BEGIN
+
+
+
+
+void DynamicSymbolTable::InitViewDatas()
+{
+
+}
+
+MOEX_NAMESPACE_END

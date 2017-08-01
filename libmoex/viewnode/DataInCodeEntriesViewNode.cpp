@@ -3,3 +3,11 @@
 //
 
 #include "DataInCodeEntriesViewNode.h"
+
+MOEX_NAMESPACE_BEGIN
+
+void DataInCodeEntriesViewNode::InitViewDatas(){
+
+}
+
+MOEX_NAMESPACE_END

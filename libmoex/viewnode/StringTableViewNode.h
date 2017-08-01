@@ -6,9 +6,18 @@
 #define MOEX_STRINGTABLEVIEWNODE_H
 
 
-class StringTableViewNode {
+#include "ViewNode.h"
 
+MOEX_NAMESPACE_BEGIN
+
+class StringTableViewNode : public ViewNode{
+public:
+    std::string GetDisplayName()override { return "String Table";}
+    void InitViewDatas()override;
 };
+using StringTableViewNodePtr = std::shared_ptr<StringTableViewNode>;
+
+MOEX_NAMESPACE_END
 
 
 #endif //MOEX_STRINGTABLEVIEWNODE_H

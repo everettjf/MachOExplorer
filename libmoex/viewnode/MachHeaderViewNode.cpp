@@ -15,6 +15,13 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
 
     sections_ = std::make_shared<SectionsViewNode>();
     sections_->Init(d_);
+
+    dynamic_loader_info_ = std::make_shared<DynamicLoaderInfoViewNode>();
+    function_starts_ = std::make_shared<FunctionStartsViewNode>();
+    symbol_table_ = std::make_shared<SymbolTableViewNode>();
+    data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+    string_table_ = std::make_shared<StringTableViewNode>();
+    code_signature_ = std::make_shared<CodeSignatureViewNode>();
 }
 
 std::string MachHeaderViewNode::GetDisplayName() {
@@ -25,8 +32,13 @@ std::string MachHeaderViewNode::GetDisplayName() {
 
 void MachHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
     callback(load_commands_.get());
-
     callback(sections_.get());
+    callback(dynamic_loader_info_.get());
+    callback(function_starts_.get());
+    callback(symbol_table_.get());
+    callback(data_in_code_entries_.get());
+    callback(string_table_.get());
+    callback(code_signature_.get());
 }
 
 void MachHeaderViewNode::InitViewDatas(){

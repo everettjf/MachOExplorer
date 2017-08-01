@@ -3,3 +3,15 @@
 //
 
 #include "StringTableViewNode.h"
+
+MOEX_NAMESPACE_BEGIN
+
+
+
+
+void StringTableViewNode::InitViewDatas()
+{
+
+}
+
+MOEX_NAMESPACE_END
