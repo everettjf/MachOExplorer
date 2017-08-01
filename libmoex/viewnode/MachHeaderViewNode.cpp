@@ -30,7 +30,31 @@ void MachHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 }
 
 void MachHeaderViewNode::InitViewDatas(){
+    using namespace moex::util;
 
+    // Table
+    {
+        TableViewDataPtr t = std::make_shared<TableViewData>();
+        const mach_header *m = d_->data_ptr();
+
+        t->AddRow(d_->GetRAW(&(m->magic)),m->magic,"Magic Number",d_->GetMagicString());
+        t->AddRow(d_->GetRAW(&(m->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
+        t->AddRow(d_->GetRAW(&(m->cpusubtype)),m->cpusubtype,"CPU SubType","");
+        for(auto & item : d_->GetCpuSubTypeArray()){
+            t->AddRow("","",AsHexString(std::get<1>(item)),std::get<2>(item));
+        }
+
+
+        AddViewData(t);
+    }
+
+    // Binary
+    {
+        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        b->offset = (char*)d_->header_start();
+        b->size = d_->DATA_SIZE();
+        AddViewData(b);
+    }
 }
 
 MOEX_NAMESPACE_END

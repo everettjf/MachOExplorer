@@ -55,7 +55,16 @@ public:
     NodeContextPtr & ctx(){return ctx_;}
     void * header_start(){return header_start_;}
 
+    uint64_t GetRAW(const void * addr){
+        return (uint64_t)addr - (uint64_t)ctx_->file_start;
+    }
+
+    std::size_t DATA_SIZE(){return is64()?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
+
     void Init(void *offset,NodeContextPtr&ctx);
+
+    MachHeaderInternalPtr & mh(){return mh_;}
+    MachHeader64InternalPtr & mh64(){return mh64_;}
 
     std::string GetTypeName() override {
         return is64_?"mach_header_64":"mach_header";
@@ -63,6 +72,11 @@ public:
     std::string GetArch();
     std::string GetFileTypeString();
     std::vector<std::string> GetFlagsArray();
+    std::string GetMagicString();
+
+    std::string GetCpuTypeString();
+    std::string GetCpuSubTypeString();
+    std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray();
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

@@ -147,12 +147,12 @@ namespace util {
     }
     std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype){
         auto res = GetCpuSubTypeArray(cputype,subtype);
-        if(res.size() == 1) return res[0];
+        if(res.size() == 1) return std::get<2>(res[0]);
         if(res.empty()) return "unknown";
 
-        return res[0] + "," + res[1]; // no case that 3 or more items
+        return std::get<2>(res[0]) + "," + std::get<2>(res[1]); // no case that 3 or more items
     }
-    std::vector<std::string> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype){
+    std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype){
         static std::unordered_map<cpu_type_t, std::unordered_map<cpu_subtype_t,std::string>> mapper{
                {CPU_TYPE_POWERPC ,
                         {
@@ -208,13 +208,13 @@ namespace util {
         };
 
 
-        std::vector<std::string> res;
+        std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> res;
         if((subtype & CPU_SUBTYPE_LIB64) == CPU_SUBTYPE_LIB64){
-            res.push_back("CPU_SUBTYPE_LIB64");
+            res.push_back(std::tie(cputype,subtype,"CPU_SUBTYPE_LIB64"));
         }
 
         try{
-            res.push_back(mapper.at(cputype).at(subtype & ~CPU_SUBTYPE_MASK));
+            res.push_back(std::tie(cputype,subtype,mapper.at(cputype).at(subtype & ~CPU_SUBTYPE_MASK)));
             return res;
         }catch(std::out_of_range&){
         }

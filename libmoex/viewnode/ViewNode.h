@@ -70,6 +70,7 @@ public:
     void AddRow(uint64_t addr,T data,const std::string & desc,const std::string & val);
 
     void AddRow(uint64_t addr,void* data,size_t size,const std::string & desc,const std::string & val);
+    void AddRow(const std::string & addr,const std::string & data,const std::string & desc,const std::string & val);
 
     void AddSeparator();
 };

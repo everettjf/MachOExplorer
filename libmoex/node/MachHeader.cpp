@@ -63,4 +63,20 @@ std::vector<std::string> MachHeader::GetFlagsArray(){
     return util::GetMachFlagsArray(this->data_ptr()->flags);
 }
 
+std::string MachHeader::GetMagicString(){
+    return util::GetMagicString(this->data_ptr()->magic);
+}
+std::string MachHeader::GetCpuTypeString()
+{
+    return util::GetCpuTypeString(this->data_ptr()->cputype);
+}
+
+std::string MachHeader::GetCpuSubTypeString()
+{
+    return util::GetCpuSubTypeString(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
+}
+
+std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> MachHeader::GetCpuSubTypeArray(){
+    return util::GetCpuSubTypeArray(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
+}
 MOEX_NAMESPACE_END
