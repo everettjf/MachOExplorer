@@ -38,6 +38,14 @@ void LoadCommandsViewNode::ForEachChild(std::function<void(ViewNode*)> callback)
 }
 void LoadCommandsViewNode::InitViewDatas(){
 
+    using namespace moex::util;
+
+    // Table
+    {
+        TableViewDataPtr  t = std::make_shared<TableViewData>();
+        t->AddRow("","","Number of commands",AsString(cmds_.size()));
+        AddViewData(t);
+    }
     // Binary
     {
         BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
