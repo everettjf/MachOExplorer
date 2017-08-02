@@ -36,5 +36,15 @@ void LoadCommandsViewNode::ForEachChild(std::function<void(ViewNode*)> callback)
         callback(cmd.get());
     }
 }
+void LoadCommandsViewNode::InitViewDatas(){
+
+    // Binary
+    {
+        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        b->offset = (char*)mh_->header_start() + mh_->DATA_SIZE();
+        b->size = mh_->data_ptr()->sizeofcmds;
+        AddViewData(b);
+    }
+}
 
 MOEX_NAMESPACE_END

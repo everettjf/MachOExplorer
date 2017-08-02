@@ -30,6 +30,7 @@ public:
 
     std::string GetDisplayName()override { return "Load Commands";}
     void ForEachChild(std::function<void(ViewNode*)> callback) override ;
+    void InitViewDatas()override;
 };
 using LoadCommandsViewNodePtr = std::shared_ptr<LoadCommandsViewNode>;
 

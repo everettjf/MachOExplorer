@@ -41,4 +41,14 @@ void SectionsViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
     }
 }
 
+void SectionsViewNode::InitViewDatas(){
+    using namespace moex::util;
+
+    // Table
+    {
+        TableViewDataPtr  t = std::make_shared<TableViewData>();
+        t->AddRow("","","Number of sections",AsString(sections_.size()));
+        AddViewData(t);
+    }
+}
 MOEX_NAMESPACE_END

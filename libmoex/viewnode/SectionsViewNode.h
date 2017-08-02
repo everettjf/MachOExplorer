@@ -28,6 +28,7 @@ public:
 
     std::string GetDisplayName()override { return "Sections";}
     void ForEachChild(std::function<void(ViewNode*)> callback)override;
+    void InitViewDatas()override;
 };
 using SectionsViewNodePtr = std::shared_ptr<SectionsViewNode>;
 
