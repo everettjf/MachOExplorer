@@ -26,7 +26,7 @@ void FatHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        TableViewDataPtr  t = std::make_shared<TableViewData>();
+        auto t = CreateTableViewDataPtr();
         const fat_header * h = d_->offset();
 
         t->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",d_->GetMagicString());
@@ -49,7 +49,7 @@ void FatHeaderViewNode::InitViewDatas(){
 
     // Binary
     {
-        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
         for(auto & arch: d_->archs()){

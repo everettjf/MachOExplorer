@@ -32,7 +32,7 @@ void FileViewNode::InitViewDatas()
 
     // Binary
     {
-        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)bin_->memory();
         b->size = bin_->memorysize();
         AddViewData(b);

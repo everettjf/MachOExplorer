@@ -25,14 +25,16 @@ using ViewDataPtr = std::shared_ptr<ViewData>;
 
 class BinaryViewData: public ViewData{
 public:
-    char * offset;
-    uint64_t size;
+    char * offset = nullptr;
+    uint64_t size = 0;
 
     BinaryViewData(){
         mode_ = ViewDataMode::Binary;
     }
+    bool IsEmpty()const{return offset == nullptr;}
 };
 using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
+inline BinaryViewDataPtr CreateBinaryViewDataPtr(){return std::make_shared<BinaryViewData>();}
 
 class TableViewItem{
 public:
@@ -62,6 +64,8 @@ public:
 
     TableViewData();
 
+    bool IsEmpty()const{return rows.empty();}
+
     void SetHeaders(const std::initializer_list<std::string> & vals);
     void SetWidths(const std::initializer_list<uint32_t> & vals);
     void AddRow(const std::initializer_list<std::string> & vals);
@@ -75,6 +79,7 @@ public:
     void AddSeparator();
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
+inline TableViewDataPtr CreateTableViewDataPtr(){return std::make_shared<TableViewData>();}
 
 
 template<typename T>

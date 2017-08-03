@@ -46,7 +46,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        TableViewDataPtr t = std::make_shared<TableViewData>();
+        auto t = CreateTableViewDataPtr();
         const mach_header *m = d_->data_ptr();
         const mach_header *offset = (const mach_header*)d_->header_start();
 
@@ -78,7 +78,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
     // Binary
     {
-        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)d_->header_start();
         b->size = d_->DATA_SIZE();
         AddViewData(b);

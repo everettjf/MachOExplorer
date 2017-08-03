@@ -19,8 +19,6 @@ public:
 };
 using LoadCommandViewNodePtr = std::shared_ptr<LoadCommandViewNode>;
 
-
-
 class LoadCommandViewNodeFactory{
 public:
     static LoadCommandViewNodePtr Create(LoadCommandPtr d);

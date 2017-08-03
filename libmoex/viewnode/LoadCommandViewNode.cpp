@@ -4,6 +4,19 @@
 
 #include "LoadCommandViewNode.h"
 
+#include "../node/loadcmd/LoadCommand_SEGMENT.h"
+#include "../node/loadcmd/LoadCommand_DYLIB.h"
+#include "../node/loadcmd/LoadCommand_DYLD_INFO.h"
+#include "../node/loadcmd/LoadCommand_SYMTAB.h"
+#include "../node/loadcmd/LoadCommand_DYSYMTAB.h"
+#include "../node/loadcmd/LoadCommand_LOAD_DYLINKER.h"
+#include "../node/loadcmd/LoadCommand_UUID.h"
+#include "../node/loadcmd/LoadCommand_VERSION_MIN.h"
+#include "../node/loadcmd/LoadCommand_SOURCE_VERSION.h"
+#include "../node/loadcmd/LoadCommand_MAIN.h"
+#include "../node/loadcmd/LoadCommand_ENCRYPTION_INFO.h"
+#include "../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
+
 /*
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_SEGMENT)
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_SEGMENT_64)
@@ -53,6 +66,17 @@ std::string LoadCommandViewNode::GetDisplayName(){
     }
 }
 
+
+class LoadCommandViewNode_LC_SEGMENT : public LoadCommandViewNode{
+public:
+    void InitViewDatas()override{
+        auto t = CreateTableViewDataPtr();
+        auto b = CreateBinaryViewDataPtr();
+
+        if(!t->IsEmpty()) AddViewData(t);
+        if(!b->IsEmpty()) AddViewData(b);
+    }
+};
 
 LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
     LoadCommandViewNodePtr res = std::make_shared<LoadCommandViewNode>();
