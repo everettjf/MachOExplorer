@@ -38,6 +38,10 @@ void MainWindow::createUI()
     {
         ui->skeleton = new SkeletonView();
 
+#ifndef NDEBUG
+        ui->skeleton->setMinimumWidth(350);
+#endif
+
         ui->skeletonDock = new QDockWidget(tr("Skeleton Window"),this);
         ui->skeletonDock->setFeatures(QDockWidget::DockWidgetMovable);
         ui->skeletonDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);

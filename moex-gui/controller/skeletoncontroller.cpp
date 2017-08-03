@@ -62,5 +62,9 @@ void SkeletonController::initChildren(moex::ViewNode *parentNode,QStandardItem *
 
 int SkeletonController::getExpandDepth()
 {
+#ifdef NDEBUG
     return vnm_.IsFat()?2:1;
+#else
+    return vnm_.IsFat()?3:2;
+#endif
 }
