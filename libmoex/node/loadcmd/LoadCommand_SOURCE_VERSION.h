@@ -6,7 +6,7 @@
 #define MACHOEXPLORER_LOADCOMMAND_SOURCE_VERSION_H
 
 
-#include "LoadCommand.h"
+#include "libmoex/node/LoadCommand.h"
 
 MOEX_NAMESPACE_BEGIN
 

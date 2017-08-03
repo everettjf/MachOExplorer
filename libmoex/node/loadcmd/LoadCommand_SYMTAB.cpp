@@ -1,5 +1,5 @@
 #include "LoadCommand_SYMTAB.h"
-#include "MachHeader.h"
+#include "libmoex/node/MachHeader.h"
 
 
 MOEX_NAMESPACE_BEGIN

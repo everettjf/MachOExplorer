@@ -5,7 +5,7 @@
 #ifndef MACHOEXPLORER_LOADCOMMAND_MAIN_H
 #define MACHOEXPLORER_LOADCOMMAND_MAIN_H
 
-#include "LoadCommand.h"
+#include "libmoex/node/LoadCommand.h"
 
 MOEX_NAMESPACE_BEGIN
 

@@ -5,7 +5,7 @@
 #ifndef MACHOEXPLORER_LOADCOMMAND_LOAD_DYLIB_H
 #define MACHOEXPLORER_LOADCOMMAND_LOAD_DYLIB_H
 
-#include "LoadCommand.h"
+#include "libmoex/node/LoadCommand.h"
 
 MOEX_NAMESPACE_BEGIN
 

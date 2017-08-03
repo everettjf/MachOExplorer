@@ -6,8 +6,8 @@
 #define MACHOEXPLORER_LOADCOMMAND_SEGMENT_H
 
 
-#include "LoadCommand.h"
-#include "MachSection.h"
+#include "libmoex/node/LoadCommand.h"
+#include "libmoex/node/MachSection.h"
 
 MOEX_NAMESPACE_BEGIN
 
