@@ -71,18 +71,26 @@ std::string LoadCommandViewNode::GetDisplayName(){
 class LoadCommandViewNode_##segment : public LoadCommandViewNode{ \
 public:\
     void InitViewDatas()override{\
+        using namespace moex::util;\
         auto t = CreateTableViewDataPtr();\
         auto b = CreateBinaryViewDataPtr();\
-        LoadCommand_##classname *cmd = static_cast<LoadCommand_##classname*>(d_.get());
+        LoadCommand_##classname *c = static_cast<LoadCommand_##classname*>(d_.get());\
+        t->AddRow(c->GetRAW(&(c->cmd()->cmd)),c->cmd()->cmd,"Command",c->GetLoadCommandTypeString());\
+        t->AddRow(c->GetRAW(&(c->cmd()->cmdsize)),c->cmd()->cmdsize,"Command Size",AsString(c->cmd()->cmdsize));\
+        t->AddSeparator();
 
 
-#define IMPL_LOADCOMMAND_VIEWNODE_BEGIN(segment) \
+#define IMPL_LOADCOMMAND_VIEWNODE_BEGIN(segment)\
 class LoadCommandViewNode_##segment : public LoadCommandViewNode{ \
 public:\
     void InitViewDatas()override{\
+        using namespace moex::util;\
         auto t = CreateTableViewDataPtr();\
         auto b = CreateBinaryViewDataPtr();\
-        LoadCommand_##segment *cmd = static_cast<LoadCommand_##segment*>(d_.get());
+        LoadCommand_##segment *c = static_cast<LoadCommand_##segment*>(d_.get());\
+        t->AddRow(c->GetRAW(&(c->cmd()->cmd)),c->cmd()->cmd,"Command",c->GetLoadCommandTypeString());\
+        t->AddRow(c->GetRAW(&(c->cmd()->cmdsize)),c->cmd()->cmdsize,"Command Size",AsString(c->cmd()->cmdsize));\
+        t->AddSeparator();
 
 
 #define IMPL_LOADCOMMAND_VIEWNODE_END\
