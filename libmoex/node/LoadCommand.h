@@ -23,6 +23,9 @@ public:
 
     std::string GetTypeName() override{ return "load_command";}
     virtual std::string GetShortCharacteristicDescription(){return "";}
+
+    uint32_t GetCommand(){return offset()->cmd;}
+    uint32_t GetCommandSize(){return offset()->cmdsize;}
 };
 
 using LoadCommandPtr = std::shared_ptr<LoadCommand>;

@@ -66,22 +66,41 @@ std::string LoadCommandViewNode::GetDisplayName(){
     }
 }
 
-
-class LoadCommandViewNode_LC_SEGMENT : public LoadCommandViewNode{
-public:
-    void InitViewDatas()override{
-        auto t = CreateTableViewDataPtr();
+#define IMPL_LOADCOMMAND_VIEWNODE_BEGIN(segment) \
+class LoadCommandViewNode_##segment : public LoadCommandViewNode{ \
+public:\
+    void InitViewDatas()override{\
+        auto t = CreateTableViewDataPtr();\
         auto b = CreateBinaryViewDataPtr();
 
-        if(!t->IsEmpty()) AddViewData(t);
-        if(!b->IsEmpty()) AddViewData(b);
-    }
-};
+
+#define IMPL_LOADCOMMAND_VIEWNODE_END\
+        if(!t->IsEmpty()) AddViewData(t);\
+        if(!b->IsEmpty()) AddViewData(b);\
+    }\
+};\
+
+#define CASE_LOADCOMMAND_VIEWNODE(segment) \
+        case segment: { \
+            res = std::make_shared<LoadCommandViewNode_##segment>();\
+            break;\
+        }
+
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT)
+IMPL_LOADCOMMAND_VIEWNODE_END
+
 
 LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
-    LoadCommandViewNodePtr res = std::make_shared<LoadCommandViewNode>();
+    LoadCommandViewNodePtr res;
+    switch(d->GetCommand()){
+        CASE_LOADCOMMAND_VIEWNODE(LC_SEGMENT)
+        default:{
+            res = std::make_shared<LoadCommandViewNode>();
+            break;
+        }
+    }
     res->Init(d);
-
     return res;
 }
 
