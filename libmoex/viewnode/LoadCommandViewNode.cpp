@@ -66,19 +66,32 @@ std::string LoadCommandViewNode::GetDisplayName(){
     }
 }
 
+
+#define IMPL_LOADCOMMAND_VIEWNODE_BEGIN_CLASS(segment,classname) \
+class LoadCommandViewNode_##segment : public LoadCommandViewNode{ \
+public:\
+    void InitViewDatas()override{\
+        auto t = CreateTableViewDataPtr();\
+        auto b = CreateBinaryViewDataPtr();\
+        LoadCommand_##classname *cmd = static_cast<LoadCommand_##classname*>(d_.get());
+
+
 #define IMPL_LOADCOMMAND_VIEWNODE_BEGIN(segment) \
 class LoadCommandViewNode_##segment : public LoadCommandViewNode{ \
 public:\
     void InitViewDatas()override{\
         auto t = CreateTableViewDataPtr();\
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryViewDataPtr();\
+        LoadCommand_##segment *cmd = static_cast<LoadCommand_##segment*>(d_.get());
 
 
 #define IMPL_LOADCOMMAND_VIEWNODE_END\
         if(!t->IsEmpty()) AddViewData(t);\
         if(!b->IsEmpty()) AddViewData(b);\
     }\
-};\
+};
+
+
 
 #define CASE_LOADCOMMAND_VIEWNODE(segment) \
         case segment: { \
@@ -88,6 +101,7 @@ public:\
 
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT)
+
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 
