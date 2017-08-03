@@ -5,20 +5,9 @@
 #ifndef MOEX_LOADCOMMANDSVIEWNODE_H
 #define MOEX_LOADCOMMANDSVIEWNODE_H
 
-#include "ViewNode.h"
+#include "LoadCommandViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
-
-class LoadCommandViewNode : public ViewNode{
-private:
-    LoadCommandPtr d_;
-public:
-    void Init(LoadCommandPtr d);
-
-    std::string GetDisplayName()override ;
-
-};
-using LoadCommandViewNodePtr = std::shared_ptr<LoadCommandViewNode>;
 
 class LoadCommandsViewNode : public ViewNode{
 private:
