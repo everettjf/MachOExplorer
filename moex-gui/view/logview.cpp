@@ -3,6 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "logview.h"
+#include <QHBoxLayout>
 
 LogView::LogView(QWidget *parent) : QWidget(parent)
 {

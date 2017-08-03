@@ -4,6 +4,30 @@
 //
 #include "workspacemanager.h"
 
+
+Workspace::Workspace()
+{
+
+}
+
+void Workspace::openFile(const QString &filePath)
+{
+    ui_->skeleton->openFile(filePath);
+}
+
+void Workspace::addLog(const QString &log)
+{
+    ui_->log->addLine(log);
+}
+
+void Workspace::showNode(moex::ViewNode *node)
+{
+    ui_->content->showNode(node);
+}
+
+
+///////////////////////////////////////////////////
+
 WorkspaceManager::WorkspaceManager()
 {
 
