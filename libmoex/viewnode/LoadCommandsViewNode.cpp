@@ -10,8 +10,7 @@ void LoadCommandsViewNode::Init(MachHeaderPtr mh){
     mh_ = mh;
 
     for(auto & cmd : mh_->loadcmds_ref()){
-        LoadCommandViewNodePtr o = std::make_shared<LoadCommandViewNode>();
-        o->Init(cmd);
+        LoadCommandViewNodePtr o = LoadCommandViewNodeFactory::Create(cmd);
         cmds_.push_back(o);
     }
 }
