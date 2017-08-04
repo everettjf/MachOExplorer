@@ -141,6 +141,10 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLD_INFO)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SYMTAB)
+    t->AddRow(c->GetRAW(&(c->cmd()->symoff)),c->cmd()->symoff,"Symbol Table Offset",AsString(c->cmd()->symoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nsyms)),c->cmd()->nsyms,"Number of Symbols",AsString(c->cmd()->nsyms));
+    t->AddRow(c->GetRAW(&(c->cmd()->stroff)),c->cmd()->stroff,"String Table Offset",AsString(c->cmd()->stroff));
+    t->AddRow(c->GetRAW(&(c->cmd()->strsize)),c->cmd()->strsize,"String Table Size",AsString(c->cmd()->strsize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYSYMTAB)
 IMPL_LOADCOMMAND_VIEWNODE_END
