@@ -22,7 +22,11 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":res/moex.ico"));
 
     MainWindow w;
+#ifndef NDEBUG
+    w.resize(1000,600);
+#else
     w.resize(900,600);
+#endif
     w.show();
 
     return app.exec();

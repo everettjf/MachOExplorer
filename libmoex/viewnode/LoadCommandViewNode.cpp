@@ -36,17 +36,19 @@ class LoadCommandViewNode_##classname : public LoadCommandViewNode{ \
 public:\
     void InitViewDatas()override{\
         using namespace moex::util;\
-        auto t = CreateTableViewDataPtr();\
-        auto b = CreateBinaryViewDataPtr();\
         LoadCommand_##classname *c = static_cast<LoadCommand_##classname*>(d_.get());\
+        {auto t = CreateTableViewDataPtr();\
         t->AddRow(c->GetRAW(&(c->cmd()->cmd)),c->cmd()->cmd,"Command",c->GetLoadCommandTypeString());\
         t->AddRow(c->GetRAW(&(c->cmd()->cmdsize)),c->cmd()->cmdsize,"Command Size",AsString(c->cmd()->cmdsize));\
         t->AddSeparator();
 
 
 #define IMPL_LOADCOMMAND_VIEWNODE_END\
-        if(!t->IsEmpty()) AddViewData(t);\
-        if(!b->IsEmpty()) AddViewData(b);\
+        if(!t->IsEmpty()) AddViewData(t);}\
+        {auto b = CreateBinaryViewDataPtr();\
+        b->offset = (char*)c->offset();\
+        b->size = c->offset()->cmdsize;\
+        if(!b->IsEmpty()) AddViewData(b);}\
     }\
 };
 
