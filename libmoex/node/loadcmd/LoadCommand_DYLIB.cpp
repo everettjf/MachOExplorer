@@ -11,7 +11,8 @@ MOEX_NAMESPACE_BEGIN
 void LoadCommand_DYLIB::Init(void * offset,NodeContextPtr & ctx){
     LoadCommandImpl::Init(offset,ctx);
 
-    dylib_path_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
+    dylib_path_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
+    dylib_path_ = dylib_path_offset_;
 
     std::vector<std::string> path_items;
     boost::split(path_items,dylib_path_,boost::is_any_of("/"),boost::token_compress_on);
