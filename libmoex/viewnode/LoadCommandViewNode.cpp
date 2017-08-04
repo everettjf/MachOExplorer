@@ -114,9 +114,9 @@ IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLIB)
     t->AddRow(c->GetRAW(&(c->cmd()->dylib.name.offset)),c->cmd()->dylib.name.offset,"Str Offset",AsShortHexString(c->cmd()->dylib.name.offset));
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.timestamp)),c->cmd()->dylib.timestamp,"Time Stamp","");
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.current_version)),c->cmd()->dylib.current_version,"Current Version","");
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.compatibility_version)),c->cmd()->dylib.compatibility_version,"Compatibility Version","");
+    t->AddRow(c->GetRAW(&(c->cmd()->dylib.timestamp)),c->cmd()->dylib.timestamp,"Time Stamp",c->GetTimeStamp());
+    t->AddRow(c->GetRAW(&(c->cmd()->dylib.current_version)),c->cmd()->dylib.current_version,"Current Version",c->GetCurrentVersion());
+    t->AddRow(c->GetRAW(&(c->cmd()->dylib.compatibility_version)),c->cmd()->dylib.compatibility_version,"Compatibility Version",c->GetCompatibilityVersion());
     t->AddSeparator();
 
     t->AddRow(c->GetRAW((void*)(c->dylib_path_offset())),AsHexData((void*)(c->dylib_path_offset()),(std::size_t)(c->dylib_path().length())),"Path",c->dylib_path());

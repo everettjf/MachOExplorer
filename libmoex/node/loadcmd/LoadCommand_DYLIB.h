@@ -20,10 +20,14 @@ public:
     const std::string & dylib_path()const{return dylib_path_;}
     char * dylib_path_offset(){return dylib_path_offset_;}
 
+
     void Init(void * offset,NodeContextPtr & ctx)override;
 
     std::string GetTypeName() override{ return "dylib_command";}
     std::string GetShortCharacteristicDescription()override;
+    std::string GetTimeStamp();
+    std::string GetCurrentVersion();
+    std::string GetCompatibilityVersion();
 };
 
 MOEX_NAMESPACE_END

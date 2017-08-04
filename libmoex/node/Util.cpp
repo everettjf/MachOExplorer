@@ -379,6 +379,19 @@ namespace util {
         if(prot & VM_PROT_IS_MASK) ret.push_back(std::make_tuple(VM_PROT_IS_MASK,"VM_PROT_IS_MASK"));
         return ret;
     }
+
+    std::string FormatTimeStamp(uint32_t timestamp){
+        time_t t = (time_t)timestamp;
+        return ctime(&t);
+    }
+    std::string FormatVersion(uint32_t ver){
+        return boost::str(boost::format("%u.%u.%u")
+                          % (ver>>16)
+                          % ((ver>>8)&0xff)
+                          % (ver&0xff)
+        );
+    }
+
 }
 
 

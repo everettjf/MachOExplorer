@@ -25,5 +25,14 @@ std::string LoadCommand_DYLIB::GetShortCharacteristicDescription(){
     return dylib_name();
 }
 
+std::string LoadCommand_DYLIB::GetTimeStamp(){
+    return util::FormatTimeStamp(cmd_->dylib.timestamp);
+}
+std::string LoadCommand_DYLIB::GetCurrentVersion(){
+    return util::FormatVersion(cmd_->dylib.current_version);
+}
+std::string LoadCommand_DYLIB::GetCompatibilityVersion(){
+    return util::FormatVersion(cmd_->dylib.compatibility_version);
+}
 
 MOEX_NAMESPACE_END
