@@ -147,6 +147,32 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SYMTAB)
     t->AddRow(c->GetRAW(&(c->cmd()->strsize)),c->cmd()->strsize,"String Table Size",AsString(c->cmd()->strsize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYSYMTAB)
+    t->AddRow(c->GetRAW(&(c->cmd()->ilocalsym)),c->cmd()->ilocalsym,"Local Symbols Index",AsString(c->cmd()->ilocalsym));
+    t->AddRow(c->GetRAW(&(c->cmd()->nlocalsym)),c->cmd()->nlocalsym,"Number of Local Symbols",AsString(c->cmd()->nlocalsym));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->iextdefsym)),c->cmd()->iextdefsym,"Defined External Symbols Index",AsString(c->cmd()->iextdefsym));
+    t->AddRow(c->GetRAW(&(c->cmd()->nextdefsym)),c->cmd()->nextdefsym,"Number of Defined External Symbols",AsString(c->cmd()->nextdefsym));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->iundefsym)),c->cmd()->iundefsym,"Undefined External Symbols Index",AsString(c->cmd()->iundefsym));
+    t->AddRow(c->GetRAW(&(c->cmd()->nundefsym)),c->cmd()->nundefsym,"Number of Undefined External Symbols",AsString(c->cmd()->nundefsym));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->tocoff)),c->cmd()->tocoff,"TOC Offset",AsString(c->cmd()->tocoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->ntoc)),c->cmd()->ntoc,"TOC Entries",AsString(c->cmd()->ntoc));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->modtaboff)),c->cmd()->modtaboff,"Module Table Offset",AsString(c->cmd()->modtaboff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nmodtab)),c->cmd()->nmodtab,"Module Table Entries",AsString(c->cmd()->nmodtab));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->extrefsymoff)),c->cmd()->extrefsymoff,"ExtRef Table Offset",AsString(c->cmd()->extrefsymoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nextrefsyms)),c->cmd()->nextrefsyms,"ExtRef Table Entries",AsString(c->cmd()->nextrefsyms));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->indirectsymoff)),c->cmd()->indirectsymoff,"Indirect Symbol Table Offset",AsString(c->cmd()->indirectsymoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nindirectsyms)),c->cmd()->nindirectsyms,"Indirect Symbol Table Entries",AsString(c->cmd()->nindirectsyms));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->extreloff)),c->cmd()->extreloff,"ExtReloc Table Offset",AsString(c->cmd()->extreloff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nextrel)),c->cmd()->nextrel,"ExtReloc Table Entries",AsString(c->cmd()->nextrel));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->locreloff)),c->cmd()->locreloff,"LocReloc Table Offset",AsString(c->cmd()->locreloff));
+    t->AddRow(c->GetRAW(&(c->cmd()->nlocrel)),c->cmd()->nlocrel,"LocReloc Table Entries",AsString(c->cmd()->nlocrel));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LOAD_DYLINKER)
