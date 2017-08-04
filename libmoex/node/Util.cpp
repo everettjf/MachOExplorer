@@ -358,7 +358,27 @@ namespace util {
     }
 
 
+    std::string AsHexData(char *address,std::size_t size){
+        return AsHexData((void*)address,size);
+    }
 
+    std::vector<std::tuple<vm_prot_t,std::string>> ParseProts(vm_prot_t prot){
+        std::vector<std::tuple<vm_prot_t,std::string>> ret;
+
+        if(prot == VM_PROT_NONE){
+            ret.push_back(std::make_tuple(VM_PROT_NONE,"VM_PROT_NONE"));
+            return ret;
+        }
+
+        if(prot & VM_PROT_READ) ret.push_back(std::make_tuple(VM_PROT_READ,"VM_PROT_READ"));
+        if(prot & VM_PROT_WRITE) ret.push_back(std::make_tuple(VM_PROT_WRITE,"VM_PROT_WRITE"));
+        if(prot & VM_PROT_EXECUTE) ret.push_back(std::make_tuple(VM_PROT_EXECUTE,"VM_PROT_EXECUTE"));
+
+        if(prot & VM_PROT_NO_CHANGE) ret.push_back(std::make_tuple(VM_PROT_NO_CHANGE,"VM_PROT_NO_CHANGE"));
+        if(prot & VM_PROT_COPY) ret.push_back(std::make_tuple(VM_PROT_COPY,"VM_PROT_COPY/VM_PROT_WANTS_COPY"));
+        if(prot & VM_PROT_IS_MASK) ret.push_back(std::make_tuple(VM_PROT_IS_MASK,"VM_PROT_IS_MASK"));
+        return ret;
+    }
 }
 
 

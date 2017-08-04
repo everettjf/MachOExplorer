@@ -49,6 +49,11 @@ void TableViewData::AddRow(uint64_t addr, void *data, size_t size, const std::st
     AddRow({util::AsAddress(addr),util::AsHexData(data,size),desc,val});
 }
 
+void TableViewData::AddRow(uint64_t addr,const std::string & data,const std::string & desc,const std::string & val){
+    AddRow({util::AsAddress(addr),data,desc,val});
+}
+
+
 void TableViewData::AddRow(const std::string & addr,const std::string & data,const std::string & desc,const std::string & val){
     AddRow({addr,data,desc,val});
 }

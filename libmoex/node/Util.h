@@ -38,6 +38,11 @@ std::string AsHexString(T value){
     return boost::str(boost::format("%08X") % value);
 }
 
+template <typename T>
+std::string AsShortHexString(T value){
+    return boost::str(boost::format("0X%X") % value);
+}
+
 std::string AsAddress(void *address);
 
 template <typename T>
@@ -46,6 +51,7 @@ std::string AsAddress(T value){
 }
 
 std::string AsHexData(void *address,std::size_t size);
+std::string AsHexData(char *address,std::size_t size);
 
 template <typename T>
 std::string AsHexData(T & value){
@@ -65,8 +71,11 @@ std::string AsHexData(T & value){
         return AsHexData(&value,sizeof(value));
     }
 }
-}
 
+
+std::vector<std::tuple<vm_prot_t,std::string>> ParseProts(vm_prot_t prot);
+
+}
 MOEX_NAMESPACE_END
 
 

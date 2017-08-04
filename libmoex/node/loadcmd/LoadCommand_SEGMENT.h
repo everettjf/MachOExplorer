@@ -23,6 +23,8 @@ public:
     std::string GetTypeName() override{ return "segment_command";}
 
     std::string GetShortCharacteristicDescription()override;
+    std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
+    std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();
 };
 
 class LoadCommand_LC_SEGMENT_64 : public LoadCommandImpl<segment_command_64>{
@@ -36,6 +38,8 @@ public:
 
     std::string GetTypeName() override{ return "segment_command_64";}
     std::string GetShortCharacteristicDescription()override;
+    std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
+    std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();
 };
 
 MOEX_NAMESPACE_END

@@ -69,6 +69,25 @@ public:\
 //////////////////////////////////////////////////////////////////////////////////
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT)
+    t->AddRow(c->GetRAW(&(c->cmd()->segname)),(void*)c->cmd()->segname,sizeof(char)*16,"Segment Name",c->segment_name());
+    t->AddRow(c->GetRAW(&(c->cmd()->vmaddr)),c->cmd()->vmaddr,"VM Address",AsString(c->cmd()->vmaddr));
+    t->AddRow(c->GetRAW(&(c->cmd()->vmsize)),c->cmd()->vmsize,"VM Size",AsString(c->cmd()->vmsize));
+    t->AddRow(c->GetRAW(&(c->cmd()->fileoff)),c->cmd()->fileoff,"File Offset",AsString(c->cmd()->fileoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->filesize)),c->cmd()->filesize,"File Size",AsString(c->cmd()->filesize));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->maxprot)),c->cmd()->maxprot,"Maximum VM Protection","");
+    for(auto & prot : c->GetMaxProts()){
+        t->AddRow("","",AsShortHexString(std::get<0>(prot)),std::get<1>(prot));
+    }
+
+    t->AddRow(c->GetRAW(&(c->cmd()->initprot)),c->cmd()->initprot,"Initial VM Protection","");
+    for(auto & prot : c->GetInitProts()){
+        t->AddRow("","",AsShortHexString(std::get<0>(prot)),std::get<1>(prot));
+    }
+
+    t->AddRow(c->GetRAW(&(c->cmd()->nsects)),c->cmd()->nsects,"Number of Sections",AsString(c->cmd()->nsects));
+    t->AddRow(c->GetRAW(&(c->cmd()->flags)),c->cmd()->flags,"Flags",AsString(c->cmd()->flags));
+
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 

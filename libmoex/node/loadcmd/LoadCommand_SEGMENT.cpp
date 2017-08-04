@@ -20,6 +20,12 @@ void LoadCommand_LC_SEGMENT::Init(void * offset,NodeContextPtr & ctx){
 std::string LoadCommand_LC_SEGMENT::GetShortCharacteristicDescription(){
     return segment_name();
 }
+std::vector<std::tuple<vm_prot_t,std::string>> LoadCommand_LC_SEGMENT::GetMaxProts(){
+    return util::ParseProts(cmd_->maxprot);
+}
+std::vector<std::tuple<vm_prot_t,std::string>> LoadCommand_LC_SEGMENT::GetInitProts(){
+    return util::ParseProts(cmd_->initprot);
+}
 
 
 
@@ -36,6 +42,12 @@ void LoadCommand_LC_SEGMENT_64::Init(void * offset,NodeContextPtr & ctx){
 
 std::string LoadCommand_LC_SEGMENT_64::GetShortCharacteristicDescription(){
     return segment_name();
+}
+std::vector<std::tuple<vm_prot_t,std::string>> LoadCommand_LC_SEGMENT_64::GetMaxProts(){
+    return util::ParseProts(cmd_->maxprot);
+}
+std::vector<std::tuple<vm_prot_t,std::string>> LoadCommand_LC_SEGMENT_64::GetInitProts(){
+    return util::ParseProts(cmd_->initprot);
 }
 
 MOEX_NAMESPACE_END
