@@ -124,6 +124,20 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLIB)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLD_INFO)
+    t->AddRow(c->GetRAW(&(c->cmd()->rebase_off)),c->cmd()->rebase_off,"Rebase Info Offset",AsString(c->cmd()->rebase_off));
+    t->AddRow(c->GetRAW(&(c->cmd()->rebase_size)),c->cmd()->rebase_size,"Rebase Info Size",AsString(c->cmd()->rebase_size));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->bind_off)),c->cmd()->bind_off,"Binding Info Offset",AsString(c->cmd()->bind_off));
+    t->AddRow(c->GetRAW(&(c->cmd()->bind_size)),c->cmd()->bind_size,"Binding Info Size",AsString(c->cmd()->bind_size));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_off)),c->cmd()->weak_bind_off,"Weak Binding Info Offset",AsString(c->cmd()->weak_bind_off));
+    t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_size)),c->cmd()->weak_bind_size,"Weak Binding Info Size",AsString(c->cmd()->weak_bind_size));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_off)),c->cmd()->lazy_bind_off,"Lazy Binding Info Offset",AsString(c->cmd()->lazy_bind_off));
+    t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_size)),c->cmd()->lazy_bind_size,"Lazy Binding Info Size",AsString(c->cmd()->lazy_bind_size));
+
+    t->AddRow(c->GetRAW(&(c->cmd()->export_off)),c->cmd()->export_off,"Export Info Offset",AsString(c->cmd()->export_off));
+    t->AddRow(c->GetRAW(&(c->cmd()->export_size)),c->cmd()->export_size,"Export Info Size",AsString(c->cmd()->export_size));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SYMTAB)
