@@ -1,5 +1,5 @@
 //
-// Created by qiwei on 2017/3/29.
+// Created by everettjf on 2017/3/29.
 //
 
 #ifndef MACHOEXPLORER_LOADCOMMAND_SEGMENT_H
