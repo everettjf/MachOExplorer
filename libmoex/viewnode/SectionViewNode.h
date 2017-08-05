@@ -20,6 +20,11 @@ public:
 };
 using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 
+class SectionViewNodeFactory{
+public:
+    static SectionViewNodePtr Create(MachSectionPtr d);
+};
+
 
 MOEX_NAMESPACE_END
 

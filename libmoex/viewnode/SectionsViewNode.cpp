@@ -13,15 +13,13 @@ void SectionsViewNode::Init(MachHeaderPtr mh) {
         if(cmd->offset()->cmd == LC_SEGMENT) {
             moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
             for(auto & sect : seg->sections_ref()){
-                SectionViewNodePtr node = std::make_shared<SectionViewNode>();
-                node->Init(sect);
+                SectionViewNodePtr node = SectionViewNodeFactory::Create(sect);
                 sections_.push_back(node);
             }
         }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
             moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
             for(auto & sect : seg->sections_ref()){
-                SectionViewNodePtr node = std::make_shared<SectionViewNode>();
-                node->Init(sect);
+                SectionViewNodePtr node = SectionViewNodeFactory::Create(sect);
                 sections_.push_back(node);
             }
         }
