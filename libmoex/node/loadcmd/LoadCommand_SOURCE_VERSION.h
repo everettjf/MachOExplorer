@@ -13,6 +13,8 @@ MOEX_NAMESPACE_BEGIN
 class LoadCommand_LC_SOURCE_VERSION : public LoadCommandImpl<source_version_command>{
 public:
     std::string GetTypeName() override{ return "source_version_command";}
+
+    std::string GetVersion();
 };
 
 

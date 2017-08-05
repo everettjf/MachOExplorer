@@ -187,19 +187,33 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_UUID)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(VERSION_MIN)
+    t->AddRow(c->GetRAW(&(c->cmd()->version)),c->cmd()->version,"Version",c->GetVersion());
+    t->AddRow(c->GetRAW(&(c->cmd()->sdk)),c->cmd()->sdk,"SDK",c->GetSDK());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SOURCE_VERSION)
+    t->AddRow(c->GetRAW(&(c->cmd()->version)),c->cmd()->version,"Version",c->GetVersion());
 IMPL_LOADCOMMAND_VIEWNODE_END
+
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_MAIN)
+    t->AddRow(c->GetRAW(&(c->cmd()->entryoff)),c->cmd()->entryoff,"Entry Offset",AsShortHexString(c->cmd()->entryoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->stacksize)),c->cmd()->stacksize,"Stack Size",AsShortHexString(c->cmd()->stacksize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_ENCRYPTION_INFO)
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptoff)),c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptsize)),c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptid)),c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_ENCRYPTION_INFO_64)
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptoff)),c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptsize)),c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
+    t->AddRow(c->GetRAW(&(c->cmd()->cryptid)),c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LINKEDIT_DATA)
+    t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+    t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 //////////////////////////////////////////////////////////////////////////////////
 
