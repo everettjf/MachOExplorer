@@ -12,13 +12,16 @@ MOEX_NAMESPACE_BEGIN
 class LoadCommand_LC_LOAD_DYLINKER : public LoadCommandImpl<dylinker_command>{
 private:
     std::string dylinker_path_name_;
+    char* dylinker_path_name_offset_;
 public:
     const std::string & dylinker_path_name()const{return dylinker_path_name_;}
+    char * dylinker_path_name_offset(){return dylinker_path_name_offset_;}
 
     void Init(void * offset,NodeContextPtr & ctx)override {
         LoadCommandImpl::Init(offset,ctx);
 
-        dylinker_path_name_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
+        dylinker_path_name_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
+        dylinker_path_name_ = dylinker_path_name_offset_;
     }
     std::string GetTypeName() override{ return "dylinker_command";}
 };

@@ -176,6 +176,10 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYSYMTAB)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LOAD_DYLINKER)
+    t->AddRow(c->GetRAW(&(c->cmd()->name.offset)),c->cmd()->name.offset,"Str Offset",AsShortHexString(c->cmd()->name.offset));
+    t->AddSeparator();
+
+    t->AddRow(c->GetRAW((void*)(c->dylinker_path_name_offset())),AsHexData((void*)(c->dylinker_path_name_offset()),(std::size_t)(c->dylinker_path_name().length())),"Name",c->dylinker_path_name());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_UUID)
