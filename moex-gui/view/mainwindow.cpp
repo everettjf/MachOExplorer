@@ -42,7 +42,7 @@ void MainWindow::createUI()
         ui->skeleton->setMinimumWidth(350);
 #endif
 
-        ui->skeletonDock = new QDockWidget(tr("Skeleton Window"),this);
+        ui->skeletonDock = new QDockWidget(tr("Layout"),this);
         ui->skeletonDock->setFeatures(QDockWidget::DockWidgetMovable);
         ui->skeletonDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
         ui->skeletonDock->setWidget(ui->skeleton);
@@ -52,7 +52,7 @@ void MainWindow::createUI()
     {
         ui->log = new LogView();
 
-        ui->logDock = new QDockWidget(tr("Log Window"),this);
+        ui->logDock = new QDockWidget(tr("Log"),this);
         ui->logDock->setFeatures(QDockWidget::AllDockWidgetFeatures);
         ui->logDock->setWidget(ui->log);
         connect(ui->logDock,SIGNAL(visibilityChanged(bool)),this,SLOT(dockLogVisibilityChanged(bool)));

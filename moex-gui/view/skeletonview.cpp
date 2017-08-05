@@ -5,6 +5,7 @@
 #include "skeletonview.h"
 #include "../utility/utility.h"
 #include "../controller/workspacemanager.h"
+#include <QHBoxLayout>
 
 SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
 {

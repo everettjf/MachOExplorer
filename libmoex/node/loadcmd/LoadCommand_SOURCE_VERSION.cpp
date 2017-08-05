@@ -6,7 +6,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-std::string LoadCommand_LC_SOURCE_VERSION::GetSDK(){
+std::string LoadCommand_LC_SOURCE_VERSION::GetVersion(){
     return util::FormatVersion(cmd_->version);
 }
 
