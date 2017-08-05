@@ -2,12 +2,12 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "skeletonview.h"
+#include "layoutview.h"
 #include "../utility/utility.h"
 #include "../controller/workspacemanager.h"
 #include <QHBoxLayout>
 
-SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
+LayoutView::LayoutView(QWidget *parent) : QWidget(parent)
 {
     controller = nullptr;
     treeView = new QTreeView(this);
@@ -20,10 +20,10 @@ SkeletonView::SkeletonView(QWidget *parent) : QWidget(parent)
     connect(treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(clickedTreeNode(QModelIndex)));
 }
 
-void SkeletonView::openFile(const QString &filePath)
+void LayoutView::openFile(const QString &filePath)
 {
     if(controller) delete controller;
-    controller = new SkeletonController();
+    controller = new LayoutController();
 
     controller->setFilePath(filePath);
     QString error;
@@ -43,7 +43,7 @@ void SkeletonView::openFile(const QString &filePath)
 }
 
 
-void SkeletonView::showViewNode(moex::ViewNode *node)
+void LayoutView::showViewNode(moex::ViewNode *node)
 {
     if(!node)
         return;
@@ -52,7 +52,7 @@ void SkeletonView::showViewNode(moex::ViewNode *node)
     WorkspaceManager::current()->showNode(node);
 }
 
-void SkeletonView::clickedTreeNode(QModelIndex index)
+void LayoutView::clickedTreeNode(QModelIndex index)
 {
     QStandardItem *item = controller->model()->itemFromIndex(index);
     if(!item)

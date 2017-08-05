@@ -2,26 +2,26 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#ifndef SKELETONVIEW_H
-#define SKELETONVIEW_H
+#ifndef LAYOUTVIEW_H
+#define LAYOUTVIEW_H
 
 #include <QWidget>
 #include <QTreeView>
-#include "../controller/skeletoncontroller.h"
+#include "../controller/layoutcontroller.h"
 #include <QModelIndex>
 
 
 
-class SkeletonView : public QWidget
+class LayoutView : public QWidget
 {
     Q_OBJECT
 private:
     QTreeView *treeView;
-    SkeletonController *controller;
+    LayoutController *controller;
 private:
     void showViewNode(moex::ViewNode * node);
 public:
-    explicit SkeletonView(QWidget *parent = 0);
+    explicit LayoutView(QWidget *parent = 0);
 
     void openFile(const QString & filePath);
 
@@ -31,4 +31,4 @@ public slots:
     void clickedTreeNode(QModelIndex index);
 };
 
-#endif // SKELETONVIEW_H
+#endif // LAYOUTVIEW_H

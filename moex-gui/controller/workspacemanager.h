@@ -5,7 +5,7 @@
 #ifndef WORKSPACEMANAGER_H
 #define WORKSPACEMANAGER_H
 
-#include "../view/skeletonview.h"
+#include "../view/layoutview.h"
 #include "../view/contentview.h"
 #include "../view/logview.h"
 #include <QDockWidget>
@@ -13,11 +13,11 @@
 #include <libmoex/moex-view.h>
 
 struct WorkspaceUI{
-    SkeletonView *skeleton;
+    LayoutView *layout;
     ContentView *content;
     LogView *log;
 
-    QDockWidget *skeletonDock;
+    QDockWidget *layoutDock;
     QDockWidget *contentDock;
     QDockWidget *logDock;
 };

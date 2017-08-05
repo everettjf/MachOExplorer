@@ -12,7 +12,7 @@ Workspace::Workspace()
 
 void Workspace::openFile(const QString &filePath)
 {
-    ui_->skeleton->openFile(filePath);
+    ui_->layout->openFile(filePath);
 }
 
 void Workspace::addLog(const QString &log)

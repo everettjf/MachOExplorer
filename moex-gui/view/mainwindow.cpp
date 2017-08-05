@@ -34,19 +34,19 @@ void MainWindow::createUI()
     ui->content = new ContentView(this);
     setCentralWidget(ui->content);
 
-    // Skeleton View
+    // layout View
     {
-        ui->skeleton = new SkeletonView();
+        ui->layout = new LayoutView();
 
 #ifndef NDEBUG
-        ui->skeleton->setMinimumWidth(350);
+        ui->layout->setMinimumWidth(350);
 #endif
 
-        ui->skeletonDock = new QDockWidget(tr("Layout"),this);
-        ui->skeletonDock->setFeatures(QDockWidget::DockWidgetMovable);
-        ui->skeletonDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
-        ui->skeletonDock->setWidget(ui->skeleton);
-        addDockWidget(Qt::LeftDockWidgetArea,ui->skeletonDock);
+        ui->layoutDock = new QDockWidget(tr("Layout"),this);
+        ui->layoutDock->setFeatures(QDockWidget::DockWidgetMovable);
+        ui->layoutDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
+        ui->layoutDock->setWidget(ui->layout);
+        addDockWidget(Qt::LeftDockWidgetArea,ui->layoutDock);
     }
     // Log View
     {
@@ -134,7 +134,6 @@ void MainWindow::reportIssue(bool checked)
 void MainWindow::viewSource(bool checked)
 {
     util::openURL("https://github.com/everettjf/MOEX");
-
 }
 
 void MainWindow::aboutApp(bool checked)

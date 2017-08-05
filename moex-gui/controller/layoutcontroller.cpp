@@ -2,15 +2,15 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "skeletoncontroller.h"
+#include "layoutcontroller.h"
 #include <QDebug>
 
-SkeletonController::SkeletonController()
+LayoutController::LayoutController()
 {
     model_ = nullptr;
 }
 
-bool SkeletonController::initModel(QString & error)
+bool LayoutController::initModel(QString & error)
 {
     if(filePath_.length() == 0){
         error = "File path is empty";
@@ -49,7 +49,7 @@ bool SkeletonController::initModel(QString & error)
     return true;
 }
 
-void SkeletonController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem){
+void LayoutController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem){
     parentNode->ForEachChild([&](moex::ViewNode* node){
         QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
         parentItem->appendRow(subItem);
@@ -60,7 +60,7 @@ void SkeletonController::initChildren(moex::ViewNode *parentNode,QStandardItem *
     });
 }
 
-int SkeletonController::getExpandDepth()
+int LayoutController::getExpandDepth()
 {
 #ifdef NDEBUG
     return vnm_.IsFat()?2:1;

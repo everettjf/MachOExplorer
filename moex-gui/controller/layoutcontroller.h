@@ -2,18 +2,18 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#ifndef SKELETONCONTROLLER_H
-#define SKELETONCONTROLLER_H
+#ifndef LAYOUTCONTROLLER_H
+#define LAYOUTCONTROLLER_H
 
 #include <QStandardItemModel>
 #include <libmoex/viewnode/ViewNodeManager.h>
 #include "../utility/utility.h"
 #include "basecontroller.h"
 
-class SkeletonController : public BaseController
+class LayoutController : public BaseController
 {
 public:
-    SkeletonController();
+    LayoutController();
 
     void setFilePath(const QString & filePath){ filePath_ = filePath;}
 
@@ -31,4 +31,4 @@ private:
     moex::ViewNodeManager vnm_;
 };
 
-#endif // SKELETONCONTROLLER_H
+#endif // LAYOUTCONTROLLER_H
