@@ -6,13 +6,6 @@
 
 MOEX_NAMESPACE_BEGIN
 
-void SectionViewNode::Init(MachSectionPtr d){
-    d_ = d;
-}
-std::string SectionViewNode::GetDisplayName(){
-    return boost::str(boost::format("Section(%1%,%2%)")%d_->segment_name()%d_->section_name());
-}
-
 void SectionsViewNode::Init(MachHeaderPtr mh) {
     mh_ = mh;
 

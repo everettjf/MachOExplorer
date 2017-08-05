@@ -5,19 +5,9 @@
 #ifndef MOEX_SECTIONSVIEWNODE_H
 #define MOEX_SECTIONSVIEWNODE_H
 
-#include "ViewNode.h"
+#include "SectionViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
-
-class SectionViewNode : public ViewNode{
-private:
-    MachSectionPtr d_;
-public:
-    void Init(MachSectionPtr d);
-    std::string GetDisplayName()override;
-
-};
-using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 
 class SectionsViewNode : public ViewNode{
 private:
