@@ -18,7 +18,7 @@ void StringTableViewNode::InitViewDatas()
 
     auto t = CreateTableViewDataPtr();
     t->SetHeaders({"Index","Offset","Length","String"});
-    t->SetWidths({10,20,20,200});
+    t->SetWidths({40,80,80,370});
 
     moex::LoadCommand_LC_SYMTAB *seg=nullptr;
     for(auto cmd : mh_->loadcmds_ref()){
