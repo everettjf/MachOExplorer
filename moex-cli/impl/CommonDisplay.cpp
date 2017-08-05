@@ -180,30 +180,30 @@ void CommonDisplay::SectionList(){
                 moex::LoadCommand_LC_SEGMENT *seg = static_cast<moex::LoadCommand_LC_SEGMENT*>(cmd.get());
                 for(auto & sect : seg->sections_ref()){
                     print_->AddRow({
-                            sect->section_name(),
-                            sect->segment_name(),
-                            ToString(sect->offset()->addr),
-                            ToString(sect->offset()->size),
-                            ToString(sect->offset()->offset),
-                            ToString(sect->offset()->align),
-                            ToString(sect->offset()->reloff),
-                            ToString(sect->offset()->nreloc),
-                            ToString(sect->offset()->flags),
+                                           sect->sect().section_name(),
+                                           sect->sect().segment_name(),
+                                           ToString(sect->sect().addr()),
+                                           ToString(sect->sect().size()),
+                                           ToString(sect->sect().offset()),
+                                           ToString(sect->sect().align()),
+                                           ToString(sect->sect().reloff()),
+                                           ToString(sect->sect().nreloc()),
+                                           ToString(sect->sect().flags()),
                                    });
                 }
             }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
                 moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
                 for(auto & sect : seg->sections_ref()){
                     print_->AddRow({
-                                           sect->section_name(),
-                                           sect->segment_name(),
-                                           ToString(sect->offset64()->addr),
-                                           ToString(sect->offset64()->size),
-                                           ToString(sect->offset64()->offset),
-                                           ToString(sect->offset64()->align),
-                                           ToString(sect->offset64()->reloff),
-                                           ToString(sect->offset64()->nreloc),
-                                           ToString(sect->offset64()->flags),
+                           sect->sect().section_name(),
+                           sect->sect().segment_name(),
+                           ToString(sect->sect().addr()),
+                           ToString(sect->sect().size()),
+                           ToString(sect->sect().offset()),
+                           ToString(sect->sect().align()),
+                           ToString(sect->sect().reloff()),
+                           ToString(sect->sect().nreloc()),
+                           ToString(sect->sect().flags()),
                                    });
                 }
             }

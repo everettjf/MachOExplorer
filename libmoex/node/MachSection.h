@@ -9,29 +9,54 @@
 
 MOEX_NAMESPACE_BEGIN
 
+class moex_section{
+private:
+    section *s=nullptr;
+    section_64 *s64=nullptr;
+    bool is64=false;
+public:
+    moex_section(){}
+
+    void Init(section *sect){s=sect;is64=false;}
+    void Init(section_64 *sect){s64=sect;is64=true;}
+
+    bool Is64()const{return is64;}
+
+    // shared
+    char   	    (&sectname())[16]{return is64?s64->sectname:s->sectname;}
+    char		(&segname())[16]{return is64?s64->segname:s->segname;}
+    uint32_t	&offset(){return is64?s64->offset:s->offset;}
+    uint32_t	&align(){return is64?s64->align:s->align;}
+    uint32_t	&reloff(){return is64?s64->reloff:s->reloff;}
+    uint32_t	&nreloc(){return is64?s64->nreloc:s->nreloc;}
+    uint32_t	&flags(){return is64?s64->flags:s->flags;}
+    uint32_t	&reserved1(){return is64?s64->reserved1:s->reserved1;}
+    uint32_t	&reserved2(){return is64?s64->reserved2:s->reserved2;}
+
+    // 32
+    uint32_t	&addr(){return s->addr;}
+    uint32_t	&size(){return s->size;}
+
+    // 64
+    uint64_t	&addr64(){return s64->addr;}
+    uint64_t	&size64(){return s64->size;}
+    uint32_t	&reserved3(){return s64->reserved3;}
+
+    // helper
+    std::string segment_name() {return std::string(segname(),16).c_str();}
+    std::string section_name() {return std::string(sectname(),16).c_str();}
+};
 
 
 class MachSectionInternal : public NodeOffset<section>{
-protected:
-
 public:
-    std::string segment_name() const {return std::string(offset_->segname,16).c_str();}
-    std::string section_name() const {return std::string(offset_->sectname,16).c_str();}
-
     std::string GetTypeName() override{ return "section";}
-
 };
 using MachSectionInternalPtr = std::shared_ptr<MachSectionInternal>;
 
 class MachSection64Internal : public NodeOffset<section_64>{
-protected:
-
 public:
-    std::string segment_name() const {return std::string(offset_->segname,16).c_str();}
-    std::string section_name() const {return std::string(offset_->sectname,16).c_str();}
-
     std::string GetTypeName() override{ return "section_64";}
-
 };
 using MachSection64InternalPtr = std::shared_ptr<MachSection64Internal>;
 
@@ -40,6 +65,7 @@ class MachSection : public Node{
 private:
     MachSectionInternalPtr section_;
     MachSection64InternalPtr section64_;
+    moex_section sect_;
     bool is64_;
 public:
     bool Is64()const{return is64_;}
@@ -47,16 +73,13 @@ public:
     void Init(section *offset,NodeContextPtr & ctx);
     void Init(section_64 *offset,NodeContextPtr & ctx);
 
-    MachSectionInternalPtr & section_ref(){return section_;}
-    MachSection64InternalPtr & section64_ref(){return section64_;}
-
-    const section * offset()const {return section_->offset();}
-    const section_64 * offset64()const {return section64_->offset();}
-
-    std::string segment_name() const {return is64_ ? section64_->segment_name() : section_->segment_name();}
-    std::string section_name() const {return is64_ ? section64_->section_name() : section_->section_name();}
-
     std::string GetTypeName() override{ return is64_ ? section64_->GetTypeName() : section_->GetTypeName();}
+
+    std::size_t DATA_SIZE(){return is64_?section64_->DATA_SIZE():section_->DATA_SIZE();}
+    NodeContextPtr ctx(){return is64_?section64_->ctx():section_->ctx();}
+
+    void *offset(){return is64_?(void*)(section64_->offset()):(void*)(section_->offset());}
+    moex_section & sect(){return sect_;}
 
     uint64_t GetRAW(const void * addr){
         if(is64_)
