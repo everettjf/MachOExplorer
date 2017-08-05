@@ -7,6 +7,9 @@
 MOEX_NAMESPACE_BEGIN
 
 
+void CodeSignatureViewNode::Init(MachHeaderPtr mh){
+    mh_ = mh;
+}
 
 void CodeSignatureViewNode::InitViewDatas()
 {

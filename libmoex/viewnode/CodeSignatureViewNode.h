@@ -10,6 +10,10 @@
 MOEX_NAMESPACE_BEGIN
 
 class CodeSignatureViewNode : public ViewNode{
+private:
+    MachHeaderPtr mh_;
+public:
+    void Init(MachHeaderPtr mh);
 public:
     std::string GetDisplayName()override { return "Code Signature";}
     void InitViewDatas()override;

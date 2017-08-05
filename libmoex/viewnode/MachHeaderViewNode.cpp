@@ -20,8 +20,12 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     function_starts_ = std::make_shared<FunctionStartsViewNode>();
     symbol_table_ = std::make_shared<SymbolTableViewNode>();
     data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+
     string_table_ = std::make_shared<StringTableViewNode>();
+    string_table_->Init(d_);
+
     code_signature_ = std::make_shared<CodeSignatureViewNode>();
+    code_signature_->Init(d_);
 }
 
 std::string MachHeaderViewNode::GetDisplayName() {

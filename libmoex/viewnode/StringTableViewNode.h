@@ -11,6 +11,10 @@
 MOEX_NAMESPACE_BEGIN
 
 class StringTableViewNode : public ViewNode{
+private:
+    MachHeaderPtr mh_;
+public:
+    void Init(MachHeaderPtr mh);
 public:
     std::string GetDisplayName()override { return "String Table";}
     void InitViewDatas()override;
