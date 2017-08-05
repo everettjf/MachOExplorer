@@ -62,9 +62,5 @@ void LayoutController::initChildren(moex::ViewNode *parentNode,QStandardItem *pa
 
 int LayoutController::getExpandDepth()
 {
-#ifdef NDEBUG
     return vnm_.IsFat()?2:1;
-#else
-    return vnm_.IsFat()?3:2;
-#endif
 }
