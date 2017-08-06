@@ -13,7 +13,7 @@ class CodeSignatureViewNode : public ViewNode{
 private:
     MachHeaderPtr mh_;
 public:
-    void Init(MachHeaderPtr mh);
+    void Init(MachHeaderPtr mh){mh_ = mh;}
 public:
     std::string GetDisplayName()override { return "Code Signature";}
     void InitViewDatas()override;

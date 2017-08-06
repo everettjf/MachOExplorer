@@ -80,6 +80,9 @@ public:
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 
+
+
+
 MOEX_NAMESPACE_END
 
 #endif // MACHHEADER_H
