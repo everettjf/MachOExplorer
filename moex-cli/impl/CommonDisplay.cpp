@@ -228,7 +228,7 @@ void CommonDisplay::SymbolList(){
 //                        ToString(item->n_sect()),
                         "","",
                         ToString(item->n_desc()),
-                        ToString(item->is64() ? item->n_value64() : item->n_value())
+                        ToString(item->Is64() ? item->n_value64() : item->n_value())
                     });
                 }
             }

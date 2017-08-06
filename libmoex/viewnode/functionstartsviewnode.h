@@ -10,6 +10,10 @@
 MOEX_NAMESPACE_BEGIN
 
 class FunctionStartsViewNode : public ViewNode{
+private:
+    MachHeaderPtr mh_;
+public:
+    void Init(MachHeaderPtr mh){mh_ = mh;}
 public:
     std::string GetDisplayName()override { return "Function Starts";}
     void InitViewDatas()override;

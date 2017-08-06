@@ -13,6 +13,14 @@
 MOEX_NAMESPACE_BEGIN
 
 
+class moex_nlist{
+private:
+
+public:
+
+};
+
+
 class NListInternal : public NodeOffset<struct nlist>{
 };
 
@@ -37,32 +45,33 @@ public:
         }
     }
 
-    bool is64(){return is64_;}
-    uint32_t n_strx(){
+    bool Is64(){return is64_;}
+    uint32_t &n_strx(){
         return is64_?
                nlist64_->offset()->n_un.n_strx :
                nlist_->offset()->n_un.n_strx ;
     }
-    uint8_t n_type(){
+    uint8_t &n_type(){
         return is64_?
                nlist64_->offset()->n_type :
                nlist_->offset()->n_type ;
     }
 
-    uint8_t n_sect(){
+    uint8_t &n_sect(){
         return is64_?
                nlist64_->offset()->n_sect :
                nlist_->offset()->n_sect ;
     }
-    int16_t n_desc(){
-        return is64_?
-               nlist64_->offset()->n_desc :
-               nlist_->offset()->n_desc ;
+    int16_t &n_desc(){
+        return nlist_->offset()->n_desc ;
     }
-    uint32_t n_value(){
+    uint16_t &n_desc64(){
+        return nlist64_->offset()->n_desc;
+    }
+    uint32_t &n_value(){
         return nlist_->offset()->n_value;
     }
-    uint64_t n_value64(){
+    uint64_t &n_value64(){
         return nlist64_->offset()->n_value;
     }
 };
@@ -88,6 +97,9 @@ public:
     }
     uint32_t GetSymbolTableSize(){
         return cmd_->nsyms;
+    }
+    uint32_t GetSymbolTableTotalBytes(){
+        return header_->Is64()? cmd_->nsyms * sizeof(struct nlist_64) : cmd_->nsyms * sizeof(struct nlist);
     }
 
     uint32_t GetStringTableOffset(){

@@ -22,7 +22,7 @@ public:
 
     void Init(void *offset,NodeContextPtr &ctx) override;
 
-    bool is64()const{ return mh_->is64(); }
+    bool Is64()const{ return mh_->Is64(); }
 
     std::string GetTypeName() override{ return "fat_arch";}
 

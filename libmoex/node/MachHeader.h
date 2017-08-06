@@ -49,7 +49,7 @@ private:
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
-    bool is64()const{return is64_;}
+    bool Is64()const{return is64_;}
     mach_header * data_ptr(){return header_;}
     std::vector<LoadCommandPtr> &loadcmds_ref(){return loadcmds_;}
     NodeContextPtr & ctx(){return ctx_;}
@@ -59,7 +59,7 @@ public:
         return (uint64_t)addr - (uint64_t)ctx_->file_start;
     }
 
-    std::size_t DATA_SIZE(){return is64()?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
+    std::size_t DATA_SIZE(){return is64_?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
 
     void Init(void *offset,NodeContextPtr&ctx);
 

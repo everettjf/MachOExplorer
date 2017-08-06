@@ -22,8 +22,8 @@
 
 MOEX_NAMESPACE_BEGIN
 
-bool LoadCommand::is64() {
-    return header_->is64();
+bool LoadCommand::Is64() {
+    return header_->Is64();
 }
 
 std::string LoadCommand::GetLoadCommandTypeString(){

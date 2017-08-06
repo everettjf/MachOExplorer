@@ -21,7 +21,7 @@ void StringTableViewNode::InitViewDatas()
     t->SetWidths({80,100,80,400});
 
     moex::LoadCommand_LC_SYMTAB *seg=nullptr;
-    for(auto cmd : mh_->loadcmds_ref()){
+    for(auto & cmd : mh_->loadcmds_ref()){
         if(cmd->offset()->cmd == LC_SYMTAB) {
             seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
             break;

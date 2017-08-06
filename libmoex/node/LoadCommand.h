@@ -18,7 +18,7 @@ public:
     void set_header(MachHeader* header){header_ = header;}
     MachHeader * header(){return header_;}
 
-    bool is64();
+    bool Is64();
     std::string GetLoadCommandTypeString();
 
     std::string GetTypeName() override{ return "load_command";}

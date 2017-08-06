@@ -17,9 +17,16 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     sections_->Init(d_);
 
     dynamic_loader_info_ = std::make_shared<DynamicLoaderInfoViewNode>();
+    dynamic_loader_info_->Init(d_);
+
     function_starts_ = std::make_shared<FunctionStartsViewNode>();
+    function_starts_->Init(d_);
+
     symbol_table_ = std::make_shared<SymbolTableViewNode>();
+    symbol_table_->Init(d_);
+
     data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+    data_in_code_entries_->Init(d_);
 
     string_table_ = std::make_shared<StringTableViewNode>();
     string_table_->Init(d_);
@@ -71,7 +78,7 @@ void MachHeaderViewNode::InitViewDatas(){
             t->AddRow("","",AsShortHexString(std::get<0>(item)),std::get<1>(item));
         }
 
-        if(d_->is64()){
+        if(d_->Is64()){
             const mach_header_64 *offset64 = (const mach_header_64*)d_->header_start();
 
             t->AddRow(d_->GetRAW(&(offset64->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));

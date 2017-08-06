@@ -37,7 +37,7 @@ protected:
 public:
     static constexpr std::size_t DATA_SIZE(){return sizeof(T);}
 
-    T * offset()const{ return offset_;}
+    T * offset(){ return offset_;}
 
     NodeContextPtr ctx(){return ctx_;}
 
