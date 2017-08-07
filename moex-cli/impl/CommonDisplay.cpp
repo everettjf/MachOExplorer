@@ -419,19 +419,22 @@ void CommonDisplay::DataInCodeEntries(){
             if (cmd->offset()->cmd == LC_DATA_IN_CODE) {
                 moex::LoadCommand_LC_DATA_IN_CODE *one = static_cast<moex::LoadCommand_LC_DATA_IN_CODE*>(cmd.get());
 
-//                print_->SetHeaders({
-//                                           header->GetArch() + " / entryoffset",
-//                                           "stacksize"
-//                                   });
-//                print_->SetWidths({20,10});
-//                print_->Begin();
-//
-//                print_->AddRow({
-//                                       ToHexString(one->entryoff()),
-//                                       ToString(one->stacksize())
-//                               });
-//
-//                print_->End();
+                print_->SetHeaders({
+                                           header->GetArch() + " / location",
+                                           "length",
+                                           "kind"
+                                   });
+                print_->SetWidths({20,20,20});
+                print_->Begin();
+
+                for(auto & dice : one->GetDices()){
+                    print_->AddRow({
+                                           ToHexString(dice->offset()->offset),
+                                           ToHexString(dice->offset()->length),
+                                           dice->GetKindString()
+                                   });
+                }
+                print_->End();
             }
         }
     });

@@ -91,6 +91,7 @@ void AppHandler::SetupOptions(){
             ("main","[impl] main (entry offset)")
 
             ("dylib_list","[impl] dylib list")
+            ("dices","[impl] data in code entries")
 
             // helper
             ("arch_list","[impl] arch list")
@@ -130,6 +131,7 @@ void AppHandler::GoDisplayMode(){
     {"dylib_list",[&]{display.DylibList();}},
     {"main",[&]{display.Main();}},
     {"tree",[&]{display.Tree();}},
+    {"dices",[&]{display.DataInCodeEntries();}},
     };
 
     for(auto & action : actions){
