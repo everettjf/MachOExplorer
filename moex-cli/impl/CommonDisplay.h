@@ -36,6 +36,7 @@ public:
     void DylibList();
     void Main();
     void Tree();
+    void DataInCodeEntries();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);

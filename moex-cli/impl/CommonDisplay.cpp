@@ -412,3 +412,27 @@ void CommonDisplay::DisplayViewNode(moex::ViewNode *node,int & level){
     --level;
 }
 
+void CommonDisplay::DataInCodeEntries(){
+
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+            if (cmd->offset()->cmd == LC_DATA_IN_CODE) {
+                moex::LoadCommand_LINKEDIT_DATA *one = static_cast<moex::LoadCommand_LINKEDIT_DATA*>(cmd.get());
+
+//                print_->SetHeaders({
+//                                           header->GetArch() + " / entryoffset",
+//                                           "stacksize"
+//                                   });
+//                print_->SetWidths({20,10});
+//                print_->Begin();
+//
+//                print_->AddRow({
+//                                       ToHexString(one->entryoff()),
+//                                       ToString(one->stacksize())
+//                               });
+//
+//                print_->End();
+            }
+        }
+    });
+}
