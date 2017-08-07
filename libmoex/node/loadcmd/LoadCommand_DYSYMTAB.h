@@ -11,7 +11,6 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_LC_DYSYMTAB : public LoadCommandImpl<dysymtab_command>{
 public:
-    std::string GetTypeName() override{ return "dysymtab_command";}
 };
 
 

@@ -23,7 +23,6 @@ public:
 
     void Init(void * offset,NodeContextPtr & ctx)override;
 
-    std::string GetTypeName() override{ return "dylib_command";}
     std::string GetShortCharacteristicDescription()override;
     std::string GetTimeStamp();
     std::string GetCurrentVersion();

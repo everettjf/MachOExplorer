@@ -21,7 +21,6 @@ public:
     bool Is64();
     std::string GetLoadCommandTypeString();
 
-    std::string GetTypeName() override{ return "load_command";}
     virtual std::string GetShortCharacteristicDescription(){return "";}
 
     uint32_t GetCommand(){return offset()->cmd;}

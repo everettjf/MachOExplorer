@@ -26,7 +26,6 @@ using NodeContextPtr = std::shared_ptr<NodeContext>;
 class Node{
 public:
     virtual ~Node(){}
-    virtual std::string GetTypeName() = 0;
 };
 
 template <typename T>
@@ -49,8 +48,6 @@ public:
     uint64_t GetRAW(const void * addr){
         return (uint64_t)addr - (uint64_t)ctx_->file_start;
     }
-
-    std::string GetTypeName() override{ return "node";}
 };
 
 template <typename T>

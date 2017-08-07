@@ -20,8 +20,6 @@ public:
 
     void Init(void * offset,NodeContextPtr & ctx)override ;
 
-    std::string GetTypeName() override{ return "segment_command";}
-
     std::string GetShortCharacteristicDescription()override;
     std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
     std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();
@@ -36,7 +34,6 @@ public:
 
     void Init(void * offset,NodeContextPtr & ctx)override ;
 
-    std::string GetTypeName() override{ return "segment_command_64";}
     std::string GetShortCharacteristicDescription()override;
     std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
     std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();

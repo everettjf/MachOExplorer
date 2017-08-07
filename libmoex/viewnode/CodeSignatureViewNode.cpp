@@ -10,10 +10,10 @@ MOEX_NAMESPACE_BEGIN
 void CodeSignatureViewNode::InitViewDatas() {
     using namespace moex::util;
 
-    moex::LoadCommand_LINKEDIT_DATA *seg=nullptr;
+    moex::LoadCommand_LC_CODE_SIGNATURE *seg=nullptr;
     for(auto & cmd : mh_->loadcmds_ref()){
         if(cmd->offset()->cmd == LC_CODE_SIGNATURE) {
-            seg = static_cast<moex::LoadCommand_LINKEDIT_DATA*>(cmd.get());
+            seg = static_cast<moex::LoadCommand_LC_CODE_SIGNATURE*>(cmd.get());
             break;
         }
     }

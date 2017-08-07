@@ -211,7 +211,27 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_ENCRYPTION_INFO_64)
     t->AddRow(c->GetRAW(&(c->cmd()->cryptid)),c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
-IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LINKEDIT_DATA)
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_CODE_SIGNATURE)
+            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT_SPLIT_INFO)
+            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_FUNCTION_STARTS)
+            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DATA_IN_CODE)
+            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYLIB_CODE_SIGN_DRS)
+            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LINKER_OPTIMIZATION_HINT)
     t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
     t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
@@ -248,12 +268,12 @@ LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
         CASE_LOADCOMMAND_VIEWNODE(LC_ENCRYPTION_INFO)
         CASE_LOADCOMMAND_VIEWNODE(LC_ENCRYPTION_INFO_64)
 
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_CODE_SIGNATURE, LINKEDIT_DATA)
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_SEGMENT_SPLIT_INFO, LINKEDIT_DATA)
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_FUNCTION_STARTS, LINKEDIT_DATA)
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_DATA_IN_CODE, LINKEDIT_DATA)
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_DYLIB_CODE_SIGN_DRS, LINKEDIT_DATA)
-        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_LINKER_OPTIMIZATION_HINT, LINKEDIT_DATA)
+        CASE_LOADCOMMAND_VIEWNODE(LC_CODE_SIGNATURE)
+        CASE_LOADCOMMAND_VIEWNODE(LC_SEGMENT_SPLIT_INFO)
+        CASE_LOADCOMMAND_VIEWNODE(LC_FUNCTION_STARTS)
+        CASE_LOADCOMMAND_VIEWNODE(LC_DATA_IN_CODE)
+        CASE_LOADCOMMAND_VIEWNODE(LC_DYLIB_CODE_SIGN_DRS)
+        CASE_LOADCOMMAND_VIEWNODE(LC_LINKER_OPTIMIZATION_HINT)
         default:{
             res = std::make_shared<LoadCommandViewNode>();
             break;

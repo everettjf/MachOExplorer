@@ -11,13 +11,11 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_LC_ENCRYPTION_INFO : public LoadCommandImpl<encryption_info_command>{
 public:
-    std::string GetTypeName() override{ return "encryption_info_command";}
     std::string GetShortCharacteristicDescription()override;
 };
 
 class LoadCommand_LC_ENCRYPTION_INFO_64 : public LoadCommandImpl<encryption_info_command_64>{
 public:
-    std::string GetTypeName() override{ return "encryption_info_command_64";}
     std::string GetShortCharacteristicDescription()override;
 };
 

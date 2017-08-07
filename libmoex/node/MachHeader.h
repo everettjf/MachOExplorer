@@ -66,9 +66,6 @@ public:
     MachHeaderInternalPtr & mh(){return mh_;}
     MachHeader64InternalPtr & mh64(){return mh64_;}
 
-    std::string GetTypeName() override {
-        return is64_?"mach_header_64":"mach_header";
-    }
     std::string GetArch();
     std::string GetFileTypeString();
     std::vector<std::tuple<uint32_t,std::string>> GetFlagsArray();

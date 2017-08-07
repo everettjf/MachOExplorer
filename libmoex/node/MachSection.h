@@ -50,13 +50,11 @@ public:
 
 class MachSectionInternal : public NodeOffset<section>{
 public:
-    std::string GetTypeName() override{ return "section";}
 };
 using MachSectionInternalPtr = std::shared_ptr<MachSectionInternal>;
 
 class MachSection64Internal : public NodeOffset<section_64>{
 public:
-    std::string GetTypeName() override{ return "section_64";}
 };
 using MachSection64InternalPtr = std::shared_ptr<MachSection64Internal>;
 
@@ -72,8 +70,6 @@ public:
 
     void Init(section *offset,NodeContextPtr & ctx);
     void Init(section_64 *offset,NodeContextPtr & ctx);
-
-    std::string GetTypeName() override{ return is64_ ? section64_->GetTypeName() : section_->GetTypeName();}
 
     std::size_t DATA_SIZE(){return is64_?section64_->DATA_SIZE():section_->DATA_SIZE();}
     NodeContextPtr ctx(){return is64_?section64_->ctx():section_->ctx();}

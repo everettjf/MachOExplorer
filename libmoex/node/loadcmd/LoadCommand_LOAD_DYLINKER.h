@@ -23,7 +23,6 @@ public:
         dylinker_path_name_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
         dylinker_path_name_ = dylinker_path_name_offset_;
     }
-    std::string GetTypeName() override{ return "dylinker_command";}
 };
 
 

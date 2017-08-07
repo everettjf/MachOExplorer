@@ -119,7 +119,6 @@ public:
     }
 
 public:
-    std::string GetTypeName() override{ return "symtab_command";}
 };
 
 

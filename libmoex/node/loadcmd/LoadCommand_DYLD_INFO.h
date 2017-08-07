@@ -12,7 +12,6 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_DYLD_INFO : public LoadCommandImpl<dyld_info_command>{
 public:
-    std::string GetTypeName() override{ return "dyld_info_command";}
 };
 
 MOEX_NAMESPACE_END

@@ -11,8 +11,6 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_VERSION_MIN: public LoadCommandImpl<version_min_command>{
 public:
-    std::string GetTypeName() override{ return "version_min_command";}
-
     std::string GetVersion();
     std::string GetSDK();
 };

@@ -104,7 +104,7 @@ void CommonDisplay::LoadCommandList(){
             print_->AddRow({
                     ToString(cmd->offset()->cmd),
                     ToString(cmd->offset()->cmdsize),
-                    cmd->GetTypeName()
+                    cmd->GetLoadCommandTypeString()
                            });
         }
 
@@ -141,7 +141,7 @@ void CommonDisplay::SegmentList(){
                         ToString(seg->cmd()->nsects),
 
                         ToString(seg->cmd()->flags),
-                        seg->GetTypeName(),
+                        seg->GetLoadCommandTypeString(),
                                });
             }else if(cmd->offset()->cmd == LC_SEGMENT_64) {
                 moex::LoadCommand_LC_SEGMENT_64 *seg = static_cast<moex::LoadCommand_LC_SEGMENT_64*>(cmd.get());
@@ -159,7 +159,7 @@ void CommonDisplay::SegmentList(){
                        ToString(seg->cmd()->nsects),
 
                        ToString(seg->cmd()->flags),
-                       seg->GetTypeName(),
+                       seg->GetLoadCommandTypeString(),
                            });
             }
         }
@@ -417,7 +417,7 @@ void CommonDisplay::DataInCodeEntries(){
     ForEachHeader([&](moex::MachHeaderPtr header) {
         for (auto cmd : header->loadcmds_ref()) {
             if (cmd->offset()->cmd == LC_DATA_IN_CODE) {
-                moex::LoadCommand_LINKEDIT_DATA *one = static_cast<moex::LoadCommand_LINKEDIT_DATA*>(cmd.get());
+                moex::LoadCommand_LC_DATA_IN_CODE *one = static_cast<moex::LoadCommand_LC_DATA_IN_CODE*>(cmd.get());
 
 //                print_->SetHeaders({
 //                                           header->GetArch() + " / entryoffset",

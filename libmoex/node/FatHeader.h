@@ -24,8 +24,6 @@ public:
 
     bool Is64()const{ return mh_->Is64(); }
 
-    std::string GetTypeName() override{ return "fat_arch";}
-
     std::string GetCpuTypeString();
     std::string GetCpuSubTypeString();
 };
@@ -39,8 +37,6 @@ public:
     void Init(void * offset, NodeContextPtr&ctx) override;
 
     const std::vector<FatArchPtr> & archs()const { return archs_;}
-
-    std::string GetTypeName() override{ return "fat_header";}
 
     std::string GetMagicString();
 };
