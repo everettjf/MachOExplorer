@@ -26,7 +26,15 @@ void DataInCodeEntriesViewNode::InitViewDatas(){
 
 
     // Dices
-
+    auto t = CreateTableViewDataPtr();
+    for(auto & dice : seg->GetDices()){
+        // todo : :[self findSymbolAtRVA:[self fileOffsetToRVA:data_in_code_entry->offset + imageOffset]]];
+        t->AddRow(seg->GetRAW(&(dice->offset()->offset)),dice->offset()->offset,"Offset",AsShortHexString(dice->offset()->offset));
+        t->AddRow(seg->GetRAW(&(dice->offset()->length)),dice->offset()->length,"Length",AsShortHexString(dice->offset()->length));
+        t->AddRow(seg->GetRAW(&(dice->offset()->kind)),dice->offset()->kind,"Kind",dice->GetKindString());
+        t->AddSeparator();
+    }
+    AddViewData(t);
 }
 
 MOEX_NAMESPACE_END
