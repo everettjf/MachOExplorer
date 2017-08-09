@@ -2,11 +2,14 @@
 // Created by everettjf on 2017/7/21.
 //
 #include "LoadCommand_SEGMENT.h"
+#include "../MachHeader.h"
 
 MOEX_NAMESPACE_BEGIN
 
 void LoadCommand_LC_SEGMENT::Init(void * offset,NodeContextPtr & ctx){
     LoadCommandImpl::Init(offset,ctx);
+
+    header_->AddSegmentInfo(cmd_->fileoff,cmd_->vmaddr,cmd_->vmsize);
 
     for(uint32_t idx = 0; idx < cmd_->nsects; ++idx){
         section * cur = reinterpret_cast<section*>((char*)offset_ + data_size_cmd + idx * sizeof(section));
@@ -31,6 +34,8 @@ std::vector<std::tuple<vm_prot_t,std::string>> LoadCommand_LC_SEGMENT::GetInitPr
 
 void LoadCommand_LC_SEGMENT_64::Init(void * offset,NodeContextPtr & ctx){
     LoadCommandImpl::Init(offset,ctx);
+
+    header_->AddSegmentInfo(cmd_->fileoff,cmd_->vmaddr,cmd_->vmsize);
 
     for(uint32_t idx = 0; idx < cmd_->nsects; ++idx){
         section_64 * cur = reinterpret_cast<section_64*>((char*)offset_ + data_size_cmd + idx * sizeof(section_64));

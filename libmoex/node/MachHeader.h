@@ -34,6 +34,9 @@ public:
 using MachHeader64InternalPtr = std::shared_ptr<MachHeader64Internal>;
 
 
+// rva - vmaddr,vmsize
+using SegmentInfoMap = std::map<uint64_t,std::pair<uint64_t,uint64_t>>;
+
 class MachHeader : public Node{
 private:
     bool is64_;
@@ -46,6 +49,7 @@ private:
     NodeContextPtr ctx_;
     void *header_start_;
 
+    SegmentInfoMap segment_info_;
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -57,6 +61,10 @@ public:
 
     uint64_t GetRAW(const void * addr){
         return (uint64_t)addr - (uint64_t)ctx_->file_start;
+    }
+
+    uint64_t GetRVA(uint64_t fileoff){
+        return fileoff + (uint64_t)header_start_;
     }
 
     std::size_t DATA_SIZE(){return is64_?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
@@ -74,6 +82,11 @@ public:
     std::string GetCpuTypeString();
     std::string GetCpuSubTypeString();
     std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray();
+
+    const SegmentInfoMap &segment_info()const {return segment_info_;}
+    void AddSegmentInfo(uint32_t fileoff,uint64_t vmaddr,uint64_t vmsize){
+        segment_info_[GetRVA(fileoff)] = std::make_pair(vmaddr,vmsize);
+    }
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 
