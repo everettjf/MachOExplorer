@@ -14,3 +14,15 @@ moex-gui/moex-gui.pro.user
 # vscode cmake-tools extension
 build/
 .vscode/.cmaketools.json
+
+
+# Xcode
+moex-gui/Debug
+moex-gui/Release
+moex-gui/MOEX.build
+moex-gui/SharedPrecompiledHeaders
+moex-gui/moc_*.*
+moex-gui/.qmake.stash
+moex-gui/Info.plist
+moex-gui/MOEX.xcodeproj
+moex-gui/qrc_moex.cpp

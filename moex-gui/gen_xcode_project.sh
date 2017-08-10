@@ -1,0 +1,1 @@
+~/qt/5.9.1/clang_64/bin/qmake -spec macx-xcode moex-gui.pro
