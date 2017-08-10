@@ -5,6 +5,7 @@
 #include "tablecontentview.h"
 #include "../../utility/utility.h"
 #include <QHBoxLayout>
+#include <QDebug>
 
 TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(parent)
 {
@@ -26,7 +27,15 @@ void TableContentView::showViewData(moex::ViewData *data)
     if(controller) delete controller;
     controller = new TableContentController();
 
+    qDebug()<<data;
+    qDebug()<<node;
+    qDebug()<<controller;
+
+
     controller->InitModel(node);
+
+    qDebug()<<"after";
+
     tableView->setModel(controller->model());
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 

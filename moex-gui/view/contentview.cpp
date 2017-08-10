@@ -10,6 +10,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include "../controller/workspacemanager.h"
+#include <QDebug>
 
 ContentView::ContentView(QWidget *parent) : QWidget(parent)
 {
@@ -115,6 +116,8 @@ void ContentView::loadCurrentTab()
         return;
     ContentViewInterface *view = tabItems[index].first;
     moex::ViewData *data = tabItems[index].second;
+
+    qDebug()<< view << " - " << data;
 
     view->showViewData(data);
 }

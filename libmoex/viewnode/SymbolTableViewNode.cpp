@@ -32,7 +32,7 @@ void SymbolTableViewNode::InitViewDatas() {
 
 
         if(item->Is64()){
-            t->AddRow(mh_->GetRAW(&(item->n_desc64())),item->n_desc64(),"Description",AsShortHexString(item->n_desc()));
+            t->AddRow(mh_->GetRAW(&(item->n_desc64())),item->n_desc64(),"Description",AsShortHexString(item->n_desc64()));
             // foreach
             t->AddRow(mh_->GetRAW(&(item->n_value64())),item->n_value64(),"Value",AsShortHexString(item->n_value64()));
         } else{

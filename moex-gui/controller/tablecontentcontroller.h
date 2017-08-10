@@ -23,7 +23,7 @@ public:
                                 int role = Qt::DisplayRole) const;
 
 private:
-    moex::TableViewData *data_;
+    moex::TableViewData *data_ = nullptr;
 };
 
 
@@ -38,7 +38,7 @@ public:
     TableContentModel* model(){return model_;}
 
 private:
-    TableContentModel *model_;
+    TableContentModel *model_ = nullptr;
 };
 
 #endif // TABLECONTENTCONTROLLER_H
