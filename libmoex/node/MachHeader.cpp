@@ -58,7 +58,8 @@ uint64_t MachHeader::GetRAW(const void *addr){
 }
 
 uint64_t MachHeader::FileOffsetToRVA(uint64_t fileoff){
-    auto seg = segment_info_.upper_bound(fileoff);
+    uint64_t memoryoff = fileoff + (uint64_t)header_start_;
+    auto seg = segment_info_.upper_bound(memoryoff);
     if(seg == segment_info_.begin()){
         // error
         return 0;
@@ -66,7 +67,7 @@ uint64_t MachHeader::FileOffsetToRVA(uint64_t fileoff){
     --seg;
     uint64_t seg_offset = seg->first;
     uint64_t seg_addr = seg->second.first;
-    return fileoff - seg_offset + seg_addr;
+    return memoryoff - seg_offset + seg_addr;
 }
 
 std::string MachHeader::FindSymbolAtRVA(uint64_t rva){
@@ -113,6 +114,7 @@ std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> MachHeader::GetCpu
 }
 
 void MachHeader::AddSegmentInfo(uint32_t fileoff, uint64_t vmaddr, uint64_t vmsize){
-    segment_info_[fileoff + (uint64_t)header_start_] = std::make_pair(vmaddr,vmsize);
+    uint64_t memoryoff = fileoff + (uint64_t)header_start_;
+    segment_info_[memoryoff] = std::make_pair(vmaddr,vmsize);
 }
 MOEX_NAMESPACE_END
