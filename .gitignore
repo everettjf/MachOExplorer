@@ -1,5 +1,7 @@
 .DS_Store
 
+release/
+
 # Clion
 .idea/
 cmake-build-debug/

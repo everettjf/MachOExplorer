@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     WorkspaceManager::current()->set_ui(ui);
 
     // TEST
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
     WorkspaceManager::current()->openFile("/Applications/SizeOptDemo");
 //    WorkspaceManager::current()->openFile("/Applications/crazybaby");
 #endif
@@ -39,7 +39,7 @@ void MainWindow::createUI()
     {
         ui->layout = new LayoutView();
 
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
         ui->layout->setMinimumWidth(350);
 #endif
 
