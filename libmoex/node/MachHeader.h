@@ -63,8 +63,27 @@ public:
         return (uint64_t)addr - (uint64_t)ctx_->file_start;
     }
 
-    uint64_t GetRVA(uint64_t fileoff){
-        return fileoff + (uint64_t)header_start_;
+    uint64_t FileOffsetToRVA(uint64_t fileoff){
+        auto seg = segment_info_.upper_bound(fileoff);
+        if(seg == segment_info_.begin()){
+            // error
+            return 0;
+        }
+        --seg;
+        uint64_t seg_offset = seg->first;
+        uint64_t seg_addr = seg->second.first;
+        return fileoff - seg_offset + seg_addr;
+    }
+    std::string FindSymbolAtRVA(uint64_t rva){
+        // extend external symbols represented in 32bit to 64bit
+        if ((int32_t)rva < 0)
+        {
+            rva |= 0xffffffff00000000LL;
+        }
+        return boost::str(boost::format("0x%X")%rva);
+    }
+    std::string FileOffsetToSymbol(uint64_t fileoff){
+        return FindSymbolAtRVA(FileOffsetToRVA(fileoff));
     }
 
     std::size_t DATA_SIZE(){return is64_?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
@@ -85,7 +104,7 @@ public:
 
     const SegmentInfoMap &segment_info()const {return segment_info_;}
     void AddSegmentInfo(uint32_t fileoff,uint64_t vmaddr,uint64_t vmsize){
-        segment_info_[GetRVA(fileoff)] = std::make_pair(vmaddr,vmsize);
+        segment_info_[fileoff + (uint64_t)header_start_] = std::make_pair(vmaddr,vmsize);
     }
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
