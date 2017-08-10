@@ -33,5 +33,4 @@ void TableContentView::showViewData(moex::ViewData *data)
     for(uint32_t idx = 0; idx < node->widths.size(); ++idx){
         tableView->setColumnWidth(idx,node->widths.at(idx));
     }
-    tableView->resizeRowsToContents();
 }

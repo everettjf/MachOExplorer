@@ -79,7 +79,8 @@ std::string MachHeader::FindSymbolAtRVA(uint64_t rva){
 }
 
 std::string MachHeader::FileOffsetToSymbol(uint64_t fileoff){
-    return FindSymbolAtRVA(FileOffsetToRVA(fileoff));
+    uint64_t rva = FileOffsetToRVA(fileoff);
+    return FindSymbolAtRVA(rva);
 }
 
 std::size_t MachHeader::DATA_SIZE(){return is64_?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
