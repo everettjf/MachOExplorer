@@ -32,7 +32,7 @@ void FunctionStartsViewNode::InitViewDatas()
     // Functions
     auto t = CreateTableViewDataPtr();
     for(auto & func : seg->GetFunctions()){
-        t->AddRow(func.offset,func.data,"uleb128",mh_->FileOffsetToSymbol(func.data));
+        t->AddRow(mh_->GetRAW((const void *)func.offset),func.data,"uleb128",mh_->FileOffsetToSymbol(func.data));
     }
     AddViewData(t);
 }

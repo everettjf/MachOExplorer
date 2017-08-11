@@ -11,7 +11,7 @@ MOEX_NAMESPACE_BEGIN
 
 struct Uleb128Data{
     uint64_t offset;
-    uint32_t data;
+    uint64_t data;
 };
 //-------------------------------------------------
 

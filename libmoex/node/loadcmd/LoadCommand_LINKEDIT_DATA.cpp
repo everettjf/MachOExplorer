@@ -49,7 +49,7 @@ std::vector<Uleb128Data> &LoadCommand_LC_FUNCTION_STARTS::GetFunctions(){
     while(cur_offset < start +  cmd_->datasize){
         Uleb128Data data;
         data.offset = (uint64_t)cur_offset;
-        data.data = util::readUnsignedLeb128(&cur_offset);
+        cur_offset = util::readUnsignedLeb128(cur_offset,data.data);
 
         functions_.push_back(data);
     }

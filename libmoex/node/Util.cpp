@@ -393,32 +393,32 @@ namespace util {
         );
     }
 
-    uint32_t readUnsignedLeb128(const char **pStream) {
-        const char* ptr = *pStream;
-        uint32_t result = *(ptr++);
+    // return next offset
+//    const char * readUnsignedLeb128(const char *cur_offset,uint32_t & data) {
+//        const uint8_t* ptr = (const uint8_t*)cur_offset;
+//        uint32_t result = *(ptr++);
 
-        if (result > 0x7f) {
-            int cur = *(ptr++);
-            result = (result & 0x7f) | ((cur & 0x7f) << 7);
-            if (cur > 0x7f) {
-                cur = *(ptr++);
-                result |= (cur & 0x7f) << 14;
-                if (cur > 0x7f) {
-                    cur = *(ptr++);
-                    result |= (cur & 0x7f) << 21;
-                    if (cur > 0x7f) {
-                        cur = *(ptr++);
-                        result |= cur << 28;
-                    }
-                }
-            }
-        }
+//        if (result > 0x7f) {
+//            int cur = *(ptr++);
+//            result = (result & 0x7f) | ((cur & 0x7f) << 7);
+//            if (cur > 0x7f) {
+//                cur = *(ptr++);
+//                result |= (cur & 0x7f) << 14;
+//                if (cur > 0x7f) {
+//                    cur = *(ptr++);
+//                    result |= (cur & 0x7f) << 21;
+//                    if (cur > 0x7f) {
+//                        cur = *(ptr++);
+//                        result |= cur << 28;
+//                    }
+//                }
+//            }
+//        }
+//        data = result;
+//        return (const char *)ptr;
+//    }
 
-        *pStream = ptr;
-        return result;
-    }
-
-
+    ?
 }
 
 
