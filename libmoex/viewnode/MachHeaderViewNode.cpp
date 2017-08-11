@@ -27,6 +27,9 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     symbol_table_->Init(d_);
     children_.push_back(symbol_table_.get());
 
+    dynamic_symbol_table_ = std::make_shared<DynamicSymbolTable>();
+    dynamic_symbol_table_->Init(d_);
+    children_.push_back(dynamic_symbol_table_.get());
 
     string_table_ = std::make_shared<StringTableViewNode>();
     string_table_->Init(d_);

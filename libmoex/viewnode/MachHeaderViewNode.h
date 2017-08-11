@@ -29,9 +29,11 @@ private:
     DynamicLoaderInfoViewNodePtr dynamic_loader_info_;
     FunctionStartsViewNodePtr function_starts_;
     SymbolTableViewNodePtr  symbol_table_;
+    DynamicSymbolTablePtr dynamic_symbol_table_;
     DataInCodeEntriesViewNodePtr data_in_code_entries_;
     StringTableViewNodePtr string_table_;
     CodeSignatureViewNodePtr  code_signature_;
+
 public:
     void Init(MachHeaderPtr d);
 

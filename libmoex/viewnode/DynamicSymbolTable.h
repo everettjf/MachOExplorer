@@ -10,6 +10,10 @@
 MOEX_NAMESPACE_BEGIN
 
 class DynamicSymbolTable : public ViewNode{
+private:
+    MachHeaderPtr mh_;
+public:
+    void Init(MachHeaderPtr mh){mh_ = mh;}
 public:
     std::string GetDisplayName()override { return "Dynamic Symbol Table";}
     void InitViewDatas()override;
