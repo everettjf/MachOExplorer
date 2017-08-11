@@ -22,6 +22,7 @@ MOEX_NAMESPACE_BEGIN
 class MachHeaderViewNode : public ViewNode{
 private:
     MachHeaderPtr d_;
+    std::vector<ViewNode*> children_;
 
     LoadCommandsViewNodePtr load_commands_;
     SectionsViewNodePtr sections_;

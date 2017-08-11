@@ -54,6 +54,10 @@ private:
     uint64_t base_addr_=0LL;
     uint64_t seg1addr_ = (uint64_t)-1LL;
     uint64_t segs_read_write_addr_ = (uint64_t)-1LL;
+
+    bool exist_function_starts_ = false;
+    bool exist_data_in_code_entries_ = false;
+
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -94,6 +98,9 @@ public:
     void set_base_addr(uint64_t base_addr){base_addr_ = base_addr;}
     void set_seg1addr(uint64_t seg1addr){seg1addr_ = seg1addr;}
     void set_segs_read_write_addr(uint64_t segs_read_write_addr){segs_read_write_addr_ = segs_read_write_addr;}
+
+    bool exist_function_starts()const{return exist_function_starts_;}
+    bool exist_data_in_code_entries()const{return exist_data_in_code_entries_;}
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

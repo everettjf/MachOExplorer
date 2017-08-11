@@ -12,27 +12,41 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
 
     load_commands_ = std::make_shared<LoadCommandsViewNode>();
     load_commands_->Init(d_);
+    children_.push_back(load_commands_.get());
 
     sections_ = std::make_shared<SectionsViewNode>();
     sections_->Init(d_);
+    children_.push_back(sections_.get());
 
     dynamic_loader_info_ = std::make_shared<DynamicLoaderInfoViewNode>();
     dynamic_loader_info_->Init(d_);
+    children_.push_back(dynamic_loader_info_.get());
 
-    function_starts_ = std::make_shared<FunctionStartsViewNode>();
-    function_starts_->Init(d_);
 
     symbol_table_ = std::make_shared<SymbolTableViewNode>();
     symbol_table_->Init(d_);
+    children_.push_back(symbol_table_.get());
 
-    data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
-    data_in_code_entries_->Init(d_);
 
     string_table_ = std::make_shared<StringTableViewNode>();
     string_table_->Init(d_);
+    children_.push_back(string_table_.get());
 
     code_signature_ = std::make_shared<CodeSignatureViewNode>();
     code_signature_->Init(d_);
+    children_.push_back(code_signature_.get());
+
+    if(d_->exist_function_starts()){
+        function_starts_ = std::make_shared<FunctionStartsViewNode>();
+        function_starts_->Init(d_);
+        children_.push_back(function_starts_.get());
+    }
+
+    if(d_->exist_data_in_code_entries()){
+        data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+        data_in_code_entries_->Init(d_);
+        children_.push_back(data_in_code_entries_.get());
+    }
 }
 
 std::string MachHeaderViewNode::GetDisplayName() {
@@ -42,14 +56,9 @@ std::string MachHeaderViewNode::GetDisplayName() {
 }
 
 void MachHeaderViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
-    callback(load_commands_.get());
-    callback(sections_.get());
-    callback(dynamic_loader_info_.get());
-    callback(function_starts_.get());
-    callback(symbol_table_.get());
-    callback(data_in_code_entries_.get());
-    callback(string_table_.get());
-    callback(code_signature_.get());
+    for(auto item : children_){
+        callback(item);
+    }
 }
 
 void MachHeaderViewNode::InitViewDatas(){

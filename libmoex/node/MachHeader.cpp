@@ -48,6 +48,12 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
         LoadCommandPtr cmd = LoadCommandFactory::Create(cur_cmd,ctx,this);
         loadcmds_.push_back(cmd);
 
+        switch(cmd->GetCommand()){
+        case LC_FUNCTION_STARTS:{exist_function_starts_ = true;break;}
+        case LC_DATA_IN_CODE:{exist_data_in_code_entries_ = true;break;}
+        default:break;
+        }
+
         // next
         cur_cmd = reinterpret_cast<load_command*>((char*)cur_cmd + cur_cmd->cmdsize);
     }
