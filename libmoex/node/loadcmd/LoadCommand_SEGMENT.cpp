@@ -18,6 +18,20 @@ void LoadCommand_LC_SEGMENT::Init(void * offset,NodeContextPtr & ctx){
         section->Init(cur,ctx);
         sections_.push_back(section);
     }
+
+    if(cmd_->fileoff == 0 && cmd_->filesize != 0){
+        header_->set_base_addr(cmd_->vmaddr);
+    }
+
+    if(cmd_->vmaddr < header_->seg1addr()){
+        header_->set_seg1addr(cmd_->vmaddr);
+    }
+
+    // Pickup the address of the first read-write segment for MH_SPLIT_SEGS images.
+    if((cmd_->initprot & VM_PROT_WRITE) == VM_PROT_WRITE
+            && cmd_->vmaddr < header_->segs_read_write_addr()){
+        header_->set_segs_read_write_addr(cmd_->vmaddr);
+    }
 }
 
 std::string LoadCommand_LC_SEGMENT::GetShortCharacteristicDescription(){
@@ -42,6 +56,20 @@ void LoadCommand_LC_SEGMENT_64::Init(void * offset,NodeContextPtr & ctx){
         MachSectionPtr section = std::make_shared<MachSection>();
         section->Init(cur,ctx);
         sections_.push_back(section);
+    }
+
+    if(cmd_->fileoff == 0 && cmd_->filesize != 0){
+        header_->set_base_addr(cmd_->vmaddr);
+    }
+
+    if(cmd_->vmaddr < header_->seg1addr()){
+        header_->set_seg1addr(cmd_->vmaddr);
+    }
+
+    // Pickup the address of the first read-write segment for MH_SPLIT_SEGS images.
+    if((cmd_->initprot & VM_PROT_WRITE) == VM_PROT_WRITE
+            && cmd_->vmaddr < header_->segs_read_write_addr()){
+        header_->set_segs_read_write_addr(cmd_->vmaddr);
     }
 }
 

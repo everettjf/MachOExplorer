@@ -9,20 +9,33 @@
 
 MOEX_NAMESPACE_BEGIN
 
+struct Uleb128Data{
+    uint64_t offset;
+    uint32_t data;
+};
+//-------------------------------------------------
+
+
 class LoadCommand_LC_CODE_SIGNATURE : public LoadCommandImpl<linkedit_data_command>{
 public:
 };
 
-
+//-------------------------------------------------
 class LoadCommand_LC_SEGMENT_SPLIT_INFO: public LoadCommandImpl<linkedit_data_command>{
 public:
 };
+//-------------------------------------------------
+
 
 class LoadCommand_LC_FUNCTION_STARTS: public LoadCommandImpl<linkedit_data_command>{
+private:
+    std::vector<Uleb128Data> functions_;
 public:
+    std::vector<Uleb128Data> & GetFunctions();
+
 };
 
-
+//-------------------------------------------------
 class DataInCodeEntry: public NodeOffset<data_in_code_entry>{
 public:
     std::string GetKindString();
@@ -35,14 +48,15 @@ private:
 public:
     std::vector<DataInCodeEntryPtr> &GetDices();
 };
-
+//-------------------------------------------------
 class LoadCommand_LC_DYLIB_CODE_SIGN_DRS: public LoadCommandImpl<linkedit_data_command>{
 public:
 };
-
+//-------------------------------------------------
 class LoadCommand_LC_LINKER_OPTIMIZATION_HINT: public LoadCommandImpl<linkedit_data_command>{
 public:
 };
+//-------------------------------------------------
 MOEX_NAMESPACE_END
 
 #endif //MACHOEXPLORER_LOADCOMMAND_LINKEDIT_DATA_H

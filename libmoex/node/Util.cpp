@@ -76,20 +76,21 @@ namespace util {
         };
         try{
             return mapper.at(cmd);
+
         }catch(std::out_of_range&){
         }
         return "unknown";
     }
     std::string GetMagicString(uint32_t magic){
         static std::unordered_map<uint32_t ,std::string> mapper{
-                DECLARE_MAP_ITEM(MH_MAGIC)
-                DECLARE_MAP_ITEM(MH_CIGAM)
-                DECLARE_MAP_ITEM(MH_MAGIC_64)
-                DECLARE_MAP_ITEM(MH_CIGAM_64)
-                DECLARE_MAP_ITEM(FAT_MAGIC)
-                DECLARE_MAP_ITEM(FAT_CIGAM)
-                DECLARE_MAP_ITEM(FAT_MAGIC_64)
-                DECLARE_MAP_ITEM(FAT_CIGAM_64)
+            DECLARE_MAP_ITEM(MH_MAGIC)
+                    DECLARE_MAP_ITEM(MH_CIGAM)
+                    DECLARE_MAP_ITEM(MH_MAGIC_64)
+                    DECLARE_MAP_ITEM(MH_CIGAM_64)
+                    DECLARE_MAP_ITEM(FAT_MAGIC)
+                    DECLARE_MAP_ITEM(FAT_CIGAM)
+                    DECLARE_MAP_ITEM(FAT_MAGIC_64)
+                    DECLARE_MAP_ITEM(FAT_CIGAM_64)
         };
         try{
             return mapper.at(magic);
@@ -391,6 +392,32 @@ namespace util {
                           % (ver&0xff)
         );
     }
+
+    uint32_t readUnsignedLeb128(const char **pStream) {
+        const char* ptr = *pStream;
+        uint32_t result = *(ptr++);
+
+        if (result > 0x7f) {
+            int cur = *(ptr++);
+            result = (result & 0x7f) | ((cur & 0x7f) << 7);
+            if (cur > 0x7f) {
+                cur = *(ptr++);
+                result |= (cur & 0x7f) << 14;
+                if (cur > 0x7f) {
+                    cur = *(ptr++);
+                    result |= (cur & 0x7f) << 21;
+                    if (cur > 0x7f) {
+                        cur = *(ptr++);
+                        result |= cur << 28;
+                    }
+                }
+            }
+        }
+
+        *pStream = ptr;
+        return result;
+    }
+
 
 }
 

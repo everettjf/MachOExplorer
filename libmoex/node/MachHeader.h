@@ -50,6 +50,10 @@ private:
     void *header_start_;
 
     SegmentInfoMap segment_info_;
+
+    uint64_t base_addr_=0LL;
+    uint64_t seg1addr_ = (uint64_t)-1LL;
+    uint64_t segs_read_write_addr_ = (uint64_t)-1LL;
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -83,6 +87,13 @@ public:
 
     const SegmentInfoMap &segment_info()const {return segment_info_;}
     void AddSegmentInfo(uint32_t fileoff,uint64_t vmaddr,uint64_t vmsize);
+
+    uint64_t base_addr() const{return base_addr_;}
+    uint64_t seg1addr()const{return seg1addr_;}
+    uint64_t segs_read_write_addr()const{return segs_read_write_addr_;}
+    void set_base_addr(uint64_t base_addr){base_addr_ = base_addr;}
+    void set_seg1addr(uint64_t seg1addr){seg1addr_ = seg1addr;}
+    void set_segs_read_write_addr(uint64_t segs_read_write_addr){segs_read_write_addr_ = segs_read_write_addr;}
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

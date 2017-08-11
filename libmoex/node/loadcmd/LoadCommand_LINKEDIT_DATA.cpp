@@ -38,6 +38,24 @@ std::vector<DataInCodeEntryPtr> &LoadCommand_LC_DATA_IN_CODE::GetDices(){
     return dices_;
 }
 
+std::vector<Uleb128Data> &LoadCommand_LC_FUNCTION_STARTS::GetFunctions(){
+    if(functions_.size() > 0){
+        return functions_;
+    }
+
+    const char* start = (char*)this->header_->header_start() + cmd_->dataoff;
+    const char* end = start + cmd_->datasize;
+    const char* cur_offset = start;
+    while(cur_offset < start +  cmd_->datasize){
+        Uleb128Data data;
+        data.offset = (uint64_t)cur_offset;
+        data.data = util::readUnsignedLeb128(&cur_offset);
+
+        functions_.push_back(data);
+    }
+    return functions_;
+}
+
 
 MOEX_NAMESPACE_END
 

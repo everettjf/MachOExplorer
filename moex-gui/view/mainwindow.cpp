@@ -24,8 +24,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // TEST
 #ifndef QT_NO_DEBUG
-    WorkspaceManager::current()->openFile("/Applications/SizeOptDemo");
-//    WorkspaceManager::current()->openFile("/Applications/crazybaby");
+//    WorkspaceManager::current()->openFile("/Applications/SizeOptDemo");
+    WorkspaceManager::current()->openFile("/Applications/crazybaby");
 #endif
 }
 
