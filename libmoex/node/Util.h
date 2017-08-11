@@ -78,7 +78,7 @@ std::vector<std::tuple<vm_prot_t,std::string>> ParseProts(vm_prot_t prot);
 std::string FormatTimeStamp(uint32_t timestamp);
 std::string FormatVersion(uint32_t ver);
 
-const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data);
+const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size);
 
 }
 MOEX_NAMESPACE_END

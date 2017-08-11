@@ -31,8 +31,14 @@ void FunctionStartsViewNode::InitViewDatas()
 
     // Functions
     auto t = CreateTableViewDataPtr();
+    auto address = mh_->base_addr();
     for(auto & func : seg->GetFunctions()){
-        t->AddRow(mh_->GetRAW((const void *)func.offset),func.data,"uleb128",mh_->FileOffsetToSymbol(func.data));
+        address += func.data; // todo : why?
+
+        t->AddRow(mh_->GetRAW((const void *)func.offset),
+                  (void*)func.offset,func.occupy_size,
+                  "uleb128",
+                  mh_->FileOffsetToSymbol(address));
     }
     AddViewData(t);
 }
