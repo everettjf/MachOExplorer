@@ -75,23 +75,24 @@ void AppHandler::SetupOptions(){
             // parameter
             ("arch",boost::program_options::value<std::string>(),"arch filter")
 
-            // impl mode [default]
-            ("is_fat","[impl] is fat")
-            ("fat_list","[impl] fat list (less info than headerlist)")
-            ("header_list","[impl] header list")
-            ("loadcommand_list","[impl] loadcommand list")
+            ("is_fat","is fat")
+            ("fat_list","fat list (less info than headerlist)")
+            ("header_list","header list")
+            ("loadcommand_list","loadcommand list")
 
-            ("segment_list","[impl] segment list")
-            ("section_list","[impl] section list")
+            ("segment_list","segment list")
+            ("section_list","section list")
 
-            ("symbol_list","[impl] symbol list")
-            ("string_table","[impl] string table")
-            ("crypt_info","[impl] encryption info")
-            ("uuid","[impl] uuid")
-            ("main","[impl] main (entry offset)")
+            ("symbol_list","symbol list")
+            ("string_table","string table")
+            ("crypt_info","encryption info")
+            ("uuid","uuid")
+            ("main","main (entry offset)")
 
-            ("dylib_list","[impl] dylib list")
-            ("dices","[impl] data in code entries")
+            ("dylib_list","dylib list")
+            ("dices","data in code entries")
+
+            ("indirect_symbols","indirect symbols")
 
             // helper
             ("arch_list","[impl] arch list")
@@ -132,6 +133,7 @@ void AppHandler::GoDisplayMode(){
     {"main",[&]{display.Main();}},
     {"tree",[&]{display.Tree();}},
     {"dices",[&]{display.DataInCodeEntries();}},
+    {"indirect_symbols",[&]{display.DataInCodeEntries();}},
     };
 
     for(auto & action : actions){

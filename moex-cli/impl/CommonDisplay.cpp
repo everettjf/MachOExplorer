@@ -439,3 +439,14 @@ void CommonDisplay::DataInCodeEntries(){
         }
     });
 }
+void CommonDisplay::IndirectSymbols(){
+
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        for (auto cmd : header->loadcmds_ref()) {
+            if (cmd->offset()->cmd == LC_DYSYMTAB) {
+                moex::LoadCommand_LC_DYSYMTAB *one = static_cast<moex::LoadCommand_LC_DYSYMTAB*>(cmd.get());
+
+            }
+        }
+    });
+}

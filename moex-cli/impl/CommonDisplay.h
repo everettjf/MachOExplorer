@@ -37,6 +37,7 @@ public:
     void Main();
     void Tree();
     void DataInCodeEntries();
+    void IndirectSymbols();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
