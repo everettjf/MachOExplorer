@@ -133,7 +133,7 @@ void AppHandler::GoDisplayMode(){
     {"main",[&]{display.Main();}},
     {"tree",[&]{display.Tree();}},
     {"dices",[&]{display.DataInCodeEntries();}},
-    {"indirect_symbols",[&]{display.DataInCodeEntries();}},
+    {"indirect_symbols",[&]{display.IndirectSymbols();}},
     };
 
     for(auto & action : actions){
