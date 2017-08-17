@@ -13,14 +13,6 @@
 MOEX_NAMESPACE_BEGIN
 
 
-class moex_nlist{
-private:
-
-public:
-
-};
-
-
 class NListInternal : public NodeOffset<struct nlist>{
 };
 

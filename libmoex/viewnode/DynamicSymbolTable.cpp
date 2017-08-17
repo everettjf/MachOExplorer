@@ -29,6 +29,13 @@ void DynamicSymbolTable::InitViewDatas(){
         b->size = std::get<2>(bin);
         AddViewData(b);
     }
+
+    // Modules64
+    // Table of Contents
+    // External References
+    // Indirect Symbols
+    // External Relocations
+    // Local RElo Table
 }
 
 MOEX_NAMESPACE_END
