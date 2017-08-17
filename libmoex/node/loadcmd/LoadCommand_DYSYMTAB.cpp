@@ -30,5 +30,13 @@ std::tuple<bool, uint32_t, uint32_t> LoadCommand_LC_DYSYMTAB::GetDataRange()
     return std::make_tuple(false,0,0);
 }
 
+std::vector<IndirectSymbolPtr> &LoadCommand_LC_DYSYMTAB::GetIndirectSymbols()
+{
+    if(indirect_symbols_.empty()){
+        // todo
+    }
+    return indirect_symbols_;
+}
+
 MOEX_NAMESPACE_END
 
