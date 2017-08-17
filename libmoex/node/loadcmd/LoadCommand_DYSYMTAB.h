@@ -11,6 +11,8 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_LC_DYSYMTAB : public LoadCommandImpl<dysymtab_command>{
 public:
+    // valid,offset,size
+    std::tuple<bool,uint32_t,uint32_t> GetDataRange();
 };
 
 
