@@ -28,4 +28,15 @@ void LoadCommand_LC_SYMTAB::LazyInit(){
 
 }
 
+void NList::Init(void *offset, NodeContextPtr &ctx, bool is64){
+    is64_ = is64;
+    if(is64_){
+        nlist64_ = std::make_shared<NList64Internal>();
+        nlist64_->Init(offset,ctx);
+    }else{
+        nlist_ = std::make_shared<NListInternal>();
+        nlist_->Init(offset,ctx);
+    }
+}
+
 MOEX_NAMESPACE_END

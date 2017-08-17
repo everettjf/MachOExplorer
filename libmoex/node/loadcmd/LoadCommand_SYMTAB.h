@@ -26,16 +26,7 @@ private:
     std::shared_ptr<NList64Internal> nlist64_;
 public:
 
-    void Init(void *offset,NodeContextPtr &ctx,bool is64){
-        is64_ = is64;
-        if(is64_){
-            nlist64_ = std::make_shared<NList64Internal>();
-            nlist64_->Init(offset,ctx);
-        }else{
-            nlist_ = std::make_shared<NListInternal>();
-            nlist_->Init(offset,ctx);
-        }
-    }
+    void Init(void *offset,NodeContextPtr &ctx,bool is64);
 
     bool Is64(){return is64_;}
     uint32_t &n_strx(){
