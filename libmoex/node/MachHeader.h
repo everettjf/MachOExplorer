@@ -8,6 +8,7 @@
 #include "Node.h"
 #include "LoadCommand.h"
 #include "Magic.h"
+#include "MachSection.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -49,6 +50,7 @@ private:
     NodeContextPtr ctx_;
     void *header_start_;
 
+    // Helper Datas
     SegmentInfoMap segment_info_;
 
     uint64_t base_addr_=0LL;
@@ -57,6 +59,8 @@ private:
 
     bool exist_function_starts_ = false;
     bool exist_data_in_code_entries_ = false;
+
+    std::vector<MachSectionWeakPtr> sections_;
 
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
@@ -101,6 +105,12 @@ public:
 
     bool exist_function_starts()const{return exist_function_starts_;}
     bool exist_data_in_code_entries()const{return exist_data_in_code_entries_;}
+
+    std::vector<MachSectionWeakPtr> & sections(){return sections_;}
+    void AddSection(MachSectionPtr section){
+        MachSectionWeakPtr s(section);
+        sections_.push_back(s);
+    }
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

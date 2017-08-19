@@ -85,6 +85,7 @@ public:
     }
 };
 using MachSectionPtr = std::shared_ptr<MachSection>;
+using MachSectionWeakPtr = std::weak_ptr<MachSection>;
 
 MOEX_NAMESPACE_END
 

@@ -17,6 +17,8 @@ void LoadCommand_LC_SEGMENT::Init(void * offset,NodeContextPtr & ctx){
         MachSectionPtr section = std::make_shared<MachSection>();
         section->Init(cur,ctx);
         sections_.push_back(section);
+
+        header_->AddSection(section);
     }
 
     if(cmd_->fileoff == 0 && cmd_->filesize != 0){
@@ -56,6 +58,8 @@ void LoadCommand_LC_SEGMENT_64::Init(void * offset,NodeContextPtr & ctx){
         MachSectionPtr section = std::make_shared<MachSection>();
         section->Init(cur,ctx);
         sections_.push_back(section);
+
+        header_->AddSection(section);
     }
 
     if(cmd_->fileoff == 0 && cmd_->filesize != 0){
