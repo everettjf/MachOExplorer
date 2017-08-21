@@ -33,7 +33,9 @@ std::tuple<bool, uint32_t, uint32_t> LoadCommand_LC_DYSYMTAB::GetDataRange()
 std::vector<IndirectSymbolPtr> &LoadCommand_LC_DYSYMTAB::GetIndirectSymbols()
 {
     if(indirect_symbols_.empty()){
-        // todo
+        for(uint32_t nindsym = 0; nindsym < cmd_->nindirectsyms; ++nindsym){
+
+        }
     }
     return indirect_symbols_;
 }
