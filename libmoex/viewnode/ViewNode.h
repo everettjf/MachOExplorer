@@ -85,6 +85,7 @@ public:
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
 inline TableViewDataPtr CreateTableViewDataPtr(){return std::make_shared<TableViewData>();}
+inline TableViewDataPtr CreateTableViewDataPtr(const std::string & title){auto x=std::make_shared<TableViewData>();x->set_title(title);return x;}
 
 
 template<typename T>

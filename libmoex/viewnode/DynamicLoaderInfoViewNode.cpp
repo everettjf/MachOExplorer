@@ -11,6 +11,11 @@ MOEX_NAMESPACE_BEGIN
 
 void DynamicLoaderInfoViewNode::InitViewDatas()
 {
+    {
+        auto x = CreateTableViewDataPtr();
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
 }
 
 MOEX_NAMESPACE_END
