@@ -12,23 +12,15 @@ MOEX_NAMESPACE_BEGIN
 struct IndirectSymbol{
     uint64_t offset;
     uint32_t data;
-
-    std::string symbol;
-    std::vector<std::tuple<uint32_t,std::string>> symbols;
-
-    std::string target;
-    std::string section;
-    std::string indirect_address;
 };
-using IndirectSymbolPtr = std::shared_ptr<IndirectSymbol>;
 
 class LoadCommand_LC_DYSYMTAB : public LoadCommandImpl<dysymtab_command>{
 private:
-    std::vector<IndirectSymbolPtr> indirect_symbols_;
+    std::vector<IndirectSymbol> indirect_symbols_;
 public:
     // valid,offset,size
     std::tuple<bool,uint32_t,uint32_t> GetDataRange();
-    std::vector<IndirectSymbolPtr> &GetIndirectSymbols();
+    std::vector<IndirectSymbol> &GetIndirectSymbols();
 };
 
 
