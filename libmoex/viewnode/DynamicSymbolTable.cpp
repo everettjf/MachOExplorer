@@ -99,6 +99,7 @@ void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg)
             switch(indirect_index){
                 case INDIRECT_SYMBOL_LOCAL:{
                     t->AddRow("","","80000000","INDIRECT_SYMBOL_LOCAL");
+                    // todo
                     break;
                 }
                 case INDIRECT_SYMBOL_ABS:{
