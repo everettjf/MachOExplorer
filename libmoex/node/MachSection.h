@@ -45,6 +45,8 @@ public:
     // helper
     std::string segment_name() {return std::string(segname(),16).c_str();}
     std::string section_name() {return std::string(sectname(),16).c_str();}
+
+    uint64_t	addr_both(){return is64?s64->addr:(uint64_t )s->addr;}
 };
 
 
