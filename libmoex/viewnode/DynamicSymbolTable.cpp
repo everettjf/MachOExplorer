@@ -43,6 +43,7 @@ void DynamicSymbolTable::InitViewDatas(){
 
 void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg){
     auto t = CreateTableViewDataPtr();
+    t->set_title("Indirect Symbols");
 
     char * offset = (char*)mh_->header_start() + seg->cmd()->indirectsymoff;
 
