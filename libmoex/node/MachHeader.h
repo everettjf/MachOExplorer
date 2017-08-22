@@ -10,7 +10,10 @@
 #include "Magic.h"
 #include "MachSection.h"
 
+
 MOEX_NAMESPACE_BEGIN
+
+class LoadCommand_LC_SYMTAB;
 
 class MachHeaderInternal : public NodeData<mach_header>{
 public:
@@ -62,6 +65,7 @@ private:
 
     std::vector<MachSectionWeakPtr> sections_;
 
+    LoadCommand_LC_SYMTAB *symtab_ = nullptr;
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -111,6 +115,8 @@ public:
         MachSectionWeakPtr s(section);
         sections_.push_back(s);
     }
+
+    LoadCommand_LC_SYMTAB *symtab(){return symtab_;}
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

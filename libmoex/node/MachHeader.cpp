@@ -3,6 +3,7 @@
 //
 
 #include "MachHeader.h"
+#include "loadcmd/LoadCommand_SYMTAB.h"
 
 
 MOEX_NAMESPACE_BEGIN
@@ -51,6 +52,7 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
         switch(cmd->GetCommand()){
         case LC_FUNCTION_STARTS:{exist_function_starts_ = true;break;}
         case LC_DATA_IN_CODE:{exist_data_in_code_entries_ = true;break;}
+        case LC_SYMTAB:{symtab_ = (LoadCommand_LC_SYMTAB*)cmd.get();break;}
         default:break;
         }
 
