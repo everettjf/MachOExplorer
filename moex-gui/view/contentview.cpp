@@ -72,14 +72,16 @@ void ContentView::showNode(moex::ViewNode *node)
     releaseCurrentTabItems();
 
     for(auto viewdata : node->GetViewDatas()){
+        QString title = QString::fromStdString(viewdata->title());
+
         if(viewdata->mode() == moex::ViewDataMode::Table){
             // Tab - Table
             table = new TableContentView(this);
-            addTabItem(table,tr("Property View"),viewdata.get());
+            addTabItem(table,title,viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
             // Tab - Binary
             binary = new BinaryContentView(this);
-            addTabItem(binary,tr("Binary View"),viewdata.get());
+            addTabItem(binary,title,viewdata.get());
         }else{
             // No such mode
         }

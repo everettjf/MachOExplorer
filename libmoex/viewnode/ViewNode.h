@@ -18,8 +18,11 @@ enum class ViewDataMode{
 class ViewData{
 protected:
     ViewDataMode mode_;
+    std::string title_;
 public:
     ViewDataMode mode()const{return mode_;}
+    const std::string & title()const{return title_;}
+    void set_title(const std::string & title){title_ = title;}
 };
 using ViewDataPtr = std::shared_ptr<ViewData>;
 
@@ -30,6 +33,7 @@ public:
 
     BinaryViewData(){
         mode_ = ViewDataMode::Binary;
+        title_ = "Binary";
     }
     bool IsEmpty()const{return offset == nullptr;}
 };
