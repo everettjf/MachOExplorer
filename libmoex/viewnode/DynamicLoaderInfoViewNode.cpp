@@ -10,12 +10,6 @@ MOEX_NAMESPACE_BEGIN
 void RebaseInfoViewNode::InitViewDatas()
 {
     {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        AddViewData(b);
-    }
-    {
         auto x = CreateTableViewDataPtr("Opcodes");
         x->AddRow("//todo","","","");
         AddViewData(x);
@@ -24,18 +18,17 @@ void RebaseInfoViewNode::InitViewDatas()
         auto x = CreateTableViewDataPtr("Actions");
         x->AddRow("//todo","","","");
         AddViewData(x);
+    }
+    {
+        auto b = CreateBinaryViewDataPtr();
+        b->offset = 0;
+        b->size = 0;
+        AddViewData(b);
     }
 }
 
 void BindingInfoViewNode::InitViewDatas()
 {
-
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        AddViewData(b);
-    }
     {
         auto x = CreateTableViewDataPtr("Opcodes");
         x->AddRow("//todo","","","");
@@ -45,18 +38,17 @@ void BindingInfoViewNode::InitViewDatas()
         auto x = CreateTableViewDataPtr("Actions");
         x->AddRow("//todo","","","");
         AddViewData(x);
+    }
+    {
+        auto b = CreateBinaryViewDataPtr();
+        b->offset = 0;
+        b->size = 0;
+        AddViewData(b);
     }
 }
 
 void WeakBindingInfoViewNode::InitViewDatas()
 {
-
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        AddViewData(b);
-    }
     {
         auto x = CreateTableViewDataPtr("Opcodes");
         x->AddRow("//todo","","","");
@@ -66,18 +58,17 @@ void WeakBindingInfoViewNode::InitViewDatas()
         auto x = CreateTableViewDataPtr("Actions");
         x->AddRow("//todo","","","");
         AddViewData(x);
+    }
+    {
+        auto b = CreateBinaryViewDataPtr();
+        b->offset = 0;
+        b->size = 0;
+        AddViewData(b);
     }
 }
 
 void LazyBindingInfoViewNode::InitViewDatas()
 {
-
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        AddViewData(b);
-    }
     {
         auto x = CreateTableViewDataPtr("Opcodes");
         x->AddRow("//todo","","","");
@@ -87,18 +78,17 @@ void LazyBindingInfoViewNode::InitViewDatas()
         auto x = CreateTableViewDataPtr("Actions");
         x->AddRow("//todo","","","");
         AddViewData(x);
+    }
+    {
+        auto b = CreateBinaryViewDataPtr();
+        b->offset = 0;
+        b->size = 0;
+        AddViewData(b);
     }
 }
 
 void ExportInfoViewNode::InitViewDatas()
 {
-
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        AddViewData(b);
-    }
     {
         auto x = CreateTableViewDataPtr("Opcodes");
         x->AddRow("//todo","","","");
@@ -108,6 +98,12 @@ void ExportInfoViewNode::InitViewDatas()
         auto x = CreateTableViewDataPtr("Actions");
         x->AddRow("//todo","","","");
         AddViewData(x);
+    }
+    {
+        auto b = CreateBinaryViewDataPtr();
+        b->offset = 0;
+        b->size = 0;
+        AddViewData(b);
     }
 }
 
