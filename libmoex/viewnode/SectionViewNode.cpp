@@ -6,6 +6,12 @@
 
 MOEX_NAMESPACE_BEGIN
 
+SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
+    SectionViewNodePtr view = std::make_shared<SectionViewNode>();
+    view->Init(d);
+    return view;
+}
+
 void SectionViewNode::Init(MachSectionPtr d){
     d_ = d;
 }
@@ -15,6 +21,11 @@ std::string SectionViewNode::GetDisplayName(){
 
 void SectionViewNode::InitViewDatas(){
     using namespace moex::util;
+
+    // SpecialView accourding to section type
+    {
+        InitSpecialView();
+    }
 
     // Table
     {
@@ -52,11 +63,14 @@ void SectionViewNode::InitViewDatas(){
         b->size = d_->DATA_SIZE();
         AddViewData(b);
     }
+
+
+
 }
 
-SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
-    SectionViewNodePtr view = std::make_shared<SectionViewNode>();
-    view->Init(d);
-    return view;
+void SectionViewNode::InitSpecialView()
+{
+
 }
+
 MOEX_NAMESPACE_END

@@ -17,6 +17,8 @@ public:
     std::string GetDisplayName()override;
 
     void InitViewDatas()override;
+
+    void InitSpecialView();
 };
 using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 
