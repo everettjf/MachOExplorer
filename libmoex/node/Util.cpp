@@ -419,6 +419,25 @@ namespace util {
         return (const char *)ptr;
     }
 
+    std::vector<char*> ParseStringLiteral(char *offset, uint32_t size)
+    {
+        std::vector<char*> results;
+
+        char *cur = offset;
+        char *end = offset + size;
+
+        while(cur < end){
+            if(*cur == 0){
+                ++cur;
+                continue;
+            }
+            results.push_back(cur);
+            cur += strlen(cur);
+        }
+
+        return results;
+    }
+
 }
 
 

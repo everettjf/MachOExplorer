@@ -80,6 +80,9 @@ std::string FormatVersion(uint32_t ver);
 
 const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size);
 
+std::vector<char*> ParseStringLiteral(char * offset,uint32_t size);
+
+
 }
 MOEX_NAMESPACE_END
 

@@ -34,15 +34,10 @@ void StringTableViewNode::InitViewDatas()
     char * stroffset = (char*)seg->GetStringTableOffsetAddress();
     uint32_t strsize = seg->GetStringTableSize();
 
-    int lineno = 0;
-    char *cur = stroffset;
-    char *end = stroffset + strsize;
+    auto string_results = util::ParseStringLiteral(stroffset,strsize);
 
-    while(cur < end){
-        if(*cur == 0){
-            ++cur;
-            continue;
-        }
+    int lineno = 0;
+    for(char * cur : string_results){
         std::string name(cur);
         t->AddRow({
                 AsString(lineno),
@@ -50,10 +45,9 @@ void StringTableViewNode::InitViewDatas()
                 AsString(name.length()),
                 name
                   });
-
-        cur += name.length();
         ++lineno;
     }
+
     AddViewData(t);
 
     auto b = CreateBinaryViewDataPtr();
