@@ -5,6 +5,8 @@
 #include "SectionViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
+using namespace moex::util;
+
 
 SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
     SectionViewNodePtr view = std::make_shared<SectionViewNode>();
@@ -20,7 +22,6 @@ std::string SectionViewNode::GetDisplayName(){
 }
 
 void SectionViewNode::InitViewDatas(){
-    using namespace moex::util;
 
     // SpecialView accourding to section type
     {
@@ -70,7 +71,89 @@ void SectionViewNode::InitViewDatas(){
 
 void SectionViewNode::InitSpecialView()
 {
+    moex_section &sect = d_->sect();
+
+    switch(sect.flags() & SECTION_TYPE){
+    case S_CSTRING_LITERALS:{
+        InitCStringView("C String Literals");
+        break;
+    }
+    case S_4BYTE_LITERALS:{
+        break;
+    }
+    case S_8BYTE_LITERALS:{
+        break;
+    }
+    case S_16BYTE_LITERALS:{
+        break;
+    }
+    case S_LITERAL_POINTERS:{
+        break;
+    }
+    case S_MOD_INIT_FUNC_POINTERS:{
+        break;
+    }
+    case S_MOD_TERM_FUNC_POINTERS:{
+        break;
+    }
+    case S_LAZY_SYMBOL_POINTERS:{
+        break;
+    }
+    case S_NON_LAZY_SYMBOL_POINTERS:{
+        break;
+    }
+    case S_LAZY_DYLIB_SYMBOL_POINTERS:{
+        break;
+    }
+    case S_SYMBOL_STUBS:{
+        break;
+    }
+    default:break;
+    }
 
 }
+
+void SectionViewNode::InitCStringView(const std::string &title)
+{
+    auto t = CreateTableViewDataPtr(title);
+    t->SetHeaders({"Index","Offset","Data","Length","String"});
+    t->SetWidths({80,100,100,80,400});
+
+    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
+    uint32_t size = (uint32_t)d_->sect().size_both();
+
+    int lineno = 0;
+    auto array = util::ParseStringLiteral(offset,size);
+    for(char * cur : array){
+        std::string name(cur);
+        t->AddRow({
+                AsString(lineno),
+                AsHexString(d_->GetRAW(cur)),
+                AsHexData(cur,name.length()),
+                AsString(name.length()),
+                name
+                  });
+
+        ++lineno;
+    }
+
+    AddViewData(t);
+}
+
+void SectionViewNode::InitLiteralsView(const std::string &title)
+{
+
+}
+
+void SectionViewNode::InitPointersView(const std::string &title)
+{
+
+}
+
+void SectionViewNode::InitIndirectPointersView(const std::string &title)
+{
+
+}
+
 
 MOEX_NAMESPACE_END

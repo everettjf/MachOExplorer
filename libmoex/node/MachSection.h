@@ -9,6 +9,8 @@
 
 MOEX_NAMESPACE_BEGIN
 
+class MachHeader;
+
 class moex_section{
 private:
     section *s=nullptr;
@@ -46,7 +48,8 @@ public:
     std::string segment_name() {return std::string(segname(),16).c_str();}
     std::string section_name() {return std::string(sectname(),16).c_str();}
 
-    uint64_t	addr_both(){return is64?s64->addr:(uint64_t )s->addr;}
+    uint64_t	addr_both(){return is64?s64->addr:(uint64_t)s->addr;}
+    uint64_t	size_both(){return is64?s64->size:(uint64_t)s->size;}
 };
 
 
@@ -67,7 +70,13 @@ private:
     MachSection64InternalPtr section64_;
     moex_section sect_;
     bool is64_;
+
+protected:
+    MachHeader* header_;
 public:
+    void set_header(MachHeader* header){header_ = header;}
+    MachHeader * header(){return header_;}
+
     bool Is64()const{return is64_;}
 
     void Init(section *offset,NodeContextPtr & ctx);

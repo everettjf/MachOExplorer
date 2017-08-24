@@ -19,6 +19,11 @@ public:
     void InitViewDatas()override;
 
     void InitSpecialView();
+
+    void InitCStringView(const std::string & title);
+    void InitLiteralsView(const std::string & title);
+    void InitPointersView(const std::string & title);
+    void InitIndirectPointersView(const std::string & title);
 };
 using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 
