@@ -79,33 +79,43 @@ void SectionViewNode::InitSpecialView()
         break;
     }
     case S_4BYTE_LITERALS:{
+        InitLiteralsView("Floating Point Literals");
         break;
     }
     case S_8BYTE_LITERALS:{
+        InitLiteralsView("Floating Point Literals");
         break;
     }
     case S_16BYTE_LITERALS:{
+        InitLiteralsView("Floating Point Literals");
         break;
     }
     case S_LITERAL_POINTERS:{
+        InitPointersView("Literal Pointers");
         break;
     }
     case S_MOD_INIT_FUNC_POINTERS:{
+        InitPointersView("Module Init Func Pointers");
         break;
     }
     case S_MOD_TERM_FUNC_POINTERS:{
+        InitPointersView("Module Term Func Pointers");
         break;
     }
     case S_LAZY_SYMBOL_POINTERS:{
+        InitIndirectPointersView("Lazy Symbol Pointers");
         break;
     }
     case S_NON_LAZY_SYMBOL_POINTERS:{
+        InitIndirectPointersView("Non-Lazy Symbol Pointers");
         break;
     }
     case S_LAZY_DYLIB_SYMBOL_POINTERS:{
+        InitIndirectPointersView("Lazy Dylib Symbol Pointers");
         break;
     }
     case S_SYMBOL_STUBS:{
+        InitIndirectPointersView("Symbol Stubs");
         break;
     }
     default:break;
@@ -142,17 +152,25 @@ void SectionViewNode::InitCStringView(const std::string &title)
 
 void SectionViewNode::InitLiteralsView(const std::string &title)
 {
-
+    auto t = CreateTableViewDataPtr(title);
+    t->AddRow("//todo","","","");
+    AddViewData(t);
 }
 
 void SectionViewNode::InitPointersView(const std::string &title)
 {
 
+    auto t = CreateTableViewDataPtr(title);
+    t->AddRow("//todo","","","");
+    AddViewData(t);
 }
 
 void SectionViewNode::InitIndirectPointersView(const std::string &title)
 {
 
+    auto t = CreateTableViewDataPtr(title);
+    t->AddRow("//todo","","","");
+    AddViewData(t);
 }
 
 
