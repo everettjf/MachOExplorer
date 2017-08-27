@@ -80,15 +80,15 @@ void SectionViewNode::InitSpecialView()
     }
 
     case S_4BYTE_LITERALS:{
-        InitLiteralsView("Floating Point Literals");
+        InitLiteralsView("Floating Point Literals",4);
         break;
     }
     case S_8BYTE_LITERALS:{
-        InitLiteralsView("Floating Point Literals");
+        InitLiteralsView("Floating Point Literals",8);
         break;
     }
     case S_16BYTE_LITERALS:{
-        InitLiteralsView("Floating Point Literals");
+        InitLiteralsView("Floating Point Literals",16);
         break;
     }
 
@@ -153,10 +153,16 @@ void SectionViewNode::InitCStringView(const std::string &title)
     AddViewData(t);
 }
 
-void SectionViewNode::InitLiteralsView(const std::string &title)
+void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
+    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
+    uint32_t size = (uint32_t)d_->sect().size_both();
     auto t = CreateTableViewDataPtr(title);
-    t->AddRow("//todo","","","");
+
+    auto array = util::ParseDataAsSize(offset,size,unitsize);
+    for(char *cur : array){
+        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",AsHexData(cur,unitsize));
+    }
     AddViewData(t);
 }
 

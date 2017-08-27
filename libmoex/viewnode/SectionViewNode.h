@@ -21,7 +21,7 @@ public:
     void InitSpecialView();
 
     void InitCStringView(const std::string & title);
-    void InitLiteralsView(const std::string & title);
+    void InitLiteralsView(const std::string & title,size_t unitsize);
     void InitPointersView(const std::string & title);
     void InitIndirectPointersView(const std::string & title);
     void InitIndirectStubsView(const std::string &title);
