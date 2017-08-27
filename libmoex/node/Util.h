@@ -82,6 +82,23 @@ const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t 
 
 std::vector<char*> ParseStringLiteral(char * offset,uint32_t size);
 
+template <typename T>
+std::vector<T*> ParsePointer(char *offset, uint32_t size){
+    std::vector<T*> results;
+
+    char *cur = offset;
+    char *end = offset + size;
+
+    while(cur < end){
+        results.push_back((T*)cur);
+        cur += sizeof(T);
+    }
+
+    return results;
+}
+
+
+
 
 }
 MOEX_NAMESPACE_END

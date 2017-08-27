@@ -159,9 +159,23 @@ void SectionViewNode::InitLiteralsView(const std::string &title)
 
 void SectionViewNode::InitPointersView(const std::string &title)
 {
+    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
+    uint32_t size = (uint32_t)d_->sect().size_both();
 
     auto t = CreateTableViewDataPtr(title);
-    t->AddRow("//todo","","","");
+
+    if(d_->Is64()){
+        auto array = util::ParsePointer<uint64_t>(offset,size);
+        for(uint64_t *cur : array){
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
+        }
+    }else{
+        auto array = util::ParsePointer<uint32_t>(offset,size);
+        for(uint32_t *cur : array){
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
+        }
+    }
+
     AddViewData(t);
 }
 
