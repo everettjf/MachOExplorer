@@ -3,6 +3,7 @@
 Yet another MachOView, and trying to be a better one.
 
 
+```c
        **         *               *******                           **               
        **        **           ****       ***        *************    **              
       ***        ***         **            **       *                 **         *** 
@@ -17,6 +18,7 @@ Yet another MachOView, and trying to be a better one.
                                 ********          **                  **          ** 
                                                    **************     *            **
                                                                                     *
+```
 
 
 ⚠️ This repo is under development, features are in-complete, code may not compile
