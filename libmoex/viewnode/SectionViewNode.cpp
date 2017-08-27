@@ -78,6 +78,7 @@ void SectionViewNode::InitSpecialView()
         InitCStringView("C String Literals");
         break;
     }
+
     case S_4BYTE_LITERALS:{
         InitLiteralsView("Floating Point Literals");
         break;
@@ -90,6 +91,7 @@ void SectionViewNode::InitSpecialView()
         InitLiteralsView("Floating Point Literals");
         break;
     }
+
     case S_LITERAL_POINTERS:{
         InitPointersView("Literal Pointers");
         break;
@@ -102,6 +104,7 @@ void SectionViewNode::InitSpecialView()
         InitPointersView("Module Term Func Pointers");
         break;
     }
+
     case S_LAZY_SYMBOL_POINTERS:{
         InitIndirectPointersView("Lazy Symbol Pointers");
         break;
