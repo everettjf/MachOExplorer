@@ -76,7 +76,6 @@ namespace util {
         };
         try{
             return mapper.at(cmd);
-
         }catch(std::out_of_range&){
         }
         return "unknown";
@@ -438,6 +437,21 @@ namespace util {
         return results;
     }
 
+
+
+    std::vector<char *> ParseDataAsSize(char *offset, uint32_t size, size_t unitsize){
+        std::vector<char*> results;
+
+        char *cur = offset;
+        char *end = offset + size;
+
+        while(cur < end){
+            results.push_back((char*)cur);
+            cur += unitsize;
+        }
+
+        return results;
+    }
 
 }
 

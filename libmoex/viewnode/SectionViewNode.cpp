@@ -118,7 +118,7 @@ void SectionViewNode::InitSpecialView()
         break;
     }
     case S_SYMBOL_STUBS:{
-        InitIndirectPointersView("Symbol Stubs");
+        InitIndirectStubsView("Symbol Stubs");
         break;
     }
     default:break;
@@ -202,6 +202,23 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
     }
 
     AddViewData(t);
+}
+
+void SectionViewNode::InitIndirectStubsView(const std::string &title)
+{
+    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
+    uint32_t size = (uint32_t)d_->sect().size_both();
+
+    auto t = CreateTableViewDataPtr(title);
+
+    size_t unitsize = d_->sect().reserved2();
+    auto array = util::ParseDataAsSize(offset,size,unitsize);
+    for(char *cur : array){
+        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
+    }
+
+    AddViewData(t);
+
 }
 
 

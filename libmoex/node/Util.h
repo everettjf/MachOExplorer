@@ -97,6 +97,7 @@ std::vector<T*> ParsePointer(char *offset, uint32_t size){
     return results;
 }
 
+std::vector<char*> ParseDataAsSize(char *offset, uint32_t size,size_t unitsize);
 
 
 
