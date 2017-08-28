@@ -23,7 +23,7 @@ std::string SectionViewNode::GetDisplayName(){
 
 void SectionViewNode::InitViewDatas(){
 
-    // SpecialView accourding to section type
+    // SpecialView accourding to section type or name etc.
     {
         InitSpecialView();
     }
@@ -73,6 +73,7 @@ void SectionViewNode::InitSpecialView()
 {
     moex_section &sect = d_->sect();
 
+    // section type
     switch(sect.flags() & SECTION_TYPE){
     case S_CSTRING_LITERALS:{
         InitCStringView("C String Literals");
@@ -122,6 +123,62 @@ void SectionViewNode::InitSpecialView()
         break;
     }
     default:break;
+    }
+
+    // section name
+    std::string unique_name = d_->sect().segment_name() + "/" + d_->sect().section_name();
+    std::string section_name = d_->sect().section_name();
+
+    bool has_objc_modules = false; // objc version detector
+
+    if(unique_name == "__OBJC/__module_info"){
+        has_objc_modules = true;
+
+    }
+
+    if(unique_name == "__OBJC/__class_ext"){
+
+    }
+
+    if(unique_name == "__OBJC/__protocol_ext"){
+
+    }
+
+    if(!has_objc_modules){
+
+        if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist"){
+
+        }
+
+
+        if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist"){
+
+        }
+
+        if(unique_name == "__OBJC2/__class_refs" || unique_name == "__DATA/__objc_classrefs"){
+
+        }
+
+        if(unique_name == "__OBJC2/__super_refs" || unique_name == "__DATA/__objc_superrefs"){
+
+        }
+
+        if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist"){
+
+        }
+
+        if(unique_name == "__OBJC2/__message_refs" || unique_name == "__DATA/__objc_msgrefs"){
+
+        }
+
+    }
+
+    if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo"){
+
+    }
+
+    if(section_name == "__cfstring"){
+
     }
 
 }
@@ -174,12 +231,12 @@ void SectionViewNode::InitPointersView(const std::string &title)
     auto t = CreateTableViewDataPtr(title);
 
     if(d_->Is64()){
-        auto array = util::ParsePointer<uint64_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint64_t>(offset,size);
         for(uint64_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
         }
     }else{
-        auto array = util::ParsePointer<uint32_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint32_t>(offset,size);
         for(uint32_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
         }
@@ -196,12 +253,12 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
     auto t = CreateTableViewDataPtr(title);
 
     if(d_->Is64()){
-        auto array = util::ParsePointer<uint64_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint64_t>(offset,size);
         for(uint64_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
     }else{
-        auto array = util::ParsePointer<uint32_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint32_t>(offset,size);
         for(uint32_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
