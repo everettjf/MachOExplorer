@@ -279,17 +279,25 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
         for(auto *cur : results){
             const char *pstr = (const char*)cur->cstr;
-            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr","");
-            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data","");
-            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String","");
+            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr",d_->header()->FindSymbolAtRVA(cur->ptr));
+            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data",d_->header()->FindSymbolAtRVA(cur->data));
+            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String",d_->header()->FindSymbolAtRVA(cur->cstr));
             t->AddRow(d_->GetRAW(&cur->size),(uint64_t)cur->size,"Size",AsHexString(cur->size));
 
             t->AddSeparator();
         }
     }else{
+        auto results = util::ParsePointerAsType<cfstring_t>(GetOffset(),GetSize());
+        for(auto *cur : results){
+            const char *pstr = (const char*)cur->cstr;
+            t->AddRow(d_->GetRAW(&cur->ptr),(uint32_t)cur->ptr,"CFString Ptr",d_->header()->FindSymbolAtRVA(cur->ptr));
+            t->AddRow(d_->GetRAW(&cur->data),(uint32_t)cur->data,"Data",d_->header()->FindSymbolAtRVA(cur->data));
+            t->AddRow(d_->GetRAW(&cur->cstr),(uint32_t)cur->cstr,"String",d_->header()->FindSymbolAtRVA(cur->cstr));
+            t->AddRow(d_->GetRAW(&cur->size),(uint32_t)cur->size,"Size",AsHexString(cur->size));
 
+            t->AddSeparator();
+        }
     }
-
 
     AddViewData(t);
 }
