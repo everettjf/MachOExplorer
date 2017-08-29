@@ -178,7 +178,7 @@ void SectionViewNode::InitSpecialView()
     }
 
     if(section_name == "__cfstring"){
-
+        InitCFStringView("ObjC CFStrings");
     }
 
 }
@@ -189,11 +189,8 @@ void SectionViewNode::InitCStringView(const std::string &title)
     t->SetHeaders({"Index","Offset","Data","Length","String"});
     t->SetWidths({80,100,100,80,400});
 
-    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
-    uint32_t size = (uint32_t)d_->sect().size_both();
-
     int lineno = 0;
-    auto array = util::ParseStringLiteral(offset,size);
+    auto array = util::ParseStringLiteral(GetOffset(),GetSize());
     for(char * cur : array){
         std::string name(cur);
         t->AddRow({
@@ -212,11 +209,9 @@ void SectionViewNode::InitCStringView(const std::string &title)
 
 void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
-    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
-    uint32_t size = (uint32_t)d_->sect().size_both();
     auto t = CreateTableViewDataPtr(title);
 
-    auto array = util::ParseDataAsSize(offset,size,unitsize);
+    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
     for(char *cur : array){
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",AsHexData(cur,unitsize));
     }
@@ -225,18 +220,16 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 
 void SectionViewNode::InitPointersView(const std::string &title)
 {
-    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
-    uint32_t size = (uint32_t)d_->sect().size_both();
 
     auto t = CreateTableViewDataPtr(title);
 
     if(d_->Is64()){
-        auto array = util::ParsePointerAsType<uint64_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
         for(uint64_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
         }
     }else{
-        auto array = util::ParsePointerAsType<uint32_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
         for(uint32_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
         }
@@ -247,18 +240,15 @@ void SectionViewNode::InitPointersView(const std::string &title)
 
 void SectionViewNode::InitIndirectPointersView(const std::string &title)
 {
-    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
-    uint32_t size = (uint32_t)d_->sect().size_both();
-
     auto t = CreateTableViewDataPtr(title);
 
     if(d_->Is64()){
-        auto array = util::ParsePointerAsType<uint64_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
         for(uint64_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
     }else{
-        auto array = util::ParsePointerAsType<uint32_t>(offset,size);
+        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
         for(uint32_t *cur : array){
             t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
@@ -269,19 +259,39 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
 
 void SectionViewNode::InitIndirectStubsView(const std::string &title)
 {
-    char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
-    uint32_t size = (uint32_t)d_->sect().size_both();
-
     auto t = CreateTableViewDataPtr(title);
 
     size_t unitsize = d_->sect().reserved2();
-    auto array = util::ParseDataAsSize(offset,size,unitsize);
+    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
     for(char *cur : array){
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
     }
 
     AddViewData(t);
 
+}
+
+void SectionViewNode::InitCFStringView(const std::string &title)
+{
+    auto t = CreateTableViewDataPtr(title);
+
+    if(d_->Is64()){
+        auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
+        for(auto *cur : results){
+            const char *pstr = (const char*)cur->cstr;
+            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr","");
+            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data","");
+            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String","");
+            t->AddRow(d_->GetRAW(&cur->size),(uint64_t)cur->size,"Size",AsHexString(cur->size));
+
+            t->AddSeparator();
+        }
+    }else{
+
+    }
+
+
+    AddViewData(t);
 }
 
 

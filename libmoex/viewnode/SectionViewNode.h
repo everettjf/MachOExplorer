@@ -16,6 +16,15 @@ public:
     void Init(MachSectionPtr d);
     std::string GetDisplayName()override;
 
+    char *GetOffset(){
+        char *offset = (char*)d_->header()->header_start() + d_->sect().offset();
+        return offset;
+    }
+    uint32_t GetSize(){
+        uint32_t size = (uint32_t)d_->sect().size_both();
+        return size;
+    }
+
     void InitViewDatas()override;
 
     void InitSpecialView();
@@ -25,6 +34,8 @@ public:
     void InitPointersView(const std::string & title);
     void InitIndirectPointersView(const std::string & title);
     void InitIndirectStubsView(const std::string &title);
+
+    void InitCFStringView(const std::string &title);
 
 };
 using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
