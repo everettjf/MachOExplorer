@@ -66,6 +66,9 @@ private:
     std::vector<MachSectionWeakPtr> sections_;
 
     LoadCommand_LC_SYMTAB *symtab_ = nullptr;
+
+    std::unordered_map<uint64_t,std::string> symbol_names_; // <address, symbol name>
+
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -117,6 +120,13 @@ public:
     }
 
     LoadCommand_LC_SYMTAB *symtab(){return symtab_;}
+
+    void AddSymbolName(uint64_t rva,const std::string & name){
+        symbol_names_[rva] = name;
+    }
+    void AddSymbolNameByFileOff(uint64_t fileoffset,const std::string & name){
+        symbol_names_[FileOffsetToRVA(fileoffset)] = name;
+    }
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

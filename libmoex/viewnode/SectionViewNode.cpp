@@ -129,10 +129,10 @@ void SectionViewNode::InitSpecialView()
     std::string unique_name = d_->sect().segment_name() + "/" + d_->sect().section_name();
     std::string section_name = d_->sect().section_name();
 
-    bool has_objc_modules = false; // objc version detector
+    bool is_objc_2_0 = true; // objc version detector
 
     if(unique_name == "__OBJC/__module_info"){
-        has_objc_modules = true;
+        is_objc_2_0 = false;
 
     }
 
@@ -144,7 +144,15 @@ void SectionViewNode::InitSpecialView()
 
     }
 
-    if(!has_objc_modules){
+    if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo"){
+
+    }
+
+    if(section_name == "__cfstring"){
+        InitCFStringView("ObjC CFStrings");
+    }
+
+    if(is_objc_2_0){
 
         if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist"){
 
@@ -173,13 +181,6 @@ void SectionViewNode::InitSpecialView()
 
     }
 
-    if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo"){
-
-    }
-
-    if(section_name == "__cfstring"){
-        InitCFStringView("ObjC CFStrings");
-    }
 
 }
 
