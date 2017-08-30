@@ -82,6 +82,7 @@ public:
 
     uint64_t FileOffsetToRVA(uint64_t fileoff);
     std::string FindSymbolAtRVA(uint64_t rva);
+    std::string FindSymbolAtFileOffset(uint64_t fileoff);
     std::string FileOffsetToSymbol(uint64_t fileoff);
 
     std::size_t DATA_SIZE();
@@ -124,8 +125,8 @@ public:
     void AddSymbolName(uint64_t rva,const std::string & name){
         symbol_names_[rva] = name;
     }
-    void AddSymbolNameByFileOff(uint64_t fileoffset,const std::string & name){
-        symbol_names_[FileOffsetToRVA(fileoffset)] = name;
+    void AddSymbolNameByMemoryOff(uint64_t memoff,const std::string & name){
+        symbol_names_[FileOffsetToRVA(memoff - (uint64_t)ctx_->file_start)] = name;
     }
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;

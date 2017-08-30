@@ -91,6 +91,11 @@ std::string MachHeader::FindSymbolAtRVA(uint64_t rva){
     return symbol_names_.at(rva);
 }
 
+std::string MachHeader::FindSymbolAtFileOffset(uint64_t fileoff)
+{
+    return FindSymbolAtRVA(FileOffsetToRVA(fileoff));
+}
+
 std::string MachHeader::FileOffsetToSymbol(uint64_t fileoff){
     uint64_t rva = FileOffsetToRVA(fileoff);
     return FindSymbolAtRVA(rva);

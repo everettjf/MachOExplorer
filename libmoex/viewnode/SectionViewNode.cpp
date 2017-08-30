@@ -16,6 +16,10 @@ SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
 
 void SectionViewNode::Init(MachSectionPtr d){
     d_ = d;
+
+
+    InitViewDatas();
+
 }
 std::string SectionViewNode::GetDisplayName(){
     return boost::str(boost::format("Section(%1%,%2%)")%d_->sect().segment_name()%d_->sect().section_name());
@@ -202,6 +206,12 @@ void SectionViewNode::InitCStringView(const std::string &title)
                 name
                   });
 
+        std::string symbolname = boost::str(boost::format("0x%1$X:\"%2%\"")
+                                            % (uint64_t)cur
+                                            % name
+                                            );
+        d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
+
         ++lineno;
     }
 
@@ -214,7 +224,14 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 
     auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
     for(char *cur : array){
-        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",AsHexData(cur,unitsize));
+        std::string name = AsHexData(cur,unitsize);
+        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",name);
+
+        std::string symbolname = boost::str(boost::format("0x%1%X:%2%")
+                                            % cur
+                                            % name
+                                            );
+        d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
     }
     AddViewData(t);
 }
@@ -227,12 +244,24 @@ void SectionViewNode::InitPointersView(const std::string &title)
     if(d_->Is64()){
         auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
         for(uint64_t *cur : array){
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
+            std::string symbolname = boost::str(boost::format("%1%->%2%")
+                                                % d_->header()->FindSymbolAtFileOffset((uint64_t)cur)
+                                                % d_->header()->FindSymbolAtRVA(*cur)
+                                                );
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
+
+            d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
         }
     }else{
         auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
         for(uint32_t *cur : array){
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",AsShortHexString(*cur));
+            std::string symbolname = boost::str(boost::format("%1%->%2%")
+                                                % d_->header()->FindSymbolAtFileOffset((uint64_t)cur)
+                                                % d_->header()->FindSymbolAtRVA(*cur)
+                                                );
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
+
+            d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
         }
     }
 
