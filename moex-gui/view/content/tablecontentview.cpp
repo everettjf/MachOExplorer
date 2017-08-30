@@ -6,6 +6,7 @@
 #include "../../utility/utility.h"
 #include <QHBoxLayout>
 #include <QDebug>
+#include <QHeaderView>
 
 TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(parent)
 {
@@ -18,6 +19,9 @@ TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(paren
     layout->addWidget(tableView);
     setLayout(layout);
 
+    QHeaderView *verticalHeader = tableView->verticalHeader();
+    verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+    verticalHeader->setDefaultSectionSize(24);
 }
 
 void TableContentView::showViewData(moex::ViewData *data)
