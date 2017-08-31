@@ -9,6 +9,10 @@ MOEX_NAMESPACE_BEGIN
 
 
 
+void DynamicSymbolTable::Init(MachHeaderPtr mh){
+    mh_ = mh;
+}
+
 void DynamicSymbolTable::InitViewDatas(){
     using namespace moex::util;
 
