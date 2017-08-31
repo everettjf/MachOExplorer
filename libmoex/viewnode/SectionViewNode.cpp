@@ -18,7 +18,7 @@ void SectionViewNode::Init(MachSectionPtr d){
     d_ = d;
 
 
-    InitViewDatas();
+//    InitViewDatas();
 
 }
 std::string SectionViewNode::GetDisplayName(){
