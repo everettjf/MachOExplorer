@@ -128,8 +128,6 @@ void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg)
 
             t->AddRow(mh_->GetRAW((const void*)indirect_symbol.offset),indirect_index,"Symbol",symbol_name);
 
-            mh_->AddSymbolNameByMemoryOff(indirect_address,symbol_name);
-
         }else{
             t->AddRow(mh_->GetRAW((const void*)indirect_symbol.offset),indirect_index,"Symbol","");
             switch(indirect_index){
@@ -139,7 +137,6 @@ void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg)
                     uint64_t symoffset = indirect_address - sect.addr_both() + sect.offset() + (uint64_t)mh_->header_start();
                     uint64_t target_address = (uint64_t)mh_->ctx()->file_start + symoffset;
                     std::string symbol_name = mh_->FindSymbolAtFileOffset(target_address);
-                    mh_->AddSymbolNameByMemoryOff(indirect_address,symbol_name);
                     break;
                 }
                 case INDIRECT_SYMBOL_ABS:{
@@ -148,7 +145,6 @@ void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg)
                     std::string symbol_name = boost::str(boost::format("[0x%1$X->ABSOLUTE")
                                                          % indirect_address
                                                          );
-                    mh_->AddSymbolNameByMemoryOff(indirect_address,symbol_name);
                     break;
                 }
                 default:{
@@ -159,7 +155,6 @@ void DynamicSymbolTable::InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg)
                     std::string symbol_name = boost::str(boost::format("[0x%1$X->LOCAL ABSOLUTE")
                                                          % indirect_address
                                                          );
-                    mh_->AddSymbolNameByMemoryOff(indirect_address,symbol_name);
                     break;
                 }
             }

@@ -84,11 +84,7 @@ std::string MachHeader::FindSymbolAtRVA(uint64_t rva){
     {
         rva |= 0xffffffff00000000LL;
     }
-    auto find = symbol_names_.find(rva);
-    if(find == symbol_names_.end()){
-        return boost::str(boost::format("0x%X")%rva);
-    }
-    return symbol_names_.at(rva);
+    return boost::str(boost::format("0x%X")%rva);
 }
 
 std::string MachHeader::FindSymbolAtFileOffset(uint64_t fileoff)

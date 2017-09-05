@@ -210,7 +210,6 @@ void SectionViewNode::InitCStringView(const std::string &title)
                                             % (uint64_t)cur
                                             % name
                                             );
-        d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
 
         ++lineno;
     }
@@ -231,7 +230,6 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
                                             % cur
                                             % name
                                             );
-        d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
     }
     AddViewData(t);
 }
@@ -250,7 +248,6 @@ void SectionViewNode::InitPointersView(const std::string &title)
                                                 );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
 
-            d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
         }
     }else{
         auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
@@ -261,7 +258,6 @@ void SectionViewNode::InitPointersView(const std::string &title)
                                                 );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
 
-            d_->header()->AddSymbolNameByMemoryOff((uint64_t)cur,symbolname);
         }
     }
 
