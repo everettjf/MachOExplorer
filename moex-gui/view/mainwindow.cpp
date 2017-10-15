@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     menu = new MainWindowMenu();
     action = new MainWindowAction();
 
-    setWindowTitle(tr("MachOEXplorer"));
+    setWindowTitle(tr("MachOExplorer"));
     createUI();
     createActions();
     createMenus();
