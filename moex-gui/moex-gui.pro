@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = MOEX
+TARGET = moexgui
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -22,27 +22,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-PRECOMPILED_HEADER = stable.h
-
-CONFIG   += precompile_header
 
 LIBMOEX_HEADER = $$files(../libmoex/*.h,true)
 LIBMOEX_SOURCE = $$files(../libmoex/*.cpp,true)
-MOEX_GUI_HEADER = $$files(../moex-gui/*.h,true)
-MOEX_GUI_SOURCE = $$files(../moex-gui/*.cpp,true)
+MOEX_HEADER = $$files(../moex-gui/src/*.h,true)
+MOEX_SOURCE = $$files(../moex-gui/src/*.cpp,true)
 
-SOURCES += $$LIBMOEX_SOURCE $$MOEX_GUI_SOURCE
-HEADERS  += $$LIBMOEX_HEADER $$MOEX_GUI_HEADER
+SOURCES += $$LIBMOEX_SOURCE $$MOEX_SOURCE
+HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
 FORMS    +=
 
 macx{
-    _BOOSTPATH = /usr/local/Cellar/boost/1.64.0_1
+    _BOOSTPATH = /usr/local/Cellar/boost/1.65.1
     INCLUDEPATH += "$${_BOOSTPATH}/include/"
     LIBS += -L$${_BOOSTPATH}/lib
 }
 
-INCLUDEPATH += ./../
+INCLUDEPATH += ./src/
 
 RESOURCES += \
-    moex.qrc
+    src/moex.qrc
 
