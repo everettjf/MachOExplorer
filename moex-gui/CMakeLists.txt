@@ -16,6 +16,12 @@ FIND_PACKAGE(Qt5Core REQUIRED)
 FIND_PACKAGE(Qt5Gui REQUIRED)
 FIND_PACKAGE(Qt5Widgets REQUIRED)
 
+include_directories(
+        ${Qt5Widgets_INCLUDES}
+        ${Qt5Widgets_PRIVATE_INCLUDE_DIRS}
+        ${Qt5Gui_INCLUDE_DIRS}
+        ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
+)
 
 file(GLOB_RECURSE LIBMOEX_SOURCE libmoex/*.cpp)
 file(GLOB_RECURSE LIBMOEX_HEADER libmoex/*.h)

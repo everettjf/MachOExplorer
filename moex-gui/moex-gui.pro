@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = moexgui
+TARGET = moex
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -23,10 +23,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
-LIBMOEX_HEADER = $$files(../libmoex/*.h,true)
-LIBMOEX_SOURCE = $$files(../libmoex/*.cpp,true)
-MOEX_HEADER = $$files(../moex-gui/src/*.h,true)
-MOEX_SOURCE = $$files(../moex-gui/src/*.cpp,true)
+LIBMOEX_HEADER = $$files(libmoex/*.h,true)
+LIBMOEX_SOURCE = $$files(libmoex/*.cpp,true)
+MOEX_HEADER = $$files(src/*.h,true)
+MOEX_SOURCE = $$files(src/*.cpp,true)
 
 SOURCES += $$LIBMOEX_SOURCE $$MOEX_SOURCE
 HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
