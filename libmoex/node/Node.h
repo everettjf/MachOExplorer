@@ -7,7 +7,7 @@
 
 #include "Common.h"
 #include "Util.h"
-#include "Define.h"
+#include "Defines.h"
 
 MOEX_NAMESPACE_BEGIN
 

@@ -7,7 +7,7 @@
 
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
-
+#include "stable.h"
 
 class BaseController
 {
