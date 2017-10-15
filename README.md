@@ -32,14 +32,15 @@ macOS only until now, Windows support in the near future.
 ```
 brew install cmake
 brew install boost --c++11
+
+Qt SDK >= 5.9.1
 ```
 
 2. moex-cli
 
-- vscode with cmake-tools extension
-- Clion
+- CMake (>=3.9)
 
 3. moex-gui
 
-- Qt Creator with Qt 5.9.1
+- CMake (>=3.9)
 
