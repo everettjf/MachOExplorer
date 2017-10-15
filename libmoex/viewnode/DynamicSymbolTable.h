@@ -18,7 +18,6 @@ public:
     std::string GetDisplayName()override { return "Dynamic Symbol Table";}
     void InitViewDatas()override;
 
-    void InitIndirectSymbols(moex::LoadCommand_LC_DYSYMTAB *seg);
 };
 using DynamicSymbolTablePtr = std::shared_ptr<DynamicSymbolTable>;
 
