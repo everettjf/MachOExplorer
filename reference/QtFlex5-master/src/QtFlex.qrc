@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/guiders.png</file>
+        <file>Resources/buttons.png</file>
+        <file>Resources/extents.png</file>
+    </qresource>
+</RCC>

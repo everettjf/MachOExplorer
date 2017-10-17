@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/guider.png</file>
+    </qresource>
+</RCC>
