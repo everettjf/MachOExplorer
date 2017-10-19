@@ -20,6 +20,8 @@
 #include <QtWidgets/QPushButton>
 #include <QSizePolicy>
 
+#include "mytreeview.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -58,8 +60,7 @@ void MainWindow::onDockWidgetCreated(DockWidget *widget)
 {
     auto const& title = widget->windowTitle();
     if(title == "Tree"){
-        auto view = new QWidget(widget);
-        view->setMinimumWidth(300);
+        auto view = new MyTreeView(widget);
         widget->attachWidget(view);
     }else if(title == "Hex"){
 
@@ -70,7 +71,6 @@ void MainWindow::onDockWidgetCreated(DockWidget *widget)
     }else if(title == "Content"){
 
         auto view = new QWidget(widget);
-        view->setMinimumWidth(500);
         widget->attachWidget(view);
     }else{
         // None
