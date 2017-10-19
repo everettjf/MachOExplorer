@@ -9,7 +9,7 @@ MyTreeView::MyTreeView(QWidget *parent) : QWidget(parent)
 
 }
 
-QSize MyTreeView::sizeHint() const
-{
-    return QSize(300,0);
-}
+//QSize MyTreeView::minimumSizeHint() const
+//{
+//    return QSize(300,0);
+//}

@@ -13,7 +13,7 @@ class MyTreeView : public QWidget
 public:
     explicit MyTreeView(QWidget *parent = nullptr);
 
-    QSize sizeHint()const;
+//    QSize minimumSizeHint()const;
 signals:
 
 public slots:

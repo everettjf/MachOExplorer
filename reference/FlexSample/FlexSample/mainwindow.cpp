@@ -36,14 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
     setGeometry(QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100));
 
     activeOrAddDockWidget(Flex::ToolView,"Tree",Flex::L0,0,center);
-    activeOrAddDockWidget(Flex::ToolView,"Hex",Flex::M,0,center);
-    activeOrAddDockWidget(Flex::FileView,"Content",Flex::R0,0,center);
+    activeOrAddDockWidget(Flex::FileView,"Content",Flex::M,0,center);
+    activeOrAddDockWidget(Flex::ToolView,"Hex",Flex::R0,0,center);
     activeOrAddDockWidget(Flex::ToolView,"Log",Flex::B1,2,center);
 
-//    activeOrAddDockWidget(Flex::ToolView,"寄存器",Flex::R0,0,center);
-//    activeOrAddDockWidget(Flex::ToolView,"栈",Flex::B0,0,center);
-//    activeOrAddDockWidget(Flex::ToolView,"断点",Flex::B1,0,center);
-//    activeOrAddDockWidget(Flex::ToolView,"输出",Flex::B2,0,center);
 }
 
 MainWindow::~MainWindow()
@@ -61,16 +57,20 @@ void MainWindow::onDockWidgetCreated(DockWidget *widget)
     auto const& title = widget->windowTitle();
     if(title == "Tree"){
         auto view = new MyTreeView(widget);
+        view->setMinimumWidth(300);
+        widget->attachWidget(view);
+    }else if(title == "Content"){
+        auto view = new QWidget(widget);
+
         widget->attachWidget(view);
     }else if(title == "Hex"){
-
         auto view = new QWidget(widget);
+        view->setMinimumWidth(500);
+
         widget->attachWidget(view);
-        widget->setSizePolicy(QSizePolicy::Policy::Preferred,QSizePolicy::Policy::Preferred);
-
-    }else if(title == "Content"){
-
+    }else if(title == "Log"){
         auto view = new QWidget(widget);
+
         widget->attachWidget(view);
     }else{
         // None
