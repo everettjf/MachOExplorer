@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
     activeOrAddDockWidget(Flex::ToolView,"Hex",Flex::R0,0,center);
     activeOrAddDockWidget(Flex::ToolView,"Log",Flex::B1,2,center);
 
+    FlexManager::instance()->dockWidget("Tree")->resize(500,0);
+    FlexManager::instance()->load();
 }
 
 MainWindow::~MainWindow()
@@ -57,7 +59,7 @@ void MainWindow::onDockWidgetCreated(DockWidget *widget)
     auto const& title = widget->windowTitle();
     if(title == "Tree"){
         auto view = new MyTreeView(widget);
-        view->setMinimumWidth(300);
+//        view->setMinimumWidth(300);
         widget->attachWidget(view);
     }else if(title == "Content"){
         auto view = new QWidget(widget);
@@ -65,7 +67,7 @@ void MainWindow::onDockWidgetCreated(DockWidget *widget)
         widget->attachWidget(view);
     }else if(title == "Hex"){
         auto view = new QWidget(widget);
-        view->setMinimumWidth(500);
+//        view->setMinimumWidth(500);
 
         widget->attachWidget(view);
     }else if(title == "Log"){
