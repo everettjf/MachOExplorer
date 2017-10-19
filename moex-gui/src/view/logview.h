@@ -17,6 +17,7 @@ public:
     explicit LogView(QWidget *parent = 0);
 
     void addLine(const QString &line);
+    QSize sizeHint() const;
 
 signals:
 

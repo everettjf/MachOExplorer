@@ -42,6 +42,11 @@ void LayoutView::openFile(const QString &filePath)
     showViewNode(controller->rootNode());
 }
 
+QSize LayoutView::sizeHint() const
+{
+    return QSize(300, 0);
+}
+
 
 void LayoutView::showViewNode(moex::ViewNode *node)
 {

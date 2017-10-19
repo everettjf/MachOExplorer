@@ -25,6 +25,7 @@ public:
 
     void openFile(const QString & filePath);
 
+    QSize sizeHint() const;
 signals:
 
 public slots:

@@ -22,3 +22,8 @@ void LogView::addLine(const QString &line)
     textEdit->insertPlainText(line);
     textEdit->insertPlainText("\n");
 }
+
+QSize LogView::sizeHint() const
+{
+    return QSize(0, 100);
+}

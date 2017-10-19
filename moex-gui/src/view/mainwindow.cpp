@@ -39,10 +39,6 @@ void MainWindow::createUI()
     {
         ui->layout = new LayoutView();
 
-#ifndef QT_NO_DEBUG
-        ui->layout->setMinimumWidth(350);
-#endif
-
         ui->layoutDock = new QDockWidget(tr("Layout"),this);
         ui->layoutDock->setFeatures(QDockWidget::DockWidgetMovable);
         ui->layoutDock->setAllowedAreas(Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea);
