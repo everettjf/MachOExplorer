@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":res/moex.ico"));
 
     MainWindow w;
-    w.resize(1000,600);
+    w.setGeometry(QApplication::desktop()->availableGeometry().adjusted(100, 100, -100, -100));
     w.show();
 
     return app.exec();

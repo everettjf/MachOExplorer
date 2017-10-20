@@ -44,7 +44,7 @@ void LayoutView::openFile(const QString &filePath)
 
 QSize LayoutView::sizeHint() const
 {
-    return QSize(300, 0);
+    return QSize(350, 0);
 }
 
 
