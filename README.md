@@ -1,6 +1,6 @@
 # MachOExplorer
 
-Yet another MachOView, and trying to be a better one.
+Explore MachO File Format (Yet another MachOView)
 
 ⚠️ This repo is under development, features are in-complete, code may not compile
 
@@ -11,16 +11,15 @@ Yet another MachOView, and trying to be a better one.
 
 # Feature
 
-- [X] Basic view MachO file structure (like MachOView).
+- [ ] Basic view MachO file structure (like MachOView).
+
+# Future feature maybe
+
 - [ ] Basic edit.
-
-
-# Future maybe
-
 - [ ] Insert a dylib (like optool).
 - [ ] Class dump (like class-dump).
 - [ ] Symbolicate static initializers : just drop dSYM into `mod_func_init` section.
-- [ ] Restore Symbol : one key to restore symbol (include blocks).
+- [ ] Restore Symbol : restore symbol include blocks.
 
 
 # How to build 
