@@ -243,8 +243,8 @@ void SectionViewNode::InitPointersView(const std::string &title)
         auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
         for(uint64_t *cur : array){
             std::string symbolname = boost::str(boost::format("%1%->%2%")
-                                                % d_->header()->FindSymbolAtFileOffset((uint64_t)cur)
-                                                % d_->header()->FindSymbolAtRVA(*cur)
+                                                % AsShortHexString((uint64_t)cur)
+                                                % AsShortHexString(*cur)
                                                 );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
 
@@ -253,8 +253,8 @@ void SectionViewNode::InitPointersView(const std::string &title)
         auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
         for(uint32_t *cur : array){
             std::string symbolname = boost::str(boost::format("%1%->%2%")
-                                                % d_->header()->FindSymbolAtFileOffset((uint64_t)cur)
-                                                % d_->header()->FindSymbolAtRVA(*cur)
+                                                % AsShortHexString((uint64_t)cur)
+                                                % AsShortHexString(*cur)
                                                 );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
 
@@ -305,9 +305,9 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
         for(auto *cur : results){
             const char *pstr = (const char*)cur->cstr;
-            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr",d_->header()->FindSymbolAtRVA(cur->ptr));
-            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data",d_->header()->FindSymbolAtRVA(cur->data));
-            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String",d_->header()->FindSymbolAtRVA(cur->cstr));
+            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
+            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data",AsShortHexString(cur->data));
+            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String",AsShortHexString(cur->cstr));
             t->AddRow(d_->GetRAW(&cur->size),(uint64_t)cur->size,"Size",AsHexString(cur->size));
 
             t->AddSeparator();
@@ -316,9 +316,9 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         auto results = util::ParsePointerAsType<cfstring_t>(GetOffset(),GetSize());
         for(auto *cur : results){
             const char *pstr = (const char*)cur->cstr;
-            t->AddRow(d_->GetRAW(&cur->ptr),(uint32_t)cur->ptr,"CFString Ptr",d_->header()->FindSymbolAtRVA(cur->ptr));
-            t->AddRow(d_->GetRAW(&cur->data),(uint32_t)cur->data,"Data",d_->header()->FindSymbolAtRVA(cur->data));
-            t->AddRow(d_->GetRAW(&cur->cstr),(uint32_t)cur->cstr,"String",d_->header()->FindSymbolAtRVA(cur->cstr));
+            t->AddRow(d_->GetRAW(&cur->ptr),(uint32_t)cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
+            t->AddRow(d_->GetRAW(&cur->data),(uint32_t)cur->data,"Data",AsShortHexString(cur->data));
+            t->AddRow(d_->GetRAW(&cur->cstr),(uint32_t)cur->cstr,"String",AsShortHexString(cur->cstr));
             t->AddRow(d_->GetRAW(&cur->size),(uint32_t)cur->size,"Size",AsHexString(cur->size));
 
             t->AddSeparator();

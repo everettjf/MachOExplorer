@@ -23,24 +23,23 @@ void FunctionStartsViewNode::InitViewDatas()
     if(!seg)
         return;
 
-    auto b = CreateBinaryViewDataPtr();
-    b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
-    b->size = seg->cmd()->datasize;
-    AddViewData(b);
-
-
     // Functions
     auto t = CreateTableViewDataPtr();
-    auto address = mh_->base_addr();
+    auto address = 0;//mh_->base_addr(); // todo
     for(auto & func : seg->GetFunctions()){
         address += func.data; // todo : why?
 
         t->AddRow(mh_->GetRAW((const void *)func.offset),
                   (void*)func.offset,func.occupy_size,
                   "uleb128",
-                  mh_->FileOffsetToSymbol(address));
+                  AsShortHexString(address));
     }
     AddViewData(t);
+
+    auto b = CreateBinaryViewDataPtr();
+    b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
+    b->size = seg->cmd()->datasize;
+    AddViewData(b);
 }
 
 MOEX_NAMESPACE_END

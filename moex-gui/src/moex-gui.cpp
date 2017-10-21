@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    app.setApplicationName("MOEX");
+    app.setApplicationName("MachOExplorer");
     app.setOrganizationName("everettjf");
     app.setOrganizationDomain("everettjf.com");
     app.setApplicationVersion("0.1");

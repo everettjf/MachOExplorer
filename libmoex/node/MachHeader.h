@@ -38,9 +38,6 @@ public:
 using MachHeader64InternalPtr = std::shared_ptr<MachHeader64Internal>;
 
 
-// rva - vmaddr,vmsize
-using SegmentInfoMap = std::map<uint64_t,std::pair<uint64_t,uint64_t>>;
-
 class MachHeader : public Node{
 private:
     bool is64_;
@@ -53,19 +50,6 @@ private:
     NodeContextPtr ctx_;
     void *header_start_;
 
-    // Helper Datas
-    SegmentInfoMap segment_info_;
-
-    uint64_t base_addr_=0LL;
-    uint64_t seg1addr_ = (uint64_t)-1LL;
-    uint64_t segs_read_write_addr_ = (uint64_t)-1LL;
-
-    bool exist_function_starts_ = false;
-    bool exist_data_in_code_entries_ = false;
-
-    std::vector<MachSectionWeakPtr> sections_;
-
-    LoadCommand_LC_SYMTAB *symtab_ = nullptr;
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -76,11 +60,6 @@ public:
     void * header_start(){return header_start_;}
 
     uint64_t GetRAW(const void * addr);
-
-    uint64_t FileOffsetToRVA(uint64_t fileoff);
-    std::string FindSymbolAtRVA(uint64_t rva);
-    std::string FindSymbolAtFileOffset(uint64_t fileoff);
-    std::string FileOffsetToSymbol(uint64_t fileoff);
 
     std::size_t DATA_SIZE();
 
@@ -98,26 +77,6 @@ public:
     std::string GetCpuSubTypeString();
     std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray();
 
-    const SegmentInfoMap &segment_info()const {return segment_info_;}
-    void AddSegmentInfo(uint32_t fileoff,uint64_t vmaddr,uint64_t vmsize);
-
-    uint64_t base_addr() const{return base_addr_;}
-    uint64_t seg1addr()const{return seg1addr_;}
-    uint64_t segs_read_write_addr()const{return segs_read_write_addr_;}
-    void set_base_addr(uint64_t base_addr){base_addr_ = base_addr;}
-    void set_seg1addr(uint64_t seg1addr){seg1addr_ = seg1addr;}
-    void set_segs_read_write_addr(uint64_t segs_read_write_addr){segs_read_write_addr_ = segs_read_write_addr;}
-
-    bool exist_function_starts()const{return exist_function_starts_;}
-    bool exist_data_in_code_entries()const{return exist_data_in_code_entries_;}
-
-    std::vector<MachSectionWeakPtr> & sections(){return sections_;}
-    void AddSection(MachSectionPtr section){
-        MachSectionWeakPtr s(section);
-        sections_.push_back(s);
-    }
-
-    LoadCommand_LC_SYMTAB *symtab(){return symtab_;}
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 

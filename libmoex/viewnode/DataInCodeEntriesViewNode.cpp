@@ -19,21 +19,20 @@ void DataInCodeEntriesViewNode::InitViewDatas(){
     if(!seg)
         return;
 
-    auto b = CreateBinaryViewDataPtr();
-    b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
-    b->size = seg->cmd()->datasize;
-    AddViewData(b);
-
-
     // Dices
     auto t = CreateTableViewDataPtr();
     for(auto & dice : seg->GetDices()){
-        t->AddRow(seg->GetRAW(&(dice->offset()->offset)),dice->offset()->offset,"Offset",mh_->FileOffsetToSymbol(dice->offset()->offset));
+        t->AddRow(seg->GetRAW(&(dice->offset()->offset)),dice->offset()->offset,"Offset",AsShortHexString(dice->offset()->offset));
         t->AddRow(seg->GetRAW(&(dice->offset()->length)),dice->offset()->length,"Length",AsShortHexString(dice->offset()->length));
         t->AddRow(seg->GetRAW(&(dice->offset()->kind)),dice->offset()->kind,"Kind",dice->GetKindString());
         t->AddSeparator();
     }
     AddViewData(t);
+    
+    auto b = CreateBinaryViewDataPtr();
+    b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
+    b->size = seg->cmd()->datasize;
+    AddViewData(b);
 }
 
 MOEX_NAMESPACE_END

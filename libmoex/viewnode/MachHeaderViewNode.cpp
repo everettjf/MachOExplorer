@@ -39,17 +39,13 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     code_signature_->Init(d_);
     children_.push_back(code_signature_.get());
 
-    if(d_->exist_function_starts()){
-        function_starts_ = std::make_shared<FunctionStartsViewNode>();
-        function_starts_->Init(d_);
-        children_.push_back(function_starts_.get());
-    }
+    function_starts_ = std::make_shared<FunctionStartsViewNode>();
+    function_starts_->Init(d_);
+    children_.push_back(function_starts_.get());
 
-    if(d_->exist_data_in_code_entries()){
-        data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
-        data_in_code_entries_->Init(d_);
-        children_.push_back(data_in_code_entries_.get());
-    }
+    data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+    data_in_code_entries_->Init(d_);
+    children_.push_back(data_in_code_entries_.get());
 }
 
 std::string MachHeaderViewNode::GetDisplayName() {
