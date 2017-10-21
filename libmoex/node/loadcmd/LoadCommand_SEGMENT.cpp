@@ -17,6 +17,10 @@ void LoadCommand_LC_SEGMENT::Init(void * offset,NodeContextPtr & ctx){
         section->Init(cur,ctx);
         sections_.push_back(section);
     }
+
+    if(cmd_->fileoff == 0 && cmd_->filesize != 0){
+        header_->cache().base_addr = cmd_->vmaddr;
+    }
 }
 
 std::string LoadCommand_LC_SEGMENT::GetShortCharacteristicDescription(){

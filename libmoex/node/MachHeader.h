@@ -38,6 +38,10 @@ public:
 using MachHeader64InternalPtr = std::shared_ptr<MachHeader64Internal>;
 
 
+struct ParsingCacheInfo{
+    uint64_t base_addr=0LL;
+};
+
 class MachHeader : public Node{
 private:
     bool is64_;
@@ -50,6 +54,7 @@ private:
     NodeContextPtr ctx_;
     void *header_start_;
 
+    ParsingCacheInfo cache_;
 private:
     void Parse(void *offset,NodeContextPtr& ctx);
 public:
@@ -58,6 +63,8 @@ public:
     std::vector<LoadCommandPtr> &loadcmds_ref(){return loadcmds_;}
     NodeContextPtr & ctx(){return ctx_;}
     void * header_start(){return header_start_;}
+
+    ParsingCacheInfo & cache(){return cache_;}
 
     uint64_t GetRAW(const void * addr);
 
