@@ -35,47 +35,47 @@ void DynamicSymbolTable::InitViewDatas(){
         AddViewData(b);
     }
 
-    // Indirect Symbols
-    {
-        auto x = CreateTableViewDataPtr("Indirect Symbols");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // Modules64
-    {
-        auto x = CreateTableViewDataPtr("Modules");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // Table of Contents
-    {
-        auto x = CreateTableViewDataPtr("Table Of Contents");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // External References
-    {
-        auto x = CreateTableViewDataPtr("External References");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // External Relocations
-    {
-        auto x = CreateTableViewDataPtr("External Relocations");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // Local RElo Table
-    {
-        auto x = CreateTableViewDataPtr("Local Relocation Table");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
+//    // Indirect Symbols
+//    {
+//        auto x = CreateTableViewDataPtr("Indirect Symbols");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
+//
+//    // Modules64
+//    {
+//        auto x = CreateTableViewDataPtr("Modules");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
+//
+//    // Table of Contents
+//    {
+//        auto x = CreateTableViewDataPtr("Table Of Contents");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
+//
+//    // External References
+//    {
+//        auto x = CreateTableViewDataPtr("External References");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
+//
+//    // External Relocations
+//    {
+//        auto x = CreateTableViewDataPtr("External Relocations");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
+//
+//    // Local RElo Table
+//    {
+//        auto x = CreateTableViewDataPtr("Local Relocation Table");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
 
 }
 
