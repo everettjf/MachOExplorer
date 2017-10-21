@@ -30,6 +30,7 @@ class BinaryViewData: public ViewData{
 public:
     char * offset = nullptr;
     uint64_t size = 0;
+    uint64_t start_value = 0;
 
     BinaryViewData(){
         mode_ = ViewDataMode::Binary;

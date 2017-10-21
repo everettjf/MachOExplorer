@@ -49,6 +49,7 @@ void SymbolTableViewNode::InitViewDatas() {
     auto b = CreateBinaryViewDataPtr();
     b->offset = (char*)seg->GetSymbolTableOffsetAddress();
     b->size = seg->GetSymbolTableTotalBytes();
+    b->start_value = (uint64_t)b->offset - (uint64_t)mh_->ctx()->file_start;
     AddViewData(b);
 }
 

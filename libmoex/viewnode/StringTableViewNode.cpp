@@ -53,6 +53,7 @@ void StringTableViewNode::InitViewDatas()
     auto b = CreateBinaryViewDataPtr();
     b->offset = stroffset;
     b->size = strsize;
+    b->start_value = (uint64_t)stroffset - (uint64_t)mh_->header_start();
     AddViewData(b);
 }
 

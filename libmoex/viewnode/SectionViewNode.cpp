@@ -66,6 +66,7 @@ void SectionViewNode::InitViewDatas(){
         auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
+        b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
         AddViewData(b);
     }
 

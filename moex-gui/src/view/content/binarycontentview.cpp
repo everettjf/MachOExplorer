@@ -13,6 +13,7 @@ BinaryContentView::BinaryContentView(QWidget *parent) : ContentViewInterface(par
     hexEdit = new QHexEdit(this);
     hexEdit->setOverwriteMode(true);
     hexEdit->setReadOnly(true);
+    hexEdit->setAddressWidth(8);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
@@ -27,5 +28,6 @@ void BinaryContentView::showViewData(moex::ViewData *data)
 
     QByteArray bytes = QByteArray::fromRawData(node->offset,(int)node->size);
     hexEdit->setData(bytes);
+    hexEdit->setAddressOffset(node->start_value);
 }
 
