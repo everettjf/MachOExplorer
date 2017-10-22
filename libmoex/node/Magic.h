@@ -2,8 +2,8 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#ifndef MAGIC_H
-#define MAGIC_H
+#ifndef MOEXMAGIC_H
+#define MOEXMAGIC_H
 
 #include "Node.h"
 
@@ -14,24 +14,38 @@ class Magic{
 private:
     uint32_t magic_;
 public:
-    uint32_t magic()const{return magic_;}
-
+    // Construct empty
     Magic(){}
+
+    // Construct by given magic
     Magic(uint32_t magic){ magic_ = magic; }
+
+    // Construct by address
     Magic(void *memory){ magic_ = *(uint32_t*)memory; }
 
+    // Parse by address ( can be reparsed)
     void Parse(void *memory){ magic_ = *(uint32_t*)memory; }
 
+    // Getter for magic number
+    uint32_t magic()const{return magic_;}
+
+    // Whether it is Fat binary
     bool IsFat(){
         return magic_ == FAT_MAGIC || magic_ == FAT_CIGAM;
     }
+
+    // Whether it is 64 bit arch
     bool Is64(){
         return magic_ == FAT_MAGIC_64 || magic_ == FAT_CIGAM_64 ||
                magic_ == MH_MAGIC_64 || magic_ == MH_CIGAM_64;
     }
+
+    // Whether it is a valid MachO file format
     bool IsValid(){
         return IsFat() || Is64();
     }
+
+    // Whether should be swapped
     bool IsSwap(){
         return magic_ == FAT_CIGAM || magic_ == FAT_CIGAM_64 ||
                magic_ == MH_CIGAM || magic_ == MH_CIGAM_64;
@@ -40,4 +54,4 @@ public:
 
 MOEX_NAMESPACE_END
 
-#endif // MAGIC_H
+#endif // MOEXMAGIC_H

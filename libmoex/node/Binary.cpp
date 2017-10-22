@@ -6,8 +6,9 @@
 
 MOEX_NAMESPACE_BEGIN
 
+
 Binary::Binary(const std::string & filepath)
-        : filepath_(filepath){
+    : filepath_(filepath){
     using namespace boost::interprocess;
 
     if(filepath_.length() == 0){
@@ -49,4 +50,20 @@ Binary::Binary(const std::string & filepath)
 }
 
 
+Node *Binary::GetNode(){
+    if(magic_.IsFat())
+        return fath_.get();
+    else
+        return mh_.get();
+}
+
+void Binary::ForEachHeader(std::function<void (MachHeaderPtr)> callback){
+    if(IsFat()){
+        for(auto & arch : fath()->archs()){
+            callback(arch->mh());
+        }
+    }else{
+        callback(mh_);
+    }
+}
 MOEX_NAMESPACE_END

@@ -20,5 +20,12 @@ void MachSection::Init(section_64 *offset,NodeContextPtr & ctx){
     section64_->Init(offset,ctx);
 }
 
+uint64_t MachSection::GetRAW(const void *addr){
+    if(is64_)
+        return (uint64_t)addr - (uint64_t)section64_->ctx()->file_start;
+    else
+        return (uint64_t)addr - (uint64_t)section_->ctx()->file_start;
+}
+
 
 MOEX_NAMESPACE_END

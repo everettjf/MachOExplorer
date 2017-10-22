@@ -2,8 +2,8 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef MOEXHELPER_H
+#define MOEXHELPER_H
 
 #include "Common.h"
 #include <cstdio>
@@ -105,4 +105,4 @@ std::vector<char*> ParseDataAsSize(char *offset, uint32_t size,size_t unitsize);
 MOEX_NAMESPACE_END
 
 
-#endif // HELPER_H
+#endif // MOEXHELPER_H
