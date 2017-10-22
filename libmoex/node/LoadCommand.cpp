@@ -36,7 +36,7 @@ case commandtag: return std::make_shared<LoadCommand_##classtag>();
 #define DECLARE_LOAD_COMMAND_CASE_STATEMENT(commandtag) \
 case commandtag: return std::make_shared<LoadCommand_##commandtag>();
 
-LoadCommandPtr LoadCommandFactory::GetCommand(uint32_t cmd) {
+LoadCommandPtr LoadCommandFactory::NewCommand(uint32_t cmd) {
     switch (cmd) {
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_SEGMENT)
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_SEGMENT_64)
@@ -80,7 +80,7 @@ LoadCommandPtr LoadCommandFactory::GetCommand(uint32_t cmd) {
 
 LoadCommandPtr LoadCommandFactory::Create(void * offset,NodeContextPtr & ctx,MachHeader *header){
     load_command *lc = reinterpret_cast<load_command*>(offset);
-    LoadCommandPtr cmd = LoadCommandFactory::GetCommand(lc->cmd);
+    LoadCommandPtr cmd = LoadCommandFactory::NewCommand(lc->cmd);
     cmd->set_header(header);
     cmd->Init(offset,ctx);
     return cmd;

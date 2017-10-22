@@ -11,6 +11,7 @@ MOEX_NAMESPACE_BEGIN
 
 class MachHeader;
 
+// Base class for all detailed load command
 class LoadCommand : public NodeOffset<load_command>{
 protected:
     MachHeader* header_;
@@ -30,6 +31,7 @@ public:
 using LoadCommandPtr = std::shared_ptr<LoadCommand>;
 
 
+// Template for detailed load command
 template <typename T>
 class LoadCommandImpl : public LoadCommand{
 protected:
@@ -45,10 +47,11 @@ public:
     }
 };
 
-
+// Create detailed load command by data
 class LoadCommandFactory {
+private:
+    static LoadCommandPtr NewCommand(uint32_t cmd);
 public:
-    static LoadCommandPtr GetCommand(uint32_t cmd);
     static LoadCommandPtr Create(void * offset,NodeContextPtr & ctx,MachHeader *header);
 };
 
