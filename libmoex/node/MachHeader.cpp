@@ -8,6 +8,20 @@
 
 MOEX_NAMESPACE_BEGIN
 
+void MachHeaderInternal::Init(void *offset, NodeContextPtr &ctx) {
+    NodeData::Init(offset,ctx);
+    if(data_.magic == MH_CIGAM) {
+        swap_mach_header(&data_, NX_LittleEndian);
+    }
+}
+
+void MachHeader64Internal::Init(void *offset, NodeContextPtr &ctx) {
+    NodeData::Init(offset,ctx);
+    if(data_.magic == MH_CIGAM_64){
+        swap_mach_header_64(& data_,NX_LittleEndian);
+    }
+}
+
 void MachHeader::Init(void *offset,NodeContextPtr&ctx) {
     ctx_ = ctx;
     magic_.Parse(offset);
@@ -87,5 +101,6 @@ std::string MachHeader::GetCpuSubTypeString()
 std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> MachHeader::GetCpuSubTypeArray(){
     return util::GetCpuSubTypeArray(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
 }
+
 
 MOEX_NAMESPACE_END
