@@ -16,13 +16,7 @@ void DynamicSymbolTable::Init(MachHeaderPtr mh){
 void DynamicSymbolTable::InitViewDatas(){
     using namespace moex::util;
 
-    moex::LoadCommand_LC_DYSYMTAB *seg=nullptr;
-    for(auto & cmd : mh_->loadcmds_ref()){
-        if(cmd->offset()->cmd == LC_DYSYMTAB) {
-            seg = static_cast<moex::LoadCommand_LC_DYSYMTAB*>(cmd.get());
-            break;
-        }
-    }
+    moex::LoadCommand_LC_DYSYMTAB *seg= mh_->FindLoadCommand<moex::LoadCommand_LC_DYSYMTAB>({LC_DYSYMTAB});
     if(!seg)
         return;
 

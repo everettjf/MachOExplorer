@@ -4,6 +4,7 @@
 
 #include "MachHeader.h"
 #include "loadcmd/LoadCommand_SYMTAB.h"
+#include "loadcmd/LoadCommand_SEGMENT.h"
 
 
 MOEX_NAMESPACE_BEGIN
@@ -102,5 +103,25 @@ std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> MachHeader::GetCpu
     return util::GetCpuSubTypeArray(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
 }
 
+
+uint64_t MachHeader::GetBaseAddress(){
+    if(cache_.base_addr > 0)
+        return cache_.base_addr;
+
+    ForEachLoadCommand<LoadCommand_LC_SEGMENT>({LC_SEGMENT},[this](LoadCommand_LC_SEGMENT * seg,bool & stop){
+        if(seg->cmd()->fileoff == 0 && seg->cmd()->filesize != 0){
+            cache_.base_addr = seg->cmd()->vmaddr;
+            stop = true;
+        }
+    });
+
+    ForEachLoadCommand<LoadCommand_LC_SEGMENT_64>({LC_SEGMENT_64},[this](LoadCommand_LC_SEGMENT_64 * seg,bool & stop){
+        if(seg->cmd()->fileoff == 0 && seg->cmd()->filesize != 0){
+            cache_.base_addr = seg->cmd()->vmaddr;
+            stop = true;
+        }
+    });
+    return cache_.base_addr;
+}
 
 MOEX_NAMESPACE_END

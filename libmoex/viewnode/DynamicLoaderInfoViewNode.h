@@ -6,34 +6,42 @@
 #define MOEX_DYNAMICLOADERINFOVIEWNODE_H
 
 #include "ViewNode.h"
+#include "../node/loadcmd/LoadCommand_DYLD_INFO.h"
 
 MOEX_NAMESPACE_BEGIN
 
-class RebaseInfoViewNode : public ViewNode {
+class DyldInfoViewNodeBase : public ViewNode{
+protected:
+    moex::LoadCommand_DYLD_INFO *info_ = nullptr;
+public:
+    void Init(LoadCommand_DYLD_INFO *info);
+};
+
+class RebaseInfoViewNode : public DyldInfoViewNodeBase {
 public:
     std::string GetDisplayName()override { return "Rebase Info";}
     void InitViewDatas()override;
 };
 
-class BindingInfoViewNode : public ViewNode {
+class BindingInfoViewNode : public DyldInfoViewNodeBase  {
 public:
     std::string GetDisplayName()override { return "Binding Info";}
     void InitViewDatas()override;
 };
 
-class WeakBindingInfoViewNode : public ViewNode {
+class WeakBindingInfoViewNode : public DyldInfoViewNodeBase {
 public:
     std::string GetDisplayName()override { return "Weak Binding Info";}
     void InitViewDatas()override;
 };
 
-class LazyBindingInfoViewNode : public ViewNode {
+class LazyBindingInfoViewNode : public DyldInfoViewNodeBase {
 public:
     std::string GetDisplayName()override { return "Lazy Binding Info";}
     void InitViewDatas()override;
 };
 
-class ExportInfoViewNode : public ViewNode {
+class ExportInfoViewNode : public DyldInfoViewNodeBase {
 public:
     std::string GetDisplayName()override { return "Export Info";}
     void InitViewDatas()override;

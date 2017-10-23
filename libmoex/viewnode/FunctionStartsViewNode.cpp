@@ -25,7 +25,7 @@ void FunctionStartsViewNode::InitViewDatas()
 
     // Functions
     auto t = CreateTableViewDataPtr();
-    auto address = mh_->cache().base_addr;
+    auto address = mh_->GetBaseAddress();
     for(auto & func : seg->GetFunctions()){
         address += func.data; // todo : why?
 

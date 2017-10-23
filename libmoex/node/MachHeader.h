@@ -77,8 +77,6 @@ public:
     // Getter for the offset of the begging header
     void * header_start(){return header_start_;}
 
-    ParsingCacheInfo & cache(){return cache_;}
-
     // Get offset from the beginning of the file
     uint64_t GetRAW(const void * addr);
 
@@ -114,6 +112,37 @@ public:
 
     // Get cpu sub type detailed array
     std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray();
+
+    // Get base address
+    uint64_t GetBaseAddress();
+
+    // Find either command type , all cmdtypes corresponding to same return type
+    template<typename T>
+    T * FindLoadCommand(std::initializer_list<int> cmdtypes){
+        for(auto & cmd : loadcmds_ref()){
+            for(auto cmdtype : cmdtypes){
+                if(cmd->offset()->cmd == cmdtype) {
+                    return static_cast<T*>(cmd.get());
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    template<typename T>
+    void ForEachLoadCommand(std::initializer_list<int> cmdtypes, std::function<void(T*,bool&)> callback){
+        for(auto & cmd : loadcmds_ref()){
+            for(auto cmdtype : cmdtypes){
+                if(cmd->offset()->cmd == cmdtype) {
+                    bool stop = false;
+                    callback(static_cast<T*>(cmd.get()),stop);
+
+                    if(stop) return;
+                }
+            }
+        }
+    }
+
 };
 using MachHeaderPtr = std::shared_ptr<MachHeader>;
 
