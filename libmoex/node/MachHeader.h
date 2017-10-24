@@ -75,7 +75,7 @@ public:
     NodeContextPtr & ctx(){return ctx_;}
 
     // Getter for the offset of the begging header
-    void * header_start(){return header_start_;}
+    char * header_start(){return (char*)header_start_;}
 
     // Get offset from the beginning of the file
     uint64_t GetRAW(const void * addr);

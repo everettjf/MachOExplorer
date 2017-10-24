@@ -7,11 +7,102 @@
 #include <iostream>
 #include "util/ArgvParser.h"
 #include "util/BeautyTextPrint.h"
-#include "impl/CommonDisplay.h"
 #include "impl/TestCode.h"
 
 using namespace std;
 using namespace boost::filesystem;
+
+void AppHandler::SetupOptions(){
+    argv_->desc().add_options()
+            ("help", "Help message")
+            ("file",boost::program_options::value<std::string>(),"File path")
+            ("csv","CSV format output")
+            ("test","Test code")
+            ("arch",boost::program_options::value<std::string>(),"Arch")
+            ;
+
+    actions_ = {
+            {"is_fat",
+                    "Is fat file",
+                    [&]{display_.IsFat();}
+            },
+            {"fat_list",
+                    "List fat header content",
+                    [&]{display_.FatList();}
+            },
+            {"header_list",
+                    "List headers",
+                    [&]{display_.HeaderList();}
+            },
+            {"arch_list",
+                    "List arch",
+                    [&]{display_.ArchList();}
+            },
+            {"loadcommand_list",
+                    "List load commands",
+                    [&]{display_.LoadCommandList();}
+            },
+            {"segment_list",
+                    "List segments",
+                    [&]{display_.SegmentList();}
+            },
+            {"section_list",
+                    "List sections",
+                    [&]{display_.SectionList();}
+            },
+            {"symbol_list",
+                    "List symbols",
+                    [&]{display_.SymbolList();}
+            },
+            {"string_table",
+                    "List string table",
+                    [&]{display_.StringTable();}
+            },
+            {"crypt_info",
+                    "Show crypt info",
+                    [&]{display_.CryptInfo();}
+            },
+            {"uuid",
+                    "Show file uuid",
+                    [&]{display_.UUID();}
+            },
+            {"dylib_list",
+                    "List dynamic libraries",
+                    [&]{display_.DylibList();}
+            },
+            {"main",
+                    "Show main entry info",
+                    [&]{display_.Main();}
+            },
+            {"tree",
+                    "Show file struct as a tree",
+                    [&]{display_.Tree();}
+            },
+            {"dices",
+                    "Show data in code entries",
+                    [&]{display_.DataInCodeEntries();}
+            },
+            {"indirect_symbols",
+                    "Show indirect symbols",
+                    [&]{display_.IndirectSymbols();}
+            },
+            {"rebase_opcodes",
+                    "Show rebase opcodes",
+                    [&]{display_.IndirectSymbols();}
+            },
+    };
+
+    for(auto & action : actions_){
+        std::string name = std::get<0>(action);
+        std::string desc = std::get<1>(action);
+
+        boost::shared_ptr<boost::program_options::option_description> opt(
+                new boost::program_options::option_description(name.c_str(),
+                                                               new boost::program_options::untyped_value(true),
+                                                               desc.c_str()));
+        argv_->desc().add(opt);
+    }
+}
 
 int AppHandler::Run(int argc, char* argv[]){
     argv_ = std::make_shared<ArgvParser>();
@@ -52,94 +143,26 @@ bool AppHandler::Prepare(){
         return false;
     }
 
-    if(argv_->Exist("edit")){
-        // edit mode options
-        GoEditMode();
-    }else{
-        // default to impl mode
-        GoDisplayMode();
-    }
+    GoDisplayMode();
 
     return true;
 }
 
 
-void AppHandler::SetupOptions(){
-    argv_->desc().add_options()
-            ("help", "impl help message")
-            ("file",boost::program_options::value<std::string>(),"[required] macho file path")
-            ("csv","CSV format output")
-
-            ("test","test code")
-
-            // parameter
-            ("arch",boost::program_options::value<std::string>(),"arch filter")
-
-            ("is_fat","is fat")
-            ("fat_list","fat list (less info than headerlist)")
-            ("header_list","header list")
-            ("loadcommand_list","loadcommand list")
-
-            ("segment_list","segment list")
-            ("section_list","section list")
-
-            ("symbol_list","symbol list")
-            ("string_table","string table")
-            ("crypt_info","encryption info")
-            ("uuid","uuid")
-            ("main","main (entry offset)")
-
-            ("dylib_list","dylib list")
-            ("dices","data in code entries")
-
-            ("indirect_symbols","indirect symbols")
-
-            // helper
-            ("arch_list","[impl] arch list")
-            ("tree","[impl] node tree")
-
-            ;
-}
-
-void AppHandler::GoEditMode(){
-    cout << "Edit mode [not implemented yet]" <<endl;
-
-}
 
 void AppHandler::GoDisplayMode(){
-    CommonDisplay display;
-    if(!display.Init(file_path_,argv_->Exist("csv"))){
+    if(!display_.Init(file_path_,argv_->Exist("csv"))){
         return;
     }
 
-    // Param
     if(argv_->Exist("arch")){
-        display.set_arch(argv_->GetString("arch"));
+        display_.set_arch(argv_->GetString("arch"));
     }
 
-    std::vector<std::tuple<std::string,std::function<void()>>> actions = {
-    {"is_fat",[&]{display.IsFat();}},
-    {"fat_list",[&]{display.FatList();}},
-    {"header_list",[&]{display.HeaderList();}},
-    {"arch_list",[&]{display.ArchList();}},
-    {"loadcommand_list",[&]{display.LoadCommandList();}},
-    {"segment_list",[&]{display.SegmentList();}},
-    {"section_list",[&]{display.SectionList();}},
-    {"symbol_list",[&]{display.SymbolList();}},
-    {"string_table",[&]{display.StringTable();}},
-    {"crypt_info",[&]{display.CryptInfo();}},
-    {"uuid",[&]{display.UUID();}},
-    {"dylib_list",[&]{display.DylibList();}},
-    {"main",[&]{display.Main();}},
-    {"tree",[&]{display.Tree();}},
-    {"dices",[&]{display.DataInCodeEntries();}},
-    {"indirect_symbols",[&]{display.IndirectSymbols();}},
-    };
-
-    for(auto & action : actions){
+    for(auto & action : actions_){
         std::string param = std::get<0>(action);
         if(argv_->Exist(param.c_str())){
-            std::function<void()> func = std::get<1>(action);
+            std::function<void()> func = std::get<2>(action);
             func();
             return;
         }

@@ -8,6 +8,7 @@
 #include <libmoex/node/LoadCommand.h>
 #include <string.h>
 #include <libmoex/viewnode/ViewNodeManager.h>
+#include <libmoex/node/MachHeader.h>
 
 using namespace std;
 
@@ -440,13 +441,27 @@ void CommonDisplay::DataInCodeEntries(){
     });
 }
 void CommonDisplay::IndirectSymbols(){
-
     ForEachHeader([&](moex::MachHeaderPtr header) {
-        for (auto cmd : header->loadcmds_ref()) {
-            if (cmd->offset()->cmd == LC_DYSYMTAB) {
-                moex::LoadCommand_LC_DYSYMTAB *one = static_cast<moex::LoadCommand_LC_DYSYMTAB*>(cmd.get());
+        moex::LoadCommand_LC_DYSYMTAB *t = header->FindLoadCommand<moex::LoadCommand_LC_DYSYMTAB>({LC_DYSYMTAB});
+    });
+}
+void CommonDisplay::RebaseOpcodes(){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        moex::LoadCommand_DYLD_INFO *info = header->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({LC_DYLD_INFO,(int)LC_DYLD_INFO_ONLY});
 
-            }
+        char * begin = info->header()->header_start() + info->cmd()->rebase_off;
+        uint32_t size = info->cmd()->rebase_size;
+        char * cur = begin;
+        while(cur < begin + size){
+            uint8_t *pbyte = (uint8_t*)cur;
+            uint8_t byte = *pbyte;
+            uint8_t opcode = byte & REBASE_OPCODE_MASK;
+            uint8_t immediate = byte & REBASE_IMMEDIATE_MASK;
+
+            
+
         }
+
+
     });
 }
