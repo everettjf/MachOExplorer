@@ -88,7 +88,7 @@ void AppHandler::SetupOptions(){
             },
             {"rebase_opcodes",
                     "Show rebase opcodes",
-                    [&]{display_.IndirectSymbols();}
+                    [&]{display_.RebaseOpcodes();}
             },
     };
 

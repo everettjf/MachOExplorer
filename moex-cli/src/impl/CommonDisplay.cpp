@@ -447,21 +447,39 @@ void CommonDisplay::IndirectSymbols(){
 }
 void CommonDisplay::RebaseOpcodes(){
     ForEachHeader([&](moex::MachHeaderPtr header) {
+        print_->SetHeaders({
+                                   header->GetArch() + " / offset",
+                                   "data",
+                                   "description",
+                                   "value"
+                           });
+        print_->SetWidths({20,20,30,30});
+        print_->Begin();
+
         moex::LoadCommand_DYLD_INFO *info = header->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({LC_DYLD_INFO,(int)LC_DYLD_INFO_ONLY});
 
+        bool done = false;
         char * begin = info->header()->header_start() + info->cmd()->rebase_off;
         uint32_t size = info->cmd()->rebase_size;
         char * cur = begin;
-        while(cur < begin + size){
+        while(cur < begin + size && !done){
             uint8_t *pbyte = (uint8_t*)cur;
             uint8_t byte = *pbyte;
             uint8_t opcode = byte & REBASE_OPCODE_MASK;
             uint8_t immediate = byte & REBASE_IMMEDIATE_MASK;
 
-            
+            switch(opcode){
+                case REBASE_OPCODE_DONE:{
+                    done = true;
 
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString(byte),"REBASE_OPCODE_DONE",""});
+                }
+                break;
+            }
+
+            cur += sizeof(uint8_t);
         }
 
-
+        print_->End();
     });
 }
