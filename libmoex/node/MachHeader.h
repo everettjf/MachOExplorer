@@ -30,9 +30,13 @@ public:
 using MachHeader64InternalPtr = std::shared_ptr<MachHeader64Internal>;
 
 
+class LoadCommand_LC_SEGMENT;
+class LoadCommand_LC_SEGMENT_64;
 // Cache info when parsing
 struct ParsingCacheInfo{
     uint64_t base_addr=0LL;
+    std::vector<LoadCommand_LC_SEGMENT*> segments;
+    std::vector<LoadCommand_LC_SEGMENT_64*> segments64;
 };
 
 // Wrapper class
@@ -115,6 +119,10 @@ public:
 
     // Get base address
     uint64_t GetBaseAddress();
+
+    // Get segment array
+    std::vector<LoadCommand_LC_SEGMENT*> & GetSegments();
+    std::vector<LoadCommand_LC_SEGMENT_64*> & GetSegments64();
 
     // Find either command type , all cmdtypes corresponding to same return type
     template<typename T>

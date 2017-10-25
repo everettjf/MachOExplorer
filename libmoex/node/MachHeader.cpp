@@ -123,5 +123,23 @@ uint64_t MachHeader::GetBaseAddress(){
     });
     return cache_.base_addr;
 }
+std::vector<LoadCommand_LC_SEGMENT*> & MachHeader::GetSegments(){
+    if(cache_.segments.size() > 0)
+        return cache_.segments;
+
+    ForEachLoadCommand<LoadCommand_LC_SEGMENT>({LC_SEGMENT},[this](LoadCommand_LC_SEGMENT * seg,bool & stop){
+        cache_.segments.push_back(seg);
+    });
+    return cache_.segments;
+}
+std::vector<LoadCommand_LC_SEGMENT_64*> & MachHeader::GetSegments64(){
+    if(cache_.segments64.size() > 0)
+        return cache_.segments64;
+
+    ForEachLoadCommand<LoadCommand_LC_SEGMENT_64>({LC_SEGMENT_64},[this](LoadCommand_LC_SEGMENT_64 * seg,bool & stop){
+        cache_.segments64.push_back(seg);
+    });
+    return cache_.segments64;
+}
 
 MOEX_NAMESPACE_END
