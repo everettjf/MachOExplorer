@@ -589,7 +589,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     ""
                                    });
 
-                    uint32_t start_next_rebase = (uint32_t)cur;
+                    uint64_t start_next_rebase = (uint64_t)cur;
 
                     pbyte = (uint8_t*)cur;
                     byte = *pbyte;
@@ -621,7 +621,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     ""
                                    });
 
-                    uint32_t start_next_rebase = (uint32_t)cur;
+                    uint64_t start_next_rebase = (uint64_t)cur;
 
                     pbyte = (uint8_t*)cur;
                     byte = *pbyte;
@@ -653,7 +653,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     ""
                                    });
 
-                    uint32_t start_next_rebase = (uint32_t)cur;
+                    uint64_t start_next_rebase = (uint64_t)cur;
 
                     pbyte = (uint8_t*)cur;
                     byte = *pbyte;
