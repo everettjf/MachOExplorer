@@ -473,8 +473,32 @@ void CommonDisplay::RebaseOpcodes(){
                     done = true;
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString(byte),"REBASE_OPCODE_DONE",""});
+                    break;
                 }
-                break;
+                case REBASE_OPCODE_SET_TYPE_IMM:{
+
+                }
+                case REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
+
+                }
+                case REBASE_OPCODE_ADD_ADDR_ULEB:{
+
+                }
+                case REBASE_OPCODE_ADD_ADDR_IMM_SCALED:{
+
+                }
+                case REBASE_OPCODE_DO_REBASE_IMM_TIMES:{
+
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES:{
+
+                }
+                case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:{
+
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB:{
+
+                }
             }
 
             cur += sizeof(uint8_t);
