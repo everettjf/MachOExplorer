@@ -453,7 +453,7 @@ void CommonDisplay::RebaseOpcodes(){
                                    "description",
                                    "value"
                            });
-        print_->SetWidths({20,20,30,30});
+        print_->SetWidths({20,20,40,40});
         print_->Begin();
 
         moex::LoadCommand_DYLD_INFO *info = header->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({LC_DYLD_INFO,(int)LC_DYLD_INFO_ONLY});
@@ -472,11 +472,20 @@ void CommonDisplay::RebaseOpcodes(){
                 case REBASE_OPCODE_DONE:{
                     done = true;
 
-                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString(byte),"REBASE_OPCODE_DONE",""});
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DONE",
+                                    ""
+                                   });
                     break;
                 }
                 case REBASE_OPCODE_SET_TYPE_IMM:{
-
+                    uint8_t type = immediate;
+                    std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeString(type);
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_SET_TYPE_IMM",
+                                    (boost::format("type (%1%, %2%)") % (int)type % rebasetype).str()
+                                   });
+                    break;
                 }
                 case REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
 

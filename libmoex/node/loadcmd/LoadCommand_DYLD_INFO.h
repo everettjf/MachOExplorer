@@ -12,6 +12,8 @@ MOEX_NAMESPACE_BEGIN
 
 class LoadCommand_DYLD_INFO : public LoadCommandImpl<dyld_info_command>{
 public:
+
+    static std::string GetRebaseTypeString(uint8_t type);
 };
 
 MOEX_NAMESPACE_END
