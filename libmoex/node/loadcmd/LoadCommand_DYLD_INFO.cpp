@@ -14,6 +14,14 @@ std::string LoadCommand_DYLD_INFO::GetRebaseTypeString(uint8_t type){
         default: return "Unknown";
     }
 }
+std::string LoadCommand_DYLD_INFO::GetRebaseTypeShortString(uint8_t type){
+    switch(type){
+        case REBASE_TYPE_POINTER: return "POINTER";
+        case REBASE_TYPE_TEXT_ABSOLUTE32: return "ABSOLUTE32";
+        case REBASE_TYPE_TEXT_PCREL32: return "PCREL32";
+        default: return "Unknown";
+    }
+}
 
 MOEX_NAMESPACE_END
 

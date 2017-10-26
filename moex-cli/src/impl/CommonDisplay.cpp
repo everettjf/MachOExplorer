@@ -477,9 +477,11 @@ void CommonDisplay::RebaseOpcodes(){
             uint8_t byte = *pbyte;
             uint8_t opcode = byte & REBASE_OPCODE_MASK;
             uint8_t immediate = byte & REBASE_IMMEDIATE_MASK;
+            uint8_t type = 0;
 
             switch(opcode){
                 case REBASE_OPCODE_DONE:{
+                    // pbyte / byte / opcode / done
                     done = true;
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
@@ -489,7 +491,8 @@ void CommonDisplay::RebaseOpcodes(){
                     break;
                 }
                 case REBASE_OPCODE_SET_TYPE_IMM:{
-                    uint8_t type = immediate;
+                    // pbyte / byte / immediate
+                    type = immediate;
                     std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeString(type);
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
@@ -575,8 +578,16 @@ void CommonDisplay::RebaseOpcodes(){
                     print_->AddRow({"","","",""});
 
                     for(uint32_t index = 0; index < count; ++index){
-                        // rebase address
-                        // todo action node
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
+
                         address += pointer_size;
                     }
 
@@ -606,7 +617,15 @@ void CommonDisplay::RebaseOpcodes(){
                     // empty line
                     print_->AddRow({"","","",""});
                     for(uint64_t index = 0; index < count; ++index){
-                        // todo action node
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
 
                         address += pointer_size;
                     }
@@ -639,7 +658,15 @@ void CommonDisplay::RebaseOpcodes(){
                     // empty line
                     print_->AddRow({"","","",""});
 
-                    // todo action node
+                    // address / type / do_rebase_location
+                    {
+                        uint64_t location = do_rebase_location;
+                        uint64_t addr = address;
+                        std::string section = ""; // find section by addr
+                        std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                        // todo action node
+                        // row=location,"", section+addr+rebasetype,""
+                    }
 
                     address += pointer_size + offset;
                     do_rebase_location = start_next_rebase;
@@ -686,7 +713,15 @@ void CommonDisplay::RebaseOpcodes(){
                     }
 
                     for(uint64_t index=0; index < count; index++){
-                        // action
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
 
                         address += pointer_size + skip;
                     }
