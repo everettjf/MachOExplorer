@@ -739,3 +739,24 @@ void CommonDisplay::RebaseOpcodes(){
         print_->End();
     });
 }
+void CommonDisplay::RebaseOpcodes1(){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        print_->SetHeaders({
+                                   header->GetArch() + " / offset",
+                                   "data",
+                                   "description",
+                                   "value"
+                           });
+        print_->SetWidths({20, 20, 50, 40});
+        print_->Begin();
+
+        moex::LoadCommand_DYLD_INFO *info = header->FindLoadCommand<moex::LoadCommand_DYLD_INFO>(
+                {LC_DYLD_INFO, (int) LC_DYLD_INFO_ONLY});
+
+
+
+
+
+        print_->End();
+    });
+}

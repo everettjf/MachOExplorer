@@ -39,6 +39,7 @@ public:
     void DataInCodeEntries();
     void IndirectSymbols();
     void RebaseOpcodes();
+    void RebaseOpcodes1();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
