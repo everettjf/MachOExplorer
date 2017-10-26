@@ -754,8 +754,263 @@ void CommonDisplay::RebaseOpcodes1(){
                 {LC_DYLD_INFO, (int) LC_DYLD_INFO_ONLY});
 
 
+        info->ForEachRebaseOpcode([&](const moex::RebaseOpcodeContext * ctx, moex::RebaseOpcodeItem * code){
 
+            switch(ctx->opcode){
+                case REBASE_OPCODE_DONE:{
+                    // pbyte / byte / opcode / done
+                    done = true;
 
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DONE",
+                                    ""
+                                   });
+                    break;
+                }
+                case REBASE_OPCODE_SET_TYPE_IMM:{
+                    // pbyte / byte / immediate
+                    type = immediate;
+                    std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeString(type);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_SET_TYPE_IMM",
+                                    (boost::format("type (%1%, %2%)") % (int)type % rebasetype).str()
+                                   });
+                    break;
+                }
+                case REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
+                    uint32_t segment_index = immediate;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB",
+                                    (boost::format("segment (%1%)") % (int)segment_index).str()
+                                   });
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t offset=0;
+                    uint32_t size=0;
+                    moex::util::readUnsignedLeb128(cur,offset,size);
+                    cur+=size;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(offset)).str()
+                                   });
+
+                    if(info->header()->Is64()){
+                        assert(segment_index < info->header()->GetSegments64().size());
+                        address = info->header()->GetSegments64().at(segment_index)->cmd()->vmaddr;
+                    }else{
+                        assert(segment_index < info->header()->GetSegments().size());
+                        address = info->header()->GetSegments().at(segment_index)->cmd()->vmaddr + offset;
+                    }
+
+                    break;
+                }
+                case REBASE_OPCODE_ADD_ADDR_ULEB:{
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_ADD_ADDR_ULEB",
+                                    ""
+                                   });
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t offset=0;
+                    uint32_t size=0;
+                    moex::util::readUnsignedLeb128(cur,offset,size);
+                    cur+=size;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(offset)).str()
+                                   });
+
+                    address += offset;
+
+                    break;
+                }
+                case REBASE_OPCODE_ADD_ADDR_IMM_SCALED:{
+                    uint32_t scale = immediate;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_ADD_ADDR_IMM_SCALED",
+                                    (boost::format("scale (%1%)") % (int)scale).str()
+                                   });
+
+                    address += scale * pointer_size;
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_IMM_TIMES:{
+                    uint32_t count = immediate;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DO_REBASE_IMM_TIMES",
+                                    (boost::format("count (%1%)") % (int)count).str()
+                                   });
+
+                    // empty line
+                    print_->AddRow({"","","",""});
+
+                    for(uint32_t index = 0; index < count; ++index){
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
+
+                        address += pointer_size;
+                    }
+
+                    do_rebase_location = (uint64_t)cur;
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES:{
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DO_REBASE_ULEB_TIMES",
+                                    ""
+                                   });
+
+                    uint64_t start_next_rebase = (uint64_t)cur;
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t count=0;
+                    uint32_t size=0;
+                    moex::util::readUnsignedLeb128(cur,count,size);
+                    cur+=size;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "uleb128",
+                                    (boost::format("count (%1%)") % (int)count).str()
+                                   });
+                    // empty line
+                    print_->AddRow({"","","",""});
+                    for(uint64_t index = 0; index < count; ++index){
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
+
+                        address += pointer_size;
+                    }
+                    do_rebase_location = start_next_rebase;
+
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:{
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB",
+                                    ""
+                                   });
+
+                    uint64_t start_next_rebase = (uint64_t)cur;
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t offset=0;
+                    uint32_t size=0;
+                    moex::util::readUnsignedLeb128(cur,offset,size);
+                    cur+=size;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(offset)).str()
+                                   });
+
+                    // empty line
+                    print_->AddRow({"","","",""});
+
+                    // address / type / do_rebase_location
+                    {
+                        uint64_t location = do_rebase_location;
+                        uint64_t addr = address;
+                        std::string section = ""; // find section by addr
+                        std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                        // todo action node
+                        // row=location,"", section+addr+rebasetype,""
+                    }
+
+                    address += pointer_size + offset;
+                    do_rebase_location = start_next_rebase;
+
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB:{
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                    "REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB",
+                                    ""
+                                   });
+
+                    uint64_t start_next_rebase = (uint64_t)cur;
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t count=0;
+                    {
+                        uint32_t size=0;
+                        moex::util::readUnsignedLeb128(cur,count,size);
+                        cur+=size;
+
+                        print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                        "uleb128",
+                                        (boost::format("count (%1%)") % (int)count).str()
+                                       });
+                    }
+
+                    pbyte = (uint8_t*)cur;
+                    byte = *pbyte;
+
+                    uint64_t skip=0;
+                    {
+                        uint32_t size=0;
+                        moex::util::readUnsignedLeb128(cur,skip,size);
+                        cur+=size;
+
+                        print_->AddRow({ToHexString(info->header()->GetRAW(pbyte)),ToHexString((int)byte),
+                                        "uleb128",
+                                        (boost::format("skip (%1%)") % (int)skip).str()
+                                       });
+                    }
+
+                    for(uint64_t index=0; index < count; index++){
+                        // address / type / do_rebase_location
+                        {
+                            uint64_t location = do_rebase_location;
+                            uint64_t addr = address;
+                            std::string section = ""; // find section by addr
+                            std::string rebasetype = moex::LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
+                            // todo action node
+                            // row=location,"", section+addr+rebasetype,""
+                        }
+
+                        address += pointer_size + skip;
+                    }
+                    do_rebase_location = start_next_rebase;
+
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
+        });
 
         print_->End();
     });
