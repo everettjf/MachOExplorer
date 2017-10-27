@@ -782,7 +782,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     (boost::format("segment (%1%)") % (int)segment_index).str()
                                    });
 
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                     "uleb128",
                                     (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
                                    });
@@ -796,7 +796,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     ""
                                    });
 
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                     "uleb128",
                                     (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
                                    });
@@ -829,7 +829,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     "REBASE_OPCODE_DO_REBASE_ULEB_TIMES",
                                     ""
                                    });
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->count_addr,code->count_size),
                                     "uleb128",
                                     (boost::format("count (%1%)") % (int)code->count).str()
                                    });
@@ -842,7 +842,7 @@ void CommonDisplay::RebaseOpcodes(){
                                     "REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB",
                                     ""
                                    });
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                     "uleb128",
                                     (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
                                    });
@@ -856,11 +856,11 @@ void CommonDisplay::RebaseOpcodes(){
                                     "REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB",
                                     ""
                                    });
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->count_addr,code->count_size),
                                     "uleb128",
                                     (boost::format("count (%1%)") % (int)code->count).str()
                                    });
-                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexData(code->skip_addr,code->skip_size),
                                     "uleb128",
                                     (boost::format("skip (%1%)") % (int)code->skip).str()
                                    });
