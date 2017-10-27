@@ -346,7 +346,7 @@ namespace util {
 
     std::string AsHexDataPrefix(void *address,std::size_t size){
         char *offset = (char*)address;
-        std::string res = "0X";
+        std::string res = "0x";
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
             char sz[3] = {0,0,0};
