@@ -344,6 +344,18 @@ namespace util {
         return boost::str(boost::format("%016x") % (uint64_t)address);
     }
 
+    std::string AsHexDataPrefix(void *address,std::size_t size){
+        char *offset = (char*)address;
+        std::string res = "0X";
+        const char *pos = (const char*)address;
+        for(auto idx = 0; idx < size; ++idx){
+            char sz[3] = {0,0,0};
+            sprintf(sz,"%02X",(uint8_t)offset[idx]);
+            res += std::string(sz);
+        }
+        return res;
+    }
+
     std::string AsHexData(void *address, std::size_t size)
     {
         char *offset = (char*)address;

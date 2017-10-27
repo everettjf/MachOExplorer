@@ -52,6 +52,7 @@ std::string AsAddress(T value){
 
 std::string AsHexData(void *address,std::size_t size);
 std::string AsHexData(char *address,std::size_t size);
+std::string AsHexDataPrefix(void *address,std::size_t size);
 
 template <typename T>
 std::string AsHexData(T & value){
