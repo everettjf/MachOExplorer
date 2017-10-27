@@ -11,19 +11,19 @@ MOEX_NAMESPACE_BEGIN
 
 class RebaseOpcodeContext{
 public:
-    uint8_t *pbyte; // opcode offset
-    uint8_t byte; // opcode data
-
     uint8_t opcode;
     uint8_t immediate;
+
+    uint8_t *pbyte; // opcode offset
+    uint8_t byte; // opcode data
 
     uint8_t type;
 
     uint64_t address;
     uint64_t do_rebase_location;
 
-    std::string GetRebaseTypeString(uint8_t type);
-    std::string GetRebaseTypeShortString(uint8_t type);
+    std::string GetRebaseTypeString()const;
+    std::string GetRebaseTypeShortString()const;
 };
 class RebaseOpcodeItem{
 public:

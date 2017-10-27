@@ -90,6 +90,10 @@ void AppHandler::SetupOptions(){
                     "Show rebase opcodes",
                     [&]{display_.RebaseOpcodes();}
             },
+            {"rebase_opcodes1",
+                    "Show rebase opcodes",
+                    [&]{display_.RebaseOpcodes1();}
+            },
     };
 
     for(auto & action : actions_){

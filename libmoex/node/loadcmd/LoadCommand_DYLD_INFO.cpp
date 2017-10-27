@@ -8,10 +8,10 @@
 
 MOEX_NAMESPACE_BEGIN
 
-std::string RebaseOpcodeContext::GetRebaseTypeString(uint8_t type){
+std::string RebaseOpcodeContext::GetRebaseTypeString()const{
     return LoadCommand_DYLD_INFO::GetRebaseTypeString(type);
 }
-std::string RebaseOpcodeContext::GetRebaseTypeShortString(uint8_t type){
+std::string RebaseOpcodeContext::GetRebaseTypeShortString()const{
     return LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
 }
 
