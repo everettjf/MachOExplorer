@@ -183,7 +183,127 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 break;
             }
         }
+    }
+}
+void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t bind_off,uint32_t bind_size,std::function<void(const BindingOpcodeContext *ctx,BindingOpcodeItem*item)> callback){
 
+    BindingOpcodeContext ctx;
+    ctx.address = header()->GetBaseAddress();
+    ctx.do_bind_location = (uint64_t)header()->header_start() + cmd()->rebase_off;
+
+    bool done = false;
+    char * begin = header()->header_start() + cmd()->rebase_off;
+    uint32_t size = cmd()->rebase_size;
+    char * cur = begin;
+    while(cur < begin + size && !done) {
+        // read and move next
+        ctx.pbyte = (uint8_t *) cur;
+        cur += sizeof(uint8_t);
+
+        // just read
+        ctx.byte = *ctx.pbyte;
+        ctx.opcode = ctx.byte & BIND_OPCODE_MASK;
+        ctx.immediate = ctx.byte & BIND_IMMEDIATE_MASK;
+        ctx.type = 0;
+
+        switch (ctx.opcode) {
+            case BIND_OPCODE_DONE: {
+                auto code = std::make_shared<Wrap_BIND_OPCODE_DONE>();
+                callback(&ctx,code.get());
+
+                if(node_type == NodeTypeLazyBind){
+                    done = true;
+                }
+                ctx.do_bind_location = (uint64_t)cur;
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                code->lib_oridinal = ctx.immediate;
+                callback(&ctx,code.get());
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB >();
+                code->lib_oridinal_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->lib_oridinal,code->lib_oridinal_size);
+                cur+=code->lib_oridinal_size;
+
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_SPECIAL_IMM>();
+                if(ctx.immediate == 0) {
+                    code->lib_oridinal = 0;
+                }else{
+                    int8_t signExtended = ctx.immediate | BIND_OPCODE_MASK; // This sign extends the value
+
+                    code->lib_oridinal = signExtended;
+                }
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM>();
+                code->symbol_flags = ctx.immediate;
+
+                // todo
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_SET_TYPE_IMM:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_SET_ADDEND_SLEB:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_ADD_ADDR_ULEB:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_DO_BIND:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:{
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:{
+
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:{
+
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                callback(&ctx,code.get());
+                break;
+            }
+        }
     }
 }
 

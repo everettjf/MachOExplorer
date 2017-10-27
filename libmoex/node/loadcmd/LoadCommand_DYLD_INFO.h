@@ -9,6 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
+/////////////////////////////Rebase /////////////////////////////////
 class RebaseOpcodeContext{
 public:
     uint8_t opcode;
@@ -93,6 +94,105 @@ public:
     uint32_t skip_size=0;
 };
 
+/////////////////////////////Export /////////////////////////////////
+
+class BindingOpcodeContext{
+public:
+    uint8_t opcode;
+    uint8_t immediate;
+
+    uint8_t *pbyte; // opcode offset
+    uint8_t byte; // opcode data
+
+    uint8_t type;
+
+    uint64_t address;
+    uint64_t do_bind_location;
+};
+class BindingOpcodeItem{
+public:
+    virtual ~BindingOpcodeItem(){}
+    virtual std::string GetName()=0;
+};
+
+class Wrap_BIND_OPCODE_DONE : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+};
+
+class Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+    uint64_t lib_oridinal=0;
+};
+class Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    uint64_t lib_oridinal=0;
+    uint8_t *lib_oridinal_addr=0;
+    uint32_t lib_oridinal_size=0;
+};
+class Wrap_BIND_OPCODE_SET_DYLIB_SPECIAL_IMM : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+    uint64_t lib_oridinal=0;
+};
+class Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+    uint64_t symbol_flags=0;
+
+    std::string symbol_name;
+    uint8_t *symbol_name_addr=0;
+    uint32_t symbol_name_size=0;
+};
+class Wrap_BIND_OPCODE_SET_TYPE_IMM : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_SET_ADDEND_SLEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_ADD_ADDR_ULEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_DO_BIND : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+class Wrap_BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB : public BindingOpcodeItem{
+public:
+    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+
+};
+
+
+
+/////////////////////////////Command /////////////////////////////////
 class LoadCommand_DYLD_INFO : public LoadCommandImpl<dyld_info_command>{
 public:
     static std::string GetRebaseTypeString(uint8_t type);
@@ -100,6 +200,10 @@ public:
 
 public:
     void ForEachRebaseOpcode(std::function<void(const RebaseOpcodeContext *ctx,RebaseOpcodeItem*item)> callback);
+
+    enum BindNodeType {NodeTypeBind, NodeTypeWeakBind, NodeTypeLazyBind};
+
+    void ForEachBindingOpcode(BindNodeType node_type,uint32_t bind_off,uint32_t bind_size,std::function<void(const BindingOpcodeContext *ctx,BindingOpcodeItem*item)> callback);
 };
 
 MOEX_NAMESPACE_END
