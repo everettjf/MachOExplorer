@@ -31,7 +31,30 @@ std::string LoadCommand_DYLD_INFO::GetRebaseTypeShortString(uint8_t type){
         default: return "Unknown";
     }
 }
+std::string BindingOpcodeContext::GetBindTypeString()const{
+    return LoadCommand_DYLD_INFO::GetBindTypeString(type);
+}
+std::string BindingOpcodeContext::GetBindTypeShortString()const{
+    return LoadCommand_DYLD_INFO::GetBindTypeShortString(type);
+}
 
+
+std::string LoadCommand_DYLD_INFO::GetBindTypeString(uint8_t type){
+    switch(type){
+        case BIND_TYPE_POINTER: return "BIND_TYPE_POINTER";
+        case BIND_TYPE_TEXT_ABSOLUTE32: return "BIND_TYPE_TEXT_ABSOLUTE32";
+        case BIND_TYPE_TEXT_PCREL32: return "BIND_TYPE_TEXT_PCREL32";
+        default: return "Unknown";
+    }
+}
+std::string LoadCommand_DYLD_INFO::GetBindTypeShortString(uint8_t type){
+    switch(type){
+        case BIND_TYPE_POINTER: return "POINTER";
+        case BIND_TYPE_TEXT_ABSOLUTE32: return "ABSOLUTE32";
+        case BIND_TYPE_TEXT_PCREL32: return "PCREL32";
+        default: return "Unknown";
+    }
+}
 void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseOpcodeContext *ctx,RebaseOpcodeItem*item)> callback){
     uint64_t pointer_size = header()->Is64() ? sizeof(uint64_t) : sizeof(uint32_t);
 
@@ -250,25 +273,52 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM>();
                 code->symbol_flags = ctx.immediate;
 
-                // todo
+                char * name = (char*)cur;
+                int len = strlen(name);
+                code->symbol_name = std::string(name);
+                code->symbol_name_addr = (uint8_t*)name;
+                code->symbol_name_size = len + 1;
+
                 callback(&ctx,code.get());
 
                 break;
             }
             case BIND_OPCODE_SET_TYPE_IMM:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                ctx.type = ctx.immediate;
+
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_TYPE_IMM>();
                 callback(&ctx,code.get());
 
                 break;
             }
             case BIND_OPCODE_SET_ADDEND_SLEB:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_ADDEND_SLEB>();
+
+                code->addend_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->addend,code->addend_size);
+                cur+=code->addend_size;
+
                 callback(&ctx,code.get());
 
                 break;
             }
             case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB>();
+                code->segment_index = ctx.immediate;
+
+                code->val_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->val,code->val_size);
+                cur+=code->val_size;
+
+
+                if(header()->Is64()){
+                    assert(code->segment_index < header()->GetSegments64().size());
+                    ctx.address = header()->GetSegments64().at(code->segment_index)->cmd()->vmaddr;
+                }else{
+                    assert(code->segment_index < header()->GetSegments().size());
+                    ctx.address = header()->GetSegments().at(code->segment_index)->cmd()->vmaddr + code->val;
+                }
+
                 callback(&ctx,code.get());
 
                 break;

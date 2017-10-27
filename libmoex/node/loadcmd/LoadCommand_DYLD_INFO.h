@@ -108,6 +108,9 @@ public:
 
     uint64_t address;
     uint64_t do_bind_location;
+
+    std::string GetBindTypeString()const;
+    std::string GetBindTypeShortString()const;
 };
 class BindingOpcodeItem{
 public:
@@ -158,11 +161,19 @@ class Wrap_BIND_OPCODE_SET_ADDEND_SLEB : public BindingOpcodeItem{
 public:
     std::string GetName()override{ return "BIND_OPCODE_DONE";};
 
+    uint64_t addend=0;
+    uint8_t *addend_addr=0;
+    uint32_t addend_size=0;
 };
 class Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB : public BindingOpcodeItem{
 public:
     std::string GetName()override{ return "BIND_OPCODE_DONE";};
 
+    uint32_t segment_index=0;
+
+    uint64_t val=0;
+    uint8_t *val_addr=0;
+    uint32_t val_size=0;
 };
 class Wrap_BIND_OPCODE_ADD_ADDR_ULEB : public BindingOpcodeItem{
 public:
@@ -197,6 +208,8 @@ class LoadCommand_DYLD_INFO : public LoadCommandImpl<dyld_info_command>{
 public:
     static std::string GetRebaseTypeString(uint8_t type);
     static std::string GetRebaseTypeShortString(uint8_t type);
+    static std::string GetBindTypeString(uint8_t type);
+    static std::string GetBindTypeShortString(uint8_t type);
 
 public:
     void ForEachRebaseOpcode(std::function<void(const RebaseOpcodeContext *ctx,RebaseOpcodeItem*item)> callback);
