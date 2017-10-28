@@ -961,7 +961,7 @@ void CommonDisplay::InternalBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType n
                     break;
                 }
                 case BIND_OPCODE_SET_TYPE_IMM:{
-                    
+
                     break;
                 }
                 case BIND_OPCODE_SET_ADDEND_SLEB:
