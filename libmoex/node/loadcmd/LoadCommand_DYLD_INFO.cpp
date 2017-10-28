@@ -209,6 +209,7 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
     }
 }
 void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t bind_off,uint32_t bind_size,std::function<void(const BindingOpcodeContext *ctx,BindingOpcodeItem*item)> callback){
+    uint64_t pointer_size = header()->Is64() ? sizeof(uint64_t) : sizeof(uint32_t);
 
     BindingOpcodeContext ctx;
     ctx.address = header()->GetBaseAddress();
@@ -324,33 +325,70 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 break;
             }
             case BIND_OPCODE_ADD_ADDR_ULEB:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
-                callback(&ctx,code.get());
+                auto code = std::make_shared<Wrap_BIND_OPCODE_ADD_ADDR_ULEB>();
 
+                code->offset_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                cur+=code->offset_size;
+
+                ctx.address += code->offset;
+
+                callback(&ctx,code.get());
                 break;
             }
             case BIND_OPCODE_DO_BIND:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_DO_BIND>();
+
+                ctx.do_bind_location = (uint64_t)cur;
+                ctx.address += pointer_size;
+
                 callback(&ctx,code.get());
 
                 break;
             }
             case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:{
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB>();
+
+                uint64_t start_next_rebase = (uint64_t)cur;
+
+                code->offset_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                cur+=code->offset_size;
+
                 callback(&ctx,code.get());
 
+                ctx.address += pointer_size + code->offset;
+                ctx.do_bind_location = start_next_rebase;
                 break;
             }
             case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:{
-
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED>();
+                code->scale = ctx.immediate;
                 callback(&ctx,code.get());
+
+                ctx.address += code->scale * pointer_size;
                 break;
             }
             case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:{
 
-                auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM>();
+                auto code = std::make_shared<Wrap_BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB>();
+
+                uint64_t start_next_rebase = (uint64_t)cur;
+
+                code->count_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->count,code->count_size);
+                cur+=code->count_size;
+
+                code->skip_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->skip,code->skip_size);
+                cur+=code->skip_size;
+
                 callback(&ctx,code.get());
+
+                for(uint64_t index=0; index < code->count; index++){
+                    ctx.address += pointer_size + code->skip;
+                }
+                ctx.do_bind_location = start_next_rebase;
                 break;
             }
         }

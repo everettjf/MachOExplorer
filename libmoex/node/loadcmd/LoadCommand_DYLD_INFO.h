@@ -125,26 +125,26 @@ public:
 
 class Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_DYLIB_ORDINAL_IMM";};
 
     uint64_t lib_oridinal=0;
 };
 class Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB";};
     uint64_t lib_oridinal=0;
     uint8_t *lib_oridinal_addr=0;
     uint32_t lib_oridinal_size=0;
 };
 class Wrap_BIND_OPCODE_SET_DYLIB_SPECIAL_IMM : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_DYLIB_SPECIAL_IMM";};
 
     uint64_t lib_oridinal=0;
 };
 class Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM";};
 
     uint64_t symbol_flags=0;
 
@@ -154,12 +154,12 @@ public:
 };
 class Wrap_BIND_OPCODE_SET_TYPE_IMM : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_TYPE_IMM";};
 
 };
 class Wrap_BIND_OPCODE_SET_ADDEND_SLEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_ADDEND_SLEB";};
 
     uint64_t addend=0;
     uint8_t *addend_addr=0;
@@ -167,7 +167,7 @@ public:
 };
 class Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB";};
 
     uint32_t segment_index=0;
 
@@ -177,28 +177,41 @@ public:
 };
 class Wrap_BIND_OPCODE_ADD_ADDR_ULEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_ADD_ADDR_ULEB";};
 
+    uint64_t offset=0;
+    uint8_t *offset_addr=0;
+    uint32_t offset_size=0;
 };
 class Wrap_BIND_OPCODE_DO_BIND : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_DO_BIND";};
 
 };
 class Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB";};
 
+    uint64_t offset=0;
+    uint8_t *offset_addr=0;
+    uint32_t offset_size=0;
 };
 class Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
-
+    std::string GetName()override{ return "BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED";};
+    uint32_t scale = 0;
 };
 class Wrap_BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB : public BindingOpcodeItem{
 public:
-    std::string GetName()override{ return "BIND_OPCODE_DONE";};
+    std::string GetName()override{ return "BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB";};
 
+    uint64_t count=0;
+    uint8_t *count_addr=0;
+    uint32_t count_size=0;
+
+    uint64_t skip=0;
+    uint8_t *skip_addr=0;
+    uint32_t skip_size=0;
 };
 
 
