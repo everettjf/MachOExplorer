@@ -875,3 +875,118 @@ void CommonDisplay::RebaseOpcodes(){
         print_->End();
     });
 }
+
+void CommonDisplay::InternalBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type){
+    ForEachHeader([&](moex::MachHeaderPtr header) {
+        print_->SetHeaders({
+                                   header->GetArch() + " / offset",
+                                   "data",
+                                   "description",
+                                   "value"
+                           });
+        print_->SetWidths({20, 20, 50, 40});
+        print_->Begin();
+
+        moex::LoadCommand_DYLD_INFO *info = header->FindLoadCommand<moex::LoadCommand_DYLD_INFO>(
+                {LC_DYLD_INFO, (int) LC_DYLD_INFO_ONLY});
+
+        uint32_t bind_off,bind_size;
+        if(node_type == moex::LoadCommand_DYLD_INFO::NodeTypeWeakBind){
+            bind_off = info->cmd()->weak_bind_off;
+            bind_size = info->cmd()->weak_bind_size;
+        }else if(node_type == moex::LoadCommand_DYLD_INFO::NodeTypeLazyBind){
+            bind_off = info->cmd()->lazy_bind_off;
+            bind_size = info->cmd()->lazy_bind_size;
+        }else{
+            bind_off = info->cmd()->bind_off;
+            bind_size = info->cmd()->bind_size;
+        }
+
+        info->ForEachBindingOpcode(node_type,bind_off,bind_size,[&](const moex::BindingOpcodeContext *ctx,moex::BindingOpcodeItem*codebase){
+            switch(ctx->opcode){
+                case BIND_OPCODE_DONE:{
+                    auto code = static_cast<moex::Wrap_BIND_OPCODE_DONE*>(codebase);
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    code->GetName(),
+                                    ""
+                                   });
+                    break;
+                }
+                case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:{
+                    auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    code->GetName(),
+                                    (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                   });
+                    break;
+                }
+                case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:{
+                    auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    code->GetName(),
+                                    ""
+                                   });
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(code->lib_oridinal_addr)),moex::util::AsHexData(code->lib_oridinal_addr,code->lib_oridinal_size),
+                                    "uleb128",
+                                    (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                   });
+                    break;
+                }
+                case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:{
+                    auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_SPECIAL_IMM*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    code->GetName(),
+                                    (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                   });
+
+                    break;
+                }
+                case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:{
+                    auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    code->GetName(),
+                                    (boost::format("flags (%1%)") % code->symbol_flags).str()
+                                   });
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(code->symbol_name_addr)),moex::util::AsHexData(code->symbol_name_addr,code->symbol_name_size),
+                                    "string",
+                                    (boost::format("name (%1%)") % code->symbol_name).str()
+                                   });
+
+                    break;
+                }
+                case BIND_OPCODE_SET_TYPE_IMM:{
+                    
+                    break;
+                }
+                case BIND_OPCODE_SET_ADDEND_SLEB:
+                case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:
+                case BIND_OPCODE_ADD_ADDR_ULEB:
+                case BIND_OPCODE_DO_BIND:
+                case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
+                case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
+                case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
+                default:
+                    break;
+            }
+        });
+
+        print_->End();
+    });
+}
+
+void CommonDisplay::BindingInfo(){
+    InternalBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeBind);
+}
+void CommonDisplay::WeakBindingInfo(){
+    InternalBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeWeakBind);
+}
+void CommonDisplay::LazyBindingInfo(){
+    InternalBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeLazyBind);
+}
+

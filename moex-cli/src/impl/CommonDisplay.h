@@ -42,6 +42,12 @@ public:
     void RebaseOpcodes1(); // tmp
     void RebaseOpcodes();
 
+    void InternalBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type);
+
+    void BindingInfo();
+    void WeakBindingInfo();
+    void LazyBindingInfo();
+
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
     void DisplayViewNode(moex::ViewNode *node,int & level);
