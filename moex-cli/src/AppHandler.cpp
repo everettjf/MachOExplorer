@@ -102,6 +102,10 @@ void AppHandler::SetupOptions(){
                     "Show lazy binding opcodes",
                     [&]{display_.LazyBindingInfo();}
             },
+            {"export_info",
+                    "Show export info",
+                    [&]{display_.ExportInfo();}
+            },
     };
 
     for(auto & action : actions_){

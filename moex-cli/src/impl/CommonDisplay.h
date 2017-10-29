@@ -44,6 +44,7 @@ public:
     void BindingInfo();
     void WeakBindingInfo();
     void LazyBindingInfo();
+    void ExportInfo();
 
 private:
     void ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback);
