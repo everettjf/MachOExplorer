@@ -39,11 +39,8 @@ public:
     void DataInCodeEntries();
     void IndirectSymbols();
 
-    void RebaseOpcodes1(); // tmp
     void RebaseOpcodes();
-
     void InternalBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type);
-
     void BindingInfo();
     void WeakBindingInfo();
     void LazyBindingInfo();

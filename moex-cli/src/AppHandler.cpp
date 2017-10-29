@@ -90,9 +90,17 @@ void AppHandler::SetupOptions(){
                     "Show rebase opcodes",
                     [&]{display_.RebaseOpcodes();}
             },
-            {"rebase_opcodes1",
-                    "Show rebase opcodes",
-                    [&]{display_.RebaseOpcodes1();}
+            {"binding_opcodes",
+                    "Show binding opcodes",
+                    [&]{display_.BindingInfo();}
+            },
+            {"weak_binding_opcodes",
+                    "Show weak binding opcodes",
+                    [&]{display_.WeakBindingInfo();}
+            },
+            {"lazy_binding_opcodes",
+                    "Show lazy binding opcodes",
+                    [&]{display_.LazyBindingInfo();}
             },
     };
 

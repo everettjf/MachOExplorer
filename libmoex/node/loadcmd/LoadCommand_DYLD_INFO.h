@@ -161,7 +161,7 @@ class Wrap_BIND_OPCODE_SET_ADDEND_SLEB : public BindingOpcodeItem{
 public:
     std::string GetName()override{ return "BIND_OPCODE_SET_ADDEND_SLEB";};
 
-    uint64_t addend=0;
+    int64_t addend=0;
     uint8_t *addend_addr=0;
     uint32_t addend_size=0;
 };
@@ -171,9 +171,9 @@ public:
 
     uint32_t segment_index=0;
 
-    uint64_t val=0;
-    uint8_t *val_addr=0;
-    uint32_t val_size=0;
+    uint64_t offset=0;
+    uint8_t *offset_addr=0;
+    uint32_t offset_size=0;
 };
 class Wrap_BIND_OPCODE_ADD_ADDR_ULEB : public BindingOpcodeItem{
 public:

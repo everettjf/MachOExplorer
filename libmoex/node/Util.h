@@ -80,6 +80,7 @@ std::string FormatTimeStamp(uint32_t timestamp);
 std::string FormatVersion(uint32_t ver);
 
 const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size);
+const char * readSignedLeb128(const char *cur_offset,int64_t & data,uint32_t & occupy_size);
 
 std::vector<char*> ParseStringLiteral(char * offset,uint32_t size);
 

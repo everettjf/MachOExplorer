@@ -213,11 +213,11 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
 
     BindingOpcodeContext ctx;
     ctx.address = header()->GetBaseAddress();
-    ctx.do_bind_location = (uint64_t)header()->header_start() + cmd()->rebase_off;
+    ctx.do_bind_location = (uint64_t)header()->header_start() + bind_off;
 
     bool done = false;
-    char * begin = header()->header_start() + cmd()->rebase_off;
-    uint32_t size = cmd()->rebase_size;
+    char * begin = header()->header_start() + bind_off;
+    uint32_t size = bind_size;
     char * cur = begin;
     while(cur < begin + size && !done) {
         // read and move next
@@ -282,6 +282,8 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
 
                 callback(&ctx,code.get());
 
+                cur += len + 1;
+
                 break;
             }
             case BIND_OPCODE_SET_TYPE_IMM:{
@@ -296,7 +298,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_SET_ADDEND_SLEB>();
 
                 code->addend_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->addend,code->addend_size);
+                moex::util::readSignedLeb128(cur,code->addend,code->addend_size);
                 cur+=code->addend_size;
 
                 callback(&ctx,code.get());
@@ -307,17 +309,16 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB>();
                 code->segment_index = ctx.immediate;
 
-                code->val_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->val,code->val_size);
-                cur+=code->val_size;
-
+                code->offset_addr = (uint8_t*)cur;
+                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                cur+=code->offset_size;
 
                 if(header()->Is64()){
                     assert(code->segment_index < header()->GetSegments64().size());
                     ctx.address = header()->GetSegments64().at(code->segment_index)->cmd()->vmaddr;
                 }else{
                     assert(code->segment_index < header()->GetSegments().size());
-                    ctx.address = header()->GetSegments().at(code->segment_index)->cmd()->vmaddr + code->val;
+                    ctx.address = header()->GetSegments().at(code->segment_index)->cmd()->vmaddr + code->offset;
                 }
 
                 callback(&ctx,code.get());

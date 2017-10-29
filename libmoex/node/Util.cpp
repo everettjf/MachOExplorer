@@ -429,6 +429,29 @@ namespace util {
         occupy_size = ptr - (const uint8_t*)cur_offset;
         return (const char *)ptr;
     }
+    const char * readSignedLeb128(const char *cur_offset,int64_t & data,uint32_t & occupy_size){
+        const uint8_t* p = (const uint8_t*)cur_offset;
+
+        int64_t result = 0;
+        int bit = 0;
+        uint8_t byte=0;
+
+        do {
+            byte = *p++;
+            result |= ((byte & 0x7f) << bit);
+            bit += 7;
+        } while (byte & 0x80);
+
+        // sign extend negative numbers
+        if ( (byte & 0x40) != 0 )
+        {
+            result |= (-1LL) << bit;
+        }
+
+        data = result;
+        occupy_size = p - (const uint8_t*)cur_offset;
+        return (const char *)p;
+    }
 
     std::vector<char*> ParseStringLiteral(char *offset, uint32_t size)
     {
