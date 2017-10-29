@@ -406,28 +406,29 @@ namespace util {
 
     // return next offset
     const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size) {
-        const uint8_t* ptr = (const uint8_t*)cur_offset;
-        uint32_t result = *(ptr++);
+        const uint8_t* p = (const uint8_t*)cur_offset;
 
-        if (result > 0x7f) {
-            int cur = *(ptr++);
-            result = (result & 0x7f) | ((cur & 0x7f) << 7);
-            if (cur > 0x7f) {
-                cur = *(ptr++);
-                result |= (cur & 0x7f) << 14;
-                if (cur > 0x7f) {
-                    cur = *(ptr++);
-                    result |= (cur & 0x7f) << 21;
-                    if (cur > 0x7f) {
-                        cur = *(ptr++);
-                        result |= cur << 28;
-                    }
-                }
+        uint64_t result = 0;
+        int bit = 0;
+
+        do {
+            uint64_t slice = *p & 0x7f;
+
+            if (bit >= 64 || slice << bit >> bit != slice){
+                // error
+                data = 0;
+                occupy_size = 0;
+                return 0;
+            } else {
+                result |= (slice << bit);
+                bit += 7;
             }
         }
+        while (*p++ & 0x80);
+
         data = result;
-        occupy_size = ptr - (const uint8_t*)cur_offset;
-        return (const char *)ptr;
+        occupy_size = p - (const uint8_t*)cur_offset;
+        return (const char *)p;
     }
     const char * readSignedLeb128(const char *cur_offset,int64_t & data,uint32_t & occupy_size){
         const uint8_t* p = (const uint8_t*)cur_offset;

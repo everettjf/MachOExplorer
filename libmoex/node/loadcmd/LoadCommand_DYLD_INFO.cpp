@@ -235,7 +235,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_DONE>();
                 callback(&ctx,code.get());
 
-                if(node_type == NodeTypeLazyBind){
+                if(node_type != NodeTypeLazyBind){
                     done = true;
                 }
                 ctx.do_bind_location = (uint64_t)cur;
