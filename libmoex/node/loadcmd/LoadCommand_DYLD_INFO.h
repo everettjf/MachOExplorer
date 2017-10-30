@@ -94,7 +94,7 @@ public:
     uint32_t skip_size=0;
 };
 
-/////////////////////////////Export /////////////////////////////////
+/////////////////////////////Binding /////////////////////////////////
 
 class BindingOpcodeContext{
 public:
@@ -214,6 +214,38 @@ public:
     uint32_t skip_size=0;
 };
 
+/////////////////////////////Export /////////////////////////////////
+class ExportContext{
+public:
+};
+class ExportItem{
+public:
+    struct ChildItem{
+        std::string label;
+        uint8_t * label_addr;
+
+        uint64_t skip;
+        uint8_t *skip_addr;
+        uint32_t skip_size;
+    };
+public:
+    uint8_t terminal_size;
+    uint8_t *terminal_size_addr;
+
+    // valid if terminal_size > 0
+    uint64_t flags;
+    uint8_t *flags_addr;
+    uint32_t flags_size;
+
+    // valid if terminal_size > 0
+    uint64_t offset;
+    uint8_t *offset_addr;
+    uint32_t offset_size;
+
+    uint8_t child_count;
+    uint8_t *child_count_addr;
+    std::vector<ChildItem> child_items;
+};
 
 
 /////////////////////////////Command /////////////////////////////////
@@ -228,8 +260,9 @@ public:
     void ForEachRebaseOpcode(std::function<void(const RebaseOpcodeContext *ctx,RebaseOpcodeItem*item)> callback);
 
     enum BindNodeType {NodeTypeBind, NodeTypeWeakBind, NodeTypeLazyBind};
-
     void ForEachBindingOpcode(BindNodeType node_type,uint32_t bind_off,uint32_t bind_size,std::function<void(const BindingOpcodeContext *ctx,BindingOpcodeItem*item)> callback);
+
+    void ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item)> callback);
 };
 
 MOEX_NAMESPACE_END

@@ -396,5 +396,54 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
     }
 }
 
+void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item)> callback){
+
+    ExportContext ctx;
+
+    char * begin = header()->header_start() + cmd()->export_off;
+    uint32_t size = cmd()->export_size;
+    char * cur = begin;
+    while(cur < begin + size) {
+
+        ExportItem item;
+        item.terminal_size_addr = (uint8_t*)cur;
+        item.terminal_size= *(uint8_t*)cur;
+        cur += sizeof(uint8_t);
+
+        if(item.terminal_size > 0){
+            item.flags_addr = (uint8_t*)cur;
+            moex::util::readUnsignedLeb128(cur,item.flags,item.flags_size);
+            cur+= item.flags_size;
+
+            item.offset_addr = (uint8_t*)cur;
+            moex::util::readUnsignedLeb128(cur,item.offset,item.offset_size);
+            cur+= item.offset_size;
+        }
+
+        item.child_count_addr = (uint8_t*)cur;
+        item.child_count = *(uint8_t*)cur;
+        cur+= sizeof(uint8_t);
+
+        for(uint8_t idx = 0; idx < item.child_count; ++idx){
+
+            ExportItem::ChildItem child;
+            char * name = (char*)cur;
+            int len = strlen(name);
+            child.label = std::string(name);
+            child.label_addr = (uint8_t*)name;
+            cur += len + 1;
+
+            child.skip_addr = (uint8_t*)cur;
+            moex::util::readUnsignedLeb128(cur,child.skip,child.skip_size);
+            cur+= child.skip_size;
+
+
+
+            //
+        }
+    }
+}
+
+
 MOEX_NAMESPACE_END
 
