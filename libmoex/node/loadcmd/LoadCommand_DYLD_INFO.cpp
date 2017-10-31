@@ -16,6 +16,8 @@ std::string RebaseOpcodeContext::GetRebaseTypeShortString()const{
     return LoadCommand_DYLD_INFO::GetRebaseTypeShortString(type);
 }
 
+////////////////////////////////////////////////////////////////////////
+
 std::string LoadCommand_DYLD_INFO::GetRebaseTypeString(uint8_t type){
     switch(type){
         case REBASE_TYPE_POINTER: return "REBASE_TYPE_POINTER";
@@ -32,12 +34,42 @@ std::string LoadCommand_DYLD_INFO::GetRebaseTypeShortString(uint8_t type){
         default: return "Unknown";
     }
 }
+
+////////////////////////////////////////////////////////////////////////
+
 std::string BindingOpcodeContext::GetBindTypeString()const{
     return LoadCommand_DYLD_INFO::GetBindTypeString(type);
 }
 std::string BindingOpcodeContext::GetBindTypeShortString()const{
     return LoadCommand_DYLD_INFO::GetBindTypeShortString(type);
 }
+
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+std::vector<std::tuple<std::string,std::string>> ExportItem::GetFlags(){
+    std::vector<std::tuple<std::string,std::string>> res;
+    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_REGULAR)
+        res.push_back(std::make_tuple("00","EXPORT_SYMBOL_FLAGS_KIND_REGULAR"));
+
+    if ((flags & EXPORT_SYMBOL_FLAGS_KIND_MASK) == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL)
+        res.push_back(std::make_tuple("01","EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL"));
+
+    if (flags & EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION)
+        res.push_back(std::make_tuple("04","EXPORT_SYMBOL_FLAGS_WEAK_DEFINITION"));
+
+    if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT)
+        res.push_back(std::make_tuple("08","EXPORT_SYMBOL_FLAGS_REEXPORT"));
+    if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER)
+        res.push_back(std::make_tuple("10","EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER"));
+
+    return res;
+}
+
+
+////////////////////////////////////////////////////////////////////////
 
 
 std::string LoadCommand_DYLD_INFO::GetBindTypeString(uint8_t type){
@@ -402,21 +434,22 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
     char * begin = header()->header_start() + cmd()->export_off;
     uint32_t size = cmd()->export_size;
 
-    char * cur = begin;
 
     struct Entry{
         char *addr;
+        std::string prefix;
     };
     std::list<Entry> queue;
     {
         Entry entry;
-        entry.addr = cur;
+        entry.addr = begin;
+        entry.prefix = "";
         queue.push_back(entry);
     }
-    while(queue.count() > 0){
+    while(queue.size() > 0){
         Entry entry = queue.front();
         queue.pop_front();
-
+        char * cur = entry.addr;
 
         ExportItem item;
         item.terminal_size_addr = (uint8_t*)cur;
@@ -458,8 +491,9 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
             callback(&ctx,nullptr,&child);
 
             Entry child_entry;
-            child_entry.addr = 0;
-            
+            child_entry.addr = begin + child.skip;
+            child_entry.prefix = entry.prefix + child.label;
+
             queue.push_back(child_entry);
         }
     }

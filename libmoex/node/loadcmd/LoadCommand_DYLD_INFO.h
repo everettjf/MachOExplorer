@@ -235,6 +235,8 @@ public:
 
     uint8_t child_count;
     uint8_t *child_count_addr;
+
+    std::vector<std::tuple<std::string,std::string>> GetFlags();
 };
 
 class ExportChildItem{
