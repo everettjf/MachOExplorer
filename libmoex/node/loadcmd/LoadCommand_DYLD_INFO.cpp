@@ -4,6 +4,7 @@
 #include "LoadCommand_DYLD_INFO.h"
 #include "../MachHeader.h"
 #include "LoadCommand_SEGMENT.h"
+#include <list>
 
 
 MOEX_NAMESPACE_BEGIN
@@ -396,14 +397,26 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
     }
 }
 
-void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item)> callback){
-
+void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item,ExportChildItem* child)> callback){
     ExportContext ctx;
-
     char * begin = header()->header_start() + cmd()->export_off;
     uint32_t size = cmd()->export_size;
+
     char * cur = begin;
-    while(cur < begin + size) {
+
+    struct Entry{
+        char *addr;
+    };
+    std::list<Entry> queue;
+    {
+        Entry entry;
+        entry.addr = cur;
+        queue.push_back(entry);
+    }
+    while(queue.count() > 0){
+        Entry entry = queue.front();
+        queue.pop_front();
+
 
         ExportItem item;
         item.terminal_size_addr = (uint8_t*)cur;
@@ -424,26 +437,33 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
         item.child_count = *(uint8_t*)cur;
         cur+= sizeof(uint8_t);
 
+        // callback
+        callback(&ctx,&item,nullptr);
+
         for(uint8_t idx = 0; idx < item.child_count; ++idx){
 
-            ExportItem::ChildItem child;
+            ExportChildItem child;
             char * name = (char*)cur;
             int len = strlen(name);
             child.label = std::string(name);
             child.label_addr = (uint8_t*)name;
-            cur += len + 1;
+            child.label_size = len + 1;
+            cur += child.label_size;
 
             child.skip_addr = (uint8_t*)cur;
             moex::util::readUnsignedLeb128(cur,child.skip,child.skip_size);
             cur+= child.skip_size;
 
+            // callback
+            callback(&ctx,nullptr,&child);
 
-
-            //
+            Entry child_entry;
+            child_entry.addr = 0;
+            
+            queue.push_back(child_entry);
         }
     }
 }
-
 
 MOEX_NAMESPACE_END
 

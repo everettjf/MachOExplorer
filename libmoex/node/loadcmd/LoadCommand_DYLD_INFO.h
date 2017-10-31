@@ -220,15 +220,6 @@ public:
 };
 class ExportItem{
 public:
-    struct ChildItem{
-        std::string label;
-        uint8_t * label_addr;
-
-        uint64_t skip;
-        uint8_t *skip_addr;
-        uint32_t skip_size;
-    };
-public:
     uint8_t terminal_size;
     uint8_t *terminal_size_addr;
 
@@ -244,9 +235,18 @@ public:
 
     uint8_t child_count;
     uint8_t *child_count_addr;
-    std::vector<ChildItem> child_items;
 };
 
+class ExportChildItem{
+public:
+    std::string label;
+    uint8_t * label_addr;
+    uint32_t label_size;
+
+    uint64_t skip;
+    uint8_t *skip_addr;
+    uint32_t skip_size;
+};
 
 /////////////////////////////Command /////////////////////////////////
 class LoadCommand_DYLD_INFO : public LoadCommandImpl<dyld_info_command>{
@@ -262,7 +262,7 @@ public:
     enum BindNodeType {NodeTypeBind, NodeTypeWeakBind, NodeTypeLazyBind};
     void ForEachBindingOpcode(BindNodeType node_type,uint32_t bind_off,uint32_t bind_size,std::function<void(const BindingOpcodeContext *ctx,BindingOpcodeItem*item)> callback);
 
-    void ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item)> callback);
+    void ForEachExportItem(std::function<void(const ExportContext *ctx,ExportItem* item,ExportChildItem* child)> callback);
 };
 
 MOEX_NAMESPACE_END

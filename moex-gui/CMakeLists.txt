@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
 project(moex_gui)
 
-set(Qt5Core_DIR /Users/everettjf/qt/5.9.1/clang_64/lib/cmake/Qt5Core)
-set(Qt5Gui_DIR /Users/everettjf/qt/5.9.1/clang_64/lib/cmake/Qt5Gui)
-set(Qt5Widgets_DIR /Users/everettjf/qt/5.9.1/clang_64/lib/cmake/Qt5Widgets)
+set(Qt5Core_DIR /opt/qt/clang_64/lib/cmake/Qt5Core)
+set(Qt5Gui_DIR /opt/qt/clang_64/lib/cmake/Qt5Gui)
+set(Qt5Widgets_DIR /opt/qt/clang_64/lib/cmake/Qt5Widgets)
 
 set(CMAKE_CXX_STANDARD 11)
 

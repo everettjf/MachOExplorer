@@ -23,15 +23,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/5.9.1/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/5.9.1/QtCore/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/5.9.1/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/5.9.1/QtGui/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/5.9.1/"
-#INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/5.9.1/QtWidgets/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/5.9.1/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/5.9.1/QtCore/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/5.9.1/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/5.9.1/QtGui/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/5.9.1/"
+#INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/5.9.1/QtWidgets/"
 
 
 LIBMOEX_HEADER = $$files(libmoex/*.h,true)

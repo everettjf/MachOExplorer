@@ -18,15 +18,15 @@ QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++
 
 DEFINES += QT_FLEX_BUILD
 
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/5.9.1/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtCore.framework/Headers/5.9.1/QtCore/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/5.9.1/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtGui.framework/Headers/5.9.1/QtGui/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/5.9.1/"
-INCLUDEPATH += "/Users/everettjf/qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/5.9.1/QtWidgets/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/5.9.1/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtCore.framework/Headers/5.9.1/QtCore/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/5.9.1/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtGui.framework/Headers/5.9.1/QtGui/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/5.9.1/"
+INCLUDEPATH += "/opt/qt/clang_64/lib/QtWidgets.framework/Headers/5.9.1/QtWidgets/"
 
 SOURCES += \
     QtDockGuider.cpp \
