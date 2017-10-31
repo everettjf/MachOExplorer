@@ -434,6 +434,7 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
     char * begin = header()->header_start() + cmd()->export_off;
     uint32_t size = cmd()->export_size;
 
+    // dfs a trie tree
 
     struct Entry{
         char *addr;
