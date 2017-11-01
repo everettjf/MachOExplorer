@@ -136,56 +136,39 @@ void SectionViewNode::InitSpecialView()
 
     bool has_module = true; // objc version detector
 
-    if(unique_name == "__OBJC/__module_info"){
-        has_module = false;
-    }
+    if(unique_name == "__OBJC/__module_info") has_module = false;
 
-    if(unique_name == "__OBJC/__class_ext"){
+    if(unique_name == "__OBJC/__class_ext")
+        InitTodoView();
 
-    }
+    if(unique_name == "__OBJC/__protocol_ext")
+        InitTodoView();
 
-    if(unique_name == "__OBJC/__protocol_ext"){
-
-    }
-
-    if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo"){
+    if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo")
         InitObjC2ImageInfo("ObjC2 Image Info");
-    }
 
-    if(section_name == "__cfstring"){
+    if(section_name == "__cfstring")
         InitCFStringView("ObjC CFStrings");
-    }
 
     if(has_module){
-
-        if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist"){
+        if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist")
             InitObjC2PointerView("ObjC2 Category List");
-        }
 
-
-        if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist"){
+        if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist")
             InitObjC2PointerView("ObjC2 Class List");
-        }
 
-        if(unique_name == "__OBJC2/__class_refs" || unique_name == "__DATA/__objc_classrefs"){
+        if(unique_name == "__OBJC2/__class_refs" || unique_name == "__DATA/__objc_classrefs")
             InitObjC2PointerView("ObjC2 Class References");
-        }
 
-        if(unique_name == "__OBJC2/__super_refs" || unique_name == "__DATA/__objc_superrefs"){
+        if(unique_name == "__OBJC2/__super_refs" || unique_name == "__DATA/__objc_superrefs")
             InitObjC2PointerView("ObjC2 Super References");
-        }
 
-        if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist"){
+        if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist")
             InitObjC2PointerView("ObjC2 Proto List");
-        }
 
-        if(unique_name == "__OBJC2/__message_refs" || unique_name == "__DATA/__objc_msgrefs"){
-
-        }
-
+        if(unique_name == "__OBJC2/__message_refs" || unique_name == "__DATA/__objc_msgrefs")
+            InitTodoView();
     }
-
-
 }
 
 void SectionViewNode::InitCStringView(const std::string &title)
@@ -348,6 +331,12 @@ void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
         if(info->flags & OBJC_IMAGE_GC_ONLY)t->AddRow({"","","0x4","OBJC_IMAGE_GC_ONLY"});
     });
 
+    AddViewData(t);
+}
+void SectionViewNode::InitTodoView(){
+
+    auto t = CreateTableViewDataPtr(title);
+    t->AddRow({"//todo","","",""});
     AddViewData(t);
 }
 
