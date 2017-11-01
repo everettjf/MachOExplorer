@@ -3,6 +3,7 @@
 //
 
 #include "MachSection.h"
+#include "MachHeader.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -25,5 +26,78 @@ uint64_t MachSection::GetRAW(const void *addr){
         return (uint64_t)addr - (uint64_t)section_->ctx()->file_start;
 }
 
+char *MachSection::GetOffset(){
+    char *offset = (char*)header()->header_start() + sect().offset();
+    return offset;
+}
+uint32_t MachSection::GetSize() {
+    uint32_t size = (uint32_t) sect().size_both();
+    return size;
+}
+
+void MachSection::ForEachAs_S_CSTRING_LITERALS(std::function<void(char* str)> callback){
+    auto array = util::ParseStringLiteral(GetOffset(),GetSize());
+    for(char * cur : array) {
+        callback(cur);
+    }
+}
+void MachSection::ForEachAs_N_BYTE_LITERALS(std::function<void(char* str)> callback, size_t unitsize){
+    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
+    for(char *cur : array) {
+        callback(cur);
+    }
+}
+
+void MachSection::ForEachAs_S_4BYTE_LITERALS(std::function<void(char* str)> callback){
+    ForEachAs_N_BYTE_LITERALS(callback,4);
+}
+
+void MachSection::ForEachAs_S_8BYTE_LITERALS(std::function<void(char* str)> callback){
+    ForEachAs_N_BYTE_LITERALS(callback,8);
+}
+
+void MachSection::ForEachAs_S_16BYTE_LITERALS(std::function<void(char* str)> callback){
+    ForEachAs_N_BYTE_LITERALS(callback,16);
+}
+
+void MachSection::ForEachAs_POINTERS(std::function<void(void* ptr)> callback){
+    if(Is64()) {
+        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(), GetSize());
+        for (uint64_t *cur : array) {
+            callback((char*)cur);
+        }
+    }else{
+        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(), GetSize());
+        for (uint32_t *cur : array) {
+            callback((char*)cur);
+        }
+    }
+}
+void MachSection::ForEachAs_S_LITERAL_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+void MachSection::ForEachAs_S_MOD_INIT_FUNC_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+void MachSection::ForEachAs_S_MOD_TERM_FUNC_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+
+void MachSection::ForEachAs_S_LAZY_SYMBOL_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+void MachSection::ForEachAs_S_NON_LAZY_SYMBOL_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+void MachSection::ForEachAs_S_LAZY_DYLIB_SYMBOL_POINTERS(std::function<void(void* ptr)> callback){
+    ForEachAs_POINTERS(callback);
+}
+void MachSection::ForEachAs_S_SYMBOL_STUBS(std::function<void(void* ptr,size_t unitsize)> callback){
+    size_t unitsize = sect().reserved2();
+    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
+    for(char *cur : array){
+        callback(cur,unitsize);
+    }
+}
 
 MOEX_NAMESPACE_END

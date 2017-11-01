@@ -196,24 +196,23 @@ void SectionViewNode::InitCStringView(const std::string &title)
     t->SetWidths({80,100,100,80,400});
 
     int lineno = 0;
-    auto array = util::ParseStringLiteral(GetOffset(),GetSize());
-    for(char * cur : array){
+    d_->ForEachAs_S_CSTRING_LITERALS([&](char *cur){
         std::string name(cur);
         t->AddRow({
-                AsString(lineno),
-                AsHexString(d_->GetRAW(cur)),
-                AsHexData(cur,name.length()),
-                AsString(name.length()),
-                name
+                          AsString(lineno),
+                          AsHexString(d_->GetRAW(cur)),
+                          AsHexData(cur,name.length()),
+                          AsString(name.length()),
+                          name
                   });
 
         std::string symbolname = boost::str(boost::format("0x%1$X:\"%2%\"")
                                             % (uint64_t)cur
                                             % name
-                                            );
+        );
 
         ++lineno;
-    }
+    });
 
     AddViewData(t);
 }
@@ -222,45 +221,40 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
     auto t = CreateTableViewDataPtr(title);
 
-    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
-    for(char *cur : array){
+    d_->ForEachAs_N_BYTE_LITERALS([&](char *cur){
         std::string name = AsHexData(cur,unitsize);
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",name);
 
         std::string symbolname = boost::str(boost::format("0x%1%X:%2%")
                                             % cur
                                             % name
-                                            );
-    }
+        );
+    },unitsize);
+
     AddViewData(t);
 }
 
 void SectionViewNode::InitPointersView(const std::string &title)
 {
-
     auto t = CreateTableViewDataPtr(title);
 
-    if(d_->Is64()){
-        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
-        for(uint64_t *cur : array){
+    d_->ForEachAs_POINTERS([&](void * ptr){
+        if(d_->Is64()){
+            uint64_t *cur = static_cast<uint64_t*>(ptr);
             std::string symbolname = boost::str(boost::format("%1%->%2%")
                                                 % AsShortHexString((uint64_t)cur)
                                                 % AsShortHexString(*cur)
-                                                );
+            );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
-
-        }
-    }else{
-        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
-        for(uint32_t *cur : array){
+        }else{
+            uint32_t *cur = static_cast<uint32_t*>(ptr);
             std::string symbolname = boost::str(boost::format("%1%->%2%")
                                                 % AsShortHexString((uint64_t)cur)
                                                 % AsShortHexString(*cur)
-                                                );
+            );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
-
         }
-    }
+    });
 
     AddViewData(t);
 }
@@ -269,17 +263,15 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
 {
     auto t = CreateTableViewDataPtr(title);
 
-    if(d_->Is64()){
-        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(),GetSize());
-        for(uint64_t *cur : array){
+    d_->ForEachAs_POINTERS([&](void * ptr){
+        if(d_->Is64()){
+            uint64_t *cur = static_cast<uint64_t*>(ptr);
+            t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
+        }else{
+            uint32_t *cur = static_cast<uint32_t*>(ptr);
             t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
-    }else{
-        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(),GetSize());
-        for(uint32_t *cur : array){
-            t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
-        }
-    }
+    });
 
     AddViewData(t);
 }
@@ -287,15 +279,11 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
 void SectionViewNode::InitIndirectStubsView(const std::string &title)
 {
     auto t = CreateTableViewDataPtr(title);
-
-    size_t unitsize = d_->sect().reserved2();
-    auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
-    for(char *cur : array){
+    d_->ForEachAs_S_SYMBOL_STUBS([&](void * cur,size_t unitsize){
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
-    }
+    });
 
     AddViewData(t);
-
 }
 
 void SectionViewNode::InitCFStringView(const std::string &title)

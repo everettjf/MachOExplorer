@@ -109,6 +109,32 @@ public:
 
     // Get addr offset from file beginning
     uint64_t GetRAW(const void * addr);
+
+    // Get RVA offset of current section
+    char *GetOffset();
+
+    // Get size of current section
+    uint32_t GetSize();
+
+    // str : c style string
+    void ForEachAs_S_CSTRING_LITERALS(std::function<void(char* str)> callback);
+
+    // str : can be cast into 4byte,8byte,16byte
+    void ForEachAs_N_BYTE_LITERALS(std::function<void(char* str)> callback, size_t unitsize);
+    void ForEachAs_S_4BYTE_LITERALS(std::function<void(char* str)> callback);
+    void ForEachAs_S_8BYTE_LITERALS(std::function<void(char* str)> callback);
+    void ForEachAs_S_16BYTE_LITERALS(std::function<void(char* str)> callback);
+
+    // str : uint64_t when 64bit, uint32_t when 32bit
+    void ForEachAs_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_LITERAL_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_MOD_INIT_FUNC_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_MOD_TERM_FUNC_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_LAZY_SYMBOL_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_NON_LAZY_SYMBOL_POINTERS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_LAZY_DYLIB_SYMBOL_POINTERS(std::function<void(void* ptr)> callback);
+
+    void ForEachAs_S_SYMBOL_STUBS(std::function<void(void* str,size_t unitsize)> callback);
 };
 using MachSectionPtr = std::shared_ptr<MachSection>;
 using MachSectionWeakPtr = std::weak_ptr<MachSection>;
