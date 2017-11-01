@@ -335,7 +335,7 @@ void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
 }
 void SectionViewNode::InitTodoView(){
 
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr("Detail Info");
     t->AddRow({"//todo","","",""});
     AddViewData(t);
 }
