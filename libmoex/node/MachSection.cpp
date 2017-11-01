@@ -112,5 +112,8 @@ void MachSection::ForEachAs_ObjC2Pointer(std::function<void(void* ptr)> callback
         }
     }
 }
+void MachSection::ParseAsObjCImageInfo(std::function<void(objc_image_info* ptr)> callback){
+    callback((objc_image_info*)(void*)GetOffset());
+}
 
 MOEX_NAMESPACE_END

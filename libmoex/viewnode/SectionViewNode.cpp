@@ -134,10 +134,10 @@ void SectionViewNode::InitSpecialView()
     std::string unique_name = d_->sect().segment_name() + "/" + d_->sect().section_name();
     std::string section_name = d_->sect().section_name();
 
-    bool is_objc_2_0 = true; // objc version detector
+    bool has_module = true; // objc version detector
 
     if(unique_name == "__OBJC/__module_info"){
-        is_objc_2_0 = false;
+        has_module = false;
     }
 
     if(unique_name == "__OBJC/__class_ext"){
@@ -149,14 +149,14 @@ void SectionViewNode::InitSpecialView()
     }
 
     if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo"){
-
+        InitObjC2ImageInfo("ObjC2 Image Info");
     }
 
     if(section_name == "__cfstring"){
         InitCFStringView("ObjC CFStrings");
     }
 
-    if(is_objc_2_0){
+    if(has_module){
 
         if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist"){
             InitObjC2PointerView("ObjC2 Category List");
@@ -335,5 +335,20 @@ void SectionViewNode::InitObjC2PointerView(const std::string &title){
     AddViewData(t);
 }
 
+void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
+
+    auto t = CreateTableViewDataPtr(title);
+    d_->ParseAsObjCImageInfo([&](objc_image_info *info){
+
+        t->AddRow(d_->GetRAW(&info->version),AsHexString(info->version),"Version",AsShortHexString(info->version));
+        t->AddRow(d_->GetRAW(&info->flags),AsHexString(info->flags),"Flags",AsShortHexString(info->flags));
+
+        if(info->flags & OBJC_IMAGE_IS_REPLACEMENT)t->AddRow({"","","0x1","OBJC_IMAGE_IS_REPLACEMENT"});
+        if(info->flags & OBJC_IMAGE_SUPPORTS_GC)t->AddRow({"","","0x2","OBJC_IMAGE_SUPPORTS_GC"});
+        if(info->flags & OBJC_IMAGE_GC_ONLY)t->AddRow({"","","0x4","OBJC_IMAGE_GC_ONLY"});
+    });
+
+    AddViewData(t);
+}
 
 MOEX_NAMESPACE_END

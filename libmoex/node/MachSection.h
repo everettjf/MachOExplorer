@@ -138,6 +138,9 @@ public:
 
     // ptr : uint64_t when 64bit, uint32_t when 32bit
     void ForEachAs_ObjC2Pointer(std::function<void(void* ptr)> callback);
+
+
+    void ParseAsObjCImageInfo(std::function<void(objc_image_info* ptr)> callback);
 };
 using MachSectionPtr = std::shared_ptr<MachSection>;
 using MachSectionWeakPtr = std::weak_ptr<MachSection>;
