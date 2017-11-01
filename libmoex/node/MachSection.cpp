@@ -41,22 +41,22 @@ void MachSection::ForEachAs_S_CSTRING_LITERALS(std::function<void(char* str)> ca
         callback(cur);
     }
 }
-void MachSection::ForEachAs_N_BYTE_LITERALS(std::function<void(char* str)> callback, size_t unitsize){
+void MachSection::ForEachAs_N_BYTE_LITERALS(std::function<void(void* ptr)> callback, size_t unitsize){
     auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
     for(char *cur : array) {
-        callback(cur);
+        callback((void*)cur);
     }
 }
 
-void MachSection::ForEachAs_S_4BYTE_LITERALS(std::function<void(char* str)> callback){
+void MachSection::ForEachAs_S_4BYTE_LITERALS(std::function<void(void* ptr)> callback){
     ForEachAs_N_BYTE_LITERALS(callback,4);
 }
 
-void MachSection::ForEachAs_S_8BYTE_LITERALS(std::function<void(char* str)> callback){
+void MachSection::ForEachAs_S_8BYTE_LITERALS(std::function<void(void* ptr)> callback){
     ForEachAs_N_BYTE_LITERALS(callback,8);
 }
 
-void MachSection::ForEachAs_S_16BYTE_LITERALS(std::function<void(char* str)> callback){
+void MachSection::ForEachAs_S_16BYTE_LITERALS(std::function<void(void* ptr)> callback){
     ForEachAs_N_BYTE_LITERALS(callback,16);
 }
 

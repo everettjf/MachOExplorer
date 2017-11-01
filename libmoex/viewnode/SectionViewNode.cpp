@@ -221,7 +221,7 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
     auto t = CreateTableViewDataPtr(title);
 
-    d_->ForEachAs_N_BYTE_LITERALS([&](char *cur){
+    d_->ForEachAs_N_BYTE_LITERALS([&](void *cur){
         std::string name = AsHexData(cur,unitsize);
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",name);
 

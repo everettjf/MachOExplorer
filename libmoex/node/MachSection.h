@@ -119,13 +119,13 @@ public:
     // str : c style string
     void ForEachAs_S_CSTRING_LITERALS(std::function<void(char* str)> callback);
 
-    // str : can be cast into 4byte,8byte,16byte
-    void ForEachAs_N_BYTE_LITERALS(std::function<void(char* str)> callback, size_t unitsize);
-    void ForEachAs_S_4BYTE_LITERALS(std::function<void(char* str)> callback);
-    void ForEachAs_S_8BYTE_LITERALS(std::function<void(char* str)> callback);
-    void ForEachAs_S_16BYTE_LITERALS(std::function<void(char* str)> callback);
+    // ptr : can be cast into 4byte,8byte,16byte
+    void ForEachAs_N_BYTE_LITERALS(std::function<void(void* ptr)> callback, size_t unitsize);
+    void ForEachAs_S_4BYTE_LITERALS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_8BYTE_LITERALS(std::function<void(void* ptr)> callback);
+    void ForEachAs_S_16BYTE_LITERALS(std::function<void(void* ptr)> callback);
 
-    // str : uint64_t when 64bit, uint32_t when 32bit
+    // ptr : uint64_t when 64bit, uint32_t when 32bit
     void ForEachAs_POINTERS(std::function<void(void* ptr)> callback);
     void ForEachAs_S_LITERAL_POINTERS(std::function<void(void* ptr)> callback);
     void ForEachAs_S_MOD_INIT_FUNC_POINTERS(std::function<void(void* ptr)> callback);
