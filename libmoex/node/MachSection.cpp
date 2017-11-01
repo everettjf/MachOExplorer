@@ -64,12 +64,12 @@ void MachSection::ForEachAs_POINTERS(std::function<void(void* ptr)> callback){
     if(Is64()) {
         auto array = util::ParsePointerAsType<uint64_t>(GetOffset(), GetSize());
         for (uint64_t *cur : array) {
-            callback((char*)cur);
+            callback(cur);
         }
     }else{
         auto array = util::ParsePointerAsType<uint32_t>(GetOffset(), GetSize());
         for (uint32_t *cur : array) {
-            callback((char*)cur);
+            callback(cur);
         }
     }
 }
@@ -97,6 +97,19 @@ void MachSection::ForEachAs_S_SYMBOL_STUBS(std::function<void(void* ptr,size_t u
     auto array = util::ParseDataAsSize(GetOffset(),GetSize(),unitsize);
     for(char *cur : array){
         callback(cur,unitsize);
+    }
+}
+void MachSection::ForEachAs_ObjC2Pointer(std::function<void(void* ptr)> callback){
+    if(Is64()) {
+        auto array = util::ParsePointerAsType<uint64_t>(GetOffset(), GetSize());
+        for (uint64_t *cur : array) {
+            callback(cur);
+        }
+    }else{
+        auto array = util::ParsePointerAsType<uint32_t>(GetOffset(), GetSize());
+        for (uint32_t *cur : array) {
+            callback(cur);
+        }
     }
 }
 

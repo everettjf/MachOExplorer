@@ -135,6 +135,9 @@ public:
     void ForEachAs_S_LAZY_DYLIB_SYMBOL_POINTERS(std::function<void(void* ptr)> callback);
 
     void ForEachAs_S_SYMBOL_STUBS(std::function<void(void* str,size_t unitsize)> callback);
+
+    // ptr : uint64_t when 64bit, uint32_t when 32bit
+    void ForEachAs_ObjC2Pointer(std::function<void(void* ptr)> callback);
 };
 using MachSectionPtr = std::shared_ptr<MachSection>;
 using MachSectionWeakPtr = std::weak_ptr<MachSection>;

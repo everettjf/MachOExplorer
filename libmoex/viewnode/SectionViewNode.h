@@ -37,6 +37,7 @@ public:
 
     void InitCFStringView(const std::string &title);
 
+    void InitObjC2PointerView(const std::string &title);
 };
 using SectionViewNodePtr = std::shared_ptr<SectionViewNode>;
 

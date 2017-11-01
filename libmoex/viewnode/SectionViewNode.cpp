@@ -138,7 +138,6 @@ void SectionViewNode::InitSpecialView()
 
     if(unique_name == "__OBJC/__module_info"){
         is_objc_2_0 = false;
-
     }
 
     if(unique_name == "__OBJC/__class_ext"){
@@ -160,24 +159,24 @@ void SectionViewNode::InitSpecialView()
     if(is_objc_2_0){
 
         if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist"){
-
+            InitObjC2PointerView("ObjC2 Category List");
         }
 
 
         if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist"){
-
+            InitObjC2PointerView("ObjC2 Class List");
         }
 
         if(unique_name == "__OBJC2/__class_refs" || unique_name == "__DATA/__objc_classrefs"){
-
+            InitObjC2PointerView("ObjC2 Class References");
         }
 
         if(unique_name == "__OBJC2/__super_refs" || unique_name == "__DATA/__objc_superrefs"){
-
+            InitObjC2PointerView("ObjC2 Super References");
         }
 
         if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist"){
-
+            InitObjC2PointerView("ObjC2 Proto List");
         }
 
         if(unique_name == "__OBJC2/__message_refs" || unique_name == "__DATA/__objc_msgrefs"){
@@ -313,6 +312,25 @@ void SectionViewNode::InitCFStringView(const std::string &title)
             t->AddSeparator();
         }
     }
+
+    AddViewData(t);
+}
+void SectionViewNode::InitObjC2PointerView(const std::string &title){
+    auto t = CreateTableViewDataPtr(title);
+
+    d_->ForEachAs_ObjC2Pointer([&](void * ptr){
+        if(d_->Is64()){
+            uint64_t *cur = static_cast<uint64_t*>(ptr);
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",
+                      AsShortHexString(*cur));
+            // todo rva to symbol
+        }else{
+            uint32_t *cur = static_cast<uint32_t*>(ptr);
+            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",
+                      AsShortHexString(*cur));
+            // todo rva to symbol
+        }
+    });
 
     AddViewData(t);
 }
