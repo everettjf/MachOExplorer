@@ -29,12 +29,14 @@ void DynamicSymbolTable::InitViewDatas(){
         AddViewData(b);
     }
 
-//    // Indirect Symbols
-//    {
-//        auto x = CreateTableViewDataPtr("Indirect Symbols");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
+    // Indirect Symbols
+    if(seg->ExistIndirectSymbols()) {
+        auto x = CreateTableViewDataPtr("Indirect Symbols");
+        seg->ForEachIndirectSymbols([&](uint32_t * indirect_index){
+            x->AddRow(mh_->GetRAW(indirect_index),*indirect_index,"Indirect Index",AsShortHexString(*indirect_index));
+        });
+        AddViewData(x);
+    }
 //
 //    // Modules64
 //    {

@@ -9,18 +9,12 @@
 
 MOEX_NAMESPACE_BEGIN
 
-struct IndirectSymbol{
-    uint64_t offset;
-    uint32_t data;
-};
-
 class LoadCommand_LC_DYSYMTAB : public LoadCommandImpl<dysymtab_command>{
-private:
-    std::vector<IndirectSymbol> indirect_symbols_;
 public:
     // valid,offset,size
     std::tuple<bool,uint32_t,uint32_t> GetDataRange();
-    std::vector<IndirectSymbol> &GetIndirectSymbols();
+    bool ExistIndirectSymbols(){return cmd()->nindirectsyms > 0;}
+    void ForEachIndirectSymbols(std::function<void(uint32_t* indirect_index)> callback);
 };
 
 

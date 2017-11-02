@@ -31,23 +31,13 @@ std::tuple<bool, uint32_t, uint32_t> LoadCommand_LC_DYSYMTAB::GetDataRange()
     return std::make_tuple(false,0,0);
 }
 
-std::vector<IndirectSymbol> &LoadCommand_LC_DYSYMTAB::GetIndirectSymbols()
-{
-    if(!indirect_symbols_.empty()){
-        return indirect_symbols_;
-    }
-
+void LoadCommand_LC_DYSYMTAB::ForEachIndirectSymbols(std::function<void(uint32_t* indirect_index)> callback){
     char * offset = (char*)header_->header_start() + cmd_->indirectsymoff;
-    for(uint32_t nindsym = 0; nindsym < cmd_->nindirectsyms; ++nindsym) {
-        uint32_t *p = (uint32_t *) (offset + nindsym * sizeof(uint32_t));
-        uint32_t indirect_index = *p;
-
-        IndirectSymbol sym;
-        sym.offset = (uint64_t)p;
-        sym.data = indirect_index;
-        indirect_symbols_.push_back(sym);
+    uint32_t size = cmd_->nindirectsyms * sizeof(uint32_t);
+    auto array = util::ParseDataAsSize(offset,size,sizeof(uint32_t));
+    for(char *cur : array){
+        callback((uint32_t*)(void*)cur);
     }
-    return indirect_symbols_;
 }
 
 MOEX_NAMESPACE_END
