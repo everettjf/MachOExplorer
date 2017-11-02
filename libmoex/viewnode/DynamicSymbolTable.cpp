@@ -37,41 +37,46 @@ void DynamicSymbolTable::InitViewDatas(){
         });
         AddViewData(x);
     }
-//
-//    // Modules64
-//    {
-//        auto x = CreateTableViewDataPtr("Modules");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
-//
-//    // Table of Contents
-//    {
-//        auto x = CreateTableViewDataPtr("Table Of Contents");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
-//
-//    // External References
-//    {
-//        auto x = CreateTableViewDataPtr("External References");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
-//
-//    // External Relocations
-//    {
-//        auto x = CreateTableViewDataPtr("External Relocations");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
-//
-//    // Local RElo Table
-//    {
-//        auto x = CreateTableViewDataPtr("Local Relocation Table");
-//        x->AddRow("//todo","","","");
-//        AddViewData(x);
-//    }
+
+    // Modules64
+    if(seg->cmd()->nmodtab > 0)
+    {
+        auto x = CreateTableViewDataPtr("Modules");
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
+
+    // Table of Contents
+    if(seg->cmd()->ntoc > 0)
+    {
+        auto x = CreateTableViewDataPtr("Table Of Contents");
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
+
+    // External References
+    if(seg->cmd()->nextrefsyms > 0)
+    {
+        auto x = CreateTableViewDataPtr("External References");
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
+
+    // External Relocations
+    if(seg->cmd()->nextrel > 0)
+    {
+        auto x = CreateTableViewDataPtr("External Relocations");
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
+
+    // Local RElo Table
+    if(seg->cmd()->nlocrel > 0)
+    {
+        auto x = CreateTableViewDataPtr("Local Relocation Table");
+        x->AddRow("//todo","","","");
+        AddViewData(x);
+    }
 
 }
 

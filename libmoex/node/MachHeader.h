@@ -137,6 +137,17 @@ public:
         return nullptr;
     }
 
+    bool ExistLoadCommand(std::initializer_list<int> cmdtypes){
+        for(auto & cmd : loadcmds_ref()){
+            for(auto cmdtype : cmdtypes){
+                if(cmd->offset()->cmd == cmdtype) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     template<typename T>
     void ForEachLoadCommand(std::initializer_list<int> cmdtypes, std::function<void(T*,bool&)> callback){
         for(auto & cmd : loadcmds_ref()){

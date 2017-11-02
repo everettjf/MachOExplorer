@@ -18,6 +18,7 @@
 #include "loadcmd/LoadCommand_MAIN.h"
 #include "loadcmd/LoadCommand_ENCRYPTION_INFO.h"
 #include "loadcmd/LoadCommand_LINKEDIT_DATA.h"
+#include "loadcmd/LoadCommand_TWOLEVEL_HINTS.h"
 #include "MachHeader.h"
 
 MOEX_NAMESPACE_BEGIN
@@ -73,6 +74,7 @@ LoadCommandPtr LoadCommandFactory::NewCommand(uint32_t cmd) {
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_DYLIB_CODE_SIGN_DRS)
         DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_LINKER_OPTIMIZATION_HINT)
 
+        DECLARE_LOAD_COMMAND_CASE_STATEMENT(LC_TWOLEVEL_HINTS)
         default:
             return std::make_shared<LoadCommand>();
     }

@@ -1,16 +1,15 @@
 //
-// Created by everettjf on 2017/7/24.
+// Created by everettjf on 03/11/2017.
 //
 
-#include "CodeSignatureViewNode.h"
+#include "SegmentSplitInfoViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
-
-void CodeSignatureViewNode::InitViewDatas() {
+void SegmentSplitInfoViewNode::InitViewDatas() {
     using namespace moex::util;
 
-    auto seg=mh_->FindLoadCommand<moex::LoadCommand_LC_CODE_SIGNATURE>({LC_CODE_SIGNATURE});
+    auto seg=mh_->FindLoadCommand<moex::LoadCommand_LC_SEGMENT_SPLIT_INFO>({LC_SEGMENT_SPLIT_INFO});
     if(!seg)
         return;
 

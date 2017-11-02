@@ -22,7 +22,6 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     dynamic_loader_info_->Init(d_);
     children_.push_back(dynamic_loader_info_.get());
 
-
     symbol_table_ = std::make_shared<SymbolTableViewNode>();
     symbol_table_->Init(d_);
     children_.push_back(symbol_table_.get());
@@ -46,6 +45,17 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
     data_in_code_entries_->Init(d_);
     children_.push_back(data_in_code_entries_.get());
+
+    if(d_->ExistLoadCommand({LC_TWOLEVEL_HINTS})){
+        twolevel_hints_table_ = std::make_shared<TwoLevelHintsTableViewNode>();
+        twolevel_hints_table_->Init(d_);
+        children_.push_back(twolevel_hints_table_.get());
+    }
+    if(d_->ExistLoadCommand({LC_SEGMENT_SPLIT_INFO})){
+        segment_split_info_ = std::make_shared<SegmentSplitInfoViewNode>();
+        segment_split_info_->Init(d_);
+        children_.push_back(segment_split_info_.get());
+    }
 }
 
 std::string MachHeaderViewNode::GetDisplayName() {

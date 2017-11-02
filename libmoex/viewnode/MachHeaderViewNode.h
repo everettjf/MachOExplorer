@@ -16,6 +16,8 @@
 #include "SymbolTableViewNode.h"
 #include "FunctionStartsViewNode.h"
 #include "StringTableViewNode.h"
+#include "TwoLevelHintsTableViewNode.h"
+#include "SegmentSplitInfoViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -33,6 +35,8 @@ private:
     DataInCodeEntriesViewNodePtr data_in_code_entries_;
     StringTableViewNodePtr string_table_;
     CodeSignatureViewNodePtr  code_signature_;
+    TwoLevelHintsTableViewNodePtr twolevel_hints_table_;
+    SegmentSplitInfoViewNodePtr segment_split_info_;
 
 public:
     void Init(MachHeaderPtr d);
