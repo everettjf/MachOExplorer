@@ -10,19 +10,329 @@ void DyldInfoViewNodeBase::Init(LoadCommand_DYLD_INFO *info)
 {
     info_ = info;
 }
+void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type){
+    using namespace moex::util;
+
+    auto print_ = CreateTableViewDataPtr("Opcodes");
+    moex::LoadCommand_DYLD_INFO *info = info_;
+
+    uint32_t bind_off,bind_size;
+    if(node_type == moex::LoadCommand_DYLD_INFO::NodeTypeWeakBind){
+        bind_off = info->cmd()->weak_bind_off;
+        bind_size = info->cmd()->weak_bind_size;
+    }else if(node_type == moex::LoadCommand_DYLD_INFO::NodeTypeLazyBind){
+        bind_off = info->cmd()->lazy_bind_off;
+        bind_size = info->cmd()->lazy_bind_size;
+    }else{
+        bind_off = info->cmd()->bind_off;
+        bind_size = info->cmd()->bind_size;
+    }
+
+    info->ForEachBindingOpcode(node_type,bind_off,bind_size,[&](const moex::BindingOpcodeContext *ctx,moex::BindingOpcodeItem*codebase){
+        switch(ctx->opcode){
+            case BIND_OPCODE_DONE:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_DONE*>(codebase);
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_IMM*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                               });
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->lib_oridinal_addr)),moex::util::AsHexData(code->lib_oridinal_addr,code->lib_oridinal_size),
+                                "uleb128",
+                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                               });
+                break;
+            }
+            case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_DYLIB_SPECIAL_IMM*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                               });
+
+                break;
+            }
+            case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("flags (%1%)") % code->symbol_flags).str()
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->symbol_name_addr)),
+                                moex::util::AsHexData(code->symbol_name_addr,code->symbol_name_size).substr(0,16),
+                                "string",
+                                (boost::format("name (%1%)") % code->symbol_name).str()
+                               });
+
+                break;
+            }
+            case BIND_OPCODE_SET_TYPE_IMM:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_TYPE_IMM*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("type (%1%)") % ctx->GetBindTypeString()).str()
+                               });
+
+                break;
+            }
+            case BIND_OPCODE_SET_ADDEND_SLEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_ADDEND_SLEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->addend_addr)),moex::util::AsHexData(code->addend_addr,code->addend_size),
+                                "sleb128",
+                                (boost::format("addend (%1%)") % code->addend).str()
+                               });
+                break;
+            }
+            case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("segment (%1%)") % code->segment_index).str()
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
+                                "uleb128",
+                                (boost::format("offset (%1%)") % code->offset).str()
+                               });
+                break;
+            }
+            case BIND_OPCODE_ADD_ADDR_ULEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_ADD_ADDR_ULEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
+                                "uleb128",
+                                (boost::format("offset (%1%)") % code->offset).str()
+                               });
+                break;
+            }
+            case BIND_OPCODE_DO_BIND:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_DO_BIND*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+                print_->AddRow({"-","-","-","-"});
+
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                ""
+                               });
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
+                                "uleb128",
+                                (boost::format("offset (%1%)") % code->offset).str()
+                               });
+                print_->AddRow({"-","-","-","-"});
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                code->GetName(),
+                                (boost::format("scaled (%1%)") % code->scale).str()
+                               });
+                print_->AddRow({"-","-","-","-"});
+                break;
+            }
+            case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:{
+                auto code = static_cast<moex::Wrap_BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB*>(codebase);
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                "REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB",
+                                ""
+                               });
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
+                                "uleb128",
+                                (boost::format("count (%1%)") % (int)code->count).str()
+                               });
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->skip_addr,code->skip_size),
+                                "uleb128",
+                                (boost::format("skip (%1%)") % (int)code->skip).str()
+                               });
+                print_->AddRow({"-","-","-","-"});
+                break;
+            }
+            default:
+                break;
+        }
+    });
+
+    AddViewData(print_);
+}
 
 void RebaseInfoViewNode::InitViewDatas()
 {
+    using namespace moex::util;
     {
-        auto x = CreateTableViewDataPtr("Opcodes");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+        auto print_ = CreateTableViewDataPtr("Opcodes");
+        moex::LoadCommand_DYLD_INFO *info = info_;
+
+        info->ForEachRebaseOpcode([&](const moex::RebaseOpcodeContext * ctx, moex::RebaseOpcodeItem * codebase){
+
+            switch(ctx->opcode){
+                case REBASE_OPCODE_DONE:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_DONE*>(codebase);
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_DONE",
+                                    ""
+                                   });
+                    break;
+                }
+                case REBASE_OPCODE_SET_TYPE_IMM:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_SET_TYPE_IMM*>(codebase);
+                    std::string rebasetype = ctx->GetRebaseTypeString();
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_SET_TYPE_IMM",
+                                    (boost::format("type (%1%, %2%)") % (int)ctx->type % rebasetype).str()
+                                   });
+                    break;
+                }
+                case REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB*>(codebase);
+                    uint32_t segment_index = code->segment_index;
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB",
+                                    (boost::format("segment (%1%)") % (int)segment_index).str()
+                                   });
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                   });
+
+                    break;
+                }
+                case REBASE_OPCODE_ADD_ADDR_ULEB:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_ADD_ADDR_ULEB*>(codebase);
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_ADD_ADDR_ULEB",
+                                    ""
+                                   });
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                   });
+
+                    break;
+                }
+                case REBASE_OPCODE_ADD_ADDR_IMM_SCALED:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_ADD_ADDR_IMM_SCALED*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_ADD_ADDR_IMM_SCALED",
+                                    (boost::format("scale (%1%)") % (int)code->scale).str()
+                                   });
+
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_IMM_TIMES:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_DO_REBASE_IMM_TIMES*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_DO_REBASE_IMM_TIMES",
+                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                   });
+
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_DO_REBASE_ULEB_TIMES*>(codebase);
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_DO_REBASE_ULEB_TIMES",
+                                    ""
+                                   });
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
+                                    "uleb128",
+                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                   });
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_ADD_ADDR_ULEB*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB",
+                                    ""
+                                   });
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
+                                    "uleb128",
+                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                   });
+
+                    break;
+                }
+                case REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB:{
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB*>(codebase);
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                                    "REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB",
+                                    ""
+                                   });
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
+                                    "uleb128",
+                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                   });
+                    print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->skip_addr,code->skip_size),
+                                    "uleb128",
+                                    (boost::format("skip (%1%)") % (int)code->skip).str()
+                                   });
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
+        });
+        AddViewData(print_);
     }
-    {
-        auto x = CreateTableViewDataPtr("Actions");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
+//    {
+//        auto x = CreateTableViewDataPtr("Actions");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)info_->header()->header_start() + info_->cmd()->rebase_off;
@@ -35,14 +345,12 @@ void RebaseInfoViewNode::InitViewDatas()
 void BindingInfoViewNode::InitViewDatas()
 {
     {
-        auto x = CreateTableViewDataPtr("Opcodes");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+        InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeBind);
     }
     {
-        auto x = CreateTableViewDataPtr("Actions");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+//        auto x = CreateTableViewDataPtr("Actions");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
@@ -55,14 +363,12 @@ void BindingInfoViewNode::InitViewDatas()
 void WeakBindingInfoViewNode::InitViewDatas()
 {
     {
-        auto x = CreateTableViewDataPtr("Opcodes");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+        InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeWeakBind);
     }
     {
-        auto x = CreateTableViewDataPtr("Actions");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+//        auto x = CreateTableViewDataPtr("Actions");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
@@ -75,14 +381,12 @@ void WeakBindingInfoViewNode::InitViewDatas()
 void LazyBindingInfoViewNode::InitViewDatas()
 {
     {
-        auto x = CreateTableViewDataPtr("Opcodes");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+        InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeLazyBind);
     }
     {
-        auto x = CreateTableViewDataPtr("Actions");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+//        auto x = CreateTableViewDataPtr("Actions");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
@@ -94,16 +398,66 @@ void LazyBindingInfoViewNode::InitViewDatas()
 
 void ExportInfoViewNode::InitViewDatas()
 {
+    using namespace moex::util;
     {
-        auto x = CreateTableViewDataPtr("Opcodes");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
+        auto print_ = CreateTableViewDataPtr("Opcodes");
+
+        moex::LoadCommand_DYLD_INFO *info = info_;
+
+        info->ForEachExportItem([&](const moex::ExportContext *ctx,moex::ExportItem* item,moex::ExportChildItem* child){
+            if(item){
+                print_->AddRow({ToHexString(info->header()->GetRAW(item->terminal_size_addr)),
+                                moex::util::AsHexData(item->terminal_size),
+                                "Terminal Size",
+                                (boost::format("%1%") % (int)item->terminal_size).str()
+                               });
+
+                if(item->terminal_size > 0){
+                    print_->AddRow({ToHexString(info->header()->GetRAW(item->flags_addr)),
+                                    moex::util::AsHexData(item->flags_addr,item->flags_size),
+                                    "Flags",
+                                    ""
+                                   });
+
+                    auto flags = item->GetFlags();
+                    for(auto & flag : flags){
+                        print_->AddRow({"","",std::get<0>(flag),std::get<1>(flag)});
+                    }
+
+                    print_->AddRow({ToHexString(info->header()->GetRAW(item->offset_addr)),
+                                    moex::util::AsHexData(item->offset_addr,item->offset_size),
+                                    "Symbol Offset",
+                                    (boost::format("%1%") % (int)item->offset).str()
+                                   });
+                }
+
+                print_->AddRow({ToHexString(info->header()->GetRAW(item->child_count_addr)),
+                                moex::util::AsHexData(item->child_count),
+                                "Child Count",
+                                (boost::format("%1%") % (int)item->child_count).str()
+                               });
+            }
+            if(child){
+                print_->AddRow({ToHexString(info->header()->GetRAW(child->label_addr)),
+                                moex::util::AsHexData(child->label_addr,child->label_size).substr(0,16),
+                                "Node Label",
+                                (boost::format("%1%") % child->label).str()
+                               });
+                print_->AddRow({ToHexString(info->header()->GetRAW(child->skip_addr)),
+                                moex::util::AsHexData(child->skip_addr,child->skip_size),
+                                "Next Node",
+                                (boost::format("%1%") % child->skip).str()
+                               });
+            }
+        });
+
+        AddViewData(print_);
     }
-    {
-        auto x = CreateTableViewDataPtr("Actions");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
+//    {
+//        auto x = CreateTableViewDataPtr("Actions");
+//        x->AddRow("//todo","","","");
+//        AddViewData(x);
+//    }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = 0;

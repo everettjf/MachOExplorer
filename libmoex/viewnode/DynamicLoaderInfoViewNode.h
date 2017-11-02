@@ -15,6 +15,8 @@ protected:
     moex::LoadCommand_DYLD_INFO *info_ = nullptr;
 public:
     void Init(LoadCommand_DYLD_INFO *info);
+
+    void InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type);
 };
 
 class RebaseInfoViewNode : public DyldInfoViewNodeBase {
