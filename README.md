@@ -1,13 +1,17 @@
 # MachOExplorer
 
-Explore MachO File Format (Yet another MachOView)
+Explore MachO File (Yet another MachOView)
 
-⚠️ This repo is under development, features are in-complete, code may not compile
+# Latest Version
 
-⚠️ This repo is under development, features are in-complete, code may not compile
+`v0.1 Alpha`
 
-⚠️ This repo is under development, features are in-complete, code may not compile
+[Go to download page](https://github.com/everettjf/MachOExplorer/releases)
 
+
+# Feature
+
+1. Basic view macho file
 
 # How to build 
 
@@ -30,3 +34,7 @@ Qt SDK >= 5.9.1
 
 - CMake (>=3.9)
 
+
+# Version History
+
+- 2017-11-04 v0.1 Alpha
