@@ -104,7 +104,7 @@ void TableViewData::AddRow(uint64_t addr, T data, const std::string &desc, const
 class TextViewData: public ViewData{
 public:
     std::string text;
-    BinaryViewData(){
+    TextViewData(){
         mode_ = ViewDataMode::Text;
     }
     bool IsEmpty()const{return text.size() == 0;}
