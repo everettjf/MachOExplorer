@@ -12,13 +12,15 @@ Explore MachO File (Yet another MachOView)
 
 [Telegram](https://t.me/machoexplorer) or QQ Group 259141165
 
-# Incomplete code
-
-1. Symbol display for address
-
 # Feature
 
 1. Basic view macho file
+2. macOS support
+
+# Incomplete code
+
+1. Symbol display for address
+2. Windows support in the future
 
 # How to build 
 
