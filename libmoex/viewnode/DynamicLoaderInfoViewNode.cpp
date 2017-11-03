@@ -467,11 +467,11 @@ void ExportInfoViewNode::InitViewDatas()
 }
 
 void DynamicLoaderInfoViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
-    callback(rebase_.get());
-    callback(binding_.get());
-    callback(weak_binding_.get());
-    callback(lazy_binding_.get());
-    callback(export_.get());
+    if(rebase_)callback(rebase_.get());
+    if(binding_)callback(binding_.get());
+    if(weak_binding_)callback(weak_binding_.get());
+    if(lazy_binding_)callback(lazy_binding_.get());
+    if(export_)callback(export_.get());
 }
 
 void DynamicLoaderInfoViewNode::Init(MachHeaderPtr mh){

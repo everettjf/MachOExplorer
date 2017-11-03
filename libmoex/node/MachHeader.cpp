@@ -77,7 +77,7 @@ uint64_t MachHeader::GetRAW(const void *addr){
 std::size_t MachHeader::DATA_SIZE(){return is64_?mh64_->DATA_SIZE() : mh_->DATA_SIZE();}
 
 std::string MachHeader::GetArch(){
-    return util::GetArchStringFromCpuType(this->data_ptr()->cputype);
+    return util::GetArchStringFromCpuType(this->data_ptr()->cputype,this->data_ptr()->cpusubtype);
 }
 std::string MachHeader::GetFileTypeString(){
     return util::GetMachFileType(this->data_ptr()->filetype);

@@ -27,7 +27,7 @@ bool CommonDisplay::Init(const std::string & filepath,bool is_csv){
 
 void CommonDisplay::ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback){
     bin_->ForEachHeader([&](moex::MachHeaderPtr header) {
-        std::string arch = moex::util::GetArchStringFromCpuType(header->data_ptr()->cputype);
+        std::string arch = moex::util::GetArchStringFromCpuType(header->data_ptr()->cputype,header->data_ptr()->cpu_subtype);
         if(!arch_.empty() && arch != arch_)
             return;
         callback(header);

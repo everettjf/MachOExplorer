@@ -20,7 +20,7 @@ std::string FormatUUIDArray(uint8_t d[16]);
 std::string GetLoadCommandType(uint32_t cmd);
 std::string GetMagicString(uint32_t magic);
 std::string GetCpuTypeString(cpu_type_t type);
-std::string GetArchStringFromCpuType(cpu_type_t type);
+std::string GetArchStringFromCpuType(cpu_type_t type,cpu_subtype_t subtype);
 std::string GetCmdTypeString(uint32_t cmd);
 
 std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype);

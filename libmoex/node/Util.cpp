@@ -121,7 +121,7 @@ namespace util {
         }
         return "unknown";
     }
-    std::string GetArchStringFromCpuType(cpu_type_t type){
+    std::string GetArchStringFromCpuType(cpu_type_t type,cpu_subtype_t subtype){
         static std::unordered_map<cpu_type_t,std::string> mapper{
                 DECLARE_MAP_ITEM_VALUE(CPU_TYPE_ANY,any)
                 DECLARE_MAP_ITEM_VALUE(CPU_TYPE_VAX,vax)
