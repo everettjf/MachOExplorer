@@ -8,13 +8,13 @@ def parse_dir(dir):
     for path,dirs,files in os.walk(dir):
         for f in files:
             filepath = os.path.join(path,f)
-            print(idx)
+            print('echo %d'%idx)
             print('echo "./moex-cli --file \"%s\" --header_list"' % filepath)
             print('./moex-cli --file "%s" --header_list' % filepath)
-            print('')
+            print('echo " "')
             idx+=1
 
-            if idx > 10000:
+            if idx > 50000:
                 return
 
 if __name__ == '__main__':
