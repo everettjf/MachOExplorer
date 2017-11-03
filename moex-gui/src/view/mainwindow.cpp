@@ -8,6 +8,9 @@
 #include "../utility/utility.h"
 #include <QFileDialog>
 #include "../controller/workspacemanager.h"
+#include "../dialog/checkupdatedialog.h"
+#include "../common/appinfo.h"
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -81,6 +84,9 @@ void MainWindow::createActions()
     action->reportIssue = new QAction(tr("Report Issue"));
     connect(action->reportIssue,SIGNAL(triggered(bool)),this,SLOT(reportIssue(bool)));
 
+    action->checkUpdate = new QAction(tr("Check Update"));
+    connect(action->checkUpdate,SIGNAL(triggered(bool)),this,SLOT(checkUpdate(bool)));
+
     action->about = new QAction(tr("About"));
     connect(action->about,SIGNAL(triggered(bool)),this,SLOT(aboutApp(bool)));
 
@@ -98,6 +104,7 @@ void MainWindow::createMenus()
     menu->help = menuBar()->addMenu(tr("Help"));
     menu->help->addAction(action->viewSource);
     menu->help->addAction(action->reportIssue);
+    menu->help->addAction(action->checkUpdate);
     menu->help->addAction(action->about);
 }
 
@@ -125,17 +132,25 @@ void MainWindow::showLogWindow(bool checked)
 
 void MainWindow::reportIssue(bool checked)
 {
-    util::openURL("https://github.com/everettjf/MOEX/issues");
+    util::openURL("https://github.com/everettjf/MachOExplorer/issues");
 }
 
 void MainWindow::viewSource(bool checked)
 {
-    util::openURL("https://github.com/everettjf/MOEX");
+    util::openURL("https://github.com/everettjf/MachOExplorer");
+}
+
+void MainWindow::checkUpdate(bool checked)
+{
+    CheckUpdateDialog dlg(this);
+    dlg.exec();
 }
 
 void MainWindow::aboutApp(bool checked)
 {
-    util::showInfo(this,"MachOExplorer v0.1 by everettjf");
+    QString info = QString("MachOExplorer v%1 by everettjf")
+            .arg(AppInfo::Instance().GetAppVersion());
+    util::showInfo(this,info);
 }
 
 void MainWindow::dockLogVisibilityChanged(bool visible)

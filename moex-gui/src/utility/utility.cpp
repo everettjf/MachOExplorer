@@ -7,6 +7,7 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 
+
 namespace util {
 
 void quitApp()

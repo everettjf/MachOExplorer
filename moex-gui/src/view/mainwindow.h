@@ -24,6 +24,7 @@ struct MainWindowAction{
 
     QAction *reportIssue;
     QAction *viewSource;
+    QAction *checkUpdate;
     QAction *about;
 };
 
@@ -55,6 +56,7 @@ public slots:
 
     void reportIssue(bool checked);
     void viewSource(bool checked);
+    void checkUpdate(bool checked);
     void aboutApp(bool checked);
 
     void dockLogVisibilityChanged(bool visible);

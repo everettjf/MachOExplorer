@@ -6,9 +6,9 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += widgets network
 
-TARGET = moex
+TARGET = MachOExplorer
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -41,7 +41,8 @@ MOEX_SOURCE = $$files(src/*.cpp,true)
 
 SOURCES += $$LIBMOEX_SOURCE $$MOEX_SOURCE
 HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
-FORMS    +=
+FORMS    += \
+    src/dialog/checkupdatedialog.ui
 
 macx{
     _BOOSTPATH = /usr/local/Cellar/boost/1.65.1

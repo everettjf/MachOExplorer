@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <iostream>
 #include <QDesktopWidget>
+#include "common/appinfo.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("MachOExplorer");
     app.setOrganizationName("everettjf");
     app.setOrganizationDomain("everettjf.com");
-    app.setApplicationVersion("0.1");
+    app.setApplicationVersion(AppInfo::Instance().GetAppVersion());
     app.setWindowIcon(QIcon(":res/moex.ico"));
 
     MainWindow w;
