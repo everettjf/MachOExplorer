@@ -11,6 +11,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
+// View Data
 enum class ViewDataMode{
     Binary,
     Table,
@@ -27,7 +28,7 @@ public:
 };
 using ViewDataPtr = std::shared_ptr<ViewData>;
 
-// Binary View Data
+// View Data - Binary
 class BinaryViewData: public ViewData{
 public:
     char * offset = nullptr;
@@ -43,6 +44,7 @@ public:
 using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
 inline BinaryViewDataPtr CreateBinaryViewDataPtr(){return std::make_shared<BinaryViewData>();}
 
+// View Data - Table
 class TableViewItem{
 public:
     std::string data;
@@ -97,11 +99,26 @@ void TableViewData::AddRow(uint64_t addr, T data, const std::string &desc, const
     AddRow({util::AsAddress(addr),util::AsHexData(data),desc,val});
 }
 
+
+// View Data - Text
+class TextViewData: public ViewData{
+public:
+    std::string text;
+    BinaryViewData(){
+        mode_ = ViewDataMode::Text;
+    }
+    bool IsEmpty()const{return text.size() == 0;}
+};
+using TextViewDataPtr = std::shared_ptr<TextViewData>;
+inline TextViewDataPtr CreateTextViewDataPtr(){return std::make_shared<TextViewData>();}
+
+// View Node Base Class
+
 enum class ViewNodeType{
     Unknown,
     FatHeader,
     MachHeader,
-    //...
+    //... this type may be useless , maybe removed in the near future
 };
 
 class ViewNode {
