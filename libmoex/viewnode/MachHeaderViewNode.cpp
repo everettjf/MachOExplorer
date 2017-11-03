@@ -38,13 +38,16 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     code_signature_->Init(d_);
     children_.push_back(code_signature_.get());
 
-    function_starts_ = std::make_shared<FunctionStartsViewNode>();
-    function_starts_->Init(d_);
-    children_.push_back(function_starts_.get());
-
-    data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
-    data_in_code_entries_->Init(d_);
-    children_.push_back(data_in_code_entries_.get());
+    if(d_->ExistLoadCommand({LC_FUNCTION_STARTS})) {
+        function_starts_ = std::make_shared<FunctionStartsViewNode>();
+        function_starts_->Init(d_);
+        children_.push_back(function_starts_.get());
+    }
+    if(d_->ExistLoadCommand({LC_DATA_IN_CODE})) {
+        data_in_code_entries_ = std::make_shared<DataInCodeEntriesViewNode>();
+        data_in_code_entries_->Init(d_);
+        children_.push_back(data_in_code_entries_.get());
+    }
 
     if(d_->ExistLoadCommand({LC_TWOLEVEL_HINTS})){
         twolevel_hints_table_ = std::make_shared<TwoLevelHintsTableViewNode>();

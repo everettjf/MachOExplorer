@@ -12,14 +12,7 @@ MOEX_NAMESPACE_BEGIN
 void FunctionStartsViewNode::InitViewDatas()
 {
     using namespace moex::util;
-
-    moex::LoadCommand_LC_FUNCTION_STARTS *seg=nullptr;
-    for(auto & cmd : mh_->loadcmds_ref()){
-        if(cmd->offset()->cmd == LC_FUNCTION_STARTS) {
-            seg = static_cast<moex::LoadCommand_LC_FUNCTION_STARTS*>(cmd.get());
-            break;
-        }
-    }
+    auto seg= mh_->FindLoadCommand<moex::LoadCommand_LC_FUNCTION_STARTS>({LC_FUNCTION_STARTS});
     if(!seg)
         return;
 

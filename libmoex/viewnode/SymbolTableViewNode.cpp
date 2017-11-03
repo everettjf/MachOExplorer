@@ -11,14 +11,7 @@ void SymbolTableViewNode::InitViewDatas() {
     using namespace moex::util;
 
     auto t = CreateTableViewDataPtr();
-
-    moex::LoadCommand_LC_SYMTAB *seg=nullptr;
-    for(auto & cmd : mh_->loadcmds_ref()){
-        if(cmd->offset()->cmd == LC_SYMTAB) {
-            seg = static_cast<moex::LoadCommand_LC_SYMTAB*>(cmd.get());
-            break;
-        }
-    }
+    auto seg= mh_->FindLoadCommand<moex::LoadCommand_LC_SYMTAB>({LC_SYMTAB});
     if(!seg)
         return;
 

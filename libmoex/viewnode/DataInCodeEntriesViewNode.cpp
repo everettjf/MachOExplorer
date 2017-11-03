@@ -9,13 +9,7 @@ MOEX_NAMESPACE_BEGIN
 void DataInCodeEntriesViewNode::InitViewDatas(){
     using namespace moex::util;
 
-    moex::LoadCommand_LC_DATA_IN_CODE *seg=nullptr;
-    for(auto & cmd : mh_->loadcmds_ref()){
-        if(cmd->offset()->cmd == LC_DATA_IN_CODE) {
-            seg = static_cast<moex::LoadCommand_LC_DATA_IN_CODE*>(cmd.get());
-            break;
-        }
-    }
+    auto seg= mh_->FindLoadCommand<moex::LoadCommand_LC_DATA_IN_CODE>({LC_DATA_IN_CODE});
     if(!seg)
         return;
 
