@@ -14,6 +14,7 @@ MOEX_NAMESPACE_BEGIN
 enum class ViewDataMode{
     Binary,
     Table,
+    Text,
 };
 class ViewData{
 protected:
@@ -26,6 +27,7 @@ public:
 };
 using ViewDataPtr = std::shared_ptr<ViewData>;
 
+// Binary View Data
 class BinaryViewData: public ViewData{
 public:
     char * offset = nullptr;
