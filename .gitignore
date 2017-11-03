@@ -15,7 +15,7 @@ moex-gui/moex-gui.pro.user
 
 # vscode cmake-tools extension
 build/
-.vscode/.cmaketools.json
+.vscode/
 
 
 # Xcode
