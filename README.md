@@ -10,7 +10,7 @@ Explore MachO File (Yet another MachOView)
 
 # Group
 
-[Telegram](https://t.me/machoexplorer) or QQ Group 259141165
+[Telegram https://t.me/machoexplorer](https://t.me/machoexplorer) or QQ Group 259141165
 
 # Feature
 
