@@ -9,7 +9,7 @@ def parse_dir(dir):
         for f in files:
             filepath = os.path.join(path,f)
             print('echo %d'%idx)
-            print('echo "./moex-cli --file \"%s\" --header_list"' % filepath)
+            print('echo "./moex-cli --file \\"%s\\" --header_list"' % filepath)
             print('./moex-cli --file "%s" --header_list' % filepath)
             print('echo " "')
             idx+=1
