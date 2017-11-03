@@ -8,6 +8,9 @@ Explore MachO File (Yet another MachOView)
 
 [Go to download page](https://github.com/everettjf/MachOExplorer/releases)
 
+# Group
+
+[Telegram](https://t.me/machoexplorer) or QQ Group 259141165
 
 # Feature
 
