@@ -51,11 +51,11 @@ Qt SDK >= 5.9.1
 
 # Icon
 
-![MachOExplorer](image/screenshot.png)
+![MachOExplorer](image/machoexplorer-small.png)
 
 *Icon is designed by [wantline](https://weibo.com/wantline)*
 
-`wantline , thanks for your great design.`
+Thanks for wantline's great design.
 
 # Version History
 
