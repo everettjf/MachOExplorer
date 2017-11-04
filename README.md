@@ -4,7 +4,7 @@ Explore MachO File (Yet another MachOView)
 
 ![MachOExplorerIcon](image/machoexplorer-small.png)
 
-*Icon is designed by [wantline](https://weibo.com/wantline)*
+(*Icon is designed by [wantline](https://weibo.com/wantline)*)
 
 ![MachOExplorer](image/screenshot.png)
 
@@ -55,6 +55,7 @@ Qt SDK >= 5.9.1
 
 *Icon is designed by [wantline](https://weibo.com/wantline)*
 
+`wantline , thanks for your great design.`
 
 # Version History
 
