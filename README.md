@@ -2,6 +2,8 @@
 
 Explore MachO File (Yet another MachOView)
 
+![MachOExplorer](image/moex.png)
+
 # Latest Version
 
 `v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
