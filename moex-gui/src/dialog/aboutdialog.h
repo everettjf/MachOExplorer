@@ -22,6 +22,10 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_pushButton_everettjf_clicked();
+
+    void on_pushButton_wantline_clicked();
+
 private:
     Ui::AboutDialog *ui;
 };

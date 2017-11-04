@@ -16,6 +16,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QPixmap img(":res/machoexplorer.png");
     img.scaled(QSize(128,128),Qt::KeepAspectRatio);
     ui->label->setPixmap(img);
+
+
+    QString info = QString("MachOExplorer\n\n"
+                           "v%1\n\n"
+                           "App is written by everettjf\n\n"
+                           "Icon is designed by wantline")
+            .arg(AppInfo::Instance().GetAppVersion());
+
+    ui->label_info->setText(info);
 }
 
 AboutDialog::~AboutDialog()
@@ -25,7 +34,15 @@ AboutDialog::~AboutDialog()
 
 void AboutDialog::on_pushButton_clicked()
 {
-    QString info = QString("MachOExplorer v%1 by everettjf")
-            .arg(AppInfo::Instance().GetAppVersion());
-    util::showInfo(this,info);
+    this->close();
+}
+
+void AboutDialog::on_pushButton_everettjf_clicked()
+{
+    util::openURL("https://weibo.com/everettjf");
+}
+
+void AboutDialog::on_pushButton_wantline_clicked()
+{
+    util::openURL("https://weibo.com/wantline");
 }
