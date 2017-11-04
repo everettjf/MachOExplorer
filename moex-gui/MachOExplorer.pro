@@ -43,7 +43,8 @@ MOEX_SOURCE = $$files(src/*.cpp,true)
 SOURCES += $$LIBMOEX_SOURCE $$MOEX_SOURCE
 HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
 FORMS    += \
-    src/dialog/checkupdatedialog.ui
+    src/dialog/checkupdatedialog.ui \
+    src/dialog/aboutdialog.ui
 
 macx{
     _BOOSTPATH = /usr/local/Cellar/boost/1.65.1

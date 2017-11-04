@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>MachOExplorer.icns</file>
+        <file>res/machoexplorer.png</file>
     </qresource>
 </RCC>

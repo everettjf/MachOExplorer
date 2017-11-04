@@ -10,7 +10,7 @@
 #include "../controller/workspacemanager.h"
 #include "../dialog/checkupdatedialog.h"
 #include "../common/appinfo.h"
-
+#include "../dialog/aboutdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -148,9 +148,8 @@ void MainWindow::checkUpdate(bool checked)
 
 void MainWindow::aboutApp(bool checked)
 {
-    QString info = QString("MachOExplorer v%1 by everettjf")
-            .arg(AppInfo::Instance().GetAppVersion());
-    util::showInfo(this,info);
+    AboutDialog dlg(this);
+    dlg.exec();
 }
 
 void MainWindow::dockLogVisibilityChanged(bool visible)
