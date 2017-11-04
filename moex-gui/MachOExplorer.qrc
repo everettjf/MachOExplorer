@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/moex.ico</file>
+        <file>MachOExplorer.icns</file>
     </qresource>
 </RCC>

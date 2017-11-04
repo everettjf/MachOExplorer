@@ -2,7 +2,11 @@
 
 Explore MachO File (Yet another MachOView)
 
-![MachOExplorer](image/moex.png)
+![MachOExplorerIcon](image/machoexplorer-small.png)
+
+*Icon is designed by [wantline](https://weibo.com/wantline)*
+
+![MachOExplorer](image/screenshot.png)
 
 # Latest Version
 
@@ -44,6 +48,12 @@ Qt SDK >= 5.9.1
 3. moex-gui
 
 - CMake (>=3.9)
+
+# Icon
+
+![MachOExplorer](image/screenshot.png)
+
+*Icon is designed by [wantline](https://weibo.com/wantline)*
 
 
 # Version History

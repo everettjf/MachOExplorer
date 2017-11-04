@@ -15,12 +15,14 @@ SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 FIND_PACKAGE(Qt5Core REQUIRED)
 FIND_PACKAGE(Qt5Gui REQUIRED)
 FIND_PACKAGE(Qt5Widgets REQUIRED)
+FIND_PACKAGE(Qt5Network REQUIRED)
 
 include_directories(
         ${Qt5Widgets_INCLUDES}
         ${Qt5Widgets_PRIVATE_INCLUDE_DIRS}
         ${Qt5Gui_INCLUDE_DIRS}
         ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
+        ${Qt5Network_INCLUDE_DIRS}
 )
 
 file(GLOB_RECURSE LIBMOEX_SOURCE libmoex/*.cpp)
@@ -47,4 +49,4 @@ find_package(Boost REQUIRED COMPONENTS
         )
 include_directories(./src ${Boost_INCLUDE_DIR})
 add_executable(moex-gui ${SOURCE_FILES})
-target_link_libraries(moex-gui ${Boost_LIBRARIES} Qt5::Widgets Qt5::Gui)
+target_link_libraries(moex-gui ${Boost_LIBRARIES} Qt5::Widgets Qt5::Gui Qt5::Network)

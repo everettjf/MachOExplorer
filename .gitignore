@@ -8,23 +8,12 @@ cmake-build-debug/
 cmake-build-release/
 
 # Qt Creator
-build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Debug/
-build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Release/
-build-moex-gui-Desktop_Qt_5_9_1_clang_64bit-Profile/
-moex-gui/moex-gui.pro.user
+build-MachOExplorer-Desktop_Qt_5_9_1_clang_64bit-Debug/
+build-MachOExplorer-Desktop_Qt_5_9_1_clang_64bit-Release/
+build-MachOExplorer-Desktop_Qt_5_9_1_clang_64bit-Profile/
+moex-gui/MachOExplorer.pro.user
 
 # vscode cmake-tools extension
 build/
 .vscode/
 
-
-# Xcode
-moex-gui/Debug
-moex-gui/Release
-moex-gui/MOEX.build
-moex-gui/SharedPrecompiledHeaders
-moex-gui/moc_*.*
-moex-gui/.qmake.stash
-moex-gui/Info.plist
-moex-gui/MOEX.xcodeproj
-moex-gui/qrc_moex.cpp

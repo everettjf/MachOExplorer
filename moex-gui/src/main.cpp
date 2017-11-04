@@ -12,7 +12,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    Q_INIT_RESOURCE(moex);
+    Q_INIT_RESOURCE(MachOExplorer);
 
     QApplication app(argc, argv);
 
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     app.setOrganizationName("everettjf");
     app.setOrganizationDomain("everettjf.com");
     app.setApplicationVersion(AppInfo::Instance().GetAppVersion());
-    app.setWindowIcon(QIcon(":res/moex.ico"));
+    app.setWindowIcon(QIcon(":MachOExplorer.icns"));
 
     MainWindow w;
     w.setGeometry(QApplication::desktop()->availableGeometry().adjusted(200, 100, -200, -100));
