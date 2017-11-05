@@ -14,11 +14,11 @@ Explore MachO File (Yet another MachOView)
 
 # How to install
 
-## MachOExplorer
+1. MachOExplorer
 
 [Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
 
-## Command line tool "moex"
+2. Command line tool "moex"
 
 ```
 brew tap everettjf/tap
