@@ -10,7 +10,7 @@ Explore MachO File (Yet another MachOView)
 
 # Latest Version
 
-`v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
+`v0.4.0 Alpha` (Not a stable version and there must be lots of bugs now)
 
 # How to install
 
