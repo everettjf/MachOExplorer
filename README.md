@@ -4,7 +4,7 @@ Explore MachO File (Yet another MachOView)
 
 ![MachOExplorerIcon](image/machoexplorer-small.png)
 
-(*Icon is designed by [wantline](https://weibo.com/wantline)*)
+*Icon is designed by [wantline](https://weibo.com/wantline)*
 
 ![MachOExplorer](image/screenshot.png)
 
@@ -12,7 +12,7 @@ Explore MachO File (Yet another MachOView)
 
 `v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
 
-[Go to download / 这里下载最新版本 (MachOExplorer.dmg)](https://github.com/everettjf/MachOExplorer/releases)
+[Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
 
 # Group
 
