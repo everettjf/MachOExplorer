@@ -262,7 +262,7 @@ void SectionViewNode::InitIndirectStubsView(const std::string &title)
 {
     auto t = CreateTableViewDataPtr(title);
     d_->ForEachAs_S_SYMBOL_STUBS([&](void * cur,size_t unitsize){
-        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
+        t->AddRow(AsHexString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
     });
 
     AddViewData(t);
