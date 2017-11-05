@@ -12,7 +12,7 @@ Explore MachO File (Yet another MachOView)
 
 `v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
 
-[Go to download page](https://github.com/everettjf/MachOExplorer/releases)
+[Go to download page / 这里下载最新版本](https://github.com/everettjf/MachOExplorer/releases)
 
 # Group
 
