@@ -1,6 +1,8 @@
 .DS_Store
 
 release/
+release-gui/
+release-cli/
 
 # Clion
 .idea/

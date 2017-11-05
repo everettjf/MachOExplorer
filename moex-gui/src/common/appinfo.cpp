@@ -3,6 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "appinfo.h"
+#include "../../libmoex/ver.h"
 
 AppInfo::AppInfo()
 {
@@ -17,7 +18,7 @@ AppInfo &AppInfo::Instance()
 
 QString AppInfo::GetAppVersion()
 {
-    return "0.3";
+    return LIBMOEX_VERSION;
 }
 
 QString AppInfo::GetAppEdition()

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(moex_cli)
+project(moex)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -27,5 +27,5 @@ find_package(Boost REQUIRED COMPONENTS
         filesystem
         )
 include_directories(${Boost_INCLUDE_DIR})
-add_executable(moex-cli ${SOURCE_FILES})
-target_link_libraries(moex-cli ${Boost_LIBRARIES})
+add_executable(moex ${SOURCE_FILES})
+target_link_libraries(moex ${Boost_LIBRARIES})

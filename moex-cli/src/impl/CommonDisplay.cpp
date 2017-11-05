@@ -27,7 +27,7 @@ bool CommonDisplay::Init(const std::string & filepath,bool is_csv){
 
 void CommonDisplay::ForEachHeader(std::function<void(moex::MachHeaderPtr)> callback){
     bin_->ForEachHeader([&](moex::MachHeaderPtr header) {
-        std::string arch = moex::util::GetArchStringFromCpuType(header->data_ptr()->cputype,header->data_ptr()->cpu_subtype);
+        std::string arch = moex::util::GetArchStringFromCpuType(header->data_ptr()->cputype,header->data_ptr()->cpusubtype);
         if(!arch_.empty() && arch != arch_)
             return;
         callback(header);
@@ -87,7 +87,7 @@ void CommonDisplay::ArchList(){
     bin_->ForEachHeader([&](moex::MachHeaderPtr header){
         mach_header *h = header->data_ptr();
         print_->AddRow({
-                        moex::util::GetArchStringFromCpuType(h->cputype)
+                        moex::util::GetArchStringFromCpuType(h->cputype,h->cpusubtype)
                        });
 
     });

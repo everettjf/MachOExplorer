@@ -8,6 +8,7 @@
 #include "util/ArgvParser.h"
 #include "util/BeautyTextPrint.h"
 #include "impl/TestCode.h"
+#include "../libmoex/ver.h"
 
 using namespace std;
 using namespace boost::filesystem;
@@ -15,6 +16,7 @@ using namespace boost::filesystem;
 void AppHandler::SetupOptions(){
     argv_->desc().add_options()
             ("help", "Help message")
+            ("version", "Show version")
             ("file",boost::program_options::value<std::string>(),"File path")
             ("csv","CSV format output")
             ("test","Test code")
@@ -139,6 +141,11 @@ int AppHandler::Run(int argc, char* argv[]){
 bool AppHandler::Prepare(){
     if(argv_->Exist("help")){
         argv_->PrintHelp();
+        return false;
+    }
+
+    if(argv_->Exist("version")){
+        cout << "moex version : " << LIBMOEX_VERSION <<endl;
         return false;
     }
 
