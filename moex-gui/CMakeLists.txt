@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
-project(moex_gui)
+project(MachOExplorer)
 
 set(Qt5Core_DIR /opt/qt/clang_64/lib/cmake/Qt5Core)
 set(Qt5Gui_DIR /opt/qt/clang_64/lib/cmake/Qt5Gui)
 set(Qt5Widgets_DIR /opt/qt/clang_64/lib/cmake/Qt5Widgets)
+set(Qt5Network_DIR /opt/qt/clang_64/lib/cmake/Qt5Network)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -35,7 +36,7 @@ set(SOURCE_FILES
         ${LIBMOEX_HEADER}
         ${MOEX_SOURCE}
         ${MOEX_HEADER}
-        src/moex.qrc
+        MachOExplorer.qrc
         )
 
 # see https://cmake.org/cmake/help/latest/module/FindBoost.html
@@ -48,5 +49,5 @@ find_package(Boost REQUIRED COMPONENTS
         filesystem
         )
 include_directories(./src ${Boost_INCLUDE_DIR})
-add_executable(moex-gui ${SOURCE_FILES})
-target_link_libraries(moex-gui ${Boost_LIBRARIES} Qt5::Widgets Qt5::Gui Qt5::Network)
+add_executable(MachOExplorer ${SOURCE_FILES})
+target_link_libraries(MachOExplorer ${Boost_LIBRARIES} Qt5::Widgets Qt5::Gui Qt5::Network)
