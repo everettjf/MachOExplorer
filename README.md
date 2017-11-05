@@ -12,7 +12,7 @@ Explore MachO File (Yet another MachOView)
 
 `v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
 
-[Go to download page / 这里下载最新版本](https://github.com/everettjf/MachOExplorer/releases)
+[Go to download / 这里下载最新版本 (MachOExplorer.dmg)](https://github.com/everettjf/MachOExplorer/releases)
 
 # Group
 
@@ -29,6 +29,8 @@ Explore MachO File (Yet another MachOView)
 2. Windows support in the future
 
 # How to build 
+
+这里是从源码编译的步骤，如果仅安装使用，[点击这里下载](https://github.com/everettjf/MachOExplorer/releases)
 
 macOS only until now, Windows support in the near future.
 
