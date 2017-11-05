@@ -12,7 +12,19 @@ Explore MachO File (Yet another MachOView)
 
 `v0.1 Alpha` (Not a stable version and there must be lots of bugs now)
 
+# How to install
+
+## MachOExplorer
+
 [Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
+
+## Command line tool "moex"
+
+```
+brew tap everettjf/tap
+brew install moex
+moex --help
+```
 
 # Group
 
