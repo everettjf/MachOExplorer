@@ -17,7 +17,7 @@ AppInfo &AppInfo::Instance()
 
 QString AppInfo::GetAppVersion()
 {
-    return "0.2";
+    return "0.3";
 }
 
 QString AppInfo::GetAppEdition()
