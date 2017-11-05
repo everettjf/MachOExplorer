@@ -73,4 +73,7 @@ Thanks for wantline's great design.
 
 # Version History
 
-- 2017-11-04 v0.1 Alpha
+- 2017-11-05 v0.4.0 Alpha : Command line tool `moex` release and version policy changed
+- 2017-11-05 v0.3 Alpha : Bug fix
+- 2017-11-05 v0.2 Alpha : Icon born
+- 2017-11-04 v0.1 Alpha : First release
