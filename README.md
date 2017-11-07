@@ -16,7 +16,12 @@ Explore MachO File (Yet another MachOView)
 
 1. MachOExplorer
 
-[Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
+(1) [Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
+(2) or use brew cask
+
+```
+brew cask install machoexplorer
+```
 
 2. Command line tool `moex`
 
