@@ -16,7 +16,8 @@ Explore MachO File (Yet another MachOView)
 
 1. MachOExplorer
 
-(1) [Download MachOExplorer.dmg (下载最新版本)](https://github.com/everettjf/MachOExplorer/releases)
+(1) [Download MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)下载最新版本
+
 (2) or use brew cask
 
 ```
