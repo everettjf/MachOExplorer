@@ -34,7 +34,7 @@ moex --help
 
 # Group
 
-[Telegram https://t.me/machoexplorer](https://t.me/machoexplorer) or QQ Group 259141165
+QQ Group 259141165
 
 # Feature
 
