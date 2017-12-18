@@ -34,8 +34,7 @@ moex --help
 
 # Group
 
-1. [Telegram Group](https://t.me/joinchat/FBhGpBHmk0r0R73bxYmNdA)
-2. QQ Group 259141165
+[Telegram Group](https://t.me/joinchat/FBhGpBHmk0r0R73bxYmNdA)
 
 # Feature
 
