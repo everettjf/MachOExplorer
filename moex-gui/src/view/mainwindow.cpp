@@ -67,6 +67,9 @@ void MainWindow::createUI()
 
 void MainWindow::createActions()
 {
+    action->newWindow = new QAction(tr("&New Window"));
+    connect(action->newWindow,SIGNAL(triggered(bool)),this,SLOT(newWindow(bool)));
+
     action->openFile = new QAction(tr("&Open File"));
     connect(action->openFile,SIGNAL(triggered(bool)),this,SLOT(openFile(bool)));
 
@@ -95,6 +98,7 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     menu->file = menuBar()->addMenu(tr("File"));
+    menu->file->addAction(action->newWindow);
     menu->file->addAction(action->openFile);
     menu->file->addAction(action->quit);
 
@@ -108,6 +112,11 @@ void MainWindow::createMenus()
     menu->help->addAction(action->about);
 }
 
+void MainWindow::newWindow(bool checked)
+{
+
+}
+
 void MainWindow::openFile(bool checked)
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -119,6 +128,7 @@ void MainWindow::openFile(bool checked)
 
     WorkspaceManager::current()->openFile(fileName);
 }
+
 
 void MainWindow::quitApp(bool checked)
 {
