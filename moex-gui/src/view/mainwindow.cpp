@@ -14,7 +14,9 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    ui = new WorkspaceUI();
+    workspace = new Workspace();
+    ui = workspace->ui();
+
     menu = new MainWindowMenu();
     action = new MainWindowAction();
 
@@ -23,12 +25,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createActions();
     createMenus();
 
-    WorkspaceManager::current()->set_ui(ui);
-
     // TEST
 #ifndef QT_NO_DEBUG
-//    WorkspaceManager::current()->openFile("/Applications/SizeOptDemo");
-    WorkspaceManager::current()->openFile("/Applications/crazybaby");
+    workspace->openFile("/Applications/crazybaby");
 #endif
 }
 
@@ -63,6 +62,10 @@ void MainWindow::createUI()
     setCorner(Qt::BottomLeftCorner,Qt::LeftDockWidgetArea);
     setCorner(Qt::TopRightCorner,Qt::RightDockWidgetArea);
     setCorner(Qt::BottomRightCorner,Qt::RightDockWidgetArea);
+
+    ui->content->workspace = workspace;
+    ui->layout->workspace = workspace;
+    ui->log->workspace = workspace;
 }
 
 void MainWindow::createActions()
@@ -118,7 +121,7 @@ void MainWindow::createMenus()
 
 void MainWindow::newWindow(bool checked)
 {
-    WorkspaceManager::newWorkspace();
+    WorkspaceManager::Instance()->newWorkspace();
 }
 
 void MainWindow::closeWindow(bool checked)
@@ -136,7 +139,7 @@ void MainWindow::openFile(bool checked)
     if(fileName.length() == 0)
         return;
 
-    WorkspaceManager::current()->openFile(fileName);
+    workspace->openFile(fileName);
 }
 
 

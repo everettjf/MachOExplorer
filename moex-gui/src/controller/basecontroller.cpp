@@ -12,5 +12,5 @@ BaseController::BaseController()
 
 void BaseController::log(const QString &log)
 {
-    WorkspaceManager::current()->addLog(log);
+    workspace->addLog(log);
 }

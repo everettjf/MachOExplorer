@@ -29,7 +29,7 @@ class Workspace
 public:
     Workspace();
 
-    void set_ui(WorkspaceUI*ui){ui_ = ui;}
+    WorkspaceUI *ui(){return ui_;}
 
     void openFile(const QString & filePath);
     void addLog(const QString & log);
@@ -44,9 +44,9 @@ class WorkspaceManager
 public:
     WorkspaceManager();
 
-    static Workspace * current();
+    static WorkspaceManager * Instance();
 
-    static void newWorkspace();
+    void newWorkspace();
 };
 
 #endif // WORKSPACEMANAGER_H

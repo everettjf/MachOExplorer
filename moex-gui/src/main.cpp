@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(AppInfo::Instance().GetAppVersion());
     app.setWindowIcon(QIcon(":MachOExplorer.icns"));
 
-    WorkspaceManager::newWorkspace();
+    WorkspaceManager::Instance()->newWorkspace();
 
     return app.exec();
 }

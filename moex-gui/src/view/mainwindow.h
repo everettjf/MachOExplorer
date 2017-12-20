@@ -9,6 +9,7 @@
 #include <QAction>
 
 #include "../controller/workspacemanager.h"
+#include "../controller/windowshareddata.h"
 
 struct MainWindowMenu{
     QMenu *file;
@@ -30,7 +31,7 @@ struct MainWindowAction{
     QAction *about;
 };
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow , public WindowSharedData
 {
     Q_OBJECT
 
@@ -41,7 +42,6 @@ private:
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-
 
 protected:
     void createUI();

@@ -8,7 +8,7 @@
 
 Workspace::Workspace()
 {
-
+    ui_ = new WorkspaceUI();
 }
 
 void Workspace::openFile(const QString &filePath)
@@ -34,10 +34,10 @@ WorkspaceManager::WorkspaceManager()
 
 }
 
-Workspace *WorkspaceManager::current()
+WorkspaceManager *WorkspaceManager::Instance()
 {
-    static Workspace workspace;
-    return & workspace;
+    static WorkspaceManager wm;
+    return & wm;
 }
 
 void WorkspaceManager::newWorkspace()

@@ -24,6 +24,7 @@ void LayoutView::openFile(const QString &filePath)
 {
     if(controller) delete controller;
     controller = new LayoutController();
+    controller->workspace = workspace;
 
     controller->setFilePath(filePath);
     QString error;
@@ -54,7 +55,7 @@ void LayoutView::showViewNode(moex::ViewNode *node)
         return;
 
     qDebug() << QString::fromStdString(node->GetDisplayName());
-    WorkspaceManager::current()->showNode(node);
+    workspace->showNode(node);
 }
 
 void LayoutView::clickedTreeNode(QModelIndex index)

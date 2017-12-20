@@ -9,15 +9,17 @@
 #include <QTreeView>
 #include "../controller/layoutcontroller.h"
 #include <QModelIndex>
+#include "../controller/windowshareddata.h"
 
 
 
-class LayoutView : public QWidget
+class LayoutView : public QWidget, public WindowSharedData
 {
     Q_OBJECT
 private:
     QTreeView *treeView;
     LayoutController *controller;
+
 private:
     void showViewNode(moex::ViewNode * node);
 public:

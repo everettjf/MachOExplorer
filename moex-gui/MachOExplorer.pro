@@ -41,7 +41,8 @@ MOEX_HEADER = $$files(src/*.h,true)
 MOEX_SOURCE = $$files(src/*.cpp,true)
 
 SOURCES += $$LIBMOEX_SOURCE $$MOEX_SOURCE
-HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
+HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER \
+    src/controller/windowshareddata.h
 FORMS    += \
     src/dialog/checkupdatedialog.ui \
     src/dialog/aboutdialog.ui
