@@ -18,6 +18,7 @@ struct MainWindowMenu{
 
 struct MainWindowAction{
     QAction *newWindow;
+    QAction *closeWindow;
     QAction *openFile;
     QAction *quit;
 
@@ -51,6 +52,7 @@ signals:
 
 public slots:
     void newWindow(bool checked);
+    void closeWindow(bool checked);
     void openFile(bool checked);
     void quitApp(bool checked);
 

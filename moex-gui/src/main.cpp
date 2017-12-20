@@ -5,8 +5,8 @@
 #include "view/mainwindow.h"
 #include <QApplication>
 #include <iostream>
-#include <QDesktopWidget>
 #include "common/appinfo.h"
+#include "controller/workspacemanager.h"
 
 using namespace std;
 
@@ -22,9 +22,7 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(AppInfo::Instance().GetAppVersion());
     app.setWindowIcon(QIcon(":MachOExplorer.icns"));
 
-    MainWindow w;
-    w.setGeometry(QApplication::desktop()->availableGeometry().adjusted(200, 100, -200, -100));
-    w.show();
+    WorkspaceManager::newWorkspace();
 
     return app.exec();
 }

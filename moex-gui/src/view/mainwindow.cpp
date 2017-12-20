@@ -70,6 +70,9 @@ void MainWindow::createActions()
     action->newWindow = new QAction(tr("&New Window"));
     connect(action->newWindow,SIGNAL(triggered(bool)),this,SLOT(newWindow(bool)));
 
+    action->closeWindow = new QAction(tr("&Close Window"));
+    connect(action->closeWindow,SIGNAL(triggered(bool)),this,SLOT(closeWindow(bool)));
+
     action->openFile = new QAction(tr("&Open File"));
     connect(action->openFile,SIGNAL(triggered(bool)),this,SLOT(openFile(bool)));
 
@@ -99,6 +102,7 @@ void MainWindow::createMenus()
 {
     menu->file = menuBar()->addMenu(tr("File"));
     menu->file->addAction(action->newWindow);
+    menu->file->addAction(action->closeWindow);
     menu->file->addAction(action->openFile);
     menu->file->addAction(action->quit);
 
@@ -114,7 +118,13 @@ void MainWindow::createMenus()
 
 void MainWindow::newWindow(bool checked)
 {
+    WorkspaceManager::newWorkspace();
+}
 
+void MainWindow::closeWindow(bool checked)
+{
+    this->close();
+    delete this;
 }
 
 void MainWindow::openFile(bool checked)

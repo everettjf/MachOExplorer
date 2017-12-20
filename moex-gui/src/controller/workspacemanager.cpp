@@ -3,7 +3,8 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "workspacemanager.h"
-
+#include "../view/mainwindow.h"
+#include <QDesktopWidget>
 
 Workspace::Workspace()
 {
@@ -37,4 +38,11 @@ Workspace *WorkspaceManager::current()
 {
     static Workspace workspace;
     return & workspace;
+}
+
+void WorkspaceManager::newWorkspace()
+{
+    auto *w = new MainWindow();
+    w->setGeometry(QApplication::desktop()->availableGeometry().adjusted(200, 100, -200, -100));
+    w->show();
 }

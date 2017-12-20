@@ -45,6 +45,8 @@ public:
     WorkspaceManager();
 
     static Workspace * current();
+
+    static void newWorkspace();
 };
 
 #endif // WORKSPACEMANAGER_H
