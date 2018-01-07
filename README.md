@@ -48,8 +48,6 @@ moex --help
 
 # How to build 
 
-这里是从源码编译的步骤，如果仅安装使用，[点击这里下载](https://github.com/everettjf/MachOExplorer/releases)
-
 macOS only until now, Windows support in the near future.
 
 1. Env
@@ -68,6 +66,15 @@ Qt SDK >= 5.9.1
 3. moex-gui
 
 - CMake (>=3.9)
+
+
+
+# Libraries
+
+1. Qt
+2. boost
+3. args : Argument Parser https://github.com/Taywee/args
+4. fmt : Formating https://github.com/fmtlib/fmt
 
 # Icon
 

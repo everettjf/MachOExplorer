@@ -449,6 +449,8 @@ void ExportInfoViewNode::InitViewDatas()
                                 (boost::format("%1%") % child->skip).str()
                                });
             }
+
+            print_->AddSeparator();
         });
 
         AddViewData(print_);

@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // TEST
 #ifndef QT_NO_DEBUG
-    workspace->openFile("/Applications/crazybaby");
+    QString debugfile = "/Users/everettjf/2018/Tokamak/HelloMachO/EmptyMain/bin/EmptyMain";
+    workspace->openFile(debugfile);
 #endif
 }
 
