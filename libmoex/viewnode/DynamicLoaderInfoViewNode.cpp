@@ -404,16 +404,21 @@ void ExportInfoViewNode::InitViewDatas()
 
         moex::LoadCommand_DYLD_INFO *info = info_;
 
+        int item_index = 0;
         info->ForEachExportItem([&](const moex::ExportContext *ctx,moex::ExportItem* item,moex::ExportChildItem* child){
             if(item){
-                print_->AddRow({ToHexString(info->header()->GetRAW(item->terminal_size_addr)),
+                ++item_index;
+                if(item_index > 1)
+                    print_->AddSeparator();
+
+                print_->AddRow({AsAddress(info->header()->GetRAW(item->terminal_size_addr)),
                                 moex::util::AsHexData(item->terminal_size),
                                 "Terminal Size",
                                 (boost::format("%1%") % (int)item->terminal_size).str()
                                });
 
                 if(item->terminal_size > 0){
-                    print_->AddRow({ToHexString(info->header()->GetRAW(item->flags_addr)),
+                    print_->AddRow({AsAddress(info->header()->GetRAW(item->flags_addr)),
                                     moex::util::AsHexData(item->flags_addr,item->flags_size),
                                     "Flags",
                                     ""
@@ -424,33 +429,32 @@ void ExportInfoViewNode::InitViewDatas()
                         print_->AddRow({"","",std::get<0>(flag),std::get<1>(flag)});
                     }
 
-                    print_->AddRow({ToHexString(info->header()->GetRAW(item->offset_addr)),
+                    print_->AddRow({AsAddress(info->header()->GetRAW(item->offset_addr)),
                                     moex::util::AsHexData(item->offset_addr,item->offset_size),
                                     "Symbol Offset",
                                     (boost::format("%1%") % (int)item->offset).str()
                                    });
                 }
 
-                print_->AddRow({ToHexString(info->header()->GetRAW(item->child_count_addr)),
+                print_->AddRow({AsAddress(info->header()->GetRAW(item->child_count_addr)),
                                 moex::util::AsHexData(item->child_count),
                                 "Child Count",
                                 (boost::format("%1%") % (int)item->child_count).str()
                                });
             }
             if(child){
-                print_->AddRow({ToHexString(info->header()->GetRAW(child->label_addr)),
+                print_->AddRow({AsAddress(info->header()->GetRAW(child->label_addr)),
                                 moex::util::AsHexData(child->label_addr,child->label_size).substr(0,16),
                                 "Node Label",
                                 (boost::format("%1%") % child->label).str()
                                });
-                print_->AddRow({ToHexString(info->header()->GetRAW(child->skip_addr)),
+                print_->AddRow({AsAddress(info->header()->GetRAW(child->skip_addr)),
                                 moex::util::AsHexData(child->skip_addr,child->skip_size),
                                 "Next Node",
-                                (boost::format("%1%") % child->skip).str()
+                                moex::util::AsAddress(child->skip)
                                });
             }
 
-            print_->AddSeparator();
         });
 
         AddViewData(print_);
