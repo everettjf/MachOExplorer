@@ -72,9 +72,10 @@ Qt SDK >= 5.9.1
 # Libraries
 
 1. Qt
-2. boost
+2. boost (Trying to remove)
 3. args : Argument Parser https://github.com/Taywee/args
 4. fmt : Formating https://github.com/fmtlib/fmt
+5. cpp-mmaplib : mmap/CreateFileMapping Wrapper https://github.com/yhirose/cpp-mmaplib
 
 # Icon
 

@@ -7,22 +7,26 @@
 #include <iostream>
 #include <libmoex/moex.h>
 #include <cstdio>
+#include <libmoex/base/fmt/format.h>
 
 using namespace std;
 
 
 void TestCode::Test() {
-    uint8_t a8 = 10;
-    cout << sizeof(a8) << " "<< boost::format("%02X")%(uint32_t)a8 <<endl;
+//    uint8_t a8 = 10;
+//    cout << sizeof(a8) << " "<< boost::format("%02X")%(uint32_t)a8 <<endl;
+//
+//    uint16_t a16 = 10;
+//    cout << sizeof(a16) << " "<< boost::format("%04X")%(uint32_t)a16 <<endl;
+//
+//    uint32_t a32 = 10;
+//    cout << sizeof(a32) << " " << boost::format("%08X")%(uint32_t)a32 <<endl;
+//
+//    uint64_t a64 = 10;
+//    cout << sizeof(a64) << " " << boost::format("%016X")%(uint64_t)a64 <<endl;
 
-    uint16_t a16 = 10;
-    cout << sizeof(a16) << " "<< boost::format("%04X")%(uint32_t)a16 <<endl;
+    cout << fmt::format("The answer is {}", 42);
 
-    uint32_t a32 = 10;
-    cout << sizeof(a32) << " " << boost::format("%08X")%(uint32_t)a32 <<endl;
-
-    uint64_t a64 = 10;
-    cout << sizeof(a64) << " " << boost::format("%016X")%(uint64_t)a64 <<endl;
 
 
 }
