@@ -409,7 +409,7 @@ void ExportInfoViewNode::InitViewDatas()
             if(item){
                 ++item_index;
                 if(item_index > 1)
-                    print_->AddSeparator();
+                    print_->AddRow({"-","-","-","-"});
 
                 print_->AddRow({AsAddress(info->header()->GetRAW(item->terminal_size_addr)),
                                 moex::util::AsHexData(item->terminal_size),

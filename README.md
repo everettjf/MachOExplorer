@@ -14,9 +14,9 @@ Explore MachO File (Yet another MachOView)
 
 # How to install
 
-1. MachOExplorer
+1. GUI `MachOExplorer`
 
-(1) [Download MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)下载最新版本
+(1) [Download MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)
 
 (2) or use brew cask
 
@@ -24,7 +24,7 @@ Explore MachO File (Yet another MachOView)
 brew cask install machoexplorer
 ```
 
-2. Command line tool `moex`
+2. Command Line Tool `moex`
 
 ```
 brew tap everettjf/tap
