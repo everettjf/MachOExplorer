@@ -32,10 +32,6 @@ brew install moex
 moex --help
 ```
 
-# Group
-
-[Telegram Group](https://t.me/joinchat/FBhGpBHmk0r0R73bxYmNdA)
-
 # Feature
 
 1. Basic view macho file
