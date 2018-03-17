@@ -126,7 +126,7 @@ public:
 
     // Find either command type , all cmdtypes corresponding to same return type
     template<typename T>
-    T * FindLoadCommand(std::initializer_list<int> cmdtypes){
+    T * FindLoadCommand(std::initializer_list<uint32_t> cmdtypes){
         for(auto & cmd : loadcmds_ref()){
             for(auto cmdtype : cmdtypes){
                 if(cmd->offset()->cmd == cmdtype) {
@@ -137,7 +137,7 @@ public:
         return nullptr;
     }
 
-    bool ExistLoadCommand(std::initializer_list<int> cmdtypes){
+    bool ExistLoadCommand(std::initializer_list<uint32_t> cmdtypes){
         for(auto & cmd : loadcmds_ref()){
             for(auto cmdtype : cmdtypes){
                 if(cmd->offset()->cmd == cmdtype) {
@@ -149,7 +149,7 @@ public:
     }
 
     template<typename T>
-    void ForEachLoadCommand(std::initializer_list<int> cmdtypes, std::function<void(T*,bool&)> callback){
+    void ForEachLoadCommand(std::initializer_list<uint32_t> cmdtypes, std::function<void(T*,bool&)> callback){
         for(auto & cmd : loadcmds_ref()){
             for(auto cmdtype : cmdtypes){
                 if(cmd->offset()->cmd == cmdtype) {

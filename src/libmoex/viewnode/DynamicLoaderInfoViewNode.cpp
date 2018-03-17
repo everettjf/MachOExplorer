@@ -484,7 +484,7 @@ void DynamicLoaderInfoViewNode::Init(MachHeaderPtr mh){
     using namespace moex::util;
     mh_ = mh;
 
-    moex::LoadCommand_DYLD_INFO *info= mh_->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({(int)LC_DYLD_INFO,(int)LC_DYLD_INFO_ONLY});
+    moex::LoadCommand_DYLD_INFO *info= mh_->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({LC_DYLD_INFO,LC_DYLD_INFO_ONLY});
     if(!info)
         return;
 
@@ -514,7 +514,7 @@ void DynamicLoaderInfoViewNode::Init(MachHeaderPtr mh){
 
 void DynamicLoaderInfoViewNode::InitViewDatas()
 {
-    moex::LoadCommand_DYLD_INFO *c= mh_->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({(int)LC_DYLD_INFO,(int)LC_DYLD_INFO_ONLY});
+    moex::LoadCommand_DYLD_INFO *c= mh_->FindLoadCommand<moex::LoadCommand_DYLD_INFO>({LC_DYLD_INFO,LC_DYLD_INFO_ONLY});
     if(!c)
         return;
 
