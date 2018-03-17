@@ -6,7 +6,7 @@ set(Qt5Gui_DIR /opt/qt/clang_64/lib/cmake/Qt5Gui)
 set(Qt5Widgets_DIR /opt/qt/clang_64/lib/cmake/Qt5Widgets)
 set(Qt5Network_DIR /opt/qt/clang_64/lib/cmake/Qt5Network)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_AUTOUIC ON)

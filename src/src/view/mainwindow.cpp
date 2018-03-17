@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // TEST
 #ifndef QT_NO_DEBUG
-    QString debugfile = "/Users/everettjf/2018/Tokamak/HelloMachO/EmptyMain/bin/EmptyMain";
+    QString debugfile = "/Users/everettjf/github/MachOExplorer/sample/simple";
     workspace->openFile(debugfile);
 #endif
 }

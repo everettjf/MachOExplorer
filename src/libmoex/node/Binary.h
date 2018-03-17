@@ -6,8 +6,6 @@
 #define MOEXBINARY_H
 
 #include "Node.h"
-#include <boost/interprocess/file_mapping.hpp>
-#include <boost/interprocess/mapped_region.hpp>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -16,6 +14,7 @@
 #include <cstdlib>
 #include "FatHeader.h"
 #include "MachHeader.h"
+#include "../base/mmap/mmaplib.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -28,8 +27,7 @@ private:
     std::string filepath_;
 
     // File mapping holder
-    boost::interprocess::file_mapping mapping_;
-    boost::interprocess::mapped_region region_;
+    std::unique_ptr<mmaplib::MemoryMappedFile> map_;
 
     // Pointing to the begining fo the file
     void *memory_;

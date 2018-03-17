@@ -9,7 +9,6 @@ MOEX_NAMESPACE_BEGIN
 
 Binary::Binary(const std::string & filepath)
     : filepath_(filepath){
-    using namespace boost::interprocess;
 
     if(filepath_.length() == 0){
         throw NodeException("invalid file path");
@@ -18,13 +17,14 @@ Binary::Binary(const std::string & filepath)
     // Mapping file
     const char * file_name = filepath_.c_str();
 
-    file_mapping tmp_mapping(file_name,read_only);
-    mapping_ = std::move(tmp_mapping);
-    mapped_region tmp_region(mapping_,read_only);
-    region_ = std::move(tmp_region);
+    try {
+        map_ = std::make_unique<mmaplib::MemoryMappedFile>(file_name);
+    }catch (...){
+        throw NodeException("Can not open file");
+    }
 
-    void *addr = region_.get_address();
-    std::size_t size = region_.get_size();
+    void *addr = (void*)map_->data();
+    std::size_t size = map_->size();
 
     // Set member
     memory_ = addr;
