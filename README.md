@@ -14,7 +14,6 @@ Explore MachO File (Yet another MachOView)
 
 # How to install
 
-1. GUI `MachOExplorer`
 
 (1) [Download MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)
 
@@ -22,14 +21,6 @@ Explore MachO File (Yet another MachOView)
 
 ```
 brew cask install machoexplorer
-```
-
-2. Command Line Tool `moex`
-
-```
-brew tap everettjf/tap
-brew install moex
-moex --help
 ```
 
 # Feature
@@ -46,24 +37,13 @@ moex --help
 
 macOS only until now, Windows support in the near future.
 
-1. Env
-
 ```
 brew install cmake
 brew install boost --c++11
 
-Qt SDK >= 5.9.1
+Qt SDK >= 5.10.1
+CMake (>=3.9)
 ```
-
-2. moex-cli
-
-- CMake (>=3.9)
-
-3. moex-gui
-
-- CMake (>=3.9)
-
-
 
 # Libraries
 
