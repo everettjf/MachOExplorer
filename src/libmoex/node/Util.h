@@ -31,25 +31,26 @@ std::vector<std::tuple<uint32_t,std::string>> GetMachFlagsArray(uint32_t flag);
 
 template <typename T>
 std::string AsString(T value){
-    return boost::str(boost::format("%1%") % value);
+    return fmt::format("{}",value);
 }
+
 template <typename T>
 std::string AsHexString(T value){
-    return boost::str(boost::format("%08X") % value);
+    return fmt::format("{0:0>8X}",value);
 }
 
 template <typename T>
 std::string AsShortHexString(T value){
-    return boost::str(boost::format("0X%X") % value);
+    return fmt::format("{0:0>#8X}",value);
 }
 
 template <typename T>
 std::string ToString(T value){
-    return boost::str(boost::format("%1%") % value);
+    return fmt::format("{}",value);
 }
 template <typename T>
 std::string ToHexString(T value){
-    return boost::str(boost::format("0x%x") % value);
+    return fmt::format("{0:0>#X}",value);
 }
 
 
@@ -57,7 +58,7 @@ std::string AsAddress(void *address);
 
 template <typename T>
 std::string AsAddress(T value){
-    return boost::str(boost::format("%08X") % value);
+    return fmt::format("{0:0>8X}",value);
 }
 
 std::string AsHexData(void *address,std::size_t size);
@@ -75,9 +76,9 @@ std::string AsHexData(T & value){
         sprintf(sz,"%04X",value);
         return std::string(sz);
     }else if(sizeof(value) == sizeof(uint32_t)){
-        return boost::str(boost::format("%08X")%value);
+        return fmt::format("{0:0>8X}",value);
     }else if(sizeof(value) == sizeof(uint64_t)){
-        return boost::str(boost::format("%016X")%value);
+        return fmt::format("{0:0>16X}",value);
     }else{
         return AsHexData(&value,sizeof(value));
     }

@@ -17,8 +17,7 @@
 #include <future>
 #include <initializer_list>
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
+#include "../base/fmt/format.h"
 #include <sstream>
 
 #include <mach-o/loader.h>

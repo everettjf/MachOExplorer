@@ -14,11 +14,11 @@ void LoadCommand_DYLIB::Init(void * offset,NodeContextPtr & ctx){
     dylib_path_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
     dylib_path_ = dylib_path_offset_;
 
-    std::vector<std::string> path_items;
-    boost::split(path_items,dylib_path_,boost::is_any_of("/"),boost::token_compress_on);
-    if(path_items.size() > 0){
-        dylib_name_ = path_items.back();
+    std::size_t pos = dylib_path_.find_last_of("/");
+    if(pos >= 0){
+        dylib_name_ = dylib_path_.substr(pos+1,dylib_path_.length());
     }
+
 }
 
 std::string LoadCommand_DYLIB::GetShortCharacteristicDescription(){

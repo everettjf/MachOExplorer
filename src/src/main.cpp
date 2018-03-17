@@ -8,10 +8,14 @@
 #include "common/appinfo.h"
 #include "controller/workspacemanager.h"
 
+#include "test/Test.h"
+
 using namespace std;
 
 int main(int argc, char *argv[])
 {
+    Test::go();
+
     Q_INIT_RESOURCE(MachOExplorer);
 
     QApplication app(argc, argv);

@@ -39,11 +39,7 @@ FORMS    += \
     src/dialog/checkupdatedialog.ui \
     src/dialog/aboutdialog.ui
 
-macx{
-    _BOOSTPATH = /usr/local/Cellar/boost/1.65.1
-    INCLUDEPATH += "$${_BOOSTPATH}/include/"
-    LIBS += -L$${_BOOSTPATH}/lib
-}
+
 
 INCLUDEPATH += ./src/
 

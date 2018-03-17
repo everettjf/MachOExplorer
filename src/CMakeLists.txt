@@ -37,17 +37,9 @@ set(SOURCE_FILES
         ${MOEX_SOURCE}
         ${MOEX_HEADER}
         MachOExplorer.qrc
-        )
+        src/test/Test.cpp src/test/Test.h)
 
-# see https://cmake.org/cmake/help/latest/module/FindBoost.html
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
 
-find_package(Boost REQUIRED COMPONENTS
-        program_options
-        filesystem
-        )
-include_directories(./src ${Boost_INCLUDE_DIR})
+include_directories(./src)
 add_executable(MachOExplorer ${SOURCE_FILES})
-target_link_libraries(MachOExplorer ${Boost_LIBRARIES} Qt5::Widgets Qt5::Gui Qt5::Network)
+target_link_libraries(MachOExplorer Qt5::Widgets Qt5::Gui Qt5::Network)

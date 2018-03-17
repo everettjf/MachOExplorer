@@ -3,7 +3,6 @@
 //
 
 #include "MachHeaderViewNode.h"
-#include <boost/algorithm/string.hpp>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -63,7 +62,6 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
 
 std::string MachHeaderViewNode::GetDisplayName() {
     std::string arch = d_->GetArch();
-    boost::to_upper(arch);
     return "Mach Header (" + arch +")";
 }
 

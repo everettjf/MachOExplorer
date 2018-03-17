@@ -341,7 +341,7 @@ namespace util {
 
     std::string AsAddress(void *address)
     {
-        return boost::str(boost::format("%016x") % (uint64_t)address);
+        return fmt::format("0:0>16X",(uint64_t)address);
     }
 
     std::string AsHexDataPrefix(void *address,std::size_t size){
@@ -397,10 +397,10 @@ namespace util {
         return ctime(&t);
     }
     std::string FormatVersion(uint32_t ver){
-        return boost::str(boost::format("%u.%u.%u")
-                          % (ver>>16)
-                          % ((ver>>8)&0xff)
-                          % (ver&0xff)
+        return fmt::format("{0:d}.{1:d}.{2:d}"
+                          , (ver>>16)
+                          , ((ver>>8)&0xff)
+                          , (ver&0xff)
         );
     }
 

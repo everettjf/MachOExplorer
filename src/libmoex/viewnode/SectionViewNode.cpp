@@ -22,7 +22,7 @@ void SectionViewNode::Init(MachSectionPtr d){
 
 }
 std::string SectionViewNode::GetDisplayName(){
-    return boost::str(boost::format("Section(%1%,%2%)")%d_->sect().segment_name()%d_->sect().section_name());
+    return fmt::format("Section({},{})",d_->sect().segment_name(),d_->sect().section_name());
 }
 
 void SectionViewNode::InitViewDatas(){
@@ -188,10 +188,7 @@ void SectionViewNode::InitCStringView(const std::string &title)
                           name
                   });
 
-        std::string symbolname = boost::str(boost::format("0x%1$X:\"%2%\"")
-                                            % (uint64_t)cur
-                                            % name
-        );
+        std::string symbolname = fmt::format("{0:#x}:\"{}\"",(uint64_t)cur,name);
 
         ++lineno;
     });
@@ -207,10 +204,7 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
         std::string name = AsHexData(cur,unitsize);
         t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",name);
 
-        std::string symbolname = boost::str(boost::format("0x%1%X:%2%")
-                                            % cur
-                                            % name
-        );
+        std::string symbolname = fmt::format("{0:#X}:{1}",cur, name);
     },unitsize);
 
     AddViewData(t);
@@ -223,16 +217,13 @@ void SectionViewNode::InitPointersView(const std::string &title)
     d_->ForEachAs_POINTERS([&](void * ptr){
         if(d_->Is64()){
             uint64_t *cur = static_cast<uint64_t*>(ptr);
-            std::string symbolname = boost::str(boost::format("%1%->%2%")
-                                                % AsShortHexString((uint64_t)cur)
-                                                % AsShortHexString(*cur)
-            );
+            std::string symbolname = fmt::format("{}->{}"
+                                                , AsShortHexString((uint64_t)cur)
+                                                ,AsShortHexString(*cur));
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
         }else{
             uint32_t *cur = static_cast<uint32_t*>(ptr);
-            std::string symbolname = boost::str(boost::format("%1%->%2%")
-                                                % AsShortHexString((uint64_t)cur)
-                                                % AsShortHexString(*cur)
+            std::string symbolname = fmt::format("{}->{}",AsShortHexString((uint64_t)cur),AsShortHexString(*cur)
             );
             t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
         }

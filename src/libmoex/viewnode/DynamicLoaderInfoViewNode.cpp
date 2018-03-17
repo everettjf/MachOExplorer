@@ -43,7 +43,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                fmt::format("dylib ({})", code->lib_oridinal)
                                });
                 break;
             }
@@ -57,7 +57,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->lib_oridinal_addr)),moex::util::AsHexData(code->lib_oridinal_addr,code->lib_oridinal_size),
                                 "uleb128",
-                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                fmt::format("dylib ({})", code->lib_oridinal)
                                });
                 break;
             }
@@ -66,7 +66,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("dylib (%1%)") % code->lib_oridinal).str()
+                                fmt::format("dylib ({})", code->lib_oridinal)
                                });
 
                 break;
@@ -76,13 +76,13 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("flags (%1%)") % code->symbol_flags).str()
+                                fmt::format("flags ({})", code->symbol_flags)
                                });
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->symbol_name_addr)),
                                 moex::util::AsHexData(code->symbol_name_addr,code->symbol_name_size).substr(0,16),
                                 "string",
-                                (boost::format("name (%1%)") % code->symbol_name).str()
+                                fmt::format("name ({})", code->symbol_name)
                                });
 
                 break;
@@ -92,7 +92,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("type (%1%)") % ctx->GetBindTypeString()).str()
+                                fmt::format("type ({})", ctx->GetBindTypeString())
                                });
 
                 break;
@@ -107,7 +107,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->addend_addr)),moex::util::AsHexData(code->addend_addr,code->addend_size),
                                 "sleb128",
-                                (boost::format("addend (%1%)") % code->addend).str()
+                                fmt::format("addend ({})", code->addend)
                                });
                 break;
             }
@@ -116,12 +116,12 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("segment (%1%)") % code->segment_index).str()
+                                fmt::format("segment ({})",code->segment_index)
                                });
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                 "uleb128",
-                                (boost::format("offset (%1%)") % code->offset).str()
+                                fmt::format("offset ({})", code->offset)
                                });
                 break;
             }
@@ -135,7 +135,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                 "uleb128",
-                                (boost::format("offset (%1%)") % code->offset).str()
+                                fmt::format("offset ({})", code->offset)
                                });
                 break;
             }
@@ -160,7 +160,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(code->offset_addr)),moex::util::AsHexData(code->offset_addr,code->offset_size),
                                 "uleb128",
-                                (boost::format("offset (%1%)") % code->offset).str()
+                                fmt::format("offset ({})", code->offset)
                                });
                 print_->AddRow({"-","-","-","-"});
                 break;
@@ -170,7 +170,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
 
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                 code->GetName(),
-                                (boost::format("scaled (%1%)") % code->scale).str()
+                                fmt::format("scaled ({})",code->scale)
                                });
                 print_->AddRow({"-","-","-","-"});
                 break;
@@ -184,11 +184,11 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
                                });
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
                                 "uleb128",
-                                (boost::format("count (%1%)") % (int)code->count).str()
+                                fmt::format("count ({})", (int)code->count)
                                });
                 print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->skip_addr,code->skip_size),
                                 "uleb128",
-                                (boost::format("skip (%1%)") % (int)code->skip).str()
+                                fmt::format("skip ({})", (int)code->skip)
                                });
                 print_->AddRow({"-","-","-","-"});
                 break;
@@ -224,7 +224,7 @@ void RebaseInfoViewNode::InitViewDatas()
                     std::string rebasetype = ctx->GetRebaseTypeString();
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                     "REBASE_OPCODE_SET_TYPE_IMM",
-                                    (boost::format("type (%1%, %2%)") % (int)ctx->type % rebasetype).str()
+                                    fmt::format("type ({}, {})", (int)ctx->type ,rebasetype)
                                    });
                     break;
                 }
@@ -234,12 +234,12 @@ void RebaseInfoViewNode::InitViewDatas()
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                     "REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB",
-                                    (boost::format("segment (%1%)") % (int)segment_index).str()
+                                    fmt::format("segment ({})",(int)segment_index)
                                    });
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
                                     "uleb128",
-                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                    fmt::format("offset ({})", moex::util::AsHexString(code->offset))
                                    });
 
                     break;
@@ -253,7 +253,7 @@ void RebaseInfoViewNode::InitViewDatas()
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
                                     "uleb128",
-                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                    fmt::format("offset ({})",moex::util::AsHexString(code->offset))
                                    });
 
                     break;
@@ -263,7 +263,7 @@ void RebaseInfoViewNode::InitViewDatas()
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                     "REBASE_OPCODE_ADD_ADDR_IMM_SCALED",
-                                    (boost::format("scale (%1%)") % (int)code->scale).str()
+                                    fmt::format("scale ({})", (int)code->scale)
                                    });
 
                     break;
@@ -273,7 +273,7 @@ void RebaseInfoViewNode::InitViewDatas()
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                     "REBASE_OPCODE_DO_REBASE_IMM_TIMES",
-                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                    fmt::format("count ({})", (int)code->count)
                                    });
 
                     break;
@@ -286,7 +286,7 @@ void RebaseInfoViewNode::InitViewDatas()
                                    });
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
                                     "uleb128",
-                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                    fmt::format("count ({})",(int)code->count)
                                    });
                     break;
                 }
@@ -299,7 +299,7 @@ void RebaseInfoViewNode::InitViewDatas()
                                    });
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->offset_addr,code->offset_size),
                                     "uleb128",
-                                    (boost::format("offset (%1%)") % moex::util::AsHexString(code->offset)).str()
+                                    fmt::format("offset ({})",moex::util::AsHexString(code->offset))
                                    });
 
                     break;
@@ -313,11 +313,11 @@ void RebaseInfoViewNode::InitViewDatas()
                                    });
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->count_addr,code->count_size),
                                     "uleb128",
-                                    (boost::format("count (%1%)") % (int)code->count).str()
+                                    fmt::format("count ({})", (int)code->count)
                                    });
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),moex::util::AsHexDataPrefix(code->skip_addr,code->skip_size),
                                     "uleb128",
-                                    (boost::format("skip (%1%)") % (int)code->skip).str()
+                                    fmt::format("skip ({})",(int)code->skip)
                                    });
                     break;
                 }
@@ -414,7 +414,7 @@ void ExportInfoViewNode::InitViewDatas()
                 print_->AddRow({AsAddress(info->header()->GetRAW(item->terminal_size_addr)),
                                 moex::util::AsHexData(item->terminal_size),
                                 "Terminal Size",
-                                (boost::format("%1%") % (int)item->terminal_size).str()
+                                fmt::format("{}",(int)item->terminal_size)
                                });
 
                 if(item->terminal_size > 0){
@@ -432,21 +432,21 @@ void ExportInfoViewNode::InitViewDatas()
                     print_->AddRow({AsAddress(info->header()->GetRAW(item->offset_addr)),
                                     moex::util::AsHexData(item->offset_addr,item->offset_size),
                                     "Symbol Offset",
-                                    (boost::format("%1%") % (int)item->offset).str()
+                                    fmt::format("{}",(int)item->offset)
                                    });
                 }
 
                 print_->AddRow({AsAddress(info->header()->GetRAW(item->child_count_addr)),
                                 moex::util::AsHexData(item->child_count),
                                 "Child Count",
-                                (boost::format("%1%") % (int)item->child_count).str()
+                                fmt::format("{}",(int)item->child_count)
                                });
             }
             if(child){
                 print_->AddRow({AsAddress(info->header()->GetRAW(child->label_addr)),
                                 moex::util::AsHexData(child->label_addr,child->label_size).substr(0,16),
                                 "Node Label",
-                                (boost::format("%1%") % child->label).str()
+                                fmt::format("{}",child->label)
                                });
                 print_->AddRow({AsAddress(info->header()->GetRAW(child->skip_addr)),
                                 moex::util::AsHexData(child->skip_addr,child->skip_size),
