@@ -3,7 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "BaseController.h"
-#include "WorkspaceManager.h"
+#include "Workspace.h"
 
 BaseController::BaseController()
 {
@@ -12,5 +12,5 @@ BaseController::BaseController()
 
 void BaseController::log(const QString &log)
 {
-    workspace->addLog(log);
+    WS()->addLog(log);
 }

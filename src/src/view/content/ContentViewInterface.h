@@ -7,9 +7,8 @@
 
 #include <libmoex/moex-view.h>
 #include <QWidget>
-#include "src/controller/WindowShareData.h"
 
-class ContentViewInterface : public QWidget, public WindowSharedData{
+class ContentViewInterface : public QWidget{
     Q_OBJECT
 public:
     explicit ContentViewInterface(QWidget *parent = 0):QWidget(parent){}

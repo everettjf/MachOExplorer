@@ -7,9 +7,8 @@
 
 #include <QWidget>
 #include <QTextEdit>
-#include "src/controller/WindowShareData.h"
 
-class LogView : public QWidget , public WindowSharedData
+class LogView : public QWidget
 {
     Q_OBJECT
 private:

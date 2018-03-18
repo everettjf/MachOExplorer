@@ -30,7 +30,6 @@ void TableContentView::showViewData(moex::ViewData *data)
 
     if(controller) delete controller;
     controller = new TableContentController();
-    controller->workspace = workspace;
 
     qDebug()<<data;
     qDebug()<<node;

@@ -8,9 +8,8 @@
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
 #include "Stable.h"
-#include "WindowShareData.h"
 
-class BaseController : public WindowSharedData
+class BaseController
 {
 public:
     BaseController();

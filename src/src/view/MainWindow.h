@@ -8,8 +8,7 @@
 #include <QMenu>
 #include <QAction>
 
-#include "src/controller/WorkspaceManager.h"
-#include "src/controller/WindowShareData.h"
+#include "src/controller/Workspace.h"
 
 struct MainWindowMenu{
     QMenu *file;
@@ -31,7 +30,7 @@ struct MainWindowAction{
     QAction *about;
 };
 
-class MainWindow : public QMainWindow , public WindowSharedData
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 

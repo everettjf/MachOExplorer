@@ -8,7 +8,6 @@
 #include <QWidget>
 #include <QTabWidget>
 #include <QStackedWidget>
-#include "src/controller/WindowShareData.h"
 
 #include "src/view/content/TableContentView.h"
 #include "src/view/content/BinaryContentView.h"
@@ -18,7 +17,7 @@
 #include <vector>
 #include <map>
 
-class ContentView : public QWidget , public WindowSharedData
+class ContentView : public QWidget
 {
     Q_OBJECT
 public:

@@ -9,11 +9,10 @@
 #include <QTreeView>
 #include "src/controller/LayoutController.h"
 #include <QModelIndex>
-#include "src/controller/WindowShareData.h"
 
 
 
-class LayoutView : public QWidget, public WindowSharedData
+class LayoutView : public QWidget
 {
     Q_OBJECT
 private:

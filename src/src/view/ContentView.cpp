@@ -9,7 +9,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
-#include "src/controller/WorkspaceManager.h"
+#include "src/controller/Workspace.h"
 #include <QDebug>
 
 ContentView::ContentView(QWidget *parent) : QWidget(parent)
@@ -59,7 +59,7 @@ void ContentView::dropEvent(QDropEvent *event)
 
 void ContentView::openFile(const QString &filePath)
 {
-    workspace->openFile(filePath);
+    WS()->openFile(filePath);
 
     displayContentTab();
 }
@@ -77,12 +77,10 @@ void ContentView::showNode(moex::ViewNode *node)
         if(viewdata->mode() == moex::ViewDataMode::Table){
             // Tab - Table
             table = new TableContentView(this);
-            table->workspace = workspace;
             addTabItem(table,title,viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
             // Tab - Binary
             binary = new BinaryContentView(this);
-            binary->workspace = workspace;
             addTabItem(binary,title,viewdata.get());
         }else{
             // No such mode

@@ -2,9 +2,8 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "WorkspaceManager.h"
+#include "Workspace.h"
 #include "src/view/MainWindow.h"
-#include <QDesktopWidget>
 
 Workspace::Workspace()
 {
@@ -27,22 +26,9 @@ void Workspace::showNode(moex::ViewNode *node)
 }
 
 
-///////////////////////////////////////////////////
-
-WorkspaceManager::WorkspaceManager()
+Workspace *Workspace::Instance()
 {
-
+    static Workspace w;
+    return & w;
 }
 
-WorkspaceManager *WorkspaceManager::Instance()
-{
-    static WorkspaceManager wm;
-    return & wm;
-}
-
-void WorkspaceManager::newWorkspace()
-{
-    auto *w = new MainWindow();
-    w->setGeometry(QApplication::desktop()->availableGeometry().adjusted(200, 100, -200, -100));
-    w->show();
-}

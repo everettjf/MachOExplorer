@@ -27,6 +27,8 @@ struct WorkspaceUI{
 class Workspace
 {
 public:
+    static Workspace *Instance();
+public:
     Workspace();
 
     WorkspaceUI *ui(){return ui_;}
@@ -38,15 +40,8 @@ private:
     WorkspaceUI *ui_;
 };
 
-
-class WorkspaceManager
-{
-public:
-    WorkspaceManager();
-
-    static WorkspaceManager * Instance();
-
-    void newWorkspace();
-};
+inline Workspace * WS(){
+    return Workspace::Instance();
+}
 
 #endif // WORKSPACEMANAGER_H

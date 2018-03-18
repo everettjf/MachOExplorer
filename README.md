@@ -45,10 +45,9 @@ CMake (>=3.9)
 # Libraries
 
 1. Qt
-2. args : Argument Parser https://github.com/Taywee/args
-3. fmt : Formating https://github.com/fmtlib/fmt
-4. cpp-mmaplib : mmap/CreateFileMapping Wrapper https://github.com/yhirose/cpp-mmaplib
-5. json : https://github.com/nlohmann/json
+2. fmt : Formating https://github.com/fmtlib/fmt
+3. cpp-mmaplib : mmap/CreateFileMapping Wrapper https://github.com/yhirose/cpp-mmaplib
+4. json : https://github.com/nlohmann/json
 
 # Icon
 

@@ -7,15 +7,14 @@
 #include <QMenuBar>
 #include "src/utility/Utility.h"
 #include <QFileDialog>
-#include "src/controller/WorkspaceManager.h"
+#include "src/controller/Workspace.h"
 #include "src/dialog/CheckUpdateDialog.h"
 #include "src/common/AppInfo.h"
 #include "src/dialog/AboutDialog.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    workspace = new Workspace();
-    ui = workspace->ui();
+    ui = WS()->ui();
 
     menu = new MainWindowMenu();
     action = new MainWindowAction();
@@ -28,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // TEST
 #ifndef QT_NO_DEBUG
     QString debugfile = "/Users/everettjf/github/MachOExplorer/sample/simple";
-    workspace->openFile(debugfile);
+    WS()->openFile(debugfile);
 #endif
 }
 
@@ -64,9 +63,6 @@ void MainWindow::createUI()
     setCorner(Qt::TopRightCorner,Qt::RightDockWidgetArea);
     setCorner(Qt::BottomRightCorner,Qt::RightDockWidgetArea);
 
-    ui->content->workspace = workspace;
-    ui->layout->workspace = workspace;
-    ui->log->workspace = workspace;
 }
 
 void MainWindow::createActions()
@@ -122,7 +118,9 @@ void MainWindow::createMenus()
 
 void MainWindow::newWindow(bool checked)
 {
-    WorkspaceManager::Instance()->newWorkspace();
+    QProcess process(this);
+    process.setEnvironment(QProcess::systemEnvironment());
+    process.startDetached(qApp->applicationFilePath());
 }
 
 void MainWindow::closeWindow(bool checked)
@@ -140,7 +138,7 @@ void MainWindow::openFile(bool checked)
     if(fileName.length() == 0)
         return;
 
-    workspace->openFile(fileName);
+    WS()->openFile(fileName);
 }
 
 

@@ -4,7 +4,7 @@
 //
 #include "LogView.h"
 #include <QHBoxLayout>
-#include "src/controller/WorkspaceManager.h"
+#include "src/controller/Workspace.h"
 
 LogView::LogView(QWidget *parent) : QWidget(parent)
 {

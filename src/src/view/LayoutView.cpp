@@ -4,7 +4,7 @@
 //
 #include "LayoutView.h"
 #include "src/utility/Utility.h"
-#include "src/controller/WorkspaceManager.h"
+#include "src/controller/Workspace.h"
 #include <QHBoxLayout>
 
 LayoutView::LayoutView(QWidget *parent) : QWidget(parent)
@@ -24,7 +24,6 @@ void LayoutView::openFile(const QString &filePath)
 {
     if(controller) delete controller;
     controller = new LayoutController();
-    controller->workspace = workspace;
 
     controller->setFilePath(filePath);
     QString error;
@@ -55,7 +54,7 @@ void LayoutView::showViewNode(moex::ViewNode *node)
         return;
 
     qDebug() << QString::fromStdString(node->GetDisplayName());
-    workspace->showNode(node);
+    WS()->showNode(node);
 }
 
 void LayoutView::clickedTreeNode(QModelIndex index)
