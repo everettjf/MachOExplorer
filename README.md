@@ -38,8 +38,6 @@ brew cask install machoexplorer
 macOS only until now, Windows support in the near future.
 
 ```
-brew install cmake
-
 Qt SDK >= 5.10.1
 CMake (>=3.9)
 ```
@@ -50,6 +48,7 @@ CMake (>=3.9)
 2. args : Argument Parser https://github.com/Taywee/args
 3. fmt : Formating https://github.com/fmtlib/fmt
 4. cpp-mmaplib : mmap/CreateFileMapping Wrapper https://github.com/yhirose/cpp-mmaplib
+5. json : https://github.com/nlohmann/json
 
 # Icon
 
