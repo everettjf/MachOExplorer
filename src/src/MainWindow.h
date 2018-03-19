@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QAction>
+#include "src/dialog/OpenFileDialog.h"
 
 #include "src/controller/Workspace.h"
 
@@ -39,13 +40,19 @@ private:
     MainWindowMenu *menu;
     MainWindowAction *action;
 
+    OpenFileDialog *openFileDialog = nullptr;
+
 public:
     explicit MainWindow(QWidget *parent = 0);
+
+    void displayNewFileDialog();
+    void openNewFile(const QString & filePath);
 
 protected:
     void createUI();
     void createActions();
     void createMenus();
+
 
 signals:
 

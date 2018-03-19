@@ -3,7 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "Workspace.h"
-#include "src/view/MainWindow.h"
+#include "src/MainWindow.h"
 
 Workspace::Workspace()
 {

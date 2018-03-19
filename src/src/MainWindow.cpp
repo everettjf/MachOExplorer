@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui = WS()->ui();
 
+    setMinimumSize(QSize(600,400));
+
     menu = new MainWindowMenu();
     action = new MainWindowAction();
 
@@ -24,11 +26,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createActions();
     createMenus();
 
-    // TEST
-//#ifndef QT_NO_DEBUG
-//    QString debugfile = "/Users/everettjf/github/MachOExplorer/sample/simple";
-//    WS()->openFile(debugfile);
-//#endif
+}
+
+void MainWindow::displayNewFileDialog()
+{
+    openFileDialog = new OpenFileDialog();
+    openFileDialog->setAttribute(Qt::WA_DeleteOnClose);
+    openFileDialog->show();
+}
+
+void MainWindow::openNewFile(const QString &filePath)
+{
+    this->showMaximized();
+
+    WS()->openFile(filePath);
 }
 
 void MainWindow::createUI()

@@ -37,7 +37,8 @@ HEADERS  += $$LIBMOEX_HEADER $$MOEX_HEADER
 
 FORMS    += \
     src/dialog/AboutDialog.ui \
-    src/dialog/CheckUpdateDialog.ui
+    src/dialog/CheckUpdateDialog.ui \
+    src/dialog/OpenFileDialog.ui
 
 
 

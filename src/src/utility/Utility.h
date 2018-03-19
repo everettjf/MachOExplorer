@@ -17,5 +17,8 @@ void showInfo(QWidget *parent,const QString & info);
 void showError(QWidget *parent,const QString & info);
 void showWarn(QWidget *parent,const QString & info);
 
+
+
+QString formatBytecount(const long bytecount);
 }
 #endif // UTILITY_H
