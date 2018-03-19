@@ -25,10 +25,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createMenus();
 
     // TEST
-#ifndef QT_NO_DEBUG
-    QString debugfile = "/Users/everettjf/github/MachOExplorer/sample/simple";
-    WS()->openFile(debugfile);
-#endif
+//#ifndef QT_NO_DEBUG
+//    QString debugfile = "/Users/everettjf/github/MachOExplorer/sample/simple";
+//    WS()->openFile(debugfile);
+//#endif
 }
 
 void MainWindow::createUI()
