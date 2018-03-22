@@ -6,25 +6,38 @@
 #include <QElapsedTimer>
 #include <QTextCursor>
 #include <QTextBlock>
+#include <cassert>
 
 #define kGuiBackgroundColor QColor(255, 255, 255)
 #define kBorderTextColor QColor(0, 0, 0)
 #define kHighlightTextColor QColor(210, 210, 255)
+#define kTextFont QFont("Inconsolata", 12)
 
 
-namespace helper{
-    int getMaxFullyDisplayedLines(QTextEdit *textEdit)
-    {
-        QFontMetrics fontMetrics(textEdit->document()->defaultFont());
-        return (textEdit->height()
-                - (textEdit->contentsMargins().top()
-                   + textEdit->contentsMargins().bottom()
-                   + (int)(textEdit->document()->documentMargin() * 2)))
-               / fontMetrics.lineSpacing();
-    }
 
+static void registerCustomFonts()
+{
+    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
+    assert(-1 != ret && "unable to register Anonymous Pro.ttf");
 
+    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
+    assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
+
+    // Do not issue a warning in release
+    Q_UNUSED(ret)
 }
+
+
+int getMaxFullyDisplayedLines(QTextEdit *textEdit)
+{
+    QFontMetrics fontMetrics(textEdit->document()->defaultFont());
+    return (textEdit->height()
+            - (textEdit->contentsMargins().top()
+               + textEdit->contentsMargins().bottom()
+               + (int)(textEdit->document()->documentMargin() * 2)))
+           / fontMetrics.lineSpacing();
+}
+
 
 inline QString RAddressString(unsigned long long addr)
 {
@@ -37,6 +50,8 @@ HexdumpWidget::HexdumpWidget(QWidget *parent) :
     ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
+
+    registerCustomFonts();
 
     int margin = 0;
 
@@ -63,15 +78,15 @@ HexdumpWidget::~HexdumpWidget()
 
 void HexdumpWidget::setupFont()
 {
-//    QFont font = QFont("Inconsolata", 12);
+    QFont font = kTextFont;
 
-//    ui->hexOffsetText->setFont(font);
-//    ui->hexHexText->setFont(font);
-//    ui->hexASCIIText->setFont(font);
+    ui->hexOffsetText->setFont(font);
+    ui->hexHexText->setFont(font);
+    ui->hexASCIIText->setFont(font);
 
-//    ui->offsetHeaderLabel->setFont(font);
-//    ui->hexHeaderLabel->setFont(font);
-//    ui->asciiHeaderLabel->setFont(font);
+    ui->offsetHeaderLabel->setFont(font);
+    ui->hexHeaderLabel->setFont(font);
+    ui->asciiHeaderLabel->setFont(font);
 
 
 //    connect(ui->hexHexText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
@@ -390,9 +405,8 @@ void HexdumpWidget::scrollChanged()
 
 void HexdumpWidget::showEvent(QShowEvent *event)
 {
-
     char * s = "hello world 111111111111111111111111111111111111111111111111111";
-    refresh((unsigned long long)s, strlen(s) + 1);
+    refresh((unsigned long long)(void*)s, strlen(s) + 1);
 }
 
 void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
@@ -409,7 +423,7 @@ void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
     // Align addr to cols
     addr -= addr % cols;
 
-    int maxDisplayLines = helper::getMaxFullyDisplayedLines(ui->hexHexText);
+    int maxDisplayLines = getMaxFullyDisplayedLines(ui->hexHexText);
     int allNeedLines = maxlen / cols + 1;
     if(allNeedLines < maxDisplayLines)
     {

@@ -65,6 +65,12 @@
        </item>
        <item row="0" column="2">
         <widget class="QLabel" name="hexHeaderLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>1 2 3 4 ...</string>
          </property>
@@ -72,6 +78,12 @@
        </item>
        <item row="0" column="4">
         <widget class="QLabel" name="asciiHeaderLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>1234...</string>
          </property>

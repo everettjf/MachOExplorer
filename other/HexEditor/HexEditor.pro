@@ -35,3 +35,6 @@ HEADERS += \
 FORMS += \
         mainwindow.ui \
     HexdumpWidget.ui
+
+RESOURCES += \
+    hexdumpresource.qrc

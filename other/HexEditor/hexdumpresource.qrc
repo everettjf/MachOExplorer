@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/Inconsolata-Regular.ttf</file>
+        <file>fonts/Anonymous Pro.ttf</file>
+    </qresource>
+</RCC>
