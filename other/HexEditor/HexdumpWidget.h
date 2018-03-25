@@ -62,6 +62,7 @@ private:
     bool m_isAddr64bit = true;
 
 private:
+    bool m_isSelecting = false;
     Ui::HexdumpWidget *ui;
 };
 

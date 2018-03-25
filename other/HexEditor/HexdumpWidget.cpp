@@ -255,57 +255,62 @@ int HexdumpWidget::hexAddressToPosition(unsigned long long address)
 
 void HexdumpWidget::selectionChanged()
 {
-//    if(sender() == ui->hexHexText)
-//    {
-//        QTextCursor textCursor = ui->hexHexText->textCursor();
-//        if(!textCursor.hasSelection())
-//        {
-//            unsigned long long adr = hexPositionToAddress(textCursor.position());
-//            int pos = asciiAddressToPosition(adr);
-//            setTextEditPosition(ui->hexASCIIText, pos);
+    if(m_isSelecting)
+        return;
+    m_isSelecting = true;
 
-//            return;
-//        }
+    if(sender() == ui->hexHexText)
+    {
+        QTextCursor textCursor = ui->hexHexText->textCursor();
+        if(!textCursor.hasSelection())
+        {
+            unsigned long long adr = hexPositionToAddress(textCursor.position());
+            int pos = asciiAddressToPosition(adr);
+            setTextEditPosition(ui->hexASCIIText, pos);
 
-//        int selectionStart = textCursor.selectionStart();
-//        int selectionEnd = textCursor.selectionEnd();
+            m_isSelecting = false;
 
-//        QChar start = ui->hexHexText->document()->characterAt(selectionStart);
-//        QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
+            return;
+        }
 
+        int selectionStart = textCursor.selectionStart();
+        int selectionEnd = textCursor.selectionEnd();
 
-//        // Handle the spaces/newlines (if it's at the start, move forward,
-//        // if it's at the end, move back)
-
-//        if (!start.isLetterOrNumber())
-//        {
-//            selectionStart += 1;
-//        }
-//        else if(ui->hexHexText->document()->characterAt(selectionStart-1).isLetterOrNumber())
-//        {
-//            selectionStart += 2;
-//        }
-
-//        if (!end.isLetterOrNumber())
-//        {
-//            selectionEnd += 1;
-//        }
-
-//        // In hextext we have the spaces that we need to somehow handle.
-//        unsigned long long startAddress = hexPositionToAddress(selectionStart);
-//        unsigned long long endAddress = hexPositionToAddress(selectionEnd);
+        QChar start = ui->hexHexText->document()->characterAt(selectionStart);
+        QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
 
 
-//        int startPosition = asciiAddressToPosition(startAddress);
-//        int endPosition = asciiAddressToPosition(endAddress);
+        // Handle the spaces/newlines (if it's at the start, move forward,
+        // if it's at the end, move back)
 
-//        QTextCursor targetTextCursor = ui->hexASCIIText->textCursor();
-//        targetTextCursor.setPosition(startPosition);
-//        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-//        ui->hexASCIIText->setTextCursor(targetTextCursor);
-//    }
-//    else
-        if(sender() == ui->hexASCIIText)
+        if (!start.isLetterOrNumber())
+        {
+            selectionStart += 1;
+        }
+        else if(ui->hexHexText->document()->characterAt(selectionStart-1).isLetterOrNumber())
+        {
+            selectionStart += 2;
+        }
+
+        if (!end.isLetterOrNumber())
+        {
+            selectionEnd += 1;
+        }
+
+        // In hextext we have the spaces that we need to somehow handle.
+        unsigned long long startAddress = hexPositionToAddress(selectionStart);
+        unsigned long long endAddress = hexPositionToAddress(selectionEnd);
+
+
+        int startPosition = asciiAddressToPosition(startAddress);
+        int endPosition = asciiAddressToPosition(endAddress);
+
+        QTextCursor targetTextCursor = ui->hexASCIIText->textCursor();
+        targetTextCursor.setPosition(startPosition);
+        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+        ui->hexASCIIText->setTextCursor(targetTextCursor);
+    }
+    else if(sender() == ui->hexASCIIText)
     {
         QTextCursor textCursor = ui->hexASCIIText->textCursor();
         if(!textCursor.hasSelection())
@@ -313,6 +318,9 @@ void HexdumpWidget::selectionChanged()
             unsigned long long adr = asciiPositionToAddress(textCursor.position());
             int pos = hexAddressToPosition(adr);
             setTextEditPosition(ui->hexHexText, pos);
+
+            m_isSelecting = false;
+
             return;
         }
         unsigned long long startAddress = asciiPositionToAddress(textCursor.selectionStart());
@@ -331,6 +339,8 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexHexText->setTextCursor(targetTextCursor);
     }
+
+    m_isSelecting = false;
 }
 
 
