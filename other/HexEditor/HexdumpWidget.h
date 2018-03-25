@@ -51,7 +51,6 @@ private:
     void updateWidths();
     unsigned long long hexPositionToAddress(int position);
     int asciiAddressToPosition(unsigned long long address);
-    void setTextEditPosition(QTextEdit *textEdit, int position);
     unsigned long long asciiPositionToAddress(int position);
     int hexAddressToPosition(unsigned long long address);
 

@@ -14,6 +14,12 @@
 #define kTextFont QFont("Inconsolata", 12)
 
 
+void setTextEditPosition(QTextEdit *textEdit, int position)
+{
+    QTextCursor textCursor = textEdit->textCursor();
+    textCursor.setPosition(position);
+    textEdit->setTextCursor(textCursor);
+}
 
 static void registerCustomFonts()
 {
@@ -76,7 +82,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent) :
     updateHeaders();
 
     setupScrollSync();
-//    setupSelection();
+    setupSelection();
 }
 
 HexdumpWidget::~HexdumpWidget()
@@ -130,7 +136,6 @@ void HexdumpWidget::setupColors()
 
 void HexdumpWidget::updateHeaders()
 {
-    int ascii_cols = m_columnCount;
     bool pairs = false;
 
     QString hexHeaderString;
@@ -158,7 +163,7 @@ void HexdumpWidget::updateHeaders()
         hexHeader << space << (i & 0xF);
     }
 
-    for (int i=0; i < ascii_cols; i++)
+    for (int i=0; i < m_columnCount; i++)
     {
         asciiHeader << (i & 0xF);
     }
@@ -228,34 +233,24 @@ void HexdumpWidget::setupSelection()
 }
 unsigned long long HexdumpWidget::hexPositionToAddress(int position)
 {
-//    return m_first_loaded_address + (position / 3);
-    return 0;
+    return m_addr + (position / 3); // two kinds "00 " "00\n"
 }
 
 int HexdumpWidget::asciiAddressToPosition(unsigned long long address)
 {
-    return 0;
+    unsigned long long local_address = address - m_addr;
+    int position = local_address + (local_address / m_columnCount); // plus \n count
+    return position;
+}
 
-//    unsigned long long local_address = address - m_first_loaded_address;
-//    int position = local_address + (local_address / m_columnCount);
-//    return position;
-}
-void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
-{
-    QTextCursor textCursor = textEdit->textCursor();
-    textCursor.setPosition(position);
-    textEdit->setTextCursor(textCursor);
-}
 unsigned long long HexdumpWidget::asciiPositionToAddress(int position)
 {
     // Each row adds one byte (because of the newline), so cols + 1 gets rid of that offset
-//    return m_first_loaded_address + (position - (position / (m_columnCount + 1)));
-    return 0;
+    return m_addr + (position - (position / (m_columnCount + 1)));
 }
 int HexdumpWidget::hexAddressToPosition(unsigned long long address)
 {
-//    return (address - m_first_loaded_address) * 3;
-    return 0;
+    return (address - m_addr) * 3;
 }
 
 void HexdumpWidget::selectionChanged()
@@ -303,38 +298,39 @@ void HexdumpWidget::selectionChanged()
 
 //        int startPosition = asciiAddressToPosition(startAddress);
 //        int endPosition = asciiAddressToPosition(endAddress);
+
 //        QTextCursor targetTextCursor = ui->hexASCIIText->textCursor();
 //        targetTextCursor.setPosition(startPosition);
 //        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
 //        ui->hexASCIIText->setTextCursor(targetTextCursor);
 //    }
 //    else
-//    {
-//        QTextCursor textCursor = ui->hexASCIIText->textCursor();
-//        if(!textCursor.hasSelection())
-//        {
-//            unsigned long long adr = asciiPositionToAddress(textCursor.position());
-//            int pos = hexAddressToPosition(adr);
-//            setTextEditPosition(ui->hexHexText, pos);
-//            return;
-//        }
-//        unsigned long long startAddress = asciiPositionToAddress(textCursor.selectionStart());
-//        unsigned long long endAddress = asciiPositionToAddress(textCursor.selectionEnd());
+        if(sender() == ui->hexASCIIText)
+    {
+        QTextCursor textCursor = ui->hexASCIIText->textCursor();
+        if(!textCursor.hasSelection())
+        {
+            unsigned long long adr = asciiPositionToAddress(textCursor.position());
+            int pos = hexAddressToPosition(adr);
+            setTextEditPosition(ui->hexHexText, pos);
+            return;
+        }
+        unsigned long long startAddress = asciiPositionToAddress(textCursor.selectionStart());
+        unsigned long long endAddress = asciiPositionToAddress(textCursor.selectionEnd());
 
 
-//        int startPosition = hexAddressToPosition(startAddress);
-//        int endPosition = hexAddressToPosition(endAddress);
+        int startPosition = hexAddressToPosition(startAddress);
+        int endPosition = hexAddressToPosition(endAddress);
 
-//        // End position -1 because the position we get above is for the next
-//        // entry, so including the space/newline
-//        endPosition -= 1;
-//        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
-//        targetTextCursor.setPosition(startPosition);
-//        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-//        ui->hexHexText->setTextCursor(targetTextCursor);
-//    }
+        // End position -1 because the position we get above is for the next
+        // entry, so including the space/newline
+        endPosition -= 1;
 
-//    return;
+        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
+        targetTextCursor.setPosition(startPosition);
+        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+        ui->hexHexText->setTextCursor(targetTextCursor);
+    }
 }
 
 
