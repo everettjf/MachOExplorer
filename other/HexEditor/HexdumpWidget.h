@@ -24,6 +24,13 @@ public:
     explicit HexdumpWidget(QWidget *parent = 0);
     ~HexdumpWidget();
 
+    void setAddressAs64Bit(bool is64bit){ m_isAddr64bit = is64bit;}
+
+    void loadAddress(unsigned long long displayOffset,unsigned long long addr,unsigned long long len);
+    void selectRange(unsigned long long addr,unsigned long long len);
+
+private:
+
     void setupFont();
     void setupColors();
     void updateHeaders();
@@ -38,8 +45,9 @@ protected:
     void showEvent(QShowEvent *event);
 private:
 
-    void refresh(unsigned long long addr,unsigned long long maxlen);
-    std::array<QString, 3> fetchHexdump(unsigned long long addr, int lines);
+    void refresh();
+
+    std::array<QString, 3> fetchHexdump();
     void updateWidths();
     unsigned long long hexPositionToAddress(int position);
     int asciiAddressToPosition(unsigned long long address);
@@ -48,11 +56,11 @@ private:
     int hexAddressToPosition(unsigned long long address);
 
 private:
-
-    unsigned long long first_loaded_address = -1;
-    unsigned long long last_loaded_address = -1;
-
-    int m_columnCount = 16;
+    unsigned long long m_displayOffset = 0;
+    unsigned long long m_addr = 0;
+    unsigned long long m_length = 0;
+    unsigned long long m_columnCount = 16;
+    bool m_isAddr64bit = true;
 
 private:
     Ui::HexdumpWidget *ui;

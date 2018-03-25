@@ -39,10 +39,16 @@ int getMaxFullyDisplayedLines(QTextEdit *textEdit)
 }
 
 
-inline QString RAddressString(unsigned long long addr)
+inline QString RAddressString32(unsigned long long addr)
 {
     return QString::asprintf("%#010llx", addr);
 }
+
+inline QString RAddressString64(unsigned long long addr)
+{
+    return QString::asprintf("%#018llx", addr);
+}
+
 
 
 HexdumpWidget::HexdumpWidget(QWidget *parent) :
@@ -76,6 +82,25 @@ HexdumpWidget::HexdumpWidget(QWidget *parent) :
 HexdumpWidget::~HexdumpWidget()
 {
     delete ui;
+}
+
+void HexdumpWidget::showEvent(QShowEvent *event)
+{
+
+}
+
+void HexdumpWidget::loadAddress(unsigned long long displayOffset, unsigned long long addr, unsigned long long len)
+{
+    m_displayOffset = displayOffset;
+    m_addr = addr;
+    m_length = len;
+
+    refresh();
+}
+
+void HexdumpWidget::selectRange(unsigned long long addr, unsigned long long len)
+{
+
 }
 
 void HexdumpWidget::setupFont()
@@ -203,14 +228,17 @@ void HexdumpWidget::setupSelection()
 }
 unsigned long long HexdumpWidget::hexPositionToAddress(int position)
 {
-    return first_loaded_address + (position / 3);
+//    return m_first_loaded_address + (position / 3);
+    return 0;
 }
 
 int HexdumpWidget::asciiAddressToPosition(unsigned long long address)
 {
-    unsigned long long local_address = address - first_loaded_address;
-    int position = local_address + (local_address / m_columnCount);
-    return position;
+    return 0;
+
+//    unsigned long long local_address = address - m_first_loaded_address;
+//    int position = local_address + (local_address / m_columnCount);
+//    return position;
 }
 void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
 {
@@ -221,135 +249,107 @@ void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
 unsigned long long HexdumpWidget::asciiPositionToAddress(int position)
 {
     // Each row adds one byte (because of the newline), so cols + 1 gets rid of that offset
-    return first_loaded_address + (position - (position / (m_columnCount + 1)));
+//    return m_first_loaded_address + (position - (position / (m_columnCount + 1)));
+    return 0;
 }
 int HexdumpWidget::hexAddressToPosition(unsigned long long address)
 {
-    return (address - first_loaded_address) * 3;
+//    return (address - m_first_loaded_address) * 3;
+    return 0;
 }
 
 void HexdumpWidget::selectionChanged()
 {
-    if(sender() == ui->hexHexText)
-    {
-        QTextCursor textCursor = ui->hexHexText->textCursor();
-        if(!textCursor.hasSelection())
-        {
-            unsigned long long adr = hexPositionToAddress(textCursor.position());
-            int pos = asciiAddressToPosition(adr);
-            setTextEditPosition(ui->hexASCIIText, pos);
+//    if(sender() == ui->hexHexText)
+//    {
+//        QTextCursor textCursor = ui->hexHexText->textCursor();
+//        if(!textCursor.hasSelection())
+//        {
+//            unsigned long long adr = hexPositionToAddress(textCursor.position());
+//            int pos = asciiAddressToPosition(adr);
+//            setTextEditPosition(ui->hexASCIIText, pos);
 
-            return;
-        }
+//            return;
+//        }
 
-        int selectionStart = textCursor.selectionStart();
-        int selectionEnd = textCursor.selectionEnd();
+//        int selectionStart = textCursor.selectionStart();
+//        int selectionEnd = textCursor.selectionEnd();
 
-        QChar start = ui->hexHexText->document()->characterAt(selectionStart);
-        QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
-
-
-        // Handle the spaces/newlines (if it's at the start, move forward,
-        // if it's at the end, move back)
-
-        if (!start.isLetterOrNumber())
-        {
-            selectionStart += 1;
-        }
-        else if(ui->hexHexText->document()->characterAt(selectionStart-1).isLetterOrNumber())
-        {
-            selectionStart += 2;
-        }
-
-        if (!end.isLetterOrNumber())
-        {
-            selectionEnd += 1;
-        }
-
-        // In hextext we have the spaces that we need to somehow handle.
-        unsigned long long startAddress = hexPositionToAddress(selectionStart);
-        unsigned long long endAddress = hexPositionToAddress(selectionEnd);
+//        QChar start = ui->hexHexText->document()->characterAt(selectionStart);
+//        QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
 
 
-        int startPosition = asciiAddressToPosition(startAddress);
-        int endPosition = asciiAddressToPosition(endAddress);
-        QTextCursor targetTextCursor = ui->hexASCIIText->textCursor();
-        targetTextCursor.setPosition(startPosition);
-        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-        ui->hexASCIIText->setTextCursor(targetTextCursor);
-    }
-    else
-    {
-        QTextCursor textCursor = ui->hexASCIIText->textCursor();
-        if(!textCursor.hasSelection())
-        {
-            unsigned long long adr = asciiPositionToAddress(textCursor.position());
-            int pos = hexAddressToPosition(adr);
-            setTextEditPosition(ui->hexHexText, pos);
-            return;
-        }
-        unsigned long long startAddress = asciiPositionToAddress(textCursor.selectionStart());
-        unsigned long long endAddress = asciiPositionToAddress(textCursor.selectionEnd());
+//        // Handle the spaces/newlines (if it's at the start, move forward,
+//        // if it's at the end, move back)
+
+//        if (!start.isLetterOrNumber())
+//        {
+//            selectionStart += 1;
+//        }
+//        else if(ui->hexHexText->document()->characterAt(selectionStart-1).isLetterOrNumber())
+//        {
+//            selectionStart += 2;
+//        }
+
+//        if (!end.isLetterOrNumber())
+//        {
+//            selectionEnd += 1;
+//        }
+
+//        // In hextext we have the spaces that we need to somehow handle.
+//        unsigned long long startAddress = hexPositionToAddress(selectionStart);
+//        unsigned long long endAddress = hexPositionToAddress(selectionEnd);
 
 
-        int startPosition = hexAddressToPosition(startAddress);
-        int endPosition = hexAddressToPosition(endAddress);
+//        int startPosition = asciiAddressToPosition(startAddress);
+//        int endPosition = asciiAddressToPosition(endAddress);
+//        QTextCursor targetTextCursor = ui->hexASCIIText->textCursor();
+//        targetTextCursor.setPosition(startPosition);
+//        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+//        ui->hexASCIIText->setTextCursor(targetTextCursor);
+//    }
+//    else
+//    {
+//        QTextCursor textCursor = ui->hexASCIIText->textCursor();
+//        if(!textCursor.hasSelection())
+//        {
+//            unsigned long long adr = asciiPositionToAddress(textCursor.position());
+//            int pos = hexAddressToPosition(adr);
+//            setTextEditPosition(ui->hexHexText, pos);
+//            return;
+//        }
+//        unsigned long long startAddress = asciiPositionToAddress(textCursor.selectionStart());
+//        unsigned long long endAddress = asciiPositionToAddress(textCursor.selectionEnd());
 
-        // End position -1 because the position we get above is for the next
-        // entry, so including the space/newline
-        endPosition -= 1;
-        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
-        targetTextCursor.setPosition(startPosition);
-        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-        ui->hexHexText->setTextCursor(targetTextCursor);
-    }
 
-    return;
+//        int startPosition = hexAddressToPosition(startAddress);
+//        int endPosition = hexAddressToPosition(endAddress);
+
+//        // End position -1 because the position we get above is for the next
+//        // entry, so including the space/newline
+//        endPosition -= 1;
+//        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
+//        targetTextCursor.setPosition(startPosition);
+//        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+//        ui->hexHexText->setTextCursor(targetTextCursor);
+//    }
+
+//    return;
 }
 
 
-void HexdumpWidget::showEvent(QShowEvent *event)
+void HexdumpWidget::refresh()
 {
-    std::string str;
-    for(int i = 0; i < 1000; i++){
-        str += "12345678";
-    }
-    refresh((unsigned long long)(void*)str.c_str(), str.length());
-}
-
-void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
-{
-    if(!addr)
-        return;
-
     updateHeaders();
 
-
-    // Align addr to cols
-    addr -= addr % m_columnCount;
-
-    int maxDisplayLines = getMaxFullyDisplayedLines(ui->hexHexText);
-    int allNeedLines = maxlen / m_columnCount + 1;
-//    if(allNeedLines < maxDisplayLines)
-//    {
-//        maxDisplayLines = allNeedLines;
-//    }
-    maxDisplayLines = allNeedLines;
-
-    //RVA cur_addr = addr - (bufferLines * cols);
-    unsigned long long cur_addr = addr;
-    first_loaded_address = cur_addr;
-    last_loaded_address = cur_addr + (maxDisplayLines) * m_columnCount;
-
-
-    auto hexdump = fetchHexdump(cur_addr, maxDisplayLines);
+    auto hexdump = fetchHexdump();
 
     ui->hexOffsetText->setText(hexdump[0]);
     ui->hexHexText->setText(hexdump[1]);
     ui->hexASCIIText->setText(hexdump[2]);
 
-    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(maxDisplayLines)); // ln-1 because line number starts from 0
-    ui->hexHexText->moveCursor(QTextCursor::End);
+    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(0)); // ln-1 because line number starts from 0
+    ui->hexHexText->moveCursor(QTextCursor::Start);
     ui->hexHexText->setTextCursor(cursor);
 
     updateWidths();
@@ -357,44 +357,59 @@ void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
     // Update other text areas scroll
     ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
     ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-
 }
 
-std::array<QString, 3> HexdumpWidget::fetchHexdump(unsigned long long  addr, int lines)
+std::array<QString, 3> HexdumpWidget::fetchHexdump()
 {
     // Main bytes to fetch:
 
-    int bytes = m_columnCount * lines;
+    int bytes = m_length;
+    int needLines = bytes / m_columnCount + 1;
 
-//    QJsonArray byte_array = Core()->cmdj(command).array();
+    char *byte_array = (char*)m_addr;
 
     QString hexText = "";
     QString offsetText = "";
     QString asciiText = "";
-    unsigned long long cur_addr = addr;
-    for(int i=0; i < lines; i++)
+
+    unsigned long long cur_addr = m_addr;
+    for(int i=0; i < needLines; i++)
     {
         for(int j=0; j < m_columnCount; j++)
         {
-//            int b = byte_array[(i * cols) + j].toInt();
-            int b = (int)'a';
+            int curPos = (i * m_columnCount) + j;
+            int b = byte_array[curPos];
+
             if((j > 0) && (j < m_columnCount))
             {
                 hexText += " ";
             }
-            // Non printable
-            if((b < 0x20) || (b > 0x7E))
-            {
-                asciiText += ".";
-            } else {
-                asciiText += (char)b;
-            }
 
-            hexText += QString::number(b, 16).rightJustified(2, '0');
+            if(curPos >= m_length){
+                hexText += "  ";
+                asciiText += " ";
+
+            }else{
+                hexText += QString::number(b, 16).rightJustified(2, '0');
+
+                // Non printable
+                if((b < 0x20) || (b > 0x7E))
+                {
+                    asciiText += ".";
+                } else {
+                    asciiText += (char)b;
+                }
+            }
         }
-        offsetText += RAddressString(cur_addr) + "\n";
+
+        if(m_isAddr64bit){
+            offsetText += RAddressString64(cur_addr - m_displayOffset) + "\n";
+        }else{
+            offsetText += RAddressString32(cur_addr - m_displayOffset) + "\n";
+        }
         hexText += "\n";
         asciiText += "\n";
+
         cur_addr += m_columnCount;
     }
 
@@ -412,3 +427,4 @@ void HexdumpWidget::updateWidths()
     ui->hexASCIIText->document()->adjustSize();
     ui->hexASCIIText->setMinimumWidth(ui->hexASCIIText->document()->size().width());
 }
+

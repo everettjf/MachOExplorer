@@ -6,9 +6,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+    std::string str;
+    str = "hello world";
+    str = "hello world hello world";
+//    for(int i = 0; i < 1000; i++){
+//        str += "12345678";
+//    }
+
+    ui->widget->setAddressAs64Bit(false);
+
+    ui->widget->loadAddress((unsigned long long)(void*)str.c_str(),(unsigned long long)(void*)str.c_str(), str.length());
 }
