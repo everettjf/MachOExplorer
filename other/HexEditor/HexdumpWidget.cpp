@@ -267,6 +267,96 @@ int HexdumpWidget::hexAddressToPosition(unsigned long long address)
     return (address - m_addr) * 3;
 }
 
+void HexdumpWidget::refresh()
+{
+    updateHeaders();
+
+    auto hexdump = fetchHexdump();
+
+    ui->hexOffsetText->setText(hexdump[0]);
+    ui->hexHexText->setText(hexdump[1]);
+    ui->hexASCIIText->setText(hexdump[2]);
+
+    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(0)); // ln-1 because line number starts from 0
+    ui->hexHexText->moveCursor(QTextCursor::Start);
+    ui->hexHexText->setTextCursor(cursor);
+
+    updateWidths();
+
+    // Update other text areas scroll
+    ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+    ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+}
+
+std::array<QString, 3> HexdumpWidget::fetchHexdump()
+{
+    // Main bytes to fetch:
+
+    int bytes = m_length;
+    int needLines = bytes / m_columnCount + 1;
+
+    char *byte_array = (char*)m_addr;
+
+    QString hexText = "";
+    QString offsetText = "";
+    QString asciiText = "";
+
+    unsigned long long cur_addr = m_addr;
+    for(int i=0; i < needLines; i++)
+    {
+        for(int j=0; j < m_columnCount; j++)
+        {
+            int curPos = (i * m_columnCount) + j;
+            int b = byte_array[curPos];
+
+            if((j > 0) && (j < m_columnCount))
+            {
+                hexText += " ";
+            }
+
+            if(curPos >= m_length){
+                hexText += "  ";
+                asciiText += " ";
+
+            }else{
+                hexText += QString::number(b, 16).rightJustified(2, '0');
+
+                // Non printable
+                if((b < 0x20) || (b > 0x7E))
+                {
+                    asciiText += ".";
+                } else {
+                    asciiText += (char)b;
+                }
+            }
+        }
+
+        if(m_isAddr64bit){
+            offsetText += RAddressString64(cur_addr - m_displayOffset) + "\n";
+        }else{
+            offsetText += RAddressString32(cur_addr - m_displayOffset) + "\n";
+        }
+        hexText += "\n";
+        asciiText += "\n";
+
+        cur_addr += m_columnCount;
+    }
+
+    return {{offsetText, hexText, asciiText}};
+}
+void HexdumpWidget::updateWidths()
+{
+    // Update width
+    ui->hexHexText->document()->adjustSize();
+    ui->hexHexText->setFixedWidth(ui->hexHexText->document()->size().width());
+
+    ui->hexOffsetText->document()->adjustSize();
+    ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());
+
+    ui->hexASCIIText->document()->adjustSize();
+    ui->hexASCIIText->setMinimumWidth(ui->hexASCIIText->document()->size().width());
+}
+
 void HexdumpWidget::selectionChanged()
 {
     if(m_isSelecting)
@@ -357,94 +447,4 @@ void HexdumpWidget::selectionChanged()
     m_isSelecting = false;
 }
 
-
-void HexdumpWidget::refresh()
-{
-    updateHeaders();
-
-    auto hexdump = fetchHexdump();
-
-    ui->hexOffsetText->setText(hexdump[0]);
-    ui->hexHexText->setText(hexdump[1]);
-    ui->hexASCIIText->setText(hexdump[2]);
-
-    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(0)); // ln-1 because line number starts from 0
-    ui->hexHexText->moveCursor(QTextCursor::Start);
-    ui->hexHexText->setTextCursor(cursor);
-
-    updateWidths();
-
-    // Update other text areas scroll
-    ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-    ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-}
-
-std::array<QString, 3> HexdumpWidget::fetchHexdump()
-{
-    // Main bytes to fetch:
-
-    int bytes = m_length;
-    int needLines = bytes / m_columnCount + 1;
-
-    char *byte_array = (char*)m_addr;
-
-    QString hexText = "";
-    QString offsetText = "";
-    QString asciiText = "";
-
-    unsigned long long cur_addr = m_addr;
-    for(int i=0; i < needLines; i++)
-    {
-        for(int j=0; j < m_columnCount; j++)
-        {
-            int curPos = (i * m_columnCount) + j;
-            int b = byte_array[curPos];
-
-            if((j > 0) && (j < m_columnCount))
-            {
-                hexText += " ";
-            }
-
-            if(curPos >= m_length){
-                hexText += "  ";
-                asciiText += " ";
-
-            }else{
-                hexText += QString::number(b, 16).rightJustified(2, '0');
-
-                // Non printable
-                if((b < 0x20) || (b > 0x7E))
-                {
-                    asciiText += ".";
-                } else {
-                    asciiText += (char)b;
-                }
-            }
-        }
-
-        if(m_isAddr64bit){
-            offsetText += RAddressString64(cur_addr - m_displayOffset) + "\n";
-        }else{
-            offsetText += RAddressString32(cur_addr - m_displayOffset) + "\n";
-        }
-        hexText += "\n";
-        asciiText += "\n";
-
-        cur_addr += m_columnCount;
-    }
-
-    return {{offsetText, hexText, asciiText}};
-}
-void HexdumpWidget::updateWidths()
-{
-    // Update width
-    ui->hexHexText->document()->adjustSize();
-    ui->hexHexText->setFixedWidth(ui->hexHexText->document()->size().width());
-
-    ui->hexOffsetText->document()->adjustSize();
-    ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());
-
-    ui->hexASCIIText->document()->adjustSize();
-    ui->hexASCIIText->setMinimumWidth(ui->hexASCIIText->document()->size().width());
-}
 
