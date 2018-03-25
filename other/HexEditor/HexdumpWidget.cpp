@@ -70,6 +70,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent) :
     updateHeaders();
 
     setupScrollSync();
+//    setupSelection();
 }
 
 HexdumpWidget::~HexdumpWidget()
@@ -89,12 +90,6 @@ void HexdumpWidget::setupFont()
     ui->hexHeaderLabel->setFont(font);
     ui->asciiHeaderLabel->setFont(font);
 
-
-    connect(ui->hexHexText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
-    connect(ui->hexASCIIText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
-    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
-    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
-
 }
 
 void HexdumpWidget::setupColors()
@@ -110,7 +105,7 @@ void HexdumpWidget::setupColors()
 
 void HexdumpWidget::updateHeaders()
 {
-    int ascii_cols = cols;
+    int ascii_cols = m_columnCount;
     bool pairs = false;
 
     QString hexHeaderString;
@@ -128,7 +123,7 @@ void HexdumpWidget::updateHeaders()
     QString space = " ";
     space = space.repeated(1);
 
-    for (int i=0; i<cols; i++)
+    for (int i=0; i<m_columnCount; i++)
     {
         if (i > 0 && ((pairs && !(i&1)) || !pairs))
         {
@@ -159,21 +154,11 @@ void HexdumpWidget::setupScrollSync()
      */
 
     auto offsetHexFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexHexText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexHexText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
     };
 
     auto offsetASCIIFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
     };
 
     connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), offsetHexFunc);
@@ -182,21 +167,11 @@ void HexdumpWidget::setupScrollSync()
     connect(ui->hexOffsetText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
 
     auto hexOffsetFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
     };
 
     auto hexASCIIFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
     };
 
     connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
@@ -205,27 +180,26 @@ void HexdumpWidget::setupScrollSync()
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
 
     auto asciiOffsetFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
     };
 
     auto asciiHexFunc = [this]() {
-        if(!scroll_disabled)
-        {
-            scroll_disabled = true;
-            ui->hexHexText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
-            scroll_disabled = false;
-        }
+        ui->hexHexText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
     };
 
     connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
     connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
+}
+
+void HexdumpWidget::setupSelection()
+{
+    connect(ui->hexHexText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexASCIIText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
+
 }
 unsigned long long HexdumpWidget::hexPositionToAddress(int position)
 {
@@ -235,7 +209,7 @@ unsigned long long HexdumpWidget::hexPositionToAddress(int position)
 int HexdumpWidget::asciiAddressToPosition(unsigned long long address)
 {
     unsigned long long local_address = address - first_loaded_address;
-    int position = local_address + (local_address / cols);
+    int position = local_address + (local_address / m_columnCount);
     return position;
 }
 void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
@@ -247,7 +221,7 @@ void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
 unsigned long long HexdumpWidget::asciiPositionToAddress(int position)
 {
     // Each row adds one byte (because of the newline), so cols + 1 gets rid of that offset
-    return first_loaded_address + (position - (position / (cols + 1)));
+    return first_loaded_address + (position - (position / (m_columnCount + 1)));
 }
 int HexdumpWidget::hexAddressToPosition(unsigned long long address)
 {
@@ -256,11 +230,6 @@ int HexdumpWidget::hexAddressToPosition(unsigned long long address)
 
 void HexdumpWidget::selectionChanged()
 {
-    if(scroll_disabled)
-    {
-        return;
-    }
-
     if(sender() == ui->hexHexText)
     {
         QTextCursor textCursor = ui->hexHexText->textCursor();
@@ -341,8 +310,11 @@ void HexdumpWidget::selectionChanged()
 
 void HexdumpWidget::showEvent(QShowEvent *event)
 {
-    char * s = "hello world 111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
-    refresh((unsigned long long)(void*)s, strlen(s) + 1);
+    std::string str;
+    for(int i = 0; i < 1000; i++){
+        str += "12345678";
+    }
+    refresh((unsigned long long)(void*)str.c_str(), str.length());
 }
 
 void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
@@ -352,22 +324,22 @@ void HexdumpWidget::refresh(unsigned long long addr, unsigned long long maxlen)
 
     updateHeaders();
 
-    const int cols = 16;
 
     // Align addr to cols
-    addr -= addr % cols;
+    addr -= addr % m_columnCount;
 
     int maxDisplayLines = getMaxFullyDisplayedLines(ui->hexHexText);
-    int allNeedLines = maxlen / cols + 1;
-    if(allNeedLines < maxDisplayLines)
-    {
-        maxDisplayLines = allNeedLines;
-    }
+    int allNeedLines = maxlen / m_columnCount + 1;
+//    if(allNeedLines < maxDisplayLines)
+//    {
+//        maxDisplayLines = allNeedLines;
+//    }
+    maxDisplayLines = allNeedLines;
 
     //RVA cur_addr = addr - (bufferLines * cols);
     unsigned long long cur_addr = addr;
     first_loaded_address = cur_addr;
-    last_loaded_address = cur_addr + (maxDisplayLines) * cols;
+    last_loaded_address = cur_addr + (maxDisplayLines) * m_columnCount;
 
 
     auto hexdump = fetchHexdump(cur_addr, maxDisplayLines);
@@ -392,7 +364,7 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(unsigned long long  addr, int
 {
     // Main bytes to fetch:
 
-    int bytes = cols * lines;
+    int bytes = m_columnCount * lines;
 
 //    QJsonArray byte_array = Core()->cmdj(command).array();
 
@@ -402,11 +374,11 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(unsigned long long  addr, int
     unsigned long long cur_addr = addr;
     for(int i=0; i < lines; i++)
     {
-        for(int j=0; j < cols; j++)
+        for(int j=0; j < m_columnCount; j++)
         {
 //            int b = byte_array[(i * cols) + j].toInt();
             int b = (int)'a';
-            if((j > 0) && (j < cols))
+            if((j > 0) && (j < m_columnCount))
             {
                 hexText += " ";
             }
@@ -423,7 +395,7 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(unsigned long long  addr, int
         offsetText += RAddressString(cur_addr) + "\n";
         hexText += "\n";
         asciiText += "\n";
-        cur_addr += cols;
+        cur_addr += m_columnCount;
     }
 
     return {{offsetText, hexText, asciiText}};

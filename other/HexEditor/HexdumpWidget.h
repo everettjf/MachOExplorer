@@ -28,6 +28,8 @@ public:
     void setupColors();
     void updateHeaders();
     void setupScrollSync();
+    void setupSelection();
+
 private slots:
 
     void selectionChanged();
@@ -46,18 +48,14 @@ private:
     int hexAddressToPosition(unsigned long long address);
 
 private:
-    int  bufferLines;
 
     unsigned long long first_loaded_address = -1;
     unsigned long long last_loaded_address = -1;
 
-    int cols = 16;
+    int m_columnCount = 16;
 
 private:
     Ui::HexdumpWidget *ui;
-
-    bool scroll_disabled = false;
-
 };
 
 #endif // HEXDUMPWIDGET_H
