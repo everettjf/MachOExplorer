@@ -106,7 +106,21 @@ void HexdumpWidget::loadAddress(unsigned long long displayOffset, unsigned long 
 
 void HexdumpWidget::selectRange(unsigned long long addr, unsigned long long len)
 {
+    unsigned long long startAddress = addr;
+    unsigned long long endAddress = addr + len;
 
+
+    int startPosition = hexAddressToPosition(startAddress);
+    int endPosition = hexAddressToPosition(endAddress);
+
+    // End position -1 because the position we get above is for the next
+    // entry, so including the space/newline
+    endPosition -= 1;
+
+    QTextCursor targetTextCursor = ui->hexHexText->textCursor();
+    targetTextCursor.setPosition(startPosition);
+    targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+    ui->hexHexText->setTextCursor(targetTextCursor);
 }
 
 void HexdumpWidget::setupFont()

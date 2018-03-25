@@ -17,13 +17,17 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent *event)
 {
     std::string str;
-    str = "hello world";
-    str = "hello world hello world";
-//    for(int i = 0; i < 1000; i++){
-//        str += "12345678";
-//    }
+//    str = "hello world";
+//    str = "hello world hello world";
+    for(int i = 0; i < 1000; i++){
+        str += "12345678";
+    }
+
+
+    unsigned long long addr = (unsigned long long)(void*)str.c_str();
+    unsigned long long len = str.length();
 
     ui->widget->setAddressAs64Bit(false);
-
-    ui->widget->loadAddress((unsigned long long)(void*)str.c_str(),(unsigned long long)(void*)str.c_str(), str.length());
+    ui->widget->loadAddress(addr,addr, len);
+    ui->widget->selectRange(addr,6);
 }
