@@ -23,6 +23,8 @@ struct MainWindowAction{
     QAction *openFile;
     QAction *quit;
 
+    QAction *showLayoutWindow;
+    QAction *showHexWindow;
     QAction *showLogWindow;
 
     QAction *reportIssue;
@@ -51,25 +53,7 @@ public:
 protected:
     void createUI();
     void createActions();
-    void createMenus();
 
-
-signals:
-
-public slots:
-    void newWindow(bool checked);
-    void closeWindow(bool checked);
-    void openFile(bool checked);
-    void quitApp(bool checked);
-
-    void showLogWindow(bool checked);
-
-    void reportIssue(bool checked);
-    void viewSource(bool checked);
-    void checkUpdate(bool checked);
-    void aboutApp(bool checked);
-
-    void dockLogVisibilityChanged(bool visible);
 };
 
 #endif // MAINWINDOW_H

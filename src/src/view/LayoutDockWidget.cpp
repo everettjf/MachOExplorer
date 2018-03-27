@@ -2,25 +2,25 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "LayoutView.h"
+#include "LayoutDockWidget.h"
 #include "src/utility/Utility.h"
 #include "src/controller/Workspace.h"
 #include <QHBoxLayout>
 
-LayoutView::LayoutView(QWidget *parent) : QWidget(parent)
+LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 {
+    setWindowTitle(tr("Layout"));
+
     controller = nullptr;
     treeView = new QTreeView(this);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(treeView);
-    setLayout(layout);
+
+    setWidget(treeView);
 
     connect(treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(clickedTreeNode(QModelIndex)));
 }
 
-void LayoutView::openFile(const QString &filePath)
+void LayoutDockWidget::openFile(const QString &filePath)
 {
     if(controller) delete controller;
     controller = new LayoutController();
@@ -42,13 +42,13 @@ void LayoutView::openFile(const QString &filePath)
     showViewNode(controller->rootNode());
 }
 
-QSize LayoutView::sizeHint() const
+QSize LayoutDockWidget::sizeHint() const
 {
     return QSize(350, 0);
 }
 
 
-void LayoutView::showViewNode(moex::ViewNode *node)
+void LayoutDockWidget::showViewNode(moex::ViewNode *node)
 {
     if(!node)
         return;
@@ -57,7 +57,7 @@ void LayoutView::showViewNode(moex::ViewNode *node)
     WS()->showNode(node);
 }
 
-void LayoutView::clickedTreeNode(QModelIndex index)
+void LayoutDockWidget::clickedTreeNode(QModelIndex index)
 {
     QStandardItem *item = controller->model()->itemFromIndex(index);
     if(!item)

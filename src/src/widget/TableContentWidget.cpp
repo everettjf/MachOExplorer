@@ -2,13 +2,13 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "TableContentView.h"
+#include "TableContentWidget.h"
 #include "src/utility/Utility.h"
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QHeaderView>
 
-TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(parent)
+TableContentWidget::TableContentWidget(QWidget *parent) : ContentWidgetBase(parent)
 {
     controller = nullptr;
     tableView = new QTableView(this);
@@ -24,7 +24,7 @@ TableContentView::TableContentView(QWidget *parent) : ContentViewInterface(paren
     verticalHeader->setDefaultSectionSize(24);
 }
 
-void TableContentView::showViewData(moex::ViewData *data)
+void TableContentWidget::showViewData(moex::ViewData *data)
 {
     moex::TableViewData *node = static_cast<moex::TableViewData*>(data);
 

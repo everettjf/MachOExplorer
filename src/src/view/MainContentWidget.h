@@ -5,31 +5,30 @@
 #ifndef CONTENTVIEW_H
 #define CONTENTVIEW_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QTabWidget>
 #include <QStackedWidget>
 
-#include "src/view/content/TableContentView.h"
-#include "src/view/content/BinaryContentView.h"
+#include "src/widget/TableContentWidget.h"
+#include "BinaryDockWidget.h"
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
 #include <vector>
 #include <map>
 
-class ContentView : public QWidget
+class MainContentWidget : public QWidget
 {
     Q_OBJECT
 public:
 
     QTabWidget *tab;
-    TableContentView *table;
-    BinaryContentView *binary;
+    TableContentWidget *table;
 
     moex::Node *node;
 
-    std::vector<std::pair<ContentViewInterface*,moex::ViewData*>> tabItems;
+    std::vector<std::pair<ContentWidgetBase*,moex::ViewData*>> tabItems;
 public:
-    explicit ContentView(QWidget *parent = 0);
+    explicit MainContentWidget(QWidget *parent = 0);
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent* event);
 
@@ -38,7 +37,7 @@ public:
 
 private:
     void releaseCurrentTabItems();
-    void addTabItem(ContentViewInterface *view,const QString & title,moex::ViewData* data);
+    void addTabItem(ContentWidgetBase *view,const QString & title,moex::ViewData* data);
     void loadCurrentTab();
 signals:
 

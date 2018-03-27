@@ -5,21 +5,22 @@
 #ifndef WORKSPACEMANAGER_H
 #define WORKSPACEMANAGER_H
 
-#include "src/view/LayoutView.h"
-#include "src/view/ContentView.h"
-#include "src/view/LogView.h"
+#include "src/view/LayoutDockWidget.h"
+#include "src/view/MainContentWidget.h"
+#include "src/view/LogDockWidget.h"
+#include "src/view/BinaryDockWidget.h"
 #include <QDockWidget>
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
 
 struct WorkspaceUI{
-    LayoutView *layout;
-    ContentView *content;
-    LogView *log;
+    MainContentWidget *content;
 
-    QDockWidget *layoutDock;
-    QDockWidget *contentDock;
-    QDockWidget *logDock;
+    LayoutDockWidget *layout;
+    LogDockWidget *log;
+    BinaryDockWidget *binary;
+
+    QList<QDockWidget *> dockWidgets;
 };
 
 

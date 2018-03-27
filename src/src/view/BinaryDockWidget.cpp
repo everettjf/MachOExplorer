@@ -2,28 +2,28 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "BinaryContentView.h"
+#include "BinaryDockWidget.h"
 
 
 #include "src/utility/Utility.h"
 #include <QHBoxLayout>
 
-BinaryContentView::BinaryContentView(QWidget *parent) : ContentViewInterface(parent)
+BinaryDockWidget::BinaryDockWidget(QWidget *parent) : QDockWidget(parent)
 {
+    setWindowTitle(tr("Hex"));
+
     hexEdit = new HexdumpWidget(this);
+    hexEdit->setMinimumWidth(528);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-
-    layout->addWidget(hexEdit);
-    setLayout(layout);
+    setWidget(hexEdit);
 }
 
-void BinaryContentView::showViewData(moex::ViewData *data)
+void BinaryDockWidget::showViewData(moex::ViewData *data)
 {
     moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
 
     hexEdit->setAddressAs64Bit(true);
     hexEdit->loadAddress(node->start_value,(unsigned long long)node->offset,node->size);
+    this->adjustSize();
 }
 

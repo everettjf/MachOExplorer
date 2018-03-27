@@ -2,7 +2,7 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "ContentView.h"
+#include "MainContentWidget.h"
 
 #include <QBoxLayout>
 #include <QLabel>
@@ -12,7 +12,7 @@
 #include "src/controller/Workspace.h"
 #include <QDebug>
 
-ContentView::ContentView(QWidget *parent) : QWidget(parent)
+MainContentWidget::MainContentWidget(QWidget *parent) : QWidget(parent)
 {
     node = nullptr;
 
@@ -29,13 +29,13 @@ ContentView::ContentView(QWidget *parent) : QWidget(parent)
     setAcceptDrops(true);
 }
 
-void ContentView::dragEnterEvent(QDragEnterEvent *event)
+void MainContentWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->mimeData()->hasFormat("text/uri-list"))
         event->acceptProposedAction();
 }
 
-void ContentView::dropEvent(QDropEvent *event)
+void MainContentWidget::dropEvent(QDropEvent *event)
 {
     const QMimeData* mimeData = event->mimeData();
 
@@ -50,13 +50,13 @@ void ContentView::dropEvent(QDropEvent *event)
     }
 }
 
-void ContentView::openFile(const QString &filePath)
+void MainContentWidget::openFile(const QString &filePath)
 {
     WS()->openFile(filePath);
 
 }
 
-void ContentView::showNode(moex::ViewNode *node)
+void MainContentWidget::showNode(moex::ViewNode *node)
 {
     if(!node)return;
 
@@ -67,14 +67,11 @@ void ContentView::showNode(moex::ViewNode *node)
 
         if(viewdata->mode() == moex::ViewDataMode::Table){
             // Tab - Table
-            table = new TableContentView(this);
+            table = new TableContentWidget(this);
             addTabItem(table,title,viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
             // Tab - Binary
-            binary = new BinaryContentView(this);
-            addTabItem(binary,title,viewdata.get());
-        }else{
-            // No such mode
+            WS()->ui()->binary->showViewData(viewdata.get());
         }
     }
 
@@ -82,7 +79,7 @@ void ContentView::showNode(moex::ViewNode *node)
 }
 
 
-void ContentView::releaseCurrentTabItems()
+void MainContentWidget::releaseCurrentTabItems()
 {
     tab->clear();
 
@@ -92,18 +89,18 @@ void ContentView::releaseCurrentTabItems()
     tabItems.clear();
 }
 
-void ContentView::addTabItem(ContentViewInterface *view, const QString &title, moex::ViewData *data)
+void MainContentWidget::addTabItem(ContentWidgetBase *view, const QString &title, moex::ViewData *data)
 {
     tab->addTab(view,title);
     tabItems.push_back(std::make_pair(view,data));
 }
 
-void ContentView::loadCurrentTab()
+void MainContentWidget::loadCurrentTab()
 {
     int index = tab->currentIndex();
     if(index < 0 || index >= tabItems.size())
         return;
-    ContentViewInterface *view = tabItems[index].first;
+    ContentWidgetBase *view = tabItems[index].first;
     moex::ViewData *data = tabItems[index].second;
 
     qDebug()<< view << " - " << data;
@@ -111,7 +108,7 @@ void ContentView::loadCurrentTab()
     view->showViewData(data);
 }
 
-void ContentView::currentChanged(int index)
+void MainContentWidget::currentChanged(int index)
 {
     loadCurrentTab();
 }

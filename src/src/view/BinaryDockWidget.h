@@ -5,17 +5,16 @@
 #ifndef BINARYCONTENTVIEW_H
 #define BINARYCONTENTVIEW_H
 
-#include <QWidget>
-#include "ContentViewInterface.h"
-#include "../../widget/HexdumpWidget.h"
+#include <QDockWidget>
+#include "src/widget/HexdumpWidget.h"
+#include <libmoex/moex-view.h>
 
-
-class BinaryContentView : public ContentViewInterface
+class BinaryDockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit BinaryContentView(QWidget *parent = 0);
-    void showViewData(moex::ViewData *data)override;
+    explicit BinaryDockWidget(QWidget *parent = 0);
+    void showViewData(moex::ViewData *data);
 
 private:
     HexdumpWidget *hexEdit;

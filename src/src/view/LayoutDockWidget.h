@@ -5,14 +5,14 @@
 #ifndef LAYOUTVIEW_H
 #define LAYOUTVIEW_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QTreeView>
 #include "src/controller/LayoutController.h"
 #include <QModelIndex>
 
 
 
-class LayoutView : public QWidget
+class LayoutDockWidget : public QDockWidget
 {
     Q_OBJECT
 private:
@@ -22,7 +22,7 @@ private:
 private:
     void showViewNode(moex::ViewNode * node);
 public:
-    explicit LayoutView(QWidget *parent = 0);
+    explicit LayoutDockWidget(QWidget *parent = 0);
 
     void openFile(const QString & filePath);
 

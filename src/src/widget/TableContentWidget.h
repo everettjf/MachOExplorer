@@ -6,17 +6,26 @@
 #define TABLECONTENTVIEW_H
 
 #include <QWidget>
-#include "ContentViewInterface.h"
 #include <QTableView>
 #include "src/controller/TableContentController.h"
 #include <QModelIndex>
 
+#include <libmoex/moex-view.h>
+#include <QWidget>
 
-class TableContentView : public ContentViewInterface
+class ContentWidgetBase : public QWidget{
+Q_OBJECT
+public:
+    explicit ContentWidgetBase(QWidget *parent = 0):QWidget(parent){}
+    virtual void showViewData(moex::ViewData *data) = 0;
+};
+
+
+class TableContentWidget : public ContentWidgetBase
 {
     Q_OBJECT
 public:
-    explicit TableContentView(QWidget *parent = 0);
+    explicit TableContentWidget(QWidget *parent = 0);
 
     void showViewData(moex::ViewData *data)override;
 private:

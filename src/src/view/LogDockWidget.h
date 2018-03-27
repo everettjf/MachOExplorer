@@ -5,16 +5,16 @@
 #ifndef LOGVIEW_H
 #define LOGVIEW_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QTextEdit>
 
-class LogView : public QWidget
+class LogDockWidget : public QDockWidget
 {
     Q_OBJECT
 private:
     QTextEdit *textEdit;
 public:
-    explicit LogView(QWidget *parent = 0);
+    explicit LogDockWidget(QWidget *parent = 0);
 
     void addLine(const QString &line);
     QSize sizeHint() const;
