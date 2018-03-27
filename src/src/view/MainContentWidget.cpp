@@ -71,7 +71,7 @@ void MainContentWidget::showNode(moex::ViewNode *node)
             addTabItem(table,title,viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
             // Tab - Binary
-            WS()->ui()->binary->showViewData(viewdata.get());
+            WS()->ui()->hex->showViewData(viewdata.get());
         }
     }
 

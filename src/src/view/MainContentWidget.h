@@ -10,7 +10,7 @@
 #include <QStackedWidget>
 
 #include "src/widget/TableContentWidget.h"
-#include "BinaryDockWidget.h"
+#include "HexDockWidget.h"
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
 #include <vector>

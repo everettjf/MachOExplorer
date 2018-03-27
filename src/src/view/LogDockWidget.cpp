@@ -19,6 +19,7 @@ LogDockWidget::LogDockWidget(QWidget *parent) : QDockWidget(parent)
 
 void LogDockWidget::addLine(const QString &line)
 {
+    textEdit->insertPlainText("> ");
     textEdit->insertPlainText(line);
     textEdit->insertPlainText("\n");
 }

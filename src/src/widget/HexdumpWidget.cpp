@@ -228,6 +228,11 @@ inline QString RAddressString64(unsigned long long addr)
 
 
 
+QSize HexdumpWidget::sizeHint() const
+{
+    return QSize(530, 100);
+}
+
 HexdumpWidget::HexdumpWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui_HexdumpWidget)

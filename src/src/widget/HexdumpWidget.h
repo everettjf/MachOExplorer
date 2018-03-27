@@ -26,6 +26,7 @@ public:
 
     void loadAddress(unsigned long long displayOffset,unsigned long long addr,unsigned long long len);
     void selectRange(unsigned long long addr,unsigned long long len);
+    QSize sizeHint() const;
 
 private:
 

@@ -9,11 +9,11 @@
 #include "src/widget/HexdumpWidget.h"
 #include <libmoex/moex-view.h>
 
-class BinaryDockWidget : public QDockWidget
+class HexDockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit BinaryDockWidget(QWidget *parent = 0);
+    explicit HexDockWidget(QWidget *parent = 0);
     void showViewData(moex::ViewData *data);
 
 private:
