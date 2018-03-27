@@ -34,15 +34,15 @@ static void registerCustomFonts()
 }
 
 
-int getMaxFullyDisplayedLines(QTextEdit *textEdit)
-{
-    QFontMetrics fontMetrics(textEdit->document()->defaultFont());
-    return (textEdit->height()
-            - (textEdit->contentsMargins().top()
-               + textEdit->contentsMargins().bottom()
-               + (int)(textEdit->document()->documentMargin() * 2)))
-           / fontMetrics.lineSpacing();
-}
+//int getMaxFullyDisplayedLines(QTextEdit *textEdit)
+//{
+//    QFontMetrics fontMetrics(textEdit->document()->defaultFont());
+//    return (textEdit->height()
+//            - (textEdit->contentsMargins().top()
+//               + textEdit->contentsMargins().bottom()
+//               + (int)(textEdit->document()->documentMargin() * 2)))
+//           / fontMetrics.lineSpacing();
+//}
 
 
 inline QString RAddressString32(unsigned long long addr)
@@ -92,7 +92,6 @@ HexdumpWidget::~HexdumpWidget()
 
 void HexdumpWidget::showEvent(QShowEvent *event)
 {
-
 }
 
 void HexdumpWidget::loadAddress(unsigned long long displayOffset, unsigned long long addr, unsigned long long len)
@@ -245,7 +244,7 @@ void HexdumpWidget::setupSelection()
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
 
 }
-unsigned long long HexdumpWidget::hexPositionToAddress(int position)
+unsigned long long HexdumpWidget::hexPositionToAddress(unsigned long long position)
 {
     return m_addr + (position / 3); // two kinds "00 " "00\n"
 }
@@ -257,12 +256,12 @@ int HexdumpWidget::asciiAddressToPosition(unsigned long long address)
     return position;
 }
 
-unsigned long long HexdumpWidget::asciiPositionToAddress(int position)
+unsigned long long HexdumpWidget::asciiPositionToAddress(unsigned long long position)
 {
     // Each row adds one byte (because of the newline), so cols + 1 gets rid of that offset
     return m_addr + (position - (position / (m_columnCount + 1)));
 }
-int HexdumpWidget::hexAddressToPosition(unsigned long long address)
+unsigned long long HexdumpWidget::hexAddressToPosition(unsigned long long address)
 {
     return (address - m_addr) * 3;
 }
@@ -292,8 +291,8 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump()
 {
     // Main bytes to fetch:
 
-    int bytes = m_length;
-    int needLines = bytes / m_columnCount + 1;
+    unsigned long long bytes = m_length;
+    unsigned long long needLines = bytes / m_columnCount + 1;
 
     char *byte_array = (char*)m_addr;
 
@@ -302,11 +301,11 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump()
     QString asciiText = "";
 
     unsigned long long cur_addr = m_addr;
-    for(int i=0; i < needLines; i++)
+    for(unsigned long long i=0; i < needLines; i++)
     {
         for(int j=0; j < m_columnCount; j++)
         {
-            int curPos = (i * m_columnCount) + j;
+            unsigned long long curPos = (i * m_columnCount) + j;
             int b = byte_array[curPos];
 
             if((j > 0) && (j < m_columnCount))
@@ -377,8 +376,8 @@ void HexdumpWidget::selectionChanged()
             return;
         }
 
-        int selectionStart = textCursor.selectionStart();
-        int selectionEnd = textCursor.selectionEnd();
+        unsigned long long selectionStart = textCursor.selectionStart();
+        unsigned long long selectionEnd = textCursor.selectionEnd();
 
         QChar start = ui->hexHexText->document()->characterAt(selectionStart);
         QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
@@ -420,7 +419,7 @@ void HexdumpWidget::selectionChanged()
         if(!textCursor.hasSelection())
         {
             unsigned long long adr = asciiPositionToAddress(textCursor.position());
-            int pos = hexAddressToPosition(adr);
+            unsigned long long pos = hexAddressToPosition(adr);
             setTextEditPosition(ui->hexHexText, pos);
 
             m_isSelecting = false;
@@ -431,8 +430,8 @@ void HexdumpWidget::selectionChanged()
         unsigned long long endAddress = asciiPositionToAddress(textCursor.selectionEnd());
 
 
-        int startPosition = hexAddressToPosition(startAddress);
-        int endPosition = hexAddressToPosition(endAddress);
+        unsigned long long startPosition = hexAddressToPosition(startAddress);
+        unsigned long long endPosition = hexAddressToPosition(endAddress);
 
         // End position -1 because the position we get above is for the next
         // entry, so including the space/newline

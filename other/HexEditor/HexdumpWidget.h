@@ -49,16 +49,16 @@ private:
 
     std::array<QString, 3> fetchHexdump();
     void updateWidths();
-    unsigned long long hexPositionToAddress(int position);
+    unsigned long long hexPositionToAddress(unsigned long long position);
     int asciiAddressToPosition(unsigned long long address);
-    unsigned long long asciiPositionToAddress(int position);
-    int hexAddressToPosition(unsigned long long address);
+    unsigned long long asciiPositionToAddress(unsigned long long position);
+    unsigned long long hexAddressToPosition(unsigned long long address);
 
 private:
     unsigned long long m_displayOffset = 0;
     unsigned long long m_addr = 0;
     unsigned long long m_length = 0;
-    unsigned long long m_columnCount = 16;
+    int m_columnCount = 16;
     bool m_isAddr64bit = true;
 
 private:
