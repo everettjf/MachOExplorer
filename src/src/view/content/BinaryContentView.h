@@ -7,7 +7,7 @@
 
 #include <QWidget>
 #include "ContentViewInterface.h"
-#include "../qhexedit/qhexedit.h"
+#include "../../widget/HexdumpWidget.h"
 
 
 class BinaryContentView : public ContentViewInterface
@@ -18,7 +18,7 @@ public:
     void showViewData(moex::ViewData *data)override;
 
 private:
-    QHexEdit *hexEdit;
+    HexdumpWidget *hexEdit;
 signals:
 
 public slots:

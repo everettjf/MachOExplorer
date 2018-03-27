@@ -11,6 +11,7 @@
 #include "src/dialog/CheckUpdateDialog.h"
 #include "src/common/AppInfo.h"
 #include "src/dialog/AboutDialog.h"
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {

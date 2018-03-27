@@ -1,6 +1,8 @@
 #include "MoexApplication.h"
 #include "common/AppInfo.h"
 #include <QDesktopWidget>
+#include <QTextCodec>
+#include <QCommandLineParser>
 
 MoexApplication::MoexApplication(int argc,char *argv[]) : QApplication(argc,argv){
     setApplicationName("MachOExplorer");

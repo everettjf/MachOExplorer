@@ -11,7 +11,6 @@
 
 #include "src/view/content/TableContentView.h"
 #include "src/view/content/BinaryContentView.h"
-#include "src/view/content/BlankContentView.h"
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
 #include <vector>
@@ -21,8 +20,6 @@ class ContentView : public QWidget
 {
     Q_OBJECT
 public:
-    QStackedWidget *stack;
-    BlankContentView *blank;
 
     QTabWidget *tab;
     TableContentView *table;
@@ -39,7 +36,6 @@ public:
     void openFile(const QString & filePath);
     void showNode(moex::ViewNode *node);
 
-    void displayContentTab();
 private:
     void releaseCurrentTabItems();
     void addTabItem(ContentViewInterface *view,const QString & title,moex::ViewData* data);

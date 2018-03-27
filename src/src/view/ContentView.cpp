@@ -21,16 +21,9 @@ ContentView::ContentView(QWidget *parent) : QWidget(parent)
     layout->setMargin(0);
     setLayout(layout);
 
-    stack = new QStackedWidget(this);
-    layout->addWidget(stack);
-
-    // Stack - Blank
-    blank = new BlankContentView(this);
-    stack->addWidget(blank);
-
-    // Stack - TabWidget
+    // TabWidget
     tab = new QTabWidget(this);
-    stack->addWidget(tab);
+    layout->addWidget(tab);
     connect(tab,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
 
     setAcceptDrops(true);
@@ -61,14 +54,12 @@ void ContentView::openFile(const QString &filePath)
 {
     WS()->openFile(filePath);
 
-    displayContentTab();
 }
 
 void ContentView::showNode(moex::ViewNode *node)
 {
     if(!node)return;
 
-    displayContentTab();
     releaseCurrentTabItems();
 
     for(auto viewdata : node->GetViewDatas()){
@@ -90,10 +81,6 @@ void ContentView::showNode(moex::ViewNode *node)
     loadCurrentTab();
 }
 
-void ContentView::displayContentTab()
-{
-    stack->setCurrentIndex(1);
-}
 
 void ContentView::releaseCurrentTabItems()
 {
