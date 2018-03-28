@@ -16,7 +16,7 @@
 #include <vector>
 #include <map>
 
-class MainCentralWidget : public QWidget
+class CentralWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -28,7 +28,7 @@ public:
 
     std::vector<std::pair<InfoWidgetBase*,moex::ViewData*>> tabItems;
 public:
-    explicit MainCentralWidget(QWidget *parent = 0);
+    explicit CentralWidget(QWidget *parent = 0);
 
     void showNode(moex::ViewNode *node);
 

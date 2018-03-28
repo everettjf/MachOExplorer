@@ -5,7 +5,7 @@
 #ifndef WORKSPACEMANAGER_H
 #define WORKSPACEMANAGER_H
 
-#include "src/MainCentralWidget.h"
+#include "src/CentralWidget.h"
 #include "src/dock/LayoutDockWidget.h"
 #include "src/dock/LogDockWidget.h"
 #include "src/dock/HexDockWidget.h"
@@ -15,7 +15,8 @@
 #include <libmoex/moex-view.h>
 
 struct WorkspaceUI{
-    MainCentralWidget *main;
+    CentralWidget *main;
+
     LayoutDockWidget *layout;
     LogDockWidget *log;
     HexDockWidget *hex;

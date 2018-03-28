@@ -51,7 +51,7 @@ void MainWindow::openNewFile(const QString &filePath)
 void MainWindow::createUI()
 {
     // Main Window
-    ui->main = new MainCentralWidget(this);
+    ui->main = new CentralWidget(this);
     setCentralWidget(ui->main);
 
     setDockNestingEnabled(true);

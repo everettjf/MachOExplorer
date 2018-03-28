@@ -2,7 +2,7 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "MainCentralWidget.h"
+#include "CentralWidget.h"
 
 #include <QBoxLayout>
 #include <QLabel>
@@ -12,7 +12,7 @@
 #include "src/controller/Workspace.h"
 #include <QDebug>
 
-MainCentralWidget::MainCentralWidget(QWidget *parent) : QWidget(parent)
+CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
     setWindowTitle("Info");
 
@@ -33,7 +33,7 @@ MainCentralWidget::MainCentralWidget(QWidget *parent) : QWidget(parent)
 }
 
 
-void MainCentralWidget::showNode(moex::ViewNode *node)
+void CentralWidget::showNode(moex::ViewNode *node)
 {
     if(!node)return;
 
@@ -56,7 +56,7 @@ void MainCentralWidget::showNode(moex::ViewNode *node)
 }
 
 
-void MainCentralWidget::releaseCurrentTabItems()
+void CentralWidget::releaseCurrentTabItems()
 {
     tab->clear();
 
@@ -66,13 +66,13 @@ void MainCentralWidget::releaseCurrentTabItems()
     tabItems.clear();
 }
 
-void MainCentralWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
+void CentralWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
 {
     tab->addTab(view,title);
     tabItems.push_back(std::make_pair(view,data));
 }
 
-void MainCentralWidget::loadCurrentTab()
+void CentralWidget::loadCurrentTab()
 {
     int index = tab->currentIndex();
     if(index < 0 || index >= tabItems.size())
@@ -85,7 +85,7 @@ void MainCentralWidget::loadCurrentTab()
     view->showViewData(data);
 }
 
-void MainCentralWidget::currentChanged(int index)
+void CentralWidget::currentChanged(int index)
 {
     loadCurrentTab();
 }
