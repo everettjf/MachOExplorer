@@ -20,7 +20,7 @@ InfoDockWidget::InfoDockWidget(QWidget *parent) : QDockWidget(parent)
 
     // TabWidget
     tab = new QTabWidget(this);
-    tab->setTabPosition(QTabWidget::West);
+    tab->setTabPosition(QTabWidget::South);
     tab->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     setWidget(tab);

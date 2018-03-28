@@ -188,7 +188,7 @@ void SectionViewNode::InitCStringView(const std::string &title)
                           name
                   });
 
-        std::string symbolname = fmt::format("{0:#x}:\"{}\"",(uint64_t)cur,name);
+        std::string symbolname = fmt::format("{0:#x}:\"{1}\"",(uint64_t)cur,name);
 
         ++lineno;
     });
