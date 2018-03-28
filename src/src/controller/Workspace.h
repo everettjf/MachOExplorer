@@ -5,11 +5,11 @@
 #ifndef WORKSPACEMANAGER_H
 #define WORKSPACEMANAGER_H
 
-#include "src/view/LayoutDockWidget.h"
-#include "src/view/MainCentralWidget.h"
-#include "src/view/LogDockWidget.h"
-#include "src/view/HexDockWidget.h"
-#include "src/view/HelpDockWidget.h"
+#include "src/MainCentralWidget.h"
+#include "src/dock/LayoutDockWidget.h"
+#include "src/dock/LogDockWidget.h"
+#include "src/dock/HexDockWidget.h"
+#include "src/dock/HelpDockWidget.h"
 #include <QDockWidget>
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
