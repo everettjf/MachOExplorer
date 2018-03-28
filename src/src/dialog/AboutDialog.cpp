@@ -4,7 +4,7 @@
 //
 #include "AboutDialog.h"
 #include "ui_aboutdialog.h"
-#include "src/common/AppInfo.h"
+#include "src/base/AppInfo.h"
 #include "src/utility/Utility.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :

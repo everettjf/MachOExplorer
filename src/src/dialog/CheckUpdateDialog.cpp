@@ -5,7 +5,7 @@
 #include "CheckUpdateDialog.h"
 #include "ui_checkupdatedialog.h"
 #include <QNetworkReply>
-#include "src/common/AppInfo.h"
+#include "src/base/AppInfo.h"
 #include "src/utility/Utility.h"
 
 

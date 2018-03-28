@@ -9,7 +9,7 @@
 #include <QFileDialog>
 #include "src/controller/Workspace.h"
 #include "src/dialog/CheckUpdateDialog.h"
-#include "src/common/AppInfo.h"
+#include "src/base/AppInfo.h"
 #include "src/dialog/AboutDialog.h"
 #include <QProcess>
 

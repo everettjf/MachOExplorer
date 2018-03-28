@@ -1,5 +1,5 @@
 #include "MoexApplication.h"
-#include "common/AppInfo.h"
+#include "base/AppInfo.h"
 #include <QDesktopWidget>
 #include <QTextCodec>
 #include <QCommandLineParser>

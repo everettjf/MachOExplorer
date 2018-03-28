@@ -16998,7 +16998,7 @@ class basic_json
             {
                 case value_t::array:
                 {
-                    // first pass: traverse common elements
+                    // first pass: traverse base elements
                     std::size_t i = 0;
                     while (i < source.size() and i < target.size())
                     {
