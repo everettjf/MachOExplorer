@@ -44,6 +44,7 @@ void MainWindow::openNewFile(const QString &filePath)
 
 #define InitDock(dockvar,dockclass,dockaction) \
     dockvar = new dockclass(this); \
+    ui->dockWidgets.push_back(dockvar); \
     connect(dockvar,&QDockWidget::visibilityChanged,this,[this](bool checked){\
     dockaction->setChecked(checked);\
     });
