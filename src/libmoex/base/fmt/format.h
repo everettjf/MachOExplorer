@@ -2620,8 +2620,8 @@ class BasicWriter {
   static Char *get(Char *p) { return p; }
 #endif
 
-  // Fills the padding around the content and returns the pointer to the
-  // content area.
+  // Fills the padding around the info and returns the pointer to the
+  // info area.
   static CharPtr fill_padding(CharPtr buffer,
       unsigned total_size, std::size_t content_size, wchar_t fill);
 

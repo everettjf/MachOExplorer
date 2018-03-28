@@ -12,9 +12,10 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
     setWindowTitle(tr("Layout"));
 
     controller = nullptr;
-    treeView = new QTreeView(this);
 
-
+    treeView = new LayoutTreeView(this);
+    treeView->setMinimumWidth(200);
+    treeView->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
     setWidget(treeView);
 
     connect(treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(clickedTreeNode(QModelIndex)));
@@ -40,11 +41,6 @@ void LayoutDockWidget::openFile(const QString &filePath)
 
     // Auto display root node
     showViewNode(controller->rootNode());
-}
-
-QSize LayoutDockWidget::sizeHint() const
-{
-    return QSize(350, 0);
 }
 
 

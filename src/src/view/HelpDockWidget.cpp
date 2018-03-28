@@ -22,8 +22,3 @@ void HelpDockWidget::setContent(const QString &line)
     textEdit->setText(line);
 }
 
-
-QSize HelpDockWidget::sizeHint() const
-{
-    return QSize(0, 100);
-}

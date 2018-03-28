@@ -230,7 +230,7 @@ inline QString RAddressString64(unsigned long long addr)
 
 QSize HexdumpWidget::sizeHint() const
 {
-    return QSize(530, 100);
+    return QSize(530, 1000);
 }
 
 HexdumpWidget::HexdumpWidget(QWidget *parent) :
@@ -368,7 +368,7 @@ void HexdumpWidget::setupScrollSync()
 {
     /*
      * For some reason, QScrollBar::valueChanged is not emitted when
-     * the scrolling happened from moving the cursor beyond the visible content,
+     * the scrolling happened from moving the cursor beyond the visible info,
      * so QTextEdit::cursorPositionChanged has to be connected as well.
      */
 

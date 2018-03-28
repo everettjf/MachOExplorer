@@ -9,14 +9,14 @@
 #include <QTreeView>
 #include "src/controller/LayoutController.h"
 #include <QModelIndex>
-
+#include "../widget/LayoutTreeView.h"
 
 
 class LayoutDockWidget : public QDockWidget
 {
     Q_OBJECT
 private:
-    QTreeView *treeView;
+    LayoutTreeView *treeView;
     LayoutController *controller;
 
 private:
@@ -26,7 +26,6 @@ public:
 
     void openFile(const QString & filePath);
 
-    QSize sizeHint() const;
 signals:
 
 public slots:

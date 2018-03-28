@@ -17,7 +17,6 @@ public:
     explicit LogDockWidget(QWidget *parent = 0);
 
     void addLine(const QString &line);
-    QSize sizeHint() const;
 
 signals:
 

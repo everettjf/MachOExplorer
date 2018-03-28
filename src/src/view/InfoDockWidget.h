@@ -16,7 +16,7 @@
 #include <vector>
 #include <map>
 
-class MainContentWidget : public QWidget
+class InfoDockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
@@ -28,11 +28,8 @@ public:
 
     std::vector<std::pair<ContentWidgetBase*,moex::ViewData*>> tabItems;
 public:
-    explicit MainContentWidget(QWidget *parent = 0);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent* event);
+    explicit InfoDockWidget(QWidget *parent = 0);
 
-    void openFile(const QString & filePath);
     void showNode(moex::ViewNode *node);
 
 private:

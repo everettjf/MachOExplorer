@@ -22,7 +22,7 @@ void Workspace::addLog(const QString &log)
 
 void Workspace::showNode(moex::ViewNode *node)
 {
-    ui_->content->showNode(node);
+    ui_->info->showNode(node);
 }
 
 

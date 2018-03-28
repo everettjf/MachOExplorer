@@ -13,6 +13,7 @@ LogDockWidget::LogDockWidget(QWidget *parent) : QDockWidget(parent)
     textEdit = new QTextEdit(this);
     textEdit->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     textEdit->setReadOnly(true);
+    textEdit->setMinimumHeight(150);
 
     setWidget(textEdit);
 }
@@ -22,9 +23,4 @@ void LogDockWidget::addLine(const QString &line)
     textEdit->insertPlainText("> ");
     textEdit->insertPlainText(line);
     textEdit->insertPlainText("\n");
-}
-
-QSize LogDockWidget::sizeHint() const
-{
-    return QSize(0, 100);
 }

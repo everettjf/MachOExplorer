@@ -6,7 +6,7 @@
 #define WORKSPACEMANAGER_H
 
 #include "src/view/LayoutDockWidget.h"
-#include "src/view/MainContentWidget.h"
+#include "src/view/InfoDockWidget.h"
 #include "src/view/LogDockWidget.h"
 #include "src/view/HexDockWidget.h"
 #include "src/view/HelpDockWidget.h"
@@ -15,8 +15,7 @@
 #include <libmoex/moex-view.h>
 
 struct WorkspaceUI{
-    MainContentWidget *content;
-
+    InfoDockWidget *info;
     LayoutDockWidget *layout;
     LogDockWidget *log;
     HexDockWidget *hex;

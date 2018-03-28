@@ -19,8 +19,6 @@ public:
 
     void setContent(const QString &line);
 
-    QSize sizeHint() const;
-
 signals:
 
 public slots:

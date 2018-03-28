@@ -12,7 +12,8 @@ HexDockWidget::HexDockWidget(QWidget *parent) : QDockWidget(parent)
     setWindowTitle(tr("Hex"));
 
     hexEdit = new HexdumpWidget(this);
-//    hexEdit->setMinimumWidth(528);
+    hexEdit->setMinimumWidth(200);
+    hexEdit->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
 
     setWidget(hexEdit);
 }

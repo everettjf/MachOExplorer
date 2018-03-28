@@ -42,47 +42,57 @@ void MainWindow::openNewFile(const QString &filePath)
     WS()->openFile(filePath);
 }
 
+#define InitDock(dockvar,dockclass,dockaction) \
+    dockvar = new dockclass(this); \
+    connect(dockvar,&QDockWidget::visibilityChanged,this,[this](bool checked){\
+    dockaction->setChecked(checked);\
+    });
+
 void MainWindow::createUI()
 {
     // Main Window
-    ui->content = new MainContentWidget(this);
-    setCentralWidget(ui->content);
+    QWidget *t = new QWidget(this);
+    setCentralWidget(t);
+    this->centralWidget()->hide();
+
+    setDockNestingEnabled(true);
 
     // Layout View
-    ui->layout = new LayoutDockWidget(this);
-    addDockWidget(Qt::LeftDockWidgetArea,ui->layout);
-    connect(ui->layout,&QDockWidget::visibilityChanged,this,[this](bool checked){
-        action->showLayoutWindow->setChecked(checked);
-    });
-
-    // Log View
-    ui->log = new LogDockWidget(this);
-    addDockWidget(Qt::BottomDockWidgetArea,ui->log);
-    connect(ui->log,&QDockWidget::visibilityChanged,this,[this](bool checked){
-        action->showLogWindow->setChecked(checked);
-    });
-
-    // Binary View
-    ui->hex = new HexDockWidget(this);
-    addDockWidget(Qt::RightDockWidgetArea,ui->hex);
-    connect(ui->hex,&QDockWidget::visibilityChanged,this,[this](bool checked){
-        action->showHexWindow->setChecked(checked);
-    });
-
-    // Help View
-    ui->help = new HelpDockWidget(this);
-    addDockWidget(Qt::BottomDockWidgetArea,ui->help);
-    connect(ui->help,&QDockWidget::visibilityChanged,this,[this](bool checked){
-        action->showHelpWindow->setChecked(checked);
-    });
-
+    InitDock(ui->layout,LayoutDockWidget,action->showLayoutWindow);
+    InitDock(ui->info,InfoDockWidget,action->showInfoWindow);
+    InitDock(ui->log,LogDockWidget,action->showLogWindow);
+    InitDock(ui->hex,HexDockWidget,action->showHexWindow);
+    InitDock(ui->help,HelpDockWidget,action->showHelpWindow);
 
     setCorner(Qt::TopLeftCorner,Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner,Qt::BottomDockWidgetArea);
     setCorner(Qt::TopRightCorner,Qt::RightDockWidgetArea);
     setCorner(Qt::BottomRightCorner,Qt::BottomDockWidgetArea);
 
+
+    // Left(Layout)
+    addDockWidget(Qt::LeftDockWidgetArea,ui->layout);
+
+    // Layout | Content | Hex
+    splitDockWidget(ui->layout,ui->info,Qt::Horizontal);
+    splitDockWidget(ui->info,ui->hex,Qt::Horizontal);
+
+    // Bottom(Log)
+    addDockWidget(Qt::BottomDockWidgetArea,ui->log);
+
+    // Log | Help
+    splitDockWidget(ui->log,ui->help,Qt::Horizontal);
 }
+
+#define InitAction(name,actionvar,dockvar) \
+    actionvar = new QAction(tr(name)); \
+    menu->window->addAction(actionvar);\
+    actionvar->setCheckable(true);\
+    actionvar->setChecked(true);\
+    connect(actionvar,&QAction::triggered,this,[this](bool checked){\
+        dockvar->setVisible(checked);\
+    });
+
 
 void MainWindow::createActions()
 {
@@ -123,39 +133,13 @@ void MainWindow::createActions()
     // Window
     menu->window = menuBar()->addMenu(tr("Window"));
 
-    action->showLayoutWindow = new QAction(tr("Layout"));
-    menu->window->addAction(action->showLayoutWindow);
-    action->showLayoutWindow->setCheckable(true);
-    action->showLayoutWindow->setChecked(true);
-    connect(action->showLayoutWindow,&QAction::triggered,this,[this](bool checked){
-        ui->layout->setVisible(checked);
-    });
-
-    action->showHexWindow = new QAction(tr("Hex"));
-    menu->window->addAction(action->showHexWindow);
-    action->showHexWindow->setCheckable(true);
-    action->showHexWindow->setChecked(true);
-    connect(action->showHexWindow,&QAction::triggered,this,[this](bool checked){
-        ui->hex->setVisible(checked);
-    });
+    InitAction("Layout",action->showLayoutWindow,ui->layout);
+    InitAction("Info",action->showInfoWindow,ui->info);
+    InitAction("Hex",action->showHexWindow,ui->hex);
+    InitAction("Log",action->showLogWindow,ui->log);
+    InitAction("Help",action->showHelpWindow,ui->help);
 
 
-    action->showLogWindow = new QAction(tr("Log"));
-    menu->window->addAction(action->showLogWindow);
-    action->showLogWindow->setCheckable(true);
-    action->showLogWindow->setChecked(true);
-    connect(action->showLogWindow,&QAction::triggered,this,[this](bool checked){
-        ui->log->setVisible(checked);
-    });
-
-
-    action->showHelpWindow = new QAction(tr("Help"));
-    menu->window->addAction(action->showHelpWindow);
-    action->showHelpWindow->setCheckable(true);
-    action->showHelpWindow->setChecked(true);
-    connect(action->showHelpWindow,&QAction::triggered,this,[this](bool checked){
-        ui->help->setVisible(checked);
-    });
 
     // Help
     menu->help = menuBar()->addMenu(tr("Help"));
