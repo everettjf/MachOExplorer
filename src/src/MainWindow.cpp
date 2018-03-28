@@ -51,15 +51,13 @@ void MainWindow::openNewFile(const QString &filePath)
 void MainWindow::createUI()
 {
     // Main Window
-    QWidget *t = new QWidget(this);
-    setCentralWidget(t);
-    this->centralWidget()->hide();
+    ui->main = new MainCentralWidget(this);
+    setCentralWidget(ui->main);
 
     setDockNestingEnabled(true);
 
     // Layout View
     InitDock(ui->layout,LayoutDockWidget,action->showLayoutWindow);
-    InitDock(ui->info,InfoDockWidget,action->showInfoWindow);
     InitDock(ui->log,LogDockWidget,action->showLogWindow);
     InitDock(ui->hex,HexDockWidget,action->showHexWindow);
     InitDock(ui->help,HelpDockWidget,action->showHelpWindow);
@@ -72,10 +70,7 @@ void MainWindow::createUI()
 
     // Left(Layout)
     addDockWidget(Qt::LeftDockWidgetArea,ui->layout);
-
-    // Layout | Content | Hex
-    splitDockWidget(ui->layout,ui->info,Qt::Horizontal);
-    splitDockWidget(ui->info,ui->hex,Qt::Horizontal);
+    addDockWidget(Qt::RightDockWidgetArea,ui->hex);
 
     // Bottom(Log)
     addDockWidget(Qt::BottomDockWidgetArea,ui->log);
@@ -134,7 +129,6 @@ void MainWindow::createActions()
     menu->window = menuBar()->addMenu(tr("Window"));
 
     InitAction("Layout",action->showLayoutWindow,ui->layout);
-    InitAction("Info",action->showInfoWindow,ui->info);
     InitAction("Hex",action->showHexWindow,ui->hex);
     InitAction("Log",action->showLogWindow,ui->log);
     InitAction("Help",action->showHelpWindow,ui->help);

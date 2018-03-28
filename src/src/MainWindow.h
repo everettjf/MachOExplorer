@@ -24,7 +24,6 @@ struct MainWindowAction{
     QAction *quit;
 
     QAction *showLayoutWindow;
-    QAction *showInfoWindow;
     QAction *showHexWindow;
     QAction *showLogWindow;
     QAction *showHelpWindow;

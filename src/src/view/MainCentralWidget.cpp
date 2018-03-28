@@ -2,7 +2,7 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "InfoDockWidget.h"
+#include "MainCentralWidget.h"
 
 #include <QBoxLayout>
 #include <QLabel>
@@ -12,24 +12,28 @@
 #include "src/controller/Workspace.h"
 #include <QDebug>
 
-InfoDockWidget::InfoDockWidget(QWidget *parent) : QDockWidget(parent)
+MainCentralWidget::MainCentralWidget(QWidget *parent) : QWidget(parent)
 {
     setWindowTitle("Info");
 
     node = nullptr;
 
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+    this->setLayout(layout);
+
     // TabWidget
     tab = new QTabWidget(this);
     tab->setTabPosition(QTabWidget::South);
     tab->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    layout->addWidget(tab);
 
-    setWidget(tab);
     connect(tab,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
 
 }
 
 
-void InfoDockWidget::showNode(moex::ViewNode *node)
+void MainCentralWidget::showNode(moex::ViewNode *node)
 {
     if(!node)return;
 
@@ -52,7 +56,7 @@ void InfoDockWidget::showNode(moex::ViewNode *node)
 }
 
 
-void InfoDockWidget::releaseCurrentTabItems()
+void MainCentralWidget::releaseCurrentTabItems()
 {
     tab->clear();
 
@@ -62,13 +66,13 @@ void InfoDockWidget::releaseCurrentTabItems()
     tabItems.clear();
 }
 
-void InfoDockWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
+void MainCentralWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
 {
     tab->addTab(view,title);
     tabItems.push_back(std::make_pair(view,data));
 }
 
-void InfoDockWidget::loadCurrentTab()
+void MainCentralWidget::loadCurrentTab()
 {
     int index = tab->currentIndex();
     if(index < 0 || index >= tabItems.size())
@@ -81,7 +85,7 @@ void InfoDockWidget::loadCurrentTab()
     view->showViewData(data);
 }
 
-void InfoDockWidget::currentChanged(int index)
+void MainCentralWidget::currentChanged(int index)
 {
     loadCurrentTab();
 }

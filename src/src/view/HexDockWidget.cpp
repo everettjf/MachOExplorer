@@ -13,7 +13,7 @@ HexDockWidget::HexDockWidget(QWidget *parent) : QDockWidget(parent)
 
     hexEdit = new HexdumpWidget(this);
     hexEdit->setMinimumWidth(200);
-    hexEdit->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding);
+    hexEdit->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Expanding);
 
     setWidget(hexEdit);
 }

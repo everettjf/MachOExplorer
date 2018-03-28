@@ -12,5 +12,5 @@ LayoutTreeView::LayoutTreeView(QWidget *parent) :
 }
 QSize LayoutTreeView::sizeHint() const
 {
-    return QSize(300, 1000);
+    return QSize(300, 0);
 }
