@@ -2,13 +2,13 @@
 //  Created by everettjf
 //  Copyright © 2017 everettjf. All rights reserved.
 //
-#include "TableContentWidget.h"
+#include "TableInfoWidget.h"
 #include "src/utility/Utility.h"
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QHeaderView>
 
-TableContentWidget::TableContentWidget(QWidget *parent) : ContentWidgetBase(parent)
+TableInfoWidget::TableInfoWidget(QWidget *parent) : InfoWidgetBase(parent)
 {
     controller = nullptr;
     tableView = new QTableView(this);
@@ -24,12 +24,12 @@ TableContentWidget::TableContentWidget(QWidget *parent) : ContentWidgetBase(pare
     verticalHeader->setDefaultSectionSize(24);
 }
 
-void TableContentWidget::showViewData(moex::ViewData *data)
+void TableInfoWidget::showViewData(moex::ViewData *data)
 {
     moex::TableViewData *node = static_cast<moex::TableViewData*>(data);
 
     if(controller) delete controller;
-    controller = new TableContentController();
+    controller = new TableInfoController();
 
     qDebug()<<data;
     qDebug()<<node;

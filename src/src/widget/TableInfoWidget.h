@@ -7,30 +7,30 @@
 
 #include <QWidget>
 #include <QTableView>
-#include "src/controller/TableContentController.h"
+#include "src/controller/TableInfoController.h"
 #include <QModelIndex>
 
 #include <libmoex/moex-view.h>
 #include <QWidget>
 
-class ContentWidgetBase : public QWidget{
+class InfoWidgetBase : public QWidget{
 Q_OBJECT
 public:
-    explicit ContentWidgetBase(QWidget *parent = 0):QWidget(parent){}
+    explicit InfoWidgetBase(QWidget *parent = 0):QWidget(parent){}
     virtual void showViewData(moex::ViewData *data) = 0;
 };
 
 
-class TableContentWidget : public ContentWidgetBase
+class TableInfoWidget : public InfoWidgetBase
 {
     Q_OBJECT
 public:
-    explicit TableContentWidget(QWidget *parent = 0);
+    explicit TableInfoWidget(QWidget *parent = 0);
 
     void showViewData(moex::ViewData *data)override;
 private:
     QTableView *tableView;
-    TableContentController *controller;
+    TableInfoController *controller;
 
 signals:
 

@@ -20,6 +20,7 @@ InfoDockWidget::InfoDockWidget(QWidget *parent) : QDockWidget(parent)
 
     // TabWidget
     tab = new QTabWidget(this);
+    tab->setTabPosition(QTabWidget::West);
     tab->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 
     setWidget(tab);
@@ -39,7 +40,7 @@ void InfoDockWidget::showNode(moex::ViewNode *node)
 
         if(viewdata->mode() == moex::ViewDataMode::Table){
             // Tab - Table
-            table = new TableContentWidget(this);
+            table = new TableInfoWidget(this);
             addTabItem(table,title,viewdata.get());
         }else if(viewdata->mode() == moex::ViewDataMode::Binary){
             // Tab - Binary
@@ -61,7 +62,7 @@ void InfoDockWidget::releaseCurrentTabItems()
     tabItems.clear();
 }
 
-void InfoDockWidget::addTabItem(ContentWidgetBase *view, const QString &title, moex::ViewData *data)
+void InfoDockWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
 {
     tab->addTab(view,title);
     tabItems.push_back(std::make_pair(view,data));
@@ -72,7 +73,7 @@ void InfoDockWidget::loadCurrentTab()
     int index = tab->currentIndex();
     if(index < 0 || index >= tabItems.size())
         return;
-    ContentWidgetBase *view = tabItems[index].first;
+    InfoWidgetBase *view = tabItems[index].first;
     moex::ViewData *data = tabItems[index].second;
 
     qDebug()<< view << " - " << data;

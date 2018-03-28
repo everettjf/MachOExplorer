@@ -9,9 +9,9 @@
 #include <QStandardItemModel>
 #include <QAbstractTableModel>
 
-class TableContentModel : public QAbstractTableModel{
+class TableInfoModel : public QAbstractTableModel{
 public:
-    explicit TableContentModel(QObject *parent=0);
+    explicit TableInfoModel(QObject *parent=0);
 
     void InitModel(moex::TableViewData *data);
 
@@ -28,17 +28,17 @@ private:
 
 
 
-class TableContentController : public BaseController
+class TableInfoController : public BaseController
 {
 public:
-    TableContentController();
+    TableInfoController();
 
     void InitModel(moex::TableViewData *data);
 
-    TableContentModel* model(){return model_;}
+    TableInfoModel* model(){return model_;}
 
 private:
-    TableContentModel *model_ = nullptr;
+    TableInfoModel *model_ = nullptr;
 };
 
 #endif // TABLECONTENTCONTROLLER_H

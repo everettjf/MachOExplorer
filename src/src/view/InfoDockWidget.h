@@ -9,7 +9,7 @@
 #include <QTabWidget>
 #include <QStackedWidget>
 
-#include "src/widget/TableContentWidget.h"
+#include "src/widget/TableInfoWidget.h"
 #include "HexDockWidget.h"
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
@@ -22,11 +22,11 @@ class InfoDockWidget : public QDockWidget
 public:
 
     QTabWidget *tab;
-    TableContentWidget *table;
+    TableInfoWidget *table;
 
     moex::Node *node;
 
-    std::vector<std::pair<ContentWidgetBase*,moex::ViewData*>> tabItems;
+    std::vector<std::pair<InfoWidgetBase*,moex::ViewData*>> tabItems;
 public:
     explicit InfoDockWidget(QWidget *parent = 0);
 
@@ -34,7 +34,7 @@ public:
 
 private:
     void releaseCurrentTabItems();
-    void addTabItem(ContentWidgetBase *view,const QString & title,moex::ViewData* data);
+    void addTabItem(InfoWidgetBase *view,const QString & title,moex::ViewData* data);
     void loadCurrentTab();
 signals:
 
