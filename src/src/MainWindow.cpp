@@ -62,7 +62,8 @@ void MainWindow::createUI()
     InitDock(ui->layout,LayoutDockWidget,action->showLayoutWindow);
     InitDock(ui->log,LogDockWidget,action->showLogWindow);
     InitDock(ui->hex,HexDockWidget,action->showHexWindow);
-    InitDock(ui->help,HelpDockWidget,action->showHelpWindow);
+    InitDock(ui->information,InformationDockWidget,action->showInformationWindow);
+    InitDock(ui->sourcecode,SourceCodeDockWidget,action->showSourceCodeWindow);
 
     setCorner(Qt::TopLeftCorner,Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner,Qt::BottomDockWidgetArea);
@@ -77,8 +78,9 @@ void MainWindow::createUI()
     // Bottom(Log)
     addDockWidget(Qt::BottomDockWidgetArea,ui->log);
 
-    // Log | Help
-    splitDockWidget(ui->log,ui->help,Qt::Horizontal);
+    // Log | Information | SourceCode
+    splitDockWidget(ui->log,ui->information,Qt::Horizontal);
+    splitDockWidget(ui->information,ui->sourcecode,Qt::Horizontal);
 }
 
 #define InitAction(name,actionvar,dockvar) \
@@ -133,7 +135,8 @@ void MainWindow::createActions()
     InitAction("Layout",action->showLayoutWindow,ui->layout);
     InitAction("Hex",action->showHexWindow,ui->hex);
     InitAction("Log",action->showLogWindow,ui->log);
-    InitAction("Help",action->showHelpWindow,ui->help);
+    InitAction("Information",action->showInformationWindow,ui->information);
+    InitAction("SourceCode",action->showSourceCodeWindow,ui->sourcecode);
 
 
 

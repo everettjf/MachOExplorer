@@ -9,7 +9,8 @@
 #include "src/dock/LayoutDockWidget.h"
 #include "src/dock/LogDockWidget.h"
 #include "src/dock/HexDockWidget.h"
-#include "src/dock/HelpDockWidget.h"
+#include "src/dock/InformationDockWidget.h"
+#include "src/dock/SourceCodeDockWidget.h"
 #include <QDockWidget>
 #include <libmoex/moex.h>
 #include <libmoex/moex-view.h>
@@ -20,7 +21,8 @@ struct WorkspaceUI{
     LayoutDockWidget *layout;
     LogDockWidget *log;
     HexDockWidget *hex;
-    HelpDockWidget *help;
+    InformationDockWidget *information;
+    SourceCodeDockWidget *sourcecode;
 
     QList<QDockWidget *> dockWidgets;
 };

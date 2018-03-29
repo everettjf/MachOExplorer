@@ -9,13 +9,13 @@
 #include <QDockWidget>
 #include <QTextEdit>
 
-class HelpDockWidget : public QDockWidget
+class InformationDockWidget : public QDockWidget
 {
     Q_OBJECT
 private:
     QTextEdit *textEdit;
 public:
-    explicit HelpDockWidget(QWidget *parent = 0);
+    explicit InformationDockWidget(QWidget *parent = 0);
 
     void setContent(const QString &line);
 
