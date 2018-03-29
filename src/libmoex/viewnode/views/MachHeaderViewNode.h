@@ -5,7 +5,7 @@
 #ifndef MOEX_MACHHEADERVIEWNODE_H
 #define MOEX_MACHHEADERVIEWNODE_H
 
-#include "ViewNode.h"
+#include "../ViewNode.h"
 #include "libmoex/node/MachHeader.h"
 #include "LoadCommandsViewNode.h"
 #include "SectionsViewNode.h"

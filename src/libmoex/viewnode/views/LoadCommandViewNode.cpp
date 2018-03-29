@@ -4,18 +4,18 @@
 
 #include "LoadCommandViewNode.h"
 
-#include "../node/loadcmd/LoadCommand_SEGMENT.h"
-#include "../node/loadcmd/LoadCommand_DYLIB.h"
-#include "../node/loadcmd/LoadCommand_DYLD_INFO.h"
-#include "../node/loadcmd/LoadCommand_SYMTAB.h"
-#include "../node/loadcmd/LoadCommand_DYSYMTAB.h"
-#include "../node/loadcmd/LoadCommand_LOAD_DYLINKER.h"
-#include "../node/loadcmd/LoadCommand_UUID.h"
-#include "../node/loadcmd/LoadCommand_VERSION_MIN.h"
-#include "../node/loadcmd/LoadCommand_SOURCE_VERSION.h"
-#include "../node/loadcmd/LoadCommand_MAIN.h"
-#include "../node/loadcmd/LoadCommand_ENCRYPTION_INFO.h"
-#include "../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
+#include "../../node/loadcmd/LoadCommand_SEGMENT.h"
+#include "../../node/loadcmd/LoadCommand_DYLIB.h"
+#include "../../node/loadcmd/LoadCommand_DYLD_INFO.h"
+#include "../../node/loadcmd/LoadCommand_SYMTAB.h"
+#include "../../node/loadcmd/LoadCommand_DYSYMTAB.h"
+#include "../../node/loadcmd/LoadCommand_LOAD_DYLINKER.h"
+#include "../../node/loadcmd/LoadCommand_UUID.h"
+#include "../../node/loadcmd/LoadCommand_VERSION_MIN.h"
+#include "../../node/loadcmd/LoadCommand_SOURCE_VERSION.h"
+#include "../../node/loadcmd/LoadCommand_MAIN.h"
+#include "../../node/loadcmd/LoadCommand_ENCRYPTION_INFO.h"
+#include "../../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
 
 
 MOEX_NAMESPACE_BEGIN

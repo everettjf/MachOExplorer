@@ -30,13 +30,13 @@ void FileViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 void FileViewNode::InitViewDatas()
 {
 
-    // Binary
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = (char*)bin_->memory();
-        b->size = bin_->memorysize();
-        b->start_value = 0;
-        AddViewData(b);
-    }
+//    // Binary
+//    {
+//        auto b = CreateBinaryViewDataPtr();
+//        b->offset = (char*)bin_->memory();
+//        b->size = bin_->memorysize();
+//        b->start_value = 0;
+//        AddViewData(b);
+//    }
 }
 MOEX_NAMESPACE_END

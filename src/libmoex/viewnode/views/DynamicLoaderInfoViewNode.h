@@ -5,8 +5,8 @@
 #ifndef MOEX_DYNAMICLOADERINFOVIEWNODE_H
 #define MOEX_DYNAMICLOADERINFOVIEWNODE_H
 
-#include "ViewNode.h"
-#include "../node/loadcmd/LoadCommand_DYLD_INFO.h"
+#include "../ViewNode.h"
+#include "../../node/loadcmd/LoadCommand_DYLD_INFO.h"
 
 MOEX_NAMESPACE_BEGIN
 

@@ -5,7 +5,7 @@
 #ifndef MOEX_SECTIONVIEWNODE_H
 #define MOEX_SECTIONVIEWNODE_H
 
-#include "ViewNode.h"
+#include "libmoex/viewnode/ViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 

@@ -5,7 +5,7 @@
 #ifndef MOEX_DATAINCODEENTRIESVIEWNODE_H
 #define MOEX_DATAINCODEENTRIESVIEWNODE_H
 
-#include "ViewNode.h"
+#include "../ViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 

@@ -6,7 +6,7 @@
 #define MOEX_FATHEADERVIEWNODE_H
 
 
-#include "ViewNode.h"
+#include "../ViewNode.h"
 #include "MachHeaderViewNode.h"
 
 MOEX_NAMESPACE_BEGIN

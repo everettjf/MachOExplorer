@@ -5,7 +5,7 @@
 #ifndef MOEX_LOADCOMMANDVIEWNODE_H
 #define MOEX_LOADCOMMANDVIEWNODE_H
 
-#include "ViewNode.h"
+#include "../ViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 

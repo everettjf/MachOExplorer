@@ -5,7 +5,7 @@
 #ifndef MOEX_SYMBOLTABLEVIEWNODE_H
 #define MOEX_SYMBOLTABLEVIEWNODE_H
 
-#include "ViewNode.h"
+#include "libmoex/viewnode/ViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 

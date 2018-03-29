@@ -11,11 +11,10 @@
 
 MOEX_NAMESPACE_BEGIN
 
-// View Data
+//////////////////////////////// View Data ///////////////////////////////////////
 enum class ViewDataMode{
     Binary,
     Table,
-    Text,
 };
 class ViewData{
 protected:
@@ -28,7 +27,7 @@ public:
 };
 using ViewDataPtr = std::shared_ptr<ViewData>;
 
-// View Data - Binary
+///////////////////////////////// View Data - Binary ////////////////////////////
 class BinaryViewData: public ViewData{
 public:
     char * offset = nullptr;
@@ -44,7 +43,7 @@ public:
 using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
 inline BinaryViewDataPtr CreateBinaryViewDataPtr(){return std::make_shared<BinaryViewData>();}
 
-// View Data - Table
+///////////////////////////////// View Data - Table ////////////////////////////
 class TableViewItem{
 public:
     std::string data;
@@ -100,38 +99,20 @@ void TableViewData::AddRow(uint64_t addr, T data, const std::string &desc, const
 }
 
 
-// View Data - Text
-class TextViewData: public ViewData{
-public:
-    std::string text;
-    TextViewData(){
-        mode_ = ViewDataMode::Text;
-    }
-    bool IsEmpty()const{return text.size() == 0;}
-};
-using TextViewDataPtr = std::shared_ptr<TextViewData>;
-inline TextViewDataPtr CreateTextViewDataPtr(){return std::make_shared<TextViewData>();}
+///////////////////////////////// View Node Base Class ///////////////////////////////
 
-// View Node Base Class
-
-enum class ViewNodeType{
-    Unknown,
-    FatHeader,
-    MachHeader,
-    //... this type may be useless , maybe removed in the near future
-};
 
 class ViewNode {
 protected:
-    ViewNodeType type_ = ViewNodeType::Unknown;
     std::vector<ViewDataPtr> view_datas_;
 protected:
     void AddViewData(ViewDataPtr val){
         view_datas_.push_back(val);
     }
 public:
-    ViewNodeType GetDisplayType(){ return type_;}
-    virtual ~ViewNode(){}
+    virtual ~ViewNode(){
+
+    }
     std::vector<ViewDataPtr> & GetViewDatas(){
         if(view_datas_.empty()){
             InitViewDatas();
@@ -140,9 +121,15 @@ public:
     }
 
 public:
-    virtual std::string GetDisplayName(){ return "unknown";}
-    virtual void ForEachChild(std::function<void(ViewNode*)>){}
-    virtual void InitViewDatas(){}
+    virtual std::string GetDisplayName(){
+        return "unknown";
+    }
+    virtual void ForEachChild(std::function<void(ViewNode*)>){
+
+    }
+    virtual void InitViewDatas(){
+
+    }
 };
 
 

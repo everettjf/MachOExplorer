@@ -5,7 +5,7 @@
 #ifndef MOEX_DYNAMICSYMBOLTABLE_H
 #define MOEX_DYNAMICSYMBOLTABLE_H
 
-#include "ViewNode.h"
+#include "../ViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 

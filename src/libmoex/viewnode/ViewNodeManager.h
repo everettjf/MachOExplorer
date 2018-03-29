@@ -8,7 +8,7 @@
 
 #include "ViewNode.h"
 #include "libmoex/node/Binary.h"
-#include "FileViewNode.h"
+#include "views/FileViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
