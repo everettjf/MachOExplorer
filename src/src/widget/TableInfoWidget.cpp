@@ -11,17 +11,20 @@
 TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 {
     controller = nullptr;
-    tableView = new QTableView(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
-
-    layout->addWidget(tableView);
     setLayout(layout);
+
+    tableView = new QTableView(this);
+    layout->addWidget(tableView);
 
     QHeaderView *verticalHeader = tableView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(24);
+
+    tableView->setSelectionBehavior(QTableView::SelectRows);
+    tableView->setSelectionMode(QTableView::SingleSelection);
 }
 
 void TableInfoWidget::showViewData(moex::TableViewData *data)

@@ -16,6 +16,7 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
     treeView = new LayoutTreeView(this);
     treeView->setMinimumWidth(200);
     treeView->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Expanding);
+    treeView->setHeaderHidden(true);
     setWidget(treeView);
 
     connect(treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(clickedTreeNode(QModelIndex)));
