@@ -27,13 +27,13 @@ void FunctionStartsViewNode::InitViewDatas()
                   "uleb128",
                   AsShortHexString(address));
     }
-    AddViewData(t);
+    SetViewData(t);
 
     auto b = CreateBinaryViewDataPtr();
     b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
     b->size = seg->cmd()->datasize;
     b->start_value = (uint64_t)b->offset - (uint64_t)mh_->ctx()->file_start;
-    AddViewData(b);
+    SetViewData(b);
 }
 
 MOEX_NAMESPACE_END

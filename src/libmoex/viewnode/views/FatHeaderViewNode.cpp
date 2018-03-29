@@ -44,7 +44,7 @@ void FatHeaderViewNode::InitViewDatas(){
 
             t->AddSeparator();
         }
-        AddViewData(t);
+        SetViewData(t);
     }
 
     // Binary
@@ -56,7 +56,7 @@ void FatHeaderViewNode::InitViewDatas(){
             b->size += arch->DATA_SIZE();
         }
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 

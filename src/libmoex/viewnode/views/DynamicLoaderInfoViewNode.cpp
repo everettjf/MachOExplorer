@@ -13,7 +13,8 @@ void DyldInfoViewNodeBase::Init(LoadCommand_DYLD_INFO *info)
 void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeType node_type){
     using namespace moex::util;
 
-    auto print_ = CreateTableViewDataPtr("Opcodes");
+    // "Opcodes"
+    auto print_ = CreateTableViewDataPtr();
     moex::LoadCommand_DYLD_INFO *info = info_;
 
     uint32_t bind_off,bind_size;
@@ -198,14 +199,15 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
         }
     });
 
-    AddViewData(print_);
+    SetViewData(print_);
 }
 
 void RebaseInfoViewNode::InitViewDatas()
 {
     using namespace moex::util;
     {
-        auto print_ = CreateTableViewDataPtr("Opcodes");
+        // "Opcodes"
+        auto print_ = CreateTableViewDataPtr();
         moex::LoadCommand_DYLD_INFO *info = info_;
 
         info->ForEachRebaseOpcode([&](const moex::RebaseOpcodeContext * ctx, moex::RebaseOpcodeItem * codebase){
@@ -326,19 +328,19 @@ void RebaseInfoViewNode::InitViewDatas()
                 }
             }
         });
-        AddViewData(print_);
+        SetViewData(print_);
     }
 //    {
 //        auto x = CreateTableViewDataPtr("Actions");
 //        x->AddRow("//todo","","","");
-//        AddViewData(x);
+//        SetViewData(x);
 //    }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = (char*)info_->header()->header_start() + info_->cmd()->rebase_off;
         b->size = info_->cmd()->rebase_size;
         b->start_value = (uint64_t)b->offset - (uint64_t)info_->ctx()->file_start;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 
@@ -350,13 +352,13 @@ void BindingInfoViewNode::InitViewDatas()
     {
 //        auto x = CreateTableViewDataPtr("Actions");
 //        x->AddRow("//todo","","","");
-//        AddViewData(x);
+//        SetViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = 0;
         b->size = 0;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 
@@ -368,13 +370,13 @@ void WeakBindingInfoViewNode::InitViewDatas()
     {
 //        auto x = CreateTableViewDataPtr("Actions");
 //        x->AddRow("//todo","","","");
-//        AddViewData(x);
+//        SetViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = 0;
         b->size = 0;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 
@@ -386,13 +388,13 @@ void LazyBindingInfoViewNode::InitViewDatas()
     {
 //        auto x = CreateTableViewDataPtr("Actions");
 //        x->AddRow("//todo","","","");
-//        AddViewData(x);
+//        SetViewData(x);
     }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = 0;
         b->size = 0;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 
@@ -400,7 +402,8 @@ void ExportInfoViewNode::InitViewDatas()
 {
     using namespace moex::util;
     {
-        auto print_ = CreateTableViewDataPtr("Opcodes");
+        // "Opcodes"
+        auto print_ = CreateTableViewDataPtr();
 
         moex::LoadCommand_DYLD_INFO *info = info_;
 
@@ -457,18 +460,18 @@ void ExportInfoViewNode::InitViewDatas()
 
         });
 
-        AddViewData(print_);
+        SetViewData(print_);
     }
 //    {
 //        auto x = CreateTableViewDataPtr("Actions");
 //        x->AddRow("//todo","","","");
-//        AddViewData(x);
+//        SetViewData(x);
 //    }
     {
         auto b = CreateBinaryViewDataPtr();
         b->offset = 0;
         b->size = 0;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 
@@ -536,7 +539,7 @@ void DynamicLoaderInfoViewNode::InitViewDatas()
 
         t->AddRow(c->GetRAW(&(c->cmd()->export_off)),c->cmd()->export_off,"Export Info Offset",AsShortHexString(c->cmd()->export_off));
         t->AddRow(c->GetRAW(&(c->cmd()->export_size)),c->cmd()->export_size,"Export Info Size",AsShortHexString(c->cmd()->export_size));
-        AddViewData(t);
+        SetViewData(t);
     }
 }
 

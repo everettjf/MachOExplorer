@@ -26,57 +26,58 @@ void DynamicSymbolTable::InitViewDatas(){
         b->offset = (char*)mh_->header_start() + std::get<1>(bin);
         b->size = std::get<2>(bin);
         b->start_value = (uint64_t)b->offset - (uint64_t)mh_->ctx()->file_start;
-        AddViewData(b);
+        SetViewData(b);
     }
 
     // Indirect Symbols
     if(seg->ExistIndirectSymbols()) {
-        auto x = CreateTableViewDataPtr("Indirect Symbols");
+        // "Indirect Symbols"
+        auto x = CreateTableViewDataPtr();
         seg->ForEachIndirectSymbols([&](uint32_t * indirect_index){
             x->AddRow(mh_->GetRAW(indirect_index),*indirect_index,"Indirect Index",AsShortHexString(*indirect_index));
         });
-        AddViewData(x);
+        SetViewData(x);
     }
 
-    // Modules64
-    if(seg->cmd()->nmodtab > 0)
-    {
-        auto x = CreateTableViewDataPtr("Modules");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // Table of Contents
-    if(seg->cmd()->ntoc > 0)
-    {
-        auto x = CreateTableViewDataPtr("Table Of Contents");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // External References
-    if(seg->cmd()->nextrefsyms > 0)
-    {
-        auto x = CreateTableViewDataPtr("External References");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // External Relocations
-    if(seg->cmd()->nextrel > 0)
-    {
-        auto x = CreateTableViewDataPtr("External Relocations");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
-
-    // Local RElo Table
-    if(seg->cmd()->nlocrel > 0)
-    {
-        auto x = CreateTableViewDataPtr("Local Relocation Table");
-        x->AddRow("//todo","","","");
-        AddViewData(x);
-    }
+//    // Modules64
+//    if(seg->cmd()->nmodtab > 0)
+//    {
+//        auto x = CreateTableViewDataPtr("Modules");
+//        x->AddRow("//todo","","","");
+//        SetViewData(x);
+//    }
+//
+//    // Table of Contents
+//    if(seg->cmd()->ntoc > 0)
+//    {
+//        auto x = CreateTableViewDataPtr("Table Of Contents");
+//        x->AddRow("//todo","","","");
+//        SetViewData(x);
+//    }
+//
+//    // External References
+//    if(seg->cmd()->nextrefsyms > 0)
+//    {
+//        auto x = CreateTableViewDataPtr("External References");
+//        x->AddRow("//todo","","","");
+//        SetViewData(x);
+//    }
+//
+//    // External Relocations
+//    if(seg->cmd()->nextrel > 0)
+//    {
+//        auto x = CreateTableViewDataPtr("External Relocations");
+//        x->AddRow("//todo","","","");
+//        SetViewData(x);
+//    }
+//
+//    // Local RElo Table
+//    if(seg->cmd()->nlocrel > 0)
+//    {
+//        auto x = CreateTableViewDataPtr("Local Relocation Table");
+//        x->AddRow("//todo","","","");
+//        SetViewData(x);
+//    }
 
 }
 

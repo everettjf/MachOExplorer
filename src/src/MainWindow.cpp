@@ -12,6 +12,7 @@
 #include "src/base/AppInfo.h"
 #include "src/dialog/AboutDialog.h"
 #include <QProcess>
+#include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowTitle(tr("MachOExplorer"));
     createUI();
     createActions();
-
+    createStatusBar();
 }
 
 void MainWindow::displayNewFileDialog()
@@ -166,6 +167,10 @@ void MainWindow::createActions()
     });
 }
 
+void MainWindow::createStatusBar()
+{
+    statusBar()->showMessage(tr("Welcome"));
+}
 
 
 

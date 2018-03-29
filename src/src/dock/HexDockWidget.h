@@ -14,7 +14,7 @@ class HexDockWidget : public QDockWidget
     Q_OBJECT
 public:
     explicit HexDockWidget(QWidget *parent = 0);
-    void showViewData(moex::ViewData *data);
+    void showViewData(moex::BinaryViewData *data);
 
 private:
     HexdumpWidget *hexEdit;

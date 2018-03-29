@@ -20,26 +20,12 @@ class CentralWidget : public QWidget
 {
     Q_OBJECT
 public:
-
-    QTabWidget *tab;
     TableInfoWidget *table;
-
-    moex::Node *node;
-
-    std::vector<std::pair<InfoWidgetBase*,moex::ViewData*>> tabItems;
 public:
     explicit CentralWidget(QWidget *parent = 0);
 
-    void showNode(moex::ViewNode *node);
+    void showTableViewData(moex::TableViewData *data);
 
-private:
-    void releaseCurrentTabItems();
-    void addTabItem(InfoWidgetBase *view,const QString & title,moex::ViewData* data);
-    void loadCurrentTab();
-signals:
-
-public slots:
-    void currentChanged(int index);
 };
 
 #endif // CONTENTVIEW_H

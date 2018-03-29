@@ -22,7 +22,17 @@ void Workspace::addLog(const QString &log)
 
 void Workspace::showNode(moex::ViewNode *node)
 {
-    ui_->main->showNode(node);
+    if(!node)
+        return;
+
+    // Lazy init
+    node->Init();
+
+    // central widget
+    ui_->main->showTableViewData(node->table().get());
+
+    // hex dock widget
+    ui_->hex->showViewData(node->binary().get());
 }
 
 

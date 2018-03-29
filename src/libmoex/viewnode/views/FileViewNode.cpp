@@ -36,7 +36,7 @@ void FileViewNode::InitViewDatas()
 //        b->offset = (char*)bin_->memory();
 //        b->size = bin_->memorysize();
 //        b->start_value = 0;
-//        AddViewData(b);
+//        SetViewData(b);
 //    }
 }
 MOEX_NAMESPACE_END

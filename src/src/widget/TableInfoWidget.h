@@ -13,21 +13,14 @@
 #include <libmoex/moex-view.h>
 #include <QWidget>
 
-class InfoWidgetBase : public QWidget{
-Q_OBJECT
-public:
-    explicit InfoWidgetBase(QWidget *parent = 0):QWidget(parent){}
-    virtual void showViewData(moex::ViewData *data) = 0;
-};
 
-
-class TableInfoWidget : public InfoWidgetBase
+class TableInfoWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit TableInfoWidget(QWidget *parent = 0);
 
-    void showViewData(moex::ViewData *data)override;
+    void showViewData(moex::TableViewData *data);
 private:
     QTableView *tableView;
     TableInfoController *controller;

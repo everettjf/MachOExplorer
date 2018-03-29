@@ -28,14 +28,14 @@ void LoadCommandsViewNode::InitViewDatas(){
     {
         TableViewDataPtr  t = std::make_shared<TableViewData>();
         t->AddRow("","","Number of commands",AsString(cmds_.size()));
-        AddViewData(t);
+        SetViewData(t);
     }
     // Binary
     {
         BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
         b->offset = (char*)mh_->header_start() + mh_->DATA_SIZE();
         b->size = mh_->data_ptr()->sizeofcmds;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 

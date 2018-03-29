@@ -14,81 +14,21 @@
 
 CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
-    setWindowTitle("Info");
-
-    node = nullptr;
-
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     this->setLayout(layout);
 
-    // TabWidget
-    tab = new QTabWidget(this);
-    tab->setTabPosition(QTabWidget::South);
-    tab->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    layout->addWidget(tab);
-
-    connect(tab,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
-
+    table = new TableInfoWidget(this);
+    layout->addWidget(table);
 }
 
 
-void CentralWidget::showNode(moex::ViewNode *node)
+void CentralWidget::showTableViewData(moex::TableViewData *data)
 {
-    if(!node)return;
-
-    releaseCurrentTabItems();
-
-    for(auto viewdata : node->GetViewDatas()){
-        QString title = QString::fromStdString(viewdata->title());
-
-        if(viewdata->mode() == moex::ViewDataMode::Table){
-            // Tab - Table
-            table = new TableInfoWidget(this);
-            addTabItem(table,title,viewdata.get());
-        }else if(viewdata->mode() == moex::ViewDataMode::Binary){
-            // Tab - Binary
-            WS()->ui()->hex->showViewData(viewdata.get());
-        }
-    }
-
-    loadCurrentTab();
+    if(!data)return;
+    table->showViewData(data);
 }
 
-
-void CentralWidget::releaseCurrentTabItems()
-{
-    tab->clear();
-
-    for(auto & item : tabItems){
-        delete item.first;
-    }
-    tabItems.clear();
-}
-
-void CentralWidget::addTabItem(InfoWidgetBase *view, const QString &title, moex::ViewData *data)
-{
-    tab->addTab(view,title);
-    tabItems.push_back(std::make_pair(view,data));
-}
-
-void CentralWidget::loadCurrentTab()
-{
-    int index = tab->currentIndex();
-    if(index < 0 || index >= tabItems.size())
-        return;
-    InfoWidgetBase *view = tabItems[index].first;
-    moex::ViewData *data = tabItems[index].second;
-
-    qDebug()<< view << " - " << data;
-
-    view->showViewData(data);
-}
-
-void CentralWidget::currentChanged(int index)
-{
-    loadCurrentTab();
-}
 
 
 

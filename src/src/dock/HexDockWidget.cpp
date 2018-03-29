@@ -18,8 +18,11 @@ HexDockWidget::HexDockWidget(QWidget *parent) : QDockWidget(parent)
     setWidget(hexEdit);
 }
 
-void HexDockWidget::showViewData(moex::ViewData *data)
+void HexDockWidget::showViewData(moex::BinaryViewData *data)
 {
+    if(!data)
+        return;
+
     moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
 
     hexEdit->setAddressAs64Bit(true);

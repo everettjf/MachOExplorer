@@ -39,7 +39,7 @@ void SectionsViewNode::InitViewDatas(){
     {
         TableViewDataPtr  t = std::make_shared<TableViewData>();
         t->AddRow("","","Number of sections",AsString(sections_.size()));
-        AddViewData(t);
+        SetViewData(t);
     }
 }
 MOEX_NAMESPACE_END

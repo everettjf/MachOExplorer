@@ -58,7 +58,7 @@ void SectionViewNode::InitViewDatas(){
         if(d_->Is64()){
             t->AddRow(d_->GetRAW(&(sect.reserved3())),sect.reserved3(),"Reserved3",AsShortHexString(sect.reserved3()));
         }
-        AddViewData(t);
+        SetViewData(t);
     }
 
     // Binary
@@ -67,7 +67,7 @@ void SectionViewNode::InitViewDatas(){
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        AddViewData(b);
+        SetViewData(b);
     }
 
 
@@ -173,7 +173,8 @@ void SectionViewNode::InitSpecialView()
 
 void SectionViewNode::InitCStringView(const std::string &title)
 {
-    auto t = CreateTableViewDataPtr(title);
+    // title
+    auto t = CreateTableViewDataPtr();
     t->SetHeaders({"Index","Offset","Data","Length","String"});
     t->SetWidths({80,100,100,80,400});
 
@@ -193,12 +194,12 @@ void SectionViewNode::InitCStringView(const std::string &title)
         ++lineno;
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
 
     d_->ForEachAs_N_BYTE_LITERALS([&](void *cur){
         std::string name = AsHexData(cur,unitsize);
@@ -207,12 +208,12 @@ void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
         std::string symbolname = fmt::format("{0:#X}:{1}",cur, name);
     },unitsize);
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitPointersView(const std::string &title)
 {
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
 
     d_->ForEachAs_POINTERS([&](void * ptr){
         if(d_->Is64()){
@@ -229,12 +230,12 @@ void SectionViewNode::InitPointersView(const std::string &title)
         }
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitIndirectPointersView(const std::string &title)
 {
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
 
     d_->ForEachAs_POINTERS([&](void * ptr){
         if(d_->Is64()){
@@ -246,22 +247,22 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
         }
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitIndirectStubsView(const std::string &title)
 {
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
     d_->ForEachAs_S_SYMBOL_STUBS([&](void * cur,size_t unitsize){
         t->AddRow(AsHexString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitCFStringView(const std::string &title)
 {
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
 
     if(d_->Is64()){
         auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
@@ -287,10 +288,10 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         }
     }
 
-    AddViewData(t);
+    SetViewData(t);
 }
 void SectionViewNode::InitObjC2PointerView(const std::string &title){
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
 
     d_->ForEachAs_ObjC2Pointer([&](void * ptr){
         if(d_->Is64()){
@@ -306,12 +307,12 @@ void SectionViewNode::InitObjC2PointerView(const std::string &title){
         }
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 
 void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
 
-    auto t = CreateTableViewDataPtr(title);
+    auto t = CreateTableViewDataPtr();
     d_->ParseAsObjCImageInfo([&](objc_image_info *info){
 
         t->AddRow(d_->GetRAW(&info->version),AsHexString(info->version),"Version",AsShortHexString(info->version));
@@ -322,13 +323,13 @@ void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
         if(info->flags & OBJC_IMAGE_GC_ONLY)t->AddRow({"","","0x4","OBJC_IMAGE_GC_ONLY"});
     });
 
-    AddViewData(t);
+    SetViewData(t);
 }
 void SectionViewNode::InitTodoView(){
 
-    auto t = CreateTableViewDataPtr("Detail Info");
+    auto t = CreateTableViewDataPtr();
     t->AddRow({"//todo","","",""});
-    AddViewData(t);
+    SetViewData(t);
 }
 
 MOEX_NAMESPACE_END

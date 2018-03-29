@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QHeaderView>
 
-TableInfoWidget::TableInfoWidget(QWidget *parent) : InfoWidgetBase(parent)
+TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 {
     controller = nullptr;
     tableView = new QTableView(this);
@@ -24,9 +24,9 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : InfoWidgetBase(parent)
     verticalHeader->setDefaultSectionSize(24);
 }
 
-void TableInfoWidget::showViewData(moex::ViewData *data)
+void TableInfoWidget::showViewData(moex::TableViewData *data)
 {
-    moex::TableViewData *node = static_cast<moex::TableViewData*>(data);
+    moex::TableViewData *node = data;
 
     if(controller) delete controller;
     controller = new TableInfoController();

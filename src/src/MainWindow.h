@@ -54,6 +54,7 @@ public:
 protected:
     void createUI();
     void createActions();
+    void createStatusBar();
 
 };
 

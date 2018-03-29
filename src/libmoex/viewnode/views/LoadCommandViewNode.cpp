@@ -44,12 +44,12 @@ public:\
 
 
 #define IMPL_LOADCOMMAND_VIEWNODE_END\
-        if(!t->IsEmpty()) AddViewData(t);}\
+        if(!t->IsEmpty()) SetViewData(t);}\
         {auto b = CreateBinaryViewDataPtr();\
         b->offset = (char*)c->offset();\
         b->size = c->offset()->cmdsize;\
         b->start_value = (uint64_t)b->offset - (uint64_t)c->ctx()->file_start;\
-        if(!b->IsEmpty()) AddViewData(b);}\
+        if(!b->IsEmpty()) SetViewData(b);}\
     }\
 };
 

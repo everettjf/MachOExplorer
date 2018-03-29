@@ -103,7 +103,7 @@ void MachHeaderViewNode::InitViewDatas(){
             t->AddRow(d_->GetRAW(&(offset64->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
         }
 
-        AddViewData(t);
+        SetViewData(t);
     }
 
     // Binary
@@ -112,7 +112,7 @@ void MachHeaderViewNode::InitViewDatas(){
         b->offset = (char*)d_->header_start();
         b->size = d_->DATA_SIZE();
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        AddViewData(b);
+        SetViewData(b);
     }
 }
 

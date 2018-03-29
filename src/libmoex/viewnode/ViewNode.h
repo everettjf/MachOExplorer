@@ -11,39 +11,20 @@
 
 MOEX_NAMESPACE_BEGIN
 
-//////////////////////////////// View Data ///////////////////////////////////////
-enum class ViewDataMode{
-    Binary,
-    Table,
-};
-class ViewData{
-protected:
-    ViewDataMode mode_;
-    std::string title_;
-public:
-    ViewDataMode mode()const{return mode_;}
-    const std::string & title()const{return title_;}
-    void set_title(const std::string & title){title_ = title;}
-};
-using ViewDataPtr = std::shared_ptr<ViewData>;
-
-///////////////////////////////// View Data - Binary ////////////////////////////
-class BinaryViewData: public ViewData{
+///////////////////////////////// Binary ////////////////////////////
+class BinaryViewData{
 public:
     char * offset = nullptr;
     uint64_t size = 0;
     uint64_t start_value = 0;
 
-    BinaryViewData(){
-        mode_ = ViewDataMode::Binary;
-        title_ = "Binary";
-    }
+    BinaryViewData() = default;
     bool IsEmpty()const{return offset == nullptr;}
 };
 using BinaryViewDataPtr = std::shared_ptr<BinaryViewData>;
 inline BinaryViewDataPtr CreateBinaryViewDataPtr(){return std::make_shared<BinaryViewData>();}
 
-///////////////////////////////// View Data - Table ////////////////////////////
+///////////////////////////////// Table ////////////////////////////
 class TableViewItem{
 public:
     std::string data;
@@ -53,7 +34,6 @@ using TableViewItemPtr = std::shared_ptr<TableViewItem>;
 class TableViewRow{
 public:
     std::vector<TableViewItemPtr> items;
-
     void SetValues(const std::initializer_list<std::string> & vals);
 };
 using TableViewRowPtr = std::shared_ptr<TableViewRow>;
@@ -64,13 +44,16 @@ public:
 };
 using TableViewHeaderItemPtr = std::shared_ptr<TableViewHeaderItem>;
 
-class TableViewData : public ViewData{
+class TableViewData{
 public:
     std::vector<TableViewHeaderItemPtr> headers;
     std::vector<TableViewRowPtr> rows;
     std::vector<uint32_t> widths;
 
-    TableViewData();
+    TableViewData(){
+        SetHeaders({"Offset","Size","Description","Value"});
+        SetWidths({80,80,200,200});
+    }
 
     bool IsEmpty()const{return rows.empty();}
 
@@ -89,7 +72,6 @@ public:
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
 inline TableViewDataPtr CreateTableViewDataPtr(){return std::make_shared<TableViewData>();}
-inline TableViewDataPtr CreateTableViewDataPtr(const std::string & title){auto x=std::make_shared<TableViewData>();x->set_title(title);return x;}
 
 
 template<typename T>
@@ -104,31 +86,34 @@ void TableViewData::AddRow(uint64_t addr, T data, const std::string &desc, const
 
 class ViewNode {
 protected:
-    std::vector<ViewDataPtr> view_datas_;
+    BinaryViewDataPtr binary_;
+    TableViewDataPtr table_;
+    bool inited_ = false;
 protected:
-    void AddViewData(ViewDataPtr val){
-        view_datas_.push_back(val);
-    }
-public:
-    virtual ~ViewNode(){
+    // Lazy load
+    virtual void InitViewDatas(){ }
 
-    }
-    std::vector<ViewDataPtr> & GetViewDatas(){
-        if(view_datas_.empty()){
+public:
+    virtual ~ViewNode(){ }
+
+    // Name for the node
+    virtual std::string GetDisplayName(){ return "null"; }
+
+    // Children for the node
+    virtual void ForEachChild(std::function<void(ViewNode*)>){ }
+
+    // Related content
+    BinaryViewDataPtr & binary(){return binary_;};
+    TableViewDataPtr & table(){return table_;};
+
+    void SetViewData(BinaryViewDataPtr data){binary_ = data;}
+    void SetViewData(TableViewDataPtr data){table_ = data;}
+
+    void Init(){
+        if(!inited_){
+            inited_ = true;
             InitViewDatas();
         }
-        return view_datas_;
-    }
-
-public:
-    virtual std::string GetDisplayName(){
-        return "unknown";
-    }
-    virtual void ForEachChild(std::function<void(ViewNode*)>){
-
-    }
-    virtual void InitViewDatas(){
-
     }
 };
 
