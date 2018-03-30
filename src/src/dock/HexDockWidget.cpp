@@ -29,3 +29,7 @@ void HexDockWidget::showViewData(moex::BinaryViewData *data)
     hexEdit->loadAddress(node->start_value,(unsigned long long)node->offset,node->size);
     this->adjustSize();
 }
+void HexDockWidget::selectRange(uint64_t offset,uint64_t size)
+{
+    hexEdit->selectRange(offset,size);
+}

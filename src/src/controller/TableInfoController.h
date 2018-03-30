@@ -13,6 +13,9 @@ class TableInfoModel : public QAbstractTableModel{
 public:
     explicit TableInfoModel(QObject *parent=0);
 
+    moex::TableViewData *data_ptr(){return data_;}
+
+
     void InitModel(moex::TableViewData *data);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;

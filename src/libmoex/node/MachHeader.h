@@ -78,7 +78,7 @@ public:
     // Get context
     NodeContextPtr & ctx(){return ctx_;}
 
-    // Getter for the offset of the begging header
+    // Getter for the offset of the begining header
     char * header_start(){return (char*)header_start_;}
 
     // Get offset from the beginning of the file

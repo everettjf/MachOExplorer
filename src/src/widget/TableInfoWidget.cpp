@@ -7,6 +7,7 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QHeaderView>
+#include "../controller/Workspace.h"
 
 TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 {
@@ -25,6 +26,8 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 
     tableView->setSelectionBehavior(QTableView::SelectRows);
     tableView->setSelectionMode(QTableView::SingleSelection);
+
+    connect(tableView,&QTableView::clicked,this,&TableInfoWidget::clicked);
 }
 
 void TableInfoWidget::showViewData(moex::TableViewData *data)
@@ -49,4 +52,14 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     for(uint32_t idx = 0; idx < node->widths.size(); ++idx){
         tableView->setColumnWidth(idx,node->widths.at(idx));
     }
+
+
+}
+void TableInfoWidget::clicked(const QModelIndex &index)
+{
+    qDebug()<< index.row();
+
+    auto row = controller->model()->data_ptr()->rows[index.row()];
+
+    WS()->selectHexRange(row->data,row->size);
 }

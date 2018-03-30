@@ -15,6 +15,12 @@ void TableViewRow::SetValues(const std::initializer_list<std::string> & vals){
     }
 }
 
+void TableViewRow::SetData(char *data,uint64_t size){
+    this->data = data;
+    this->size = size;
+}
+
+
 void TableViewData::SetHeaders(const std::initializer_list<std::string> & vals){
     headers.clear();
     for(auto & v : vals){
@@ -31,27 +37,29 @@ void TableViewData::SetWidths(const std::initializer_list<uint32_t> &vals)
         widths.push_back(v);
     }
 }
+void TableViewData::AddRow(void *data,uint64_t size,const std::initializer_list<std::string> & vals){
+    TableViewRowPtr r = std::make_shared<TableViewRow>();
+    r->SetValues(vals);
+    r->data = data;
+    r->size = size;
+    rows.push_back(r);
+}
+
 void TableViewData::AddRow(const std::initializer_list<std::string> & vals){
     TableViewRowPtr r = std::make_shared<TableViewRow>();
     r->SetValues(vals);
     rows.push_back(r);
 }
-
-void TableViewData::AddRow(uint64_t addr, void *data, size_t size, const std::string &desc, const std::string &val)
-{
-    AddRow({util::AsAddress(addr),util::AsHexData(data,size),desc,val});
+void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const std::string & desc,const std::string & val){
+    AddRow(data,size,{util::AsAddress(addr),desc,val});
 }
 
-void TableViewData::AddRow(uint64_t addr,const std::string & data,const std::string & desc,const std::string & val){
-    AddRow({util::AsAddress(addr),data,desc,val});
+void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const char *desc,const std::string & val){
+    AddRow(data,size,{util::AsAddress(addr),desc,val});
 }
 
 
-void TableViewData::AddRow(const std::string & addr,const std::string & data,const std::string & desc,const std::string & val){
-    AddRow({addr,data,desc,val});
-}
-
-void TableViewData::AddSeparator()
+    void TableViewData::AddSeparator()
 {
     AddRow({"","","",""});
 }

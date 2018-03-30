@@ -34,7 +34,11 @@ using TableViewItemPtr = std::shared_ptr<TableViewItem>;
 class TableViewRow{
 public:
     std::vector<TableViewItemPtr> items;
+    void *data = nullptr;
+    uint64_t size = 0;
+
     void SetValues(const std::initializer_list<std::string> & vals);
+    void SetData(char *data,uint64_t size);
 };
 using TableViewRowPtr = std::shared_ptr<TableViewRow>;
 
@@ -50,37 +54,70 @@ public:
     std::vector<TableViewRowPtr> rows;
     std::vector<uint32_t> widths;
 
+    std::function<uint64_t(const void *addr)> GetRAW;
+
     TableViewData(){
-        SetHeaders({"Offset","Size","Description","Value"});
-        SetWidths({80,80,200,200});
+        // default headers and widths
+        SetHeaders({"Offset","Description","Value"});
+        SetWidths({80,200,200});
     }
 
     bool IsEmpty()const{return rows.empty();}
 
     void SetHeaders(const std::initializer_list<std::string> & vals);
     void SetWidths(const std::initializer_list<uint32_t> & vals);
+
+
     void AddRow(const std::initializer_list<std::string> & vals);
+    void AddRow(void *data,uint64_t size,const std::initializer_list<std::string> & vals);
+
+    void AddRow(void* data,uint64_t size,uint64_t addr,const std::string & desc,const std::string & val);
+    void AddRow(void* data,uint64_t size,uint64_t addr,const char *desc,const std::string & val);
+
 
     template <typename T>
-    void AddRow(uint64_t addr,T data,const std::string & desc,const std::string & val);
-
-    void AddRow(uint64_t addr,const std::string & data,const std::string & desc,const std::string & val);
-    void AddRow(uint64_t addr,void* data,size_t size,const std::string & desc,const std::string & val);
-    void AddRow(const std::string & addr,const std::string & data,const std::string & desc,const std::string & val);
+    void AddRow(T& field,const char *desc,const std::string &val);
 
     void AddSeparator();
+
+    template <typename A,typename B,typename C,typename D>
+    void AddRow(A a,B b,C c,D d);
+    template <typename A,typename B,typename C,typename D,typename E>
+    void AddRow(A a,B b,C c,D d,E e);
+
+
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
-inline TableViewDataPtr CreateTableViewDataPtr(){return std::make_shared<TableViewData>();}
 
+inline TableViewDataPtr CreateTableViewDataPtr(){
+    return std::make_shared<TableViewData>();
+}
 
-template<typename T>
-void TableViewData::AddRow(uint64_t addr, T data, const std::string &desc, const std::string &val)
-{
-    AddRow({util::AsAddress(addr),util::AsHexData(data),desc,val});
+inline TableViewDataPtr CreateTableViewDataPtr(MachHeaderPtr mh){
+    auto ret = std::make_shared<TableViewData>();
+    ret->GetRAW = [&mh](const void *addr) -> uint64_t{
+        return mh->GetRAW(addr);
+    };
+    return ret;
+}
+
+template <typename T>
+void TableViewData::AddRow(T& field,const char *desc,const std::string &val){
+    AddRow((void*)&(field),
+           (uint64_t)sizeof(field),
+           GetRAW(&(field)),
+           desc,
+           val);
 }
 
 
+template <typename A,typename B,typename C,typename D>
+void TableViewData::AddRow(A a,B b,C c,D d){
+}
+
+template <typename A,typename B,typename C,typename D,typename E>
+void TableViewData::AddRow(A a,B b,C c,D d,E e){
+}
 ///////////////////////////////// View Node Base Class ///////////////////////////////
 
 

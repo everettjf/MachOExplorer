@@ -34,6 +34,13 @@ void Workspace::showNode(moex::ViewNode *node)
     // hex dock widget
     ui_->hex->showViewData(node->binary().get());
 }
+void Workspace::selectHexRange(void *data,uint64_t size)
+{
+    if(!data)
+        return;
+
+    ui_->hex->selectRange((uint64_t)data,size);
+}
 
 
 Workspace *Workspace::Instance()

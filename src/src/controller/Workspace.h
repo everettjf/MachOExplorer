@@ -41,6 +41,7 @@ public:
     void openFile(const QString & filePath);
     void addLog(const QString & log);
     void showNode(moex::ViewNode *node);
+    void selectHexRange(void *data,uint64_t size);
 private:
     WorkspaceUI *ui_;
 };

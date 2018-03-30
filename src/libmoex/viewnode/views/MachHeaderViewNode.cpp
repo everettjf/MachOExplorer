@@ -76,11 +76,15 @@ void MachHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableViewDataPtr();
+        auto t = CreateTableViewDataPtr(d_);
         const mach_header *m = d_->data_ptr();
         const mach_header *offset = (const mach_header*)d_->header_start();
 
-        t->AddRow(d_->GetRAW(&(offset->magic)),m->magic,"Magic Number",d_->GetMagicString());
+        t->AddRow(offset->magic, "Magic Number",d_->GetMagicString());
+
+        t->AddRow((void*)&(offset->magic), (uint64_t)sizeof(offset->magic),
+                  d_->GetRAW(&(offset->magic)),"Magic Number",d_->GetMagicString());
+
         t->AddRow(d_->GetRAW(&(offset->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
 
         t->AddRow(d_->GetRAW(&(offset->cpusubtype)),m->cpusubtype,"CPU SubType","");

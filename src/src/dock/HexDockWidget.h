@@ -16,6 +16,8 @@ public:
     explicit HexDockWidget(QWidget *parent = 0);
     void showViewData(moex::BinaryViewData *data);
 
+    void selectRange(uint64_t offset,uint64_t size);
+
 private:
     HexdumpWidget *hexEdit;
 signals:

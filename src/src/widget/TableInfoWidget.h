@@ -24,6 +24,8 @@ public:
 private:
     QTableView *tableView;
     TableInfoController *controller;
+private:
+    void clicked(const QModelIndex &index);
 
 signals:
 
