@@ -42,6 +42,7 @@ public:
     void addLog(const QString & log);
     void showNode(moex::ViewNode *node);
     void selectHexRange(void *data,uint64_t size);
+    void setInformation(const QString & info);
 private:
     WorkspaceUI *ui_;
 };

@@ -59,9 +59,32 @@ void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const char *de
 }
 
 
-    void TableViewData::AddSeparator()
+void TableViewData::AddSeparator()
 {
     AddRow({"","","",""});
+}
+
+std::string TableViewData::GetRowDescription(int row)
+{
+    if(row >= rows.size())
+        return "";
+
+    auto data = rows[row];
+
+    std::string ret;
+    for(int idx = 0; idx < headers.size(); ++idx){
+
+        std::string val;
+        if(idx < data->items.size()){
+            val = data->items[idx]->data;
+        }
+
+        ret += fmt::format("{} : {}\n",headers[idx]->data,val);
+    }
+    ret += fmt::format("Length : {}\n", data->size);
+    ret += fmt::format("Data : {}\n", util::AsHexData(data->data,(size_t)data->size));
+
+    return ret;
 }
 
 

@@ -42,6 +42,11 @@ void Workspace::selectHexRange(void *data,uint64_t size)
     ui_->hex->selectRange((uint64_t)data,size);
 }
 
+void Workspace::setInformation(const QString & info)
+{
+    ui_->information->setContent(info);
+}
+
 
 Workspace *Workspace::Instance()
 {

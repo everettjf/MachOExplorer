@@ -85,6 +85,7 @@ public:
     template <typename A,typename B,typename C,typename D,typename E>
     void AddRow(A a,B b,C c,D d,E e);
 
+    std::string GetRowDescription(int row);
 
 };
 using TableViewDataPtr = std::shared_ptr<TableViewData>;
