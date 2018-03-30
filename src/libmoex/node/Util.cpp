@@ -210,11 +210,17 @@ namespace util {
 
         std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> res;
         if((subtype & CPU_SUBTYPE_LIB64) == CPU_SUBTYPE_LIB64){
-            res.push_back(std::tie(cputype,subtype,"CPU_SUBTYPE_LIB64"));
+            int showsubtype = CPU_SUBTYPE_LIB64;
+            res.push_back(std::tie(cputype,showsubtype,"CPU_SUBTYPE_LIB64"));
         }
 
         try{
-            res.push_back(std::tie(cputype,subtype,mapper.at(cputype).at(subtype & ~CPU_SUBTYPE_MASK)));
+            int showsubtype = (subtype & ~CPU_SUBTYPE_MASK);
+            res.push_back(std::tie(
+                    cputype,
+                    showsubtype,
+                    mapper.at(cputype).at(subtype & ~CPU_SUBTYPE_MASK)
+            ));
             return res;
         }catch(std::out_of_range&){
         }

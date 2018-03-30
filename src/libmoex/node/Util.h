@@ -41,7 +41,7 @@ std::string AsHexString(T value){
 
 template <typename T>
 std::string AsShortHexString(T value){
-    return fmt::format("{0:0>#8X}",value);
+    return fmt::format("{0:X}",value);
 }
 
 template <typename T>

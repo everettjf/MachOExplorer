@@ -82,29 +82,26 @@ void MachHeaderViewNode::InitViewDatas(){
 
         t->AddRow(offset->magic, "Magic Number",d_->GetMagicString());
 
-        t->AddRow((void*)&(offset->magic), (uint64_t)sizeof(offset->magic),
-                  d_->GetRAW(&(offset->magic)),"Magic Number",d_->GetMagicString());
+        t->AddRow(offset->cputype,"CPU Type",d_->GetCpuTypeString());
 
-        t->AddRow(d_->GetRAW(&(offset->cputype)),m->cputype,"CPU Type",d_->GetCpuTypeString());
-
-        t->AddRow(d_->GetRAW(&(offset->cpusubtype)),m->cpusubtype,"CPU SubType","");
+        t->AddRow(offset->cpusubtype,"CPU SubType","");
         for(auto & item : d_->GetCpuSubTypeArray()){
-            t->AddRow("","",AsShortHexString(std::get<1>(item)),std::get<2>(item));
+            t->AddRow({"",AsHexString((uint)std::get<1>(item)),std::get<2>(item)});
         }
 
-        t->AddRow(d_->GetRAW(&(offset->filetype)),m->filetype,"File Type",d_->GetFileTypeString());
-        t->AddRow(d_->GetRAW(&(offset->ncmds)),m->ncmds,"Number of Load Commands",AsString(m->ncmds));
-        t->AddRow(d_->GetRAW(&(offset->sizeofcmds)),m->sizeofcmds,"Size of Load Commands",AsString(m->sizeofcmds));
+        t->AddRow(offset->filetype,"File Type",d_->GetFileTypeString());
+        t->AddRow(offset->ncmds,"Number of Load Commands",AsString(m->ncmds));
+        t->AddRow(offset->sizeofcmds,"Size of Load Commands",AsString(m->sizeofcmds));
 
-        t->AddRow(d_->GetRAW(&(offset->flags)),m->flags,"Flags","");
+        t->AddRow(offset->flags,"Flags","");
         for(auto & item : d_->GetFlagsArray()){
-            t->AddRow("","",AsShortHexString(std::get<0>(item)),std::get<1>(item));
+            t->AddRow({"",AsHexString(std::get<0>(item)),std::get<1>(item)});
         }
 
         if(d_->Is64()){
             const mach_header_64 *offset64 = (const mach_header_64*)d_->header_start();
 
-            t->AddRow(d_->GetRAW(&(offset64->reserved)),d_->mh64()->data_ptr()->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
+            t->AddRow(offset64->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
         }
 
         SetViewData(t);
