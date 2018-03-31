@@ -153,6 +153,25 @@ public:
             InitViewDatas();
         }
     }
+
+    BinaryViewDataPtr CreateBinaryView(){
+        binary_ = std::make_shared<BinaryViewData>();
+        return binary_;
+    }
+
+    TableViewDataPtr CreateTableView(){
+        table_ = std::make_shared<TableViewData>();
+        return table_;
+    }
+
+    TableViewDataPtr CreateTableView(MachHeaderPtr mh){
+        auto ret = std::make_shared<TableViewData>();
+        ret->GetRAW = [&mh](const void *addr) -> uint64_t{
+            return mh->GetRAW(addr);
+        };
+        table_ = ret;
+        return ret;
+    }
 };
 
 

@@ -76,7 +76,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableViewDataPtr(d_);
+        auto t = CreateTableView(d_);
         const mach_header *m = d_->data_ptr();
         const mach_header *offset = (const mach_header*)d_->header_start();
 
@@ -103,17 +103,14 @@ void MachHeaderViewNode::InitViewDatas(){
 
             t->AddRow(offset64->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
         }
-
-        SetViewData(t);
     }
 
     // Binary
     {
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryView();
         b->offset = (char*)d_->header_start();
         b->size = d_->DATA_SIZE();
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        SetViewData(b);
     }
 }
 
