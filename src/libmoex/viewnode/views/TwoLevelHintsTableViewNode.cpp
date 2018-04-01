@@ -14,11 +14,10 @@ void TwoLevelHintsTableViewNode::InitViewDatas() {
     if(!seg)
         return;
 
-    auto b = CreateBinaryViewDataPtr();
+    auto b = CreateBinaryView();
     b->offset = (char*)mh_->header_start() + seg->cmd()->offset;
     b->size = seg->cmd()->nhints * sizeof(uint32_t);
     b->start_value = (uint64_t)b->offset - (uint64_t)mh_->ctx()->file_start;
-    SetViewData(b);
 }
 
 

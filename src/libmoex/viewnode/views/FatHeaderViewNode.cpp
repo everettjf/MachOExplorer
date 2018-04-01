@@ -26,37 +26,35 @@ void FatHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableViewDataPtr();
+        auto t = CreateTableView();
         const fat_header * h = d_->offset();
 
-        t->AddRow(d_->GetRAW(&(h->magic)),h->magic,"Magic Number",d_->GetMagicString());
-        t->AddRow(d_->GetRAW(&(h->nfat_arch)),h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
+        t->AddRow(h->magic,"Magic Number",d_->GetMagicString());
+        t->AddRow(h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
 
         t->AddSeparator();
 
         for(auto & arch : d_->archs()){
             const fat_arch * a = arch->offset();
-            t->AddRow(d_->GetRAW(&(a->cputype)),a->cputype,"CPU Type",arch->GetCpuTypeString());
-            t->AddRow(d_->GetRAW(&(a->cpusubtype)),a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
-            t->AddRow(d_->GetRAW(&(a->offset)),a->offset,"Offset",AsString(arch->data().offset));
-            t->AddRow(d_->GetRAW(&(a->size)),a->size,"Size",AsString(arch->data().size));
-            t->AddRow(d_->GetRAW(&(a->align)),a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
+            t->AddRow(a->cputype,"CPU Type",arch->GetCpuTypeString());
+            t->AddRow(a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
+            t->AddRow(a->offset,"Offset",AsString(arch->data().offset));
+            t->AddRow(a->size,"Size",AsString(arch->data().size));
+            t->AddRow(a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
 
             t->AddSeparator();
         }
-        SetViewData(t);
     }
 
     // Binary
     {
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryView();
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
         for(auto & arch: d_->archs()){
             b->size += arch->DATA_SIZE();
         }
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        SetViewData(b);
     }
 }
 

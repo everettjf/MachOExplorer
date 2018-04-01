@@ -14,11 +14,10 @@ void CodeSignatureViewNode::InitViewDatas() {
     if(!seg)
         return;
 
-    auto b = CreateBinaryViewDataPtr();
+    auto b = CreateBinaryView();
     b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
     b->size = seg->cmd()->datasize;
     b->start_value = (uint64_t)b->offset - (uint64_t)mh_->ctx()->file_start;
-    SetViewData(b);
 }
 
 

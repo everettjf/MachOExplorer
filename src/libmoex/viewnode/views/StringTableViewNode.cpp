@@ -16,7 +16,7 @@ void StringTableViewNode::InitViewDatas()
 {
     using namespace moex::util;
 
-    auto t = CreateTableViewDataPtr();
+    auto t = CreateTableView();
     t->SetHeaders({"Index","Offset","Length","String"});
     t->SetWidths({80,100,80,400});
 
@@ -48,13 +48,11 @@ void StringTableViewNode::InitViewDatas()
         ++lineno;
     }
 
-    SetViewData(t);
 
-    auto b = CreateBinaryViewDataPtr();
+    auto b = CreateBinaryView();
     b->offset = stroffset;
     b->size = strsize;
     b->start_value = (uint64_t)stroffset - (uint64_t)mh_->header_start();
-    SetViewData(b);
 }
 
 MOEX_NAMESPACE_END

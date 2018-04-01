@@ -14,20 +14,18 @@ void DataInCodeEntriesViewNode::InitViewDatas(){
         return;
 
     // Dices
-    auto t = CreateTableViewDataPtr();
+    auto t = CreateTableView(seg);
     for(auto & dice : seg->GetDices()){
-        t->AddRow(seg->GetRAW(&(dice->offset()->offset)),dice->offset()->offset,"Offset",AsShortHexString(dice->offset()->offset));
-        t->AddRow(seg->GetRAW(&(dice->offset()->length)),dice->offset()->length,"Length",AsShortHexString(dice->offset()->length));
-        t->AddRow(seg->GetRAW(&(dice->offset()->kind)),dice->offset()->kind,"Kind",dice->GetKindString());
+        t->AddRow(dice->offset()->offset,"Offset",AsShortHexString(dice->offset()->offset));
+        t->AddRow(dice->offset()->length,"Length",AsShortHexString(dice->offset()->length));
+        t->AddRow(dice->offset()->kind,"Kind",dice->GetKindString());
         t->AddSeparator();
     }
-    SetViewData(t);
 
-    auto b = CreateBinaryViewDataPtr();
+    auto b = CreateBinaryView();
     b->offset = (char*)mh_->header_start() + seg->cmd()->dataoff;
     b->size = seg->cmd()->datasize;
     b->start_value = (uint64_t)b->offset - (uint64_t)mh_->header_start();
-    SetViewData(b);
 }
 
 MOEX_NAMESPACE_END
