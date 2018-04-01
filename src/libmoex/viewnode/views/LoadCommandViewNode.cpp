@@ -141,99 +141,99 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLD_INFO)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SYMTAB)
-    t->AddRow(c->GetRAW(&(c->cmd()->symoff)),c->cmd()->symoff,"Symbol Table Offset",AsString(c->cmd()->symoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nsyms)),c->cmd()->nsyms,"Number of Symbols",AsString(c->cmd()->nsyms));
-    t->AddRow(c->GetRAW(&(c->cmd()->stroff)),c->cmd()->stroff,"String Table Offset",AsString(c->cmd()->stroff));
-    t->AddRow(c->GetRAW(&(c->cmd()->strsize)),c->cmd()->strsize,"String Table Size",AsString(c->cmd()->strsize));
+    t->AddRow(c->cmd()->symoff,"Symbol Table Offset",AsString(c->cmd()->symoff));
+    t->AddRow(c->cmd()->nsyms,"Number of Symbols",AsString(c->cmd()->nsyms));
+    t->AddRow(c->cmd()->stroff,"String Table Offset",AsString(c->cmd()->stroff));
+    t->AddRow(c->cmd()->strsize,"String Table Size",AsString(c->cmd()->strsize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYSYMTAB)
-    t->AddRow(c->GetRAW(&(c->cmd()->ilocalsym)),c->cmd()->ilocalsym,"Local Symbols Index",AsString(c->cmd()->ilocalsym));
-    t->AddRow(c->GetRAW(&(c->cmd()->nlocalsym)),c->cmd()->nlocalsym,"Number of Local Symbols",AsString(c->cmd()->nlocalsym));
+    t->AddRow(c->cmd()->ilocalsym,"Local Symbols Index",AsString(c->cmd()->ilocalsym));
+    t->AddRow(c->cmd()->nlocalsym,"Number of Local Symbols",AsString(c->cmd()->nlocalsym));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->iextdefsym)),c->cmd()->iextdefsym,"Defined External Symbols Index",AsString(c->cmd()->iextdefsym));
-    t->AddRow(c->GetRAW(&(c->cmd()->nextdefsym)),c->cmd()->nextdefsym,"Number of Defined External Symbols",AsString(c->cmd()->nextdefsym));
+    t->AddRow(c->cmd()->iextdefsym,"Defined External Symbols Index",AsString(c->cmd()->iextdefsym));
+    t->AddRow(c->cmd()->nextdefsym,"Number of Defined External Symbols",AsString(c->cmd()->nextdefsym));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->iundefsym)),c->cmd()->iundefsym,"Undefined External Symbols Index",AsString(c->cmd()->iundefsym));
-    t->AddRow(c->GetRAW(&(c->cmd()->nundefsym)),c->cmd()->nundefsym,"Number of Undefined External Symbols",AsString(c->cmd()->nundefsym));
+    t->AddRow(c->cmd()->iundefsym,"Undefined External Symbols Index",AsString(c->cmd()->iundefsym));
+    t->AddRow(c->cmd()->nundefsym,"Number of Undefined External Symbols",AsString(c->cmd()->nundefsym));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->tocoff)),c->cmd()->tocoff,"TOC Offset",AsString(c->cmd()->tocoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->ntoc)),c->cmd()->ntoc,"TOC Entries",AsString(c->cmd()->ntoc));
+    t->AddRow(c->cmd()->tocoff,"TOC Offset",AsString(c->cmd()->tocoff));
+    t->AddRow(c->cmd()->ntoc,"TOC Entries",AsString(c->cmd()->ntoc));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->modtaboff)),c->cmd()->modtaboff,"Module Table Offset",AsString(c->cmd()->modtaboff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nmodtab)),c->cmd()->nmodtab,"Module Table Entries",AsString(c->cmd()->nmodtab));
+    t->AddRow(c->cmd()->modtaboff,"Module Table Offset",AsString(c->cmd()->modtaboff));
+    t->AddRow(c->cmd()->nmodtab,"Module Table Entries",AsString(c->cmd()->nmodtab));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->extrefsymoff)),c->cmd()->extrefsymoff,"ExtRef Table Offset",AsString(c->cmd()->extrefsymoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nextrefsyms)),c->cmd()->nextrefsyms,"ExtRef Table Entries",AsString(c->cmd()->nextrefsyms));
+    t->AddRow(c->cmd()->extrefsymoff,"ExtRef Table Offset",AsString(c->cmd()->extrefsymoff));
+    t->AddRow(c->cmd()->nextrefsyms,"ExtRef Table Entries",AsString(c->cmd()->nextrefsyms));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->indirectsymoff)),c->cmd()->indirectsymoff,"Indirect Symbol Table Offset",AsString(c->cmd()->indirectsymoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nindirectsyms)),c->cmd()->nindirectsyms,"Indirect Symbol Table Entries",AsString(c->cmd()->nindirectsyms));
+    t->AddRow(c->cmd()->indirectsymoff,"Indirect Symbol Table Offset",AsString(c->cmd()->indirectsymoff));
+    t->AddRow(c->cmd()->nindirectsyms,"Indirect Symbol Table Entries",AsString(c->cmd()->nindirectsyms));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->extreloff)),c->cmd()->extreloff,"ExtReloc Table Offset",AsString(c->cmd()->extreloff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nextrel)),c->cmd()->nextrel,"ExtReloc Table Entries",AsString(c->cmd()->nextrel));
+    t->AddRow(c->cmd()->extreloff,"ExtReloc Table Offset",AsString(c->cmd()->extreloff));
+    t->AddRow(c->cmd()->nextrel,"ExtReloc Table Entries",AsString(c->cmd()->nextrel));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->locreloff)),c->cmd()->locreloff,"LocReloc Table Offset",AsString(c->cmd()->locreloff));
-    t->AddRow(c->GetRAW(&(c->cmd()->nlocrel)),c->cmd()->nlocrel,"LocReloc Table Entries",AsString(c->cmd()->nlocrel));
+    t->AddRow(c->cmd()->locreloff,"LocReloc Table Offset",AsString(c->cmd()->locreloff));
+    t->AddRow(c->cmd()->nlocrel,"LocReloc Table Entries",AsString(c->cmd()->nlocrel));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LOAD_DYLINKER)
-    t->AddRow(c->GetRAW(&(c->cmd()->name.offset)),c->cmd()->name.offset,"Str Offset",AsShortHexString(c->cmd()->name.offset));
+    t->AddRow(c->cmd()->name.offset,"Str Offset",AsShortHexString(c->cmd()->name.offset));
     t->AddSeparator();
 
-    t->AddRow(c->GetRAW((void*)(c->dylinker_path_name_offset())),AsHexData((void*)(c->dylinker_path_name_offset()),(std::size_t)(c->dylinker_path_name().length())),"Name",c->dylinker_path_name());
+    t->AddRow((void*)(c->dylinker_path_name_offset()),(uint64_t)(c->dylinker_path_name().length()),"Name",c->dylinker_path_name());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_UUID)
-    t->AddRow(c->GetRAW(&(c->cmd()->uuid)),c->cmd()->uuid,sizeof(c->cmd()->uuid),"UUID",c->GetUUIDString());
+    t->AddRow(c->cmd()->uuid,sizeof(c->cmd()->uuid),"UUID",c->GetUUIDString());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(VERSION_MIN)
-    t->AddRow(c->GetRAW(&(c->cmd()->version)),c->cmd()->version,"Version",c->GetVersion());
-    t->AddRow(c->GetRAW(&(c->cmd()->sdk)),c->cmd()->sdk,"SDK",c->GetSDK());
+    t->AddRow(c->cmd()->version,"Version",c->GetVersion());
+    t->AddRow(c->cmd()->sdk,"SDK",c->GetSDK());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SOURCE_VERSION)
-    t->AddRow(c->GetRAW(&(c->cmd()->version)),c->cmd()->version,"Version",c->GetVersion());
+    t->AddRow(c->cmd()->version,"Version",c->GetVersion());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_MAIN)
-    t->AddRow(c->GetRAW(&(c->cmd()->entryoff)),c->cmd()->entryoff,"Entry Offset",AsShortHexString(c->cmd()->entryoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->stacksize)),c->cmd()->stacksize,"Stack Size",AsShortHexString(c->cmd()->stacksize));
+    t->AddRow(c->cmd()->entryoff,"Entry Offset",AsShortHexString(c->cmd()->entryoff));
+    t->AddRow(c->cmd()->stacksize,"Stack Size",AsShortHexString(c->cmd()->stacksize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_ENCRYPTION_INFO)
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptoff)),c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptsize)),c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptid)),c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
+    t->AddRow(c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
+    t->AddRow(c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
+    t->AddRow(c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_ENCRYPTION_INFO_64)
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptoff)),c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptsize)),c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
-    t->AddRow(c->GetRAW(&(c->cmd()->cryptid)),c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
+    t->AddRow(c->cmd()->cryptoff,"Crypt Offset",AsShortHexString(c->cmd()->cryptoff));
+    t->AddRow(c->cmd()->cryptsize,"Crypt Size",AsShortHexString(c->cmd()->cryptsize));
+    t->AddRow(c->cmd()->cryptid,"Crypt ID",AsShortHexString(c->cmd()->cryptid));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_CODE_SIGNATURE)
-            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+            t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT_SPLIT_INFO)
-            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+            t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_FUNCTION_STARTS)
-            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+            t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DATA_IN_CODE)
-            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+            t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYLIB_CODE_SIGN_DRS)
-            t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-            t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+            t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+            t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LINKER_OPTIMIZATION_HINT)
-    t->AddRow(c->GetRAW(&(c->cmd()->dataoff)),c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
-    t->AddRow(c->GetRAW(&(c->cmd()->datasize)),c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+    t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+    t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
 //////////////////////////////////////////////////////////////////////////////////
 
