@@ -25,11 +25,8 @@ void HexDockWidget::showViewData(moex::BinaryViewData *data)
         return;
     }
 
-    moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
-
     hexEdit->setAddressAs64Bit(true);
-    hexEdit->loadAddress(node->start_value,(unsigned long long)node->offset,node->size);
-    this->adjustSize();
+    hexEdit->loadAddress(data->start_value,(unsigned long long)data->offset,data->size);
 }
 void HexDockWidget::selectRange(uint64_t offset,uint64_t size)
 {
