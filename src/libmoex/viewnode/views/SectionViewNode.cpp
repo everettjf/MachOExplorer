@@ -16,10 +16,6 @@ SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
 
 void SectionViewNode::Init(MachSectionPtr d){
     d_ = d;
-
-
-//    InitViewDatas();
-
 }
 std::string SectionViewNode::GetDisplayName(){
     return fmt::format("Section({},{})",d_->sect().segment_name(),d_->sect().section_name());
