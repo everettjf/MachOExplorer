@@ -37,19 +37,19 @@ public:\
     void InitViewDatas()override{\
         using namespace moex::util;\
         LoadCommand_##classname *c = static_cast<LoadCommand_##classname*>(d_.get());\
-        {auto t = CreateTableViewDataPtr();\
-        t->AddRow(c->GetRAW(&(c->cmd()->cmd)),c->cmd()->cmd,"Command",c->GetLoadCommandTypeString());\
-        t->AddRow(c->GetRAW(&(c->cmd()->cmdsize)),c->cmd()->cmdsize,"Command Size",AsString(c->cmd()->cmdsize));\
+        {auto t = CreateTableView(c);\
+        t->AddRow(c->cmd()->cmd,"Command",c->GetLoadCommandTypeString());\
+        t->AddRow(c->cmd()->cmdsize,"Command Size",AsString(c->cmd()->cmdsize));\
         t->AddSeparator();
 
 
 #define IMPL_LOADCOMMAND_VIEWNODE_END\
         if(!t->IsEmpty()) SetViewData(t);}\
-        {auto b = CreateBinaryViewDataPtr();\
+        {auto b = CreateBinaryView();\
         b->offset = (char*)c->offset();\
         b->size = c->offset()->cmdsize;\
         b->start_value = (uint64_t)b->offset - (uint64_t)c->ctx()->file_start;\
-        if(!b->IsEmpty()) SetViewData(b);}\
+        }\
     }\
 };
 

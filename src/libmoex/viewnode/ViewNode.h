@@ -165,10 +165,10 @@ public:
         return table_;
     }
 
-    TableViewDataPtr CreateTableView(MachHeaderPtr mh){
+    TableViewDataPtr CreateTableView(Node * node){
         auto ret = std::make_shared<TableViewData>();
-        ret->GetRAW = [&mh](const void *addr) -> uint64_t{
-            return mh->GetRAW(addr);
+        ret->GetRAW = [node](const void *addr) -> uint64_t{
+            return node->GetRAW(addr);
         };
         table_ = ret;
         return ret;

@@ -76,7 +76,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableView(d_);
+        auto t = CreateTableView(d_.get());
         const mach_header *m = d_->data_ptr();
         const mach_header *offset = (const mach_header*)d_->header_start();
 

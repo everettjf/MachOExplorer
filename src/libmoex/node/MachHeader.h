@@ -82,7 +82,7 @@ public:
     char * header_start(){return (char*)header_start_;}
 
     // Get offset from the beginning of the file
-    uint64_t GetRAW(const void * addr);
+    uint64_t GetRAW(const void * addr) override ;
 
     // Get current header size in bytes
     std::size_t DATA_SIZE();

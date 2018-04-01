@@ -31,6 +31,8 @@ using NodeContextPtr = std::shared_ptr<NodeContext>;
 class Node{
 public:
     virtual ~Node(){}
+
+    virtual uint64_t GetRAW(const void * addr){ return 0; }
 };
 
 // Template for every MachO element which hold the offset for the element and context
@@ -58,7 +60,7 @@ public:
     }
 
     // Utility function : get offset for addr from file beginning
-    uint64_t GetRAW(const void * addr){
+    uint64_t GetRAW(const void * addr) override {
         return (uint64_t)addr - (uint64_t)ctx_->file_start;
     }
 };
