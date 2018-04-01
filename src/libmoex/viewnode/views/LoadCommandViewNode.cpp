@@ -113,31 +113,31 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SEGMENT_64)
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLIB)
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.name.offset)),c->cmd()->dylib.name.offset,"Str Offset",AsShortHexString(c->cmd()->dylib.name.offset));
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.timestamp)),c->cmd()->dylib.timestamp,"Time Stamp",c->GetTimeStamp());
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.current_version)),c->cmd()->dylib.current_version,"Current Version",c->GetCurrentVersion());
-    t->AddRow(c->GetRAW(&(c->cmd()->dylib.compatibility_version)),c->cmd()->dylib.compatibility_version,"Compatibility Version",c->GetCompatibilityVersion());
+    t->AddRow(c->cmd()->dylib.name.offset,"Str Offset",AsShortHexString(c->cmd()->dylib.name.offset));
+    t->AddRow(c->cmd()->dylib.timestamp,"Time Stamp",c->GetTimeStamp());
+    t->AddRow(c->cmd()->dylib.current_version,"Current Version",c->GetCurrentVersion());
+    t->AddRow(c->cmd()->dylib.compatibility_version,"Compatibility Version",c->GetCompatibilityVersion());
     t->AddSeparator();
 
-    t->AddRow(c->GetRAW((void*)(c->dylib_path_offset())),AsHexData((void*)(c->dylib_path_offset()),(std::size_t)(c->dylib_path().length())),"Path",c->dylib_path());
-    t->AddRow("","","Name",c->dylib_name());
+    t->AddRow((void*)(c->dylib_path_offset()),(uint64_t)(c->dylib_path().length()),"Path",c->dylib_path());
+    t->AddRow("","Name",c->dylib_name());
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(DYLD_INFO)
-    t->AddRow(c->GetRAW(&(c->cmd()->rebase_off)),c->cmd()->rebase_off,"Rebase Info Offset",AsString(c->cmd()->rebase_off));
-    t->AddRow(c->GetRAW(&(c->cmd()->rebase_size)),c->cmd()->rebase_size,"Rebase Info Size",AsString(c->cmd()->rebase_size));
+    t->AddRow(c->cmd()->rebase_off,"Rebase Info Offset",AsString(c->cmd()->rebase_off));
+    t->AddRow(c->cmd()->rebase_size,"Rebase Info Size",AsString(c->cmd()->rebase_size));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->bind_off)),c->cmd()->bind_off,"Binding Info Offset",AsString(c->cmd()->bind_off));
-    t->AddRow(c->GetRAW(&(c->cmd()->bind_size)),c->cmd()->bind_size,"Binding Info Size",AsString(c->cmd()->bind_size));
+    t->AddRow(c->cmd()->bind_off,"Binding Info Offset",AsString(c->cmd()->bind_off));
+    t->AddRow(c->cmd()->bind_size,"Binding Info Size",AsString(c->cmd()->bind_size));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_off)),c->cmd()->weak_bind_off,"Weak Binding Info Offset",AsString(c->cmd()->weak_bind_off));
-    t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_size)),c->cmd()->weak_bind_size,"Weak Binding Info Size",AsString(c->cmd()->weak_bind_size));
+    t->AddRow(c->cmd()->weak_bind_off,"Weak Binding Info Offset",AsString(c->cmd()->weak_bind_off));
+    t->AddRow(c->cmd()->weak_bind_size,"Weak Binding Info Size",AsString(c->cmd()->weak_bind_size));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_off)),c->cmd()->lazy_bind_off,"Lazy Binding Info Offset",AsString(c->cmd()->lazy_bind_off));
-    t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_size)),c->cmd()->lazy_bind_size,"Lazy Binding Info Size",AsString(c->cmd()->lazy_bind_size));
+    t->AddRow(c->cmd()->lazy_bind_off,"Lazy Binding Info Offset",AsString(c->cmd()->lazy_bind_off));
+    t->AddRow(c->cmd()->lazy_bind_size,"Lazy Binding Info Size",AsString(c->cmd()->lazy_bind_size));
 
-    t->AddRow(c->GetRAW(&(c->cmd()->export_off)),c->cmd()->export_off,"Export Info Offset",AsString(c->cmd()->export_off));
-    t->AddRow(c->GetRAW(&(c->cmd()->export_size)),c->cmd()->export_size,"Export Info Size",AsString(c->cmd()->export_size));
+    t->AddRow(c->cmd()->export_off,"Export Info Offset",AsString(c->cmd()->export_off));
+    t->AddRow(c->cmd()->export_size,"Export Info Size",AsString(c->cmd()->export_size));
 IMPL_LOADCOMMAND_VIEWNODE_END
 
 IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_SYMTAB)
