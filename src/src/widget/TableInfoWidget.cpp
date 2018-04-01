@@ -60,7 +60,11 @@ void TableInfoWidget::clicked(const QModelIndex &index)
     qDebug()<< index.row();
 
     auto row = controller->model()->data_ptr()->rows[index.row()];
-    WS()->selectHexRange(row->data,row->size);
+    if(row->data){
+        WS()->selectHexRange(row->data,row->size);
+    }else{
+        WS()->clearHexSelection();
+    }
 
     std::string desc = controller->model()->data_ptr()->GetRowDescription(index.row());
     qDebug() << desc.c_str();

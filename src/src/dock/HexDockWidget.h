@@ -17,6 +17,7 @@ public:
     void showViewData(moex::BinaryViewData *data);
 
     void selectRange(uint64_t offset,uint64_t size);
+    void clearSelection();
 
 private:
     HexdumpWidget *hexEdit;

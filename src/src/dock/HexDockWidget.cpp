@@ -20,8 +20,10 @@ HexDockWidget::HexDockWidget(QWidget *parent) : QDockWidget(parent)
 
 void HexDockWidget::showViewData(moex::BinaryViewData *data)
 {
-    if(!data)
+    if(!data){
+        hexEdit->clearContent();
         return;
+    }
 
     moex::BinaryViewData *node = static_cast<moex::BinaryViewData*>(data);
 
@@ -32,4 +34,9 @@ void HexDockWidget::showViewData(moex::BinaryViewData *data)
 void HexDockWidget::selectRange(uint64_t offset,uint64_t size)
 {
     hexEdit->selectRange(offset,size);
+}
+
+void HexDockWidget::clearSelection()
+{
+    hexEdit->clearSelection();
 }

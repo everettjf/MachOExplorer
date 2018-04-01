@@ -86,7 +86,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
         t->AddRow(offset->cpusubtype,"CPU SubType","");
         for(auto & item : d_->GetCpuSubTypeArray()){
-            t->AddRow({"",AsHexString((uint)std::get<1>(item)),std::get<2>(item)});
+            t->AddRow("",AsHexString((uint)std::get<1>(item)),std::get<2>(item));
         }
 
         t->AddRow(offset->filetype,"File Type",d_->GetFileTypeString());
@@ -95,7 +95,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
         t->AddRow(offset->flags,"Flags","");
         for(auto & item : d_->GetFlagsArray()){
-            t->AddRow({"",AsHexString(std::get<0>(item)),std::get<1>(item)});
+            t->AddRow("",AsHexString(std::get<0>(item)),std::get<1>(item));
         }
 
         if(d_->Is64()){

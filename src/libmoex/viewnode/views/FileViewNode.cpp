@@ -29,6 +29,14 @@ void FileViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
 
 void FileViewNode::InitViewDatas()
 {
+    auto t = CreateTableView();
+    t->SetHeaders({"Information"});
+    t->SetWidths({300});
+    if(bin_->IsFat()){
+        t->AddRow({"It is a fat file"});
+    }else{
+        t->AddRow({"It is not a fat file"});
+    }
 
 //    // Binary
 //    {

@@ -36,11 +36,19 @@ void Workspace::showNode(moex::ViewNode *node)
 }
 void Workspace::selectHexRange(void *data,uint64_t size)
 {
-    if(!data)
+    if(!data){
+        clearHexSelection();
         return;
+    }
 
     ui_->hex->selectRange((uint64_t)data,size);
 }
+
+void Workspace::clearHexSelection()
+{
+    ui_->hex->clearSelection();
+}
+
 
 void Workspace::setInformation(const QString & info)
 {

@@ -298,6 +298,20 @@ void HexdumpWidget::selectRange(unsigned long long addr, unsigned long long len)
     ui->hexHexText->setTextCursor(targetTextCursor);
 }
 
+void HexdumpWidget::clearSelection()
+{
+    QTextCursor targetTextCursor = ui->hexHexText->textCursor();
+    targetTextCursor.setPosition(targetTextCursor.position());
+    ui->hexHexText->setTextCursor(targetTextCursor);
+}
+void HexdumpWidget::clearContent()
+{
+    ui->hexHexText->setText(QStringLiteral(""));
+    ui->hexOffsetText->setText(QStringLiteral(""));
+    ui->hexASCIIText->setText(QStringLiteral(""));
+}
+
+
 void HexdumpWidget::setupFont()
 {
     QFont font = kTextFont;

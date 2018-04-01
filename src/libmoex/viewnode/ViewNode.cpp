@@ -57,6 +57,9 @@ void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const std::str
 void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const char *desc,const std::string & val){
     AddRow(data,size,{util::AsAddress(addr),desc,val});
 }
+void TableViewData::AddRow(const char * addr, const std::string & desc,const std::string & val){
+    AddRow({addr,desc,val});
+}
 
 
 void TableViewData::AddSeparator()
@@ -81,8 +84,11 @@ std::string TableViewData::GetRowDescription(int row)
 
         ret += fmt::format("{} : {}\n",headers[idx]->data,val);
     }
-    ret += fmt::format("Length : {}\n", data->size);
-    ret += fmt::format("Data : {}\n", util::AsHexData(data->data,(size_t)data->size));
+
+    if(data->size > 0){
+        ret += fmt::format("Length : {}\n", data->size);
+        ret += fmt::format("Data : {}\n", util::AsHexData(data->data,(size_t)data->size));
+    }
 
     return ret;
 }

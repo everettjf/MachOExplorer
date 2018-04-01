@@ -73,6 +73,7 @@ public:
 
     void AddRow(void* data,uint64_t size,uint64_t addr,const std::string & desc,const std::string & val);
     void AddRow(void* data,uint64_t size,uint64_t addr,const char *desc,const std::string & val);
+    void AddRow(const char * addr, const std::string & desc,const std::string & val);
 
 
     template <typename T>
