@@ -17,7 +17,7 @@ bool LayoutController::initModel(QString & error)
         return false;
     }
 
-    log("Start parsing " + filePath_);
+    WS()->addLog("Start parsing " + filePath_);
 
     // Init model
     if(model_) delete model_;
@@ -32,10 +32,10 @@ bool LayoutController::initModel(QString & error)
     std::string init_error;
     if(!vnm_.Init(filepath,init_error)){
         error = QString("Exception : %1").arg(init_error.c_str());
-        log(error);
+        WS()->addLog(error);
         return false;
     }
-    log("Parse succeed");
+    WS()->addLog("Parse succeed");
 
     // Root item
     moex::ViewNode *root = vnm_.GetRootNode();

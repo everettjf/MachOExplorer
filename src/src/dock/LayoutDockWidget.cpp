@@ -5,6 +5,8 @@
 #include "LayoutDockWidget.h"
 #include "src/utility/Utility.h"
 #include "src/controller/Workspace.h"
+#include "src/controller/LayoutController.h"
+
 #include <QHBoxLayout>
 
 LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)

@@ -14,6 +14,9 @@
 #include <QWidget>
 #include <QDebug>
 
+#include <libmoex/moex.h>
+#include <libmoex/moex-view.h>
+
 #endif
 
 #endif // STABLE_H

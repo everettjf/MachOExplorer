@@ -4,13 +4,13 @@
 //
 #ifndef LAYOUTCONTROLLER_H
 #define LAYOUTCONTROLLER_H
-
+#include "Stable.h"
 #include <QStandardItemModel>
 #include <libmoex/viewnode/ViewNodeManager.h>
 #include "src/utility/Utility.h"
-#include "BaseController.h"
+#include "Workspace.h"
 
-class LayoutController : public BaseController
+class LayoutController
 {
 public:
     LayoutController();

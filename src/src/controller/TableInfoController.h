@@ -4,8 +4,9 @@
 //
 #ifndef TABLECONTENTCONTROLLER_H
 #define TABLECONTENTCONTROLLER_H
-
-#include "BaseController.h"
+#include <libmoex/moex.h>
+#include <libmoex/moex-view.h>
+#include "Stable.h"
 #include <QStandardItemModel>
 #include <QAbstractTableModel>
 
@@ -31,7 +32,7 @@ private:
 
 
 
-class TableInfoController : public BaseController
+class TableInfoController
 {
 public:
     TableInfoController();

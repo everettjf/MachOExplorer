@@ -26,16 +26,16 @@ void LoadCommandsViewNode::InitViewDatas(){
 
     // Table
     {
-        TableViewDataPtr  t = std::make_shared<TableViewData>();
-        t->AddRow("","","Number of commands",AsString(cmds_.size()));
-        SetViewData(t);
+        auto t = CreateTableView();
+        t->SetHeaders({"Information"});
+        t->SetWidths({300});
+        t->AddRow({fmt::format("Number of commands : {}", cmds_.size())});
     }
     // Binary
     {
-        BinaryViewDataPtr b = std::make_shared<BinaryViewData>();
+        auto b = CreateBinaryView();
         b->offset = (char*)mh_->header_start() + mh_->DATA_SIZE();
         b->size = mh_->data_ptr()->sizeofcmds;
-        SetViewData(b);
     }
 }
 

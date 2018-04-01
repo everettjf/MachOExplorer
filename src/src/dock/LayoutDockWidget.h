@@ -4,12 +4,14 @@
 //
 #ifndef LAYOUTVIEW_H
 #define LAYOUTVIEW_H
+#include "Stable.h"
 
 #include <QDockWidget>
 #include <QTreeView>
-#include "src/controller/LayoutController.h"
 #include <QModelIndex>
 #include "../widget/LayoutTreeView.h"
+
+class LayoutController;
 
 
 class LayoutDockWidget : public QDockWidget
