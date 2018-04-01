@@ -34,40 +34,38 @@ void SectionViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableViewDataPtr();
+        auto t = CreateTableView(d_.get());
         moex_section &sect = d_->sect();
-        t->AddRow(d_->GetRAW(&(sect.sectname())),(void*)sect.sectname(),sizeof(char)*16,"Section Name",sect.section_name());
-        t->AddRow(d_->GetRAW(&(sect.segname())),(void*)sect.segname(),sizeof(char)*16,"Segment Name",sect.segment_name());
+        t->AddRow((void*)sect.sectname(),sizeof(char)*16,"Section Name",sect.section_name());
+        t->AddRow((void*)sect.segname(),sizeof(char)*16,"Segment Name",sect.segment_name());
 
         if(d_->Is64()) {
-            t->AddRow(d_->GetRAW(&(sect.addr64())), sect.addr64(), "Address", AsShortHexString(sect.addr64()));
-            t->AddRow(d_->GetRAW(&(sect.size64())), sect.size64(), "Size", AsShortHexString(sect.size64()));
+            t->AddRow( sect.addr64(), "Address", AsShortHexString(sect.addr64()));
+            t->AddRow( sect.size64(), "Size", AsShortHexString(sect.size64()));
         }else{
-            t->AddRow(d_->GetRAW(&(sect.addr())), sect.addr(), "Address", AsShortHexString(sect.addr()));
-            t->AddRow(d_->GetRAW(&(sect.size())), sect.size(), "Size", AsShortHexString(sect.size()));
+            t->AddRow( sect.addr(), "Address", AsShortHexString(sect.addr()));
+            t->AddRow( sect.size(), "Size", AsShortHexString(sect.size()));
         }
 
-        t->AddRow(d_->GetRAW(&(sect.offset())),sect.offset(),"Offset",AsShortHexString(sect.offset()));
-        t->AddRow(d_->GetRAW(&(sect.align())),sect.align(),"Alignment",AsShortHexString(sect.align()));
-        t->AddRow(d_->GetRAW(&(sect.reloff())),sect.reloff(),"Relocations Offset",AsShortHexString(sect.reloff()));
-        t->AddRow(d_->GetRAW(&(sect.nreloc())),sect.nreloc(),"Number of Relocations",AsShortHexString(sect.nreloc()));
-        t->AddRow(d_->GetRAW(&(sect.flags())),sect.flags(),"Flags",AsShortHexString(sect.flags()));
-        t->AddRow(d_->GetRAW(&(sect.reserved1())),sect.reserved1(),"Reserved1",AsShortHexString(sect.reserved1()));
-        t->AddRow(d_->GetRAW(&(sect.reserved2())),sect.reserved2(),"Reserved2",AsShortHexString(sect.reserved2()));
+        t->AddRow(sect.offset(),"Offset",AsShortHexString(sect.offset()));
+        t->AddRow(sect.align(),"Alignment",AsShortHexString(sect.align()));
+        t->AddRow(sect.reloff(),"Relocations Offset",AsShortHexString(sect.reloff()));
+        t->AddRow(sect.nreloc(),"Number of Relocations",AsShortHexString(sect.nreloc()));
+        t->AddRow(sect.flags(),"Flags",AsShortHexString(sect.flags()));
+        t->AddRow(sect.reserved1(),"Reserved1",AsShortHexString(sect.reserved1()));
+        t->AddRow(sect.reserved2(),"Reserved2",AsShortHexString(sect.reserved2()));
 
         if(d_->Is64()){
-            t->AddRow(d_->GetRAW(&(sect.reserved3())),sect.reserved3(),"Reserved3",AsShortHexString(sect.reserved3()));
+            t->AddRow(sect.reserved3(),"Reserved3",AsShortHexString(sect.reserved3()));
         }
-        SetViewData(t);
     }
 
     // Binary
     {
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryView();
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
-        SetViewData(b);
     }
 
 
@@ -175,7 +173,7 @@ void SectionViewNode::InitCStringView(const std::string &title)
 {
     // title
     auto t = CreateTableViewDataPtr();
-    t->SetHeaders({"Index","Offset","Data","Length","String"});
+    t->SetHeaders({"Index","Offset","Length","String"});
     t->SetWidths({80,100,100,80,400});
 
     int lineno = 0;
@@ -184,7 +182,6 @@ void SectionViewNode::InitCStringView(const std::string &title)
         t->AddRow({
                           AsString(lineno),
                           AsHexString(d_->GetRAW(cur)),
-                          AsHexData(cur,name.length()),
                           AsString(name.length()),
                           name
                   });
@@ -199,16 +196,14 @@ void SectionViewNode::InitCStringView(const std::string &title)
 
 void SectionViewNode::InitLiteralsView(const std::string &title,size_t unitsize)
 {
-    auto t = CreateTableViewDataPtr();
+    auto t = CreateTableView();
 
     d_->ForEachAs_N_BYTE_LITERALS([&](void *cur){
         std::string name = AsHexData(cur,unitsize);
-        t->AddRow(AsString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Floating Point Number",name);
+        t->AddRow(cur,unitsize,"Floating Point Number",name);
 
         std::string symbolname = fmt::format("{0:#X}:{1}",cur, name);
     },unitsize);
-
-    SetViewData(t);
 }
 
 void SectionViewNode::InitPointersView(const std::string &title)
@@ -221,12 +216,12 @@ void SectionViewNode::InitPointersView(const std::string &title)
             std::string symbolname = fmt::format("{}->{}"
                                                 , AsShortHexString((uint64_t)cur)
                                                 ,AsShortHexString(*cur));
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
+            t->AddRow(*cur,"Pointer",symbolname);
         }else{
             uint32_t *cur = static_cast<uint32_t*>(ptr);
             std::string symbolname = fmt::format("{}->{}",AsShortHexString((uint64_t)cur),AsShortHexString(*cur)
             );
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",symbolname);
+            t->AddRow(*cur,"Pointer",symbolname);
         }
     });
 
@@ -240,10 +235,10 @@ void SectionViewNode::InitIndirectPointersView(const std::string &title)
     d_->ForEachAs_POINTERS([&](void * ptr){
         if(d_->Is64()){
             uint64_t *cur = static_cast<uint64_t*>(ptr);
-            t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
+            t->AddRow(*cur,"Indirect Pointer",AsShortHexString(*cur));
         }else{
             uint32_t *cur = static_cast<uint32_t*>(ptr);
-            t->AddRow(d_->GetRAW(cur),*cur,"Indirect Pointer",AsShortHexString(*cur));
+            t->AddRow(*cur,"Indirect Pointer",AsShortHexString(*cur));
         }
     });
 
@@ -254,7 +249,7 @@ void SectionViewNode::InitIndirectStubsView(const std::string &title)
 {
     auto t = CreateTableViewDataPtr();
     d_->ForEachAs_S_SYMBOL_STUBS([&](void * cur,size_t unitsize){
-        t->AddRow(AsHexString(d_->GetRAW(cur)),AsHexData(cur,unitsize),"Indirect Stub",AsHexData(cur,unitsize));
+        t->AddRow(cur,unitsize,"Indirect Stub",AsHexData(cur,unitsize));
     });
 
     SetViewData(t);
@@ -268,10 +263,10 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
         for(auto *cur : results){
             const char *pstr = (const char*)cur->cstr;
-            t->AddRow(d_->GetRAW(&cur->ptr),(uint64_t)cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
-            t->AddRow(d_->GetRAW(&cur->data),(uint64_t)cur->data,"Data",AsShortHexString(cur->data));
-            t->AddRow(d_->GetRAW(&cur->cstr),(uint64_t)cur->cstr,"String",AsShortHexString(cur->cstr));
-            t->AddRow(d_->GetRAW(&cur->size),(uint64_t)cur->size,"Size",AsHexString(cur->size));
+            t->AddRow(cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
+            t->AddRow(cur->data,"Data",AsShortHexString(cur->data));
+            t->AddRow(cur->cstr,"String",AsShortHexString(cur->cstr));
+            t->AddRow(cur->size,"Size",AsHexString(cur->size));
 
             t->AddSeparator();
         }
@@ -279,10 +274,10 @@ void SectionViewNode::InitCFStringView(const std::string &title)
         auto results = util::ParsePointerAsType<cfstring_t>(GetOffset(),GetSize());
         for(auto *cur : results){
             const char *pstr = (const char*)cur->cstr;
-            t->AddRow(d_->GetRAW(&cur->ptr),(uint32_t)cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
-            t->AddRow(d_->GetRAW(&cur->data),(uint32_t)cur->data,"Data",AsShortHexString(cur->data));
-            t->AddRow(d_->GetRAW(&cur->cstr),(uint32_t)cur->cstr,"String",AsShortHexString(cur->cstr));
-            t->AddRow(d_->GetRAW(&cur->size),(uint32_t)cur->size,"Size",AsHexString(cur->size));
+            t->AddRow(cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
+            t->AddRow(cur->data,"Data",AsShortHexString(cur->data));
+            t->AddRow(cur->cstr,"String",AsShortHexString(cur->cstr));
+            t->AddRow(cur->size,"Size",AsHexString(cur->size));
 
             t->AddSeparator();
         }
@@ -296,12 +291,12 @@ void SectionViewNode::InitObjC2PointerView(const std::string &title){
     d_->ForEachAs_ObjC2Pointer([&](void * ptr){
         if(d_->Is64()){
             uint64_t *cur = static_cast<uint64_t*>(ptr);
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",
+            t->AddRow(*cur,"Pointer",
                       AsShortHexString(*cur));
             // todo rva to symbol
         }else{
             uint32_t *cur = static_cast<uint32_t*>(ptr);
-            t->AddRow(d_->GetRAW(cur),*cur,"Pointer",
+            t->AddRow(*cur,"Pointer",
                       AsShortHexString(*cur));
             // todo rva to symbol
         }
@@ -315,8 +310,8 @@ void SectionViewNode::InitObjC2ImageInfo(const std::string &title){
     auto t = CreateTableViewDataPtr();
     d_->ParseAsObjCImageInfo([&](objc_image_info *info){
 
-        t->AddRow(d_->GetRAW(&info->version),AsHexString(info->version),"Version",AsShortHexString(info->version));
-        t->AddRow(d_->GetRAW(&info->flags),AsHexString(info->flags),"Flags",AsShortHexString(info->flags));
+        t->AddRow(info->version,"Version",AsShortHexString(info->version));
+        t->AddRow(info->flags,"Flags",AsShortHexString(info->flags));
 
         if(info->flags & OBJC_IMAGE_IS_REPLACEMENT)t->AddRow({"","","0x1","OBJC_IMAGE_IS_REPLACEMENT"});
         if(info->flags & OBJC_IMAGE_SUPPORTS_GC)t->AddRow({"","","0x2","OBJC_IMAGE_SUPPORTS_GC"});

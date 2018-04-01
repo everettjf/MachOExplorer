@@ -108,7 +108,7 @@ public:
     moex_section & sect(){return sect_;}
 
     // Get addr offset from file beginning
-    uint64_t GetRAW(const void * addr);
+    uint64_t GetRAW(const void * addr) override ;
 
     // Get RVA offset of current section
     char *GetOffset();
