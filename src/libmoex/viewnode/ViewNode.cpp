@@ -61,6 +61,14 @@ void TableViewData::AddRow(const char * addr, const std::string & desc,const std
     AddRow({addr,desc,val});
 }
 
+void TableViewData::AddRow(void * data,uint64_t size,const char *desc,const std::string &val){
+    AddRow(data,
+           size,
+           GetRAW(data),
+           desc,
+           val);
+}
+
 
 void TableViewData::AddSeparator()
 {
