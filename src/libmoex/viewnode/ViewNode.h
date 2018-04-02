@@ -68,7 +68,7 @@ public:
     void SetWidths(const std::initializer_list<uint32_t> & vals);
 
 
-    void AddRow(const std::initializer_list<std::string> & vals);
+    TableViewRowPtr AddRow(const std::initializer_list<std::string> & vals);
     void AddRow(void *data,uint64_t size,const std::initializer_list<std::string> & vals);
 
     void AddRow(void* data,uint64_t size,uint64_t addr,const std::string & desc,const std::string & val);

@@ -45,10 +45,11 @@ void TableViewData::AddRow(void *data,uint64_t size,const std::initializer_list<
     rows.push_back(r);
 }
 
-void TableViewData::AddRow(const std::initializer_list<std::string> & vals){
+TableViewRowPtr TableViewData::AddRow(const std::initializer_list<std::string> & vals){
     TableViewRowPtr r = std::make_shared<TableViewRow>();
     r->SetValues(vals);
     rows.push_back(r);
+    return r;
 }
 void TableViewData::AddRow(void* data,uint64_t size,uint64_t addr,const std::string & desc,const std::string & val){
     AddRow(data,size,{util::AsAddress(addr),desc,val});
