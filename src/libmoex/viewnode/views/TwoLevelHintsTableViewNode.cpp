@@ -10,6 +10,9 @@ MOEX_NAMESPACE_BEGIN
 void TwoLevelHintsTableViewNode::InitViewDatas() {
     using namespace moex::util;
 
+    auto t = CreateTableView();
+
+
     auto seg=mh_->FindLoadCommand<moex::LoadCommand_LC_TWOLEVEL_HINTS>({LC_TWOLEVEL_HINTS});
     if(!seg)
         return;

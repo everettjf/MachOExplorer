@@ -9,15 +9,29 @@
 
 MOEX_NAMESPACE_BEGIN
 
+class DynamicSymbolTableChild : public ViewNode{
+protected:
+    MachHeaderPtr mh_;
+    std::string name_;
+public:
+    void Init(MachHeaderPtr mh){mh_ = mh;}
+    void set_name(const std::string &name) {name_ = name;}
+
+    std::string GetDisplayName()override { return name_;}
+};
+using DynamicSymbolTableChildPtr = std::shared_ptr<DynamicSymbolTableChild>;
+
+
 class DynamicSymbolTable : public ViewNode{
 private:
     MachHeaderPtr mh_;
+    std::vector<DynamicSymbolTableChildPtr> children_;
 public:
     void Init(MachHeaderPtr mh);
 public:
     std::string GetDisplayName()override { return "Dynamic Symbol Table";}
     void InitViewDatas()override;
-
+    void ForEachChild(std::function<void(ViewNode*)>)override;
 };
 using DynamicSymbolTablePtr = std::shared_ptr<DynamicSymbolTable>;
 

@@ -9,6 +9,8 @@ MOEX_NAMESPACE_BEGIN
 void SegmentSplitInfoViewNode::InitViewDatas() {
     using namespace moex::util;
 
+    auto t = CreateTableView();
+
     auto seg=mh_->FindLoadCommand<moex::LoadCommand_LC_SEGMENT_SPLIT_INFO>({LC_SEGMENT_SPLIT_INFO});
     if(!seg)
         return;
