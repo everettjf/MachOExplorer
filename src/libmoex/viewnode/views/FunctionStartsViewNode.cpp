@@ -23,7 +23,7 @@ void FunctionStartsViewNode::InitViewDatas()
         address += func.data; // todo : why?
 
         t->AddRow((void*)func.offset,
-                  func.occupy_size,
+                  (uint64_t )func.occupy_size,
                   "uleb128",
                   AsShortHexString(address));
     }
