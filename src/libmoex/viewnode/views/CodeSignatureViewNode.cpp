@@ -10,6 +10,8 @@ MOEX_NAMESPACE_BEGIN
 void CodeSignatureViewNode::InitViewDatas() {
     using namespace moex::util;
 
+    auto t = CreateTableView();
+
     auto seg=mh_->FindLoadCommand<moex::LoadCommand_LC_CODE_SIGNATURE>({LC_CODE_SIGNATURE});
     if(!seg)
         return;
