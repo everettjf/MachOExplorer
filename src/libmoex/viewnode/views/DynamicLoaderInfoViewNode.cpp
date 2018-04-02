@@ -14,7 +14,7 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
     using namespace moex::util;
 
     // "Opcodes"
-    auto print_ = CreateTableViewDataPtr();
+    auto print_ = CreateTableView(info_->header());
     moex::LoadCommand_DYLD_INFO *info = info_;
 
     uint32_t bind_off,bind_size;
@@ -33,7 +33,8 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
         switch(ctx->opcode){
             case BIND_OPCODE_DONE:{
                 auto code = static_cast<moex::Wrap_BIND_OPCODE_DONE*>(codebase);
-                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
+                print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),
+                                ToHexString((int)ctx->byte),
                                 code->GetName(),
                                 ""
                                });
@@ -199,7 +200,6 @@ void DyldInfoViewNodeBase::InitBindInfo(moex::LoadCommand_DYLD_INFO::BindNodeTyp
         }
     });
 
-    SetViewData(print_);
 }
 
 void RebaseInfoViewNode::InitViewDatas()
@@ -403,7 +403,7 @@ void ExportInfoViewNode::InitViewDatas()
     using namespace moex::util;
     {
         // "Opcodes"
-        auto print_ = CreateTableViewDataPtr();
+        auto print_ = CreateTableView(info_->header());
 
         moex::LoadCommand_DYLD_INFO *info = info_;
 
@@ -459,19 +459,11 @@ void ExportInfoViewNode::InitViewDatas()
             }
 
         });
-
-        SetViewData(print_);
     }
-//    {
-//        auto x = CreateTableViewDataPtr("Actions");
-//        x->AddRow("//todo","","","");
-//        SetViewData(x);
-//    }
     {
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryView();
         b->offset = 0;
         b->size = 0;
-        SetViewData(b);
     }
 }
 
@@ -523,23 +515,22 @@ void DynamicLoaderInfoViewNode::InitViewDatas()
 
     using namespace moex::util;
     {
-        auto t = CreateTableViewDataPtr();
+        auto t = CreateTableView(mh_.get());
 
-        t->AddRow(c->GetRAW(&(c->cmd()->rebase_off)),c->cmd()->rebase_off,"Rebase Info Offset",AsShortHexString(c->cmd()->rebase_off));
-        t->AddRow(c->GetRAW(&(c->cmd()->rebase_size)),c->cmd()->rebase_size,"Rebase Info Size",AsShortHexString(c->cmd()->rebase_size));
+        t->AddRow(c->cmd()->rebase_off,"Rebase Info Offset",AsShortHexString(c->cmd()->rebase_off));
+        t->AddRow(c->cmd()->rebase_size,"Rebase Info Size",AsShortHexString(c->cmd()->rebase_size));
 
-        t->AddRow(c->GetRAW(&(c->cmd()->bind_off)),c->cmd()->bind_off,"Binding Info Offset",AsShortHexString(c->cmd()->bind_off));
-        t->AddRow(c->GetRAW(&(c->cmd()->bind_size)),c->cmd()->bind_size,"Binding Info Size",AsShortHexString(c->cmd()->bind_size));
+        t->AddRow(c->cmd()->bind_off,"Binding Info Offset",AsShortHexString(c->cmd()->bind_off));
+        t->AddRow(c->cmd()->bind_size,"Binding Info Size",AsShortHexString(c->cmd()->bind_size));
 
-        t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_off)),c->cmd()->weak_bind_off,"Weak Binding Info Offset",AsShortHexString(c->cmd()->weak_bind_off));
-        t->AddRow(c->GetRAW(&(c->cmd()->weak_bind_size)),c->cmd()->weak_bind_size,"Weak Binding Info Size",AsShortHexString(c->cmd()->weak_bind_size));
+        t->AddRow(c->cmd()->weak_bind_off,"Weak Binding Info Offset",AsShortHexString(c->cmd()->weak_bind_off));
+        t->AddRow(c->cmd()->weak_bind_size,"Weak Binding Info Size",AsShortHexString(c->cmd()->weak_bind_size));
 
-        t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_off)),c->cmd()->lazy_bind_off,"Lazy Binding Info Offset",AsShortHexString(c->cmd()->lazy_bind_off));
-        t->AddRow(c->GetRAW(&(c->cmd()->lazy_bind_size)),c->cmd()->lazy_bind_size,"Lazy Binding Info Size",AsShortHexString(c->cmd()->lazy_bind_size));
+        t->AddRow(c->cmd()->lazy_bind_off,"Lazy Binding Info Offset",AsShortHexString(c->cmd()->lazy_bind_off));
+        t->AddRow(c->cmd()->lazy_bind_size,"Lazy Binding Info Size",AsShortHexString(c->cmd()->lazy_bind_size));
 
-        t->AddRow(c->GetRAW(&(c->cmd()->export_off)),c->cmd()->export_off,"Export Info Offset",AsShortHexString(c->cmd()->export_off));
-        t->AddRow(c->GetRAW(&(c->cmd()->export_size)),c->cmd()->export_size,"Export Info Size",AsShortHexString(c->cmd()->export_size));
-        SetViewData(t);
+        t->AddRow(c->cmd()->export_off,"Export Info Offset",AsShortHexString(c->cmd()->export_off));
+        t->AddRow(c->cmd()->export_size,"Export Info Size",AsShortHexString(c->cmd()->export_size));
     }
 }
 
