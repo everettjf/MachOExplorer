@@ -330,17 +330,11 @@ void RebaseInfoViewNode::InitViewDatas()
         });
         SetViewData(print_);
     }
-//    {
-//        auto x = CreateTableViewDataPtr("Actions");
-//        x->AddRow("//todo","","","");
-//        SetViewData(x);
-//    }
     {
-        auto b = CreateBinaryViewDataPtr();
+        auto b = CreateBinaryView();
         b->offset = (char*)info_->header()->header_start() + info_->cmd()->rebase_off;
         b->size = info_->cmd()->rebase_size;
         b->start_value = (uint64_t)b->offset - (uint64_t)info_->ctx()->file_start;
-        SetViewData(b);
     }
 }
 
@@ -350,15 +344,7 @@ void BindingInfoViewNode::InitViewDatas()
         InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeBind);
     }
     {
-//        auto x = CreateTableViewDataPtr("Actions");
-//        x->AddRow("//todo","","","");
-//        SetViewData(x);
-    }
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        SetViewData(b);
+        auto b = CreateBinaryView();
     }
 }
 
@@ -368,15 +354,7 @@ void WeakBindingInfoViewNode::InitViewDatas()
         InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeWeakBind);
     }
     {
-//        auto x = CreateTableViewDataPtr("Actions");
-//        x->AddRow("//todo","","","");
-//        SetViewData(x);
-    }
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        SetViewData(b);
+        auto b = CreateBinaryView();
     }
 }
 
@@ -386,15 +364,7 @@ void LazyBindingInfoViewNode::InitViewDatas()
         InitBindInfo(moex::LoadCommand_DYLD_INFO::NodeTypeLazyBind);
     }
     {
-//        auto x = CreateTableViewDataPtr("Actions");
-//        x->AddRow("//todo","","","");
-//        SetViewData(x);
-    }
-    {
-        auto b = CreateBinaryViewDataPtr();
-        b->offset = 0;
-        b->size = 0;
-        SetViewData(b);
+        auto b = CreateBinaryView();
     }
 }
 

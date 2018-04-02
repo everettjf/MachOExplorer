@@ -272,6 +272,9 @@ void HexdumpWidget::showEvent(QShowEvent *event)
 
 void HexdumpWidget::loadAddress(unsigned long long displayOffset, unsigned long long addr, unsigned long long len)
 {
+    if(addr == 0 || len == 0)
+        return;
+
     m_displayOffset = displayOffset;
     m_addr = addr;
     m_length = len;
