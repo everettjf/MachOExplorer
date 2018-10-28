@@ -5,7 +5,6 @@
 #ifndef MACHOEXPLORER_LOADCOMMAND_SYMTAB_H
 #define MACHOEXPLORER_LOADCOMMAND_SYMTAB_H
 
-#include <mach-o/nlist.h>
 #include "libmoex/node/LoadCommand.h"
 #include "libmoex/node/Common.h"
 #include "libmoex/node/MachHeader.h"

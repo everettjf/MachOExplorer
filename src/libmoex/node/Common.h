@@ -20,9 +20,9 @@
 #include "../base/fmt/format.h"
 #include <sstream>
 
-#include <mach-o/loader.h>
-#include <mach-o/swap.h>
-#include <mach-o/nlist.h>
+#include "mach-o/loader.h"
+#include "mach-o/swap.h"
+#include "mach-o/nlist.h"
 
 #include <type_traits>
 
