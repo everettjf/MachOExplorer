@@ -1,3 +1,3 @@
 # qt
-sudo ln -s ~/qt/5.10.1 /opt/qt
+sudo ln -s ~/qt/5.11.2 /opt/qt
 

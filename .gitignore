@@ -8,9 +8,9 @@ cmake-build-debug/
 cmake-build-release/
 
 # Qt Creator
-build-MachOExplorer-Desktop_Qt_5_10_1_clang_64bit-Debug/
-build-MachOExplorer-Desktop_Qt_5_10_1_clang_64bit-Release/
-build-MachOExplorer-Desktop_Qt_5_10_1_clang_64bit-Profile/
+build-MachOExplorer-Desktop_Qt_5_11_2_clang_64bit-Debug/
+build-MachOExplorer-Desktop_Qt_5_11_2_clang_64bit-Release/
+build-MachOExplorer-Desktop_Qt_5_11_2_clang_64bit-Profile/
 src/MachOExplorer.pro.user
 
 # vscode cmake-tools extension
