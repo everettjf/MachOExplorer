@@ -27,6 +27,9 @@ CONFIG += c++14
 
 
 
+INCLUDEPATH += ./src/ \
+    ./libmoex/include/
+
 LIBMOEX_HEADER = $$files(libmoex/*.h,true)
 LIBMOEX_SOURCE = $$files(libmoex/*.cpp,true)
 MOEX_HEADER = $$files(src/*.h,true)
@@ -41,8 +44,6 @@ FORMS    += \
     src/dialog/OpenFileDialog.ui
 
 
-
-INCLUDEPATH += ./src/
 
 RESOURCES += \
     MachOExplorer.qrc

@@ -29,6 +29,8 @@
 #ifndef _MACH_MACHINE_VM_TYPES_H_
 #define _MACH_MACHINE_VM_TYPES_H_
 
+#define __x86_64__
+
 #if defined (__i386__) || defined(__x86_64__)
 #include "mach/i386/vm_types.h"
 #else

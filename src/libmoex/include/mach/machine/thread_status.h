@@ -30,7 +30,7 @@
 #define _MACH_MACHINE_THREAD_STATUS_H_
 
 #if defined (__i386__) || defined(__x86_64__)
-#include "mach/i386/thread_status.h"
+//#include "mach/i386/thread_status.h"
 #else
 #error architecture not supported
 #endif
