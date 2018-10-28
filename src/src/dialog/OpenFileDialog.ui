@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>496</width>
-    <height>605</height>
+    <width>547</width>
+    <height>387</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Open File</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="topMargin">
+    <number>12</number>
+   </property>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <property name="maximumSize">
@@ -23,6 +26,12 @@
       </size>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
@@ -128,7 +137,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>50</height>
+       <height>30</height>
       </size>
      </property>
     </widget>

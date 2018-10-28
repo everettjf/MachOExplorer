@@ -26,9 +26,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 
-
-INCLUDEPATH += ./src/ \
-    ./libmoex/include/
+INCLUDEPATH += ./src/
 
 LIBMOEX_HEADER = $$files(libmoex/*.h,true)
 LIBMOEX_SOURCE = $$files(libmoex/*.cpp,true)
