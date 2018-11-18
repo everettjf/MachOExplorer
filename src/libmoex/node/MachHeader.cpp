@@ -12,14 +12,14 @@ MOEX_NAMESPACE_BEGIN
 void MachHeaderInternal::Init(void *offset, NodeContextPtr &ctx) {
     NodeData::Init(offset,ctx);
     if(data_.magic == MH_CIGAM) {
-        swap_mach_header(&data_, NX_LittleEndian);
+        qv_swap_mach_header(&data_, NX_LittleEndian);
     }
 }
 
 void MachHeader64Internal::Init(void *offset, NodeContextPtr &ctx) {
     NodeData::Init(offset,ctx);
     if(data_.magic == MH_CIGAM_64){
-        swap_mach_header_64(& data_,NX_LittleEndian);
+        qv_swap_mach_header_64(& data_,NX_LittleEndian);
     }
 }
 
@@ -45,10 +45,10 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
 
     int cur_datasize = 0;
     if(is64_){
-        header_ = reinterpret_cast<mach_header*>(mh64_->data_ptr());
+        header_ = reinterpret_cast<qv_mach_header*>(mh64_->data_ptr());
         cur_datasize = mh64_->DATA_SIZE();
     }else{
-        header_ = reinterpret_cast<mach_header*>(mh_->data_ptr());
+        header_ = reinterpret_cast<qv_mach_header*>(mh_->data_ptr());
         cur_datasize = mh_->DATA_SIZE();
     }
 
@@ -57,15 +57,15 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
     const uint32_t sizeofcmds = header_->sizeofcmds;
 
     uint32_t index = 0;
-    load_command *first_cmd = reinterpret_cast<load_command*>((char*)offset + cur_datasize);
-    load_command *cur_cmd = first_cmd;
+    qv_load_command *first_cmd = reinterpret_cast<qv_load_command*>((char*)offset + cur_datasize);
+    qv_load_command *cur_cmd = first_cmd;
     for(uint32_t index = 0; index < cmd_count; ++index){
         // current
         LoadCommandPtr cmd = LoadCommandFactory::Create(cur_cmd,ctx,this);
         loadcmds_.push_back(cmd);
 
         // next
-        cur_cmd = reinterpret_cast<load_command*>((char*)cur_cmd + cur_cmd->cmdsize);
+        cur_cmd = reinterpret_cast<qv_load_command*>((char*)cur_cmd + cur_cmd->cmdsize);
     }
 }
 
@@ -99,7 +99,7 @@ std::string MachHeader::GetCpuSubTypeString()
     return util::GetCpuSubTypeString(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
 }
 
-std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> MachHeader::GetCpuSubTypeArray(){
+std::vector<std::tuple<qv_cpu_type_t,qv_cpu_subtype_t,std::string>> MachHeader::GetCpuSubTypeArray(){
     return util::GetCpuSubTypeArray(this->data_ptr()->cputype, this->data_ptr()->cpusubtype);
 }
 

@@ -11,7 +11,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class FatArch : public NodeData<fat_arch>{
+class FatArch : public NodeData<qv_fat_arch>{
 private:
     MachHeaderPtr mh_;
 
@@ -30,7 +30,7 @@ public:
 using FatArchPtr = std::shared_ptr<FatArch>;
 
 
-class FatHeader : public NodeData<fat_header>{
+class FatHeader : public NodeData<qv_fat_header>{
 private:
     std::vector<FatArchPtr> archs_;
 public:

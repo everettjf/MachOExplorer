@@ -77,8 +77,8 @@ void MachHeaderViewNode::InitViewDatas(){
     // Table
     {
         auto t = CreateTableView(d_.get());
-        const mach_header *m = d_->data_ptr();
-        const mach_header *offset = (const mach_header*)d_->header_start();
+        const qv_mach_header *m = d_->data_ptr();
+        const qv_mach_header *offset = (const qv_mach_header*)d_->header_start();
 
         t->AddRow(offset->magic, "Magic Number",d_->GetMagicString());
 
@@ -99,7 +99,7 @@ void MachHeaderViewNode::InitViewDatas(){
         }
 
         if(d_->Is64()){
-            const mach_header_64 *offset64 = (const mach_header_64*)d_->header_start();
+            const qv_mach_header_64 *offset64 = (const qv_mach_header_64*)d_->header_start();
 
             t->AddRow(offset64->reserved,"Reserved",AsString(d_->mh64()->data_ptr()->reserved));
         }

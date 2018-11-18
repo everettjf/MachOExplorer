@@ -10,7 +10,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_SOURCE_VERSION : public LoadCommandImpl<source_version_command>{
+class LoadCommand_LC_SOURCE_VERSION : public LoadCommandImpl<qv_source_version_command>{
 public:
     std::string GetVersion();
 };

@@ -12,7 +12,7 @@ MOEX_NAMESPACE_BEGIN
 class MachHeader;
 
 // Base class for all detailed load command
-class LoadCommand : public NodeOffset<load_command>{
+class LoadCommand : public NodeOffset<qv_load_command>{
 protected:
     MachHeader* header_;
 public:

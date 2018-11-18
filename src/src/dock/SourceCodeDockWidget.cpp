@@ -19,14 +19,14 @@ SourceCodeDockWidget::SourceCodeDockWidget(QWidget *parent) : QDockWidget(parent
 #define FAT_MAGIC	0xcafebabe
 #define FAT_CIGAM	0xbebafeca	/* NXSwapLong(FAT_MAGIC) */
 
-    struct fat_header {
+    struct qv_fat_header {
         uint32_t	magic;		/* FAT_MAGIC */
         uint32_t	nfat_arch;	/* number of structs that follow */
     };
 
-    struct fat_arch {
-        cpu_type_t	cputype;	/* cpu specifier (int) */
-        cpu_subtype_t	cpusubtype;	/* machine specifier (int) */
+    struct qv_fat_arch {
+        qv_cpu_type_t	cputype;	/* cpu specifier (int) */
+        qv_cpu_subtype_t	cpusubtype;	/* machine specifier (int) */
         uint32_t	offset;		/* file offset to this object file */
         uint32_t	size;		/* size of this object file */
         uint32_t	align;		/* alignment as a power of 2 */

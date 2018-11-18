@@ -9,7 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_TWOLEVEL_HINTS : public LoadCommandImpl<twolevel_hints_command>{
+class LoadCommand_LC_TWOLEVEL_HINTS : public LoadCommandImpl<qv_twolevel_hints_command>{
 public:
 
 };

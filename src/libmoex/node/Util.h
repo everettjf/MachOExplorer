@@ -19,12 +19,12 @@ namespace util {
 std::string FormatUUIDArray(uint8_t d[16]);
 std::string GetLoadCommandType(uint32_t cmd);
 std::string GetMagicString(uint32_t magic);
-std::string GetCpuTypeString(cpu_type_t type);
-std::string GetArchStringFromCpuType(cpu_type_t type,cpu_subtype_t subtype);
+std::string GetCpuTypeString(qv_cpu_type_t type);
+std::string GetArchStringFromCpuType(qv_cpu_type_t type,qv_cpu_subtype_t subtype);
 std::string GetCmdTypeString(uint32_t cmd);
 
-std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype);
-std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype);
+std::string GetCpuSubTypeString(qv_cpu_type_t cputype,qv_cpu_subtype_t subtype);
+std::vector<std::tuple<qv_cpu_type_t,qv_cpu_subtype_t,std::string>> GetCpuSubTypeArray(qv_cpu_type_t cputype,qv_cpu_subtype_t subtype);
 
 std::string GetMachFileType(uint32_t type);
 std::vector<std::tuple<uint32_t,std::string>> GetMachFlagsArray(uint32_t flag);
@@ -85,7 +85,7 @@ std::string AsHexData(T & value){
 }
 
 
-std::vector<std::tuple<vm_prot_t,std::string>> ParseProts(vm_prot_t prot);
+std::vector<std::tuple<qv_vm_prot_t,std::string>> ParseProts(qv_vm_prot_t prot);
 
 std::string FormatTimeStamp(uint32_t timestamp);
 std::string FormatVersion(uint32_t ver);

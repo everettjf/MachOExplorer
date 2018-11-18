@@ -10,7 +10,7 @@
 MOEX_NAMESPACE_BEGIN
 
 
-class LoadCommand_DYLIB : public LoadCommandImpl<dylib_command>{
+class LoadCommand_DYLIB : public LoadCommandImpl<qv_dylib_command>{
 private:
     char * dylib_path_offset_;
     std::string dylib_path_;

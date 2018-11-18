@@ -81,7 +81,7 @@ LoadCommandPtr LoadCommandFactory::NewCommand(uint32_t cmd) {
 }
 
 LoadCommandPtr LoadCommandFactory::Create(void * offset,NodeContextPtr & ctx,MachHeader *header){
-    load_command *lc = reinterpret_cast<load_command*>(offset);
+    qv_load_command *lc = reinterpret_cast<qv_load_command*>(offset);
     LoadCommandPtr cmd = LoadCommandFactory::NewCommand(lc->cmd);
     cmd->set_header(header);
     cmd->Init(offset,ctx);

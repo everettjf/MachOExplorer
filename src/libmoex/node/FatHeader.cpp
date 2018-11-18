@@ -13,7 +13,7 @@ void FatArch::Init(void *offset, NodeContextPtr &ctx) {
     NodeData::Init(offset,ctx);
 
     if(swap_){
-        swap_fat_arch(&data_,1,NX_LittleEndian);
+        qv_swap_fat_arch(&data_,1,NX_LittleEndian);
     }
 
     void *mach_offset = (char *)(ctx_->file_start) + data_.offset;
@@ -38,10 +38,10 @@ void FatHeader::Init(void *offset, NodeContextPtr &ctx) {
     bool swap = false;
     if(data_.magic == FAT_CIGAM){
         swap = true;
-        swap_fat_header(& data_,NX_LittleEndian);
+        qv_swap_fat_header(& data_,NX_LittleEndian);
     }
 
-    char * arch_offset = (char*)offset_ + sizeof(fat_header);
+    char * arch_offset = (char*)offset_ + sizeof(qv_fat_header);
 
     for(uint32_t i = 0; i < data_.nfat_arch; ++i){
         auto arch = std::make_shared<FatArch>();

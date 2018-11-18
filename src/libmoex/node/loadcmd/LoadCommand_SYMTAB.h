@@ -12,10 +12,10 @@
 MOEX_NAMESPACE_BEGIN
 
 
-class NListInternal : public NodeOffset<struct nlist>{
+class NListInternal : public NodeOffset<struct qv_nlist>{
 };
 
-class NList64Internal : public NodeOffset<struct nlist_64>{
+class NList64Internal : public NodeOffset<struct qv_nlist_64>{
 };
 
 class NList{
@@ -59,7 +59,7 @@ public:
 };
 using NListPtr = std::shared_ptr<NList>;
 
-class LoadCommand_LC_SYMTAB : public LoadCommandImpl<symtab_command>{
+class LoadCommand_LC_SYMTAB : public LoadCommandImpl<qv_symtab_command>{
 private:
     std::vector<NListPtr> nlists_;
     bool inited_ = false;
@@ -81,7 +81,7 @@ public:
         return cmd_->nsyms;
     }
     uint32_t GetSymbolTableTotalBytes(){
-        return header_->Is64()? cmd_->nsyms * sizeof(struct nlist_64) : cmd_->nsyms * sizeof(struct nlist);
+        return header_->Is64()? cmd_->nsyms * sizeof(struct qv_nlist_64) : cmd_->nsyms * sizeof(struct qv_nlist);
     }
 
     uint32_t GetStringTableOffset(){

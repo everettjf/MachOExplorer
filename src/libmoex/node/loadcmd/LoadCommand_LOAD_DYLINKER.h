@@ -9,7 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_LOAD_DYLINKER : public LoadCommandImpl<dylinker_command>{
+class LoadCommand_LC_LOAD_DYLINKER : public LoadCommandImpl<qv_dylinker_command>{
 private:
     std::string dylinker_path_name_;
     char* dylinker_path_name_offset_;

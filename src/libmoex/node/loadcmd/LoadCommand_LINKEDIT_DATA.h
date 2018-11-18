@@ -17,18 +17,18 @@ struct Uleb128Data{
 //-------------------------------------------------
 
 
-class LoadCommand_LC_CODE_SIGNATURE : public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_CODE_SIGNATURE : public LoadCommandImpl<qv_linkedit_data_command>{
 public:
 };
 
 //-------------------------------------------------
-class LoadCommand_LC_SEGMENT_SPLIT_INFO: public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_SEGMENT_SPLIT_INFO: public LoadCommandImpl<qv_linkedit_data_command>{
 public:
 };
 //-------------------------------------------------
 
 
-class LoadCommand_LC_FUNCTION_STARTS: public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_FUNCTION_STARTS: public LoadCommandImpl<qv_linkedit_data_command>{
 private:
     std::vector<Uleb128Data> functions_;
 public:
@@ -37,24 +37,24 @@ public:
 };
 
 //-------------------------------------------------
-class DataInCodeEntry: public NodeOffset<data_in_code_entry>{
+class DataInCodeEntry: public NodeOffset<qv_data_in_code_entry>{
 public:
     std::string GetKindString();
 };
 using DataInCodeEntryPtr = std::shared_ptr<DataInCodeEntry>;
 
-class LoadCommand_LC_DATA_IN_CODE: public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_DATA_IN_CODE: public LoadCommandImpl<qv_linkedit_data_command>{
 private:
     std::vector<DataInCodeEntryPtr> dices_;
 public:
     std::vector<DataInCodeEntryPtr> &GetDices();
 };
 //-------------------------------------------------
-class LoadCommand_LC_DYLIB_CODE_SIGN_DRS: public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_DYLIB_CODE_SIGN_DRS: public LoadCommandImpl<qv_linkedit_data_command>{
 public:
 };
 //-------------------------------------------------
-class LoadCommand_LC_LINKER_OPTIMIZATION_HINT: public LoadCommandImpl<linkedit_data_command>{
+class LoadCommand_LC_LINKER_OPTIMIZATION_HINT: public LoadCommandImpl<qv_linkedit_data_command>{
 public:
 };
 //-------------------------------------------------

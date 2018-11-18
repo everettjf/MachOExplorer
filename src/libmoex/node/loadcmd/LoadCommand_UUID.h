@@ -9,7 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_UUID : public LoadCommandImpl<uuid_command>{
+class LoadCommand_LC_UUID : public LoadCommandImpl<qv_uuid_command>{
 public:
     std::string GetUUIDString(){
         return util::FormatUUIDArray(cmd_->uuid);

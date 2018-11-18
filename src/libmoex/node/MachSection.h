@@ -11,20 +11,20 @@ MOEX_NAMESPACE_BEGIN
 
 class MachHeader;
 
-// Section wrapper : unifiy section and section_64 into one struct
+// Section wrapper : unifiy section and qv_section_64 into one struct
 class moex_section{
 private:
-    section *s=nullptr;
-    section_64 *s64=nullptr;
+    qv_section *s=nullptr;
+    qv_section_64 *s64=nullptr;
     bool is64=false;
 public:
     moex_section(){}
 
     // Init as section struct
-    void Init(section *sect){s=sect;is64=false;}
+    void Init(qv_section *sect){s=sect;is64=false;}
 
-    // Init as section_64 struct
-    void Init(section_64 *sect){s64=sect;is64=true;}
+    // Init as qv_section_64 struct
+    void Init(qv_section_64 *sect){s64=sect;is64=true;}
 
     // Getter for is64
     bool Is64()const{return is64;}
@@ -60,13 +60,13 @@ public:
 };
 
 // Internal class for section
-class MachSectionInternal : public NodeOffset<section>{
+class MachSectionInternal : public NodeOffset<qv_section>{
 public:
 };
 using MachSectionInternalPtr = std::shared_ptr<MachSectionInternal>;
 
-// Internal class for section_64
-class MachSection64Internal : public NodeOffset<section_64>{
+// Internal class for qv_section_64
+class MachSection64Internal : public NodeOffset<qv_section_64>{
 public:
 };
 using MachSection64InternalPtr = std::shared_ptr<MachSection64Internal>;
@@ -90,10 +90,10 @@ public:
     bool Is64()const{return sect_.Is64();}
 
     // Init as section (32bit) section
-    void Init(section *offset,NodeContextPtr & ctx);
+    void Init(qv_section *offset,NodeContextPtr & ctx);
 
     // Init as section (64bit) section
-    void Init(section_64 *offset,NodeContextPtr & ctx);
+    void Init(qv_section_64 *offset,NodeContextPtr & ctx);
 
     // Data size for current section type
     std::size_t DATA_SIZE(){return Is64()?section64_->DATA_SIZE():section_->DATA_SIZE();}

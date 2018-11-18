@@ -12,14 +12,14 @@ void LoadCommand_LC_SYMTAB::LazyInit(){
     char * symbol_offset = (char*)GetSymbolTableOffsetAddress();
     if(header_->Is64()){
         for(uint32_t idx = 0; idx < GetSymbolTableSize(); ++idx){
-            struct nlist_64 * cur = reinterpret_cast<struct nlist_64*>(symbol_offset + idx * sizeof(struct nlist_64));
+            struct qv_nlist_64 * cur = reinterpret_cast<struct qv_nlist_64*>(symbol_offset + idx * sizeof(struct qv_nlist_64));
             NListPtr symbol = std::make_shared<NList>();
             symbol->Init(cur,ctx_,true);
             nlists_.push_back(symbol);
         }
     }else{
         for(uint32_t idx = 0; idx < GetSymbolTableSize(); ++idx) {
-            struct nlist *cur = reinterpret_cast<struct nlist *>(symbol_offset + idx * sizeof(struct nlist));
+            struct qv_nlist *cur = reinterpret_cast<struct qv_nlist *>(symbol_offset + idx * sizeof(struct qv_nlist));
             NListPtr symbol = std::make_shared<NList>();
             symbol->Init(cur, ctx_,false);
             nlists_.push_back(symbol);

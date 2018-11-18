@@ -97,8 +97,8 @@ namespace util {
         }
         return "unknown";
     }
-    std::string GetCpuTypeString(cpu_type_t type){
-        static std::unordered_map<cpu_type_t,std::string> mapper{
+    std::string GetCpuTypeString(qv_cpu_type_t type){
+        static std::unordered_map<qv_cpu_type_t,std::string> mapper{
                 DECLARE_MAP_ITEM(CPU_TYPE_ANY)
                 DECLARE_MAP_ITEM(CPU_TYPE_VAX)
                 DECLARE_MAP_ITEM(CPU_TYPE_MC680x0)
@@ -121,8 +121,8 @@ namespace util {
         }
         return "unknown";
     }
-    std::string GetArchStringFromCpuType(cpu_type_t type,cpu_subtype_t subtype){
-        static std::unordered_map<cpu_type_t,std::string> mapper{
+    std::string GetArchStringFromCpuType(qv_cpu_type_t type,qv_cpu_subtype_t subtype){
+        static std::unordered_map<qv_cpu_type_t,std::string> mapper{
                 DECLARE_MAP_ITEM_VALUE(CPU_TYPE_ANY,any)
                 DECLARE_MAP_ITEM_VALUE(CPU_TYPE_VAX,vax)
                 DECLARE_MAP_ITEM_VALUE(CPU_TYPE_MC680x0,mc680x0)
@@ -145,15 +145,15 @@ namespace util {
         }
         return "unknown";
     }
-    std::string GetCpuSubTypeString(cpu_type_t cputype,cpu_subtype_t subtype){
+    std::string GetCpuSubTypeString(qv_cpu_type_t cputype,qv_cpu_subtype_t subtype){
         auto res = GetCpuSubTypeArray(cputype,subtype);
         if(res.size() == 1) return std::get<2>(res[0]);
         if(res.empty()) return "unknown";
 
         return std::get<2>(res[0]) + "," + std::get<2>(res[1]); // no case that 3 or more items
     }
-    std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray(cpu_type_t cputype,cpu_subtype_t subtype){
-        static std::unordered_map<cpu_type_t, std::unordered_map<cpu_subtype_t,std::string>> mapper{
+    std::vector<std::tuple<qv_cpu_type_t,qv_cpu_subtype_t,std::string>> GetCpuSubTypeArray(qv_cpu_type_t cputype,qv_cpu_subtype_t subtype){
+        static std::unordered_map<qv_cpu_type_t, std::unordered_map<qv_cpu_subtype_t,std::string>> mapper{
                {CPU_TYPE_POWERPC ,
                         {
                                 DECLARE_MAP_ITEM(CPU_SUBTYPE_POWERPC_ALL)
@@ -208,7 +208,7 @@ namespace util {
         };
 
 
-        std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> res;
+        std::vector<std::tuple<qv_cpu_type_t,qv_cpu_subtype_t,std::string>> res;
         if((subtype & CPU_SUBTYPE_LIB64) == CPU_SUBTYPE_LIB64){
             int showsubtype = CPU_SUBTYPE_LIB64;
             res.push_back(std::tie(cputype,showsubtype,"CPU_SUBTYPE_LIB64"));
@@ -380,8 +380,8 @@ namespace util {
         return AsHexData((void*)address,size);
     }
 
-    std::vector<std::tuple<vm_prot_t,std::string>> ParseProts(vm_prot_t prot){
-        std::vector<std::tuple<vm_prot_t,std::string>> ret;
+    std::vector<std::tuple<qv_vm_prot_t,std::string>> ParseProts(qv_vm_prot_t prot){
+        std::vector<std::tuple<qv_vm_prot_t,std::string>> ret;
 
         if(prot == VM_PROT_NONE){
             ret.push_back(std::make_tuple(VM_PROT_NONE,"VM_PROT_NONE"));

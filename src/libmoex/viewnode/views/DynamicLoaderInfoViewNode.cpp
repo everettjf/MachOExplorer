@@ -453,7 +453,7 @@ void DynamicLoaderInfoViewNode::Init(MachHeaderPtr mh){
     if(!info)
         return;
 
-    dyld_info_command *cmd = info->cmd();
+    qv_dyld_info_command *cmd = info->cmd();
 
     if(cmd->rebase_off * cmd->rebase_size > 0){
         rebase_ = std::make_shared<RebaseInfoViewNode>();

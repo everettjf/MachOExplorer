@@ -11,7 +11,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_SEGMENT : public LoadCommandImpl<segment_command>{
+class LoadCommand_LC_SEGMENT : public LoadCommandImpl<qv_segment_command>{
 protected:
     std::vector<MachSectionPtr> sections_;
 public:
@@ -21,11 +21,11 @@ public:
     void Init(void * offset,NodeContextPtr & ctx)override ;
 
     std::string GetShortCharacteristicDescription()override;
-    std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
-    std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();
+    std::vector<std::tuple<qv_vm_prot_t,std::string>> GetMaxProts();
+    std::vector<std::tuple<qv_vm_prot_t,std::string>> GetInitProts();
 };
 
-class LoadCommand_LC_SEGMENT_64 : public LoadCommandImpl<segment_command_64>{
+class LoadCommand_LC_SEGMENT_64 : public LoadCommandImpl<qv_segment_command_64>{
 protected:
     std::vector<MachSectionPtr> sections_;
 public:
@@ -35,8 +35,8 @@ public:
     void Init(void * offset,NodeContextPtr & ctx)override ;
 
     std::string GetShortCharacteristicDescription()override;
-    std::vector<std::tuple<vm_prot_t,std::string>> GetMaxProts();
-    std::vector<std::tuple<vm_prot_t,std::string>> GetInitProts();
+    std::vector<std::tuple<qv_vm_prot_t,std::string>> GetMaxProts();
+    std::vector<std::tuple<qv_vm_prot_t,std::string>> GetInitProts();
 };
 
 MOEX_NAMESPACE_END

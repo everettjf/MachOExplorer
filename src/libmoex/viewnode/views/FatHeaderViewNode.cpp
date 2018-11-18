@@ -27,7 +27,7 @@ void FatHeaderViewNode::InitViewDatas(){
     // Table
     {
         auto t = CreateTableView();
-        const fat_header * h = d_->offset();
+        const qv_fat_header * h = d_->offset();
 
         t->AddRow(h->magic,"Magic Number",d_->GetMagicString());
         t->AddRow(h->nfat_arch,"Number of Architecture",AsString(d_->data().nfat_arch));
@@ -35,7 +35,7 @@ void FatHeaderViewNode::InitViewDatas(){
         t->AddSeparator();
 
         for(auto & arch : d_->archs()){
-            const fat_arch * a = arch->offset();
+            const qv_fat_arch * a = arch->offset();
             t->AddRow(a->cputype,"CPU Type",arch->GetCpuTypeString());
             t->AddRow(a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
             t->AddRow(a->offset,"Offset",AsString(arch->data().offset));

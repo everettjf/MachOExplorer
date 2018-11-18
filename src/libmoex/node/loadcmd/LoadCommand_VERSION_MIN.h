@@ -9,7 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_VERSION_MIN: public LoadCommandImpl<version_min_command>{
+class LoadCommand_VERSION_MIN: public LoadCommandImpl<qv_version_min_command>{
 public:
     std::string GetVersion();
     std::string GetSDK();

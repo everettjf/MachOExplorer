@@ -9,12 +9,12 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_ENCRYPTION_INFO : public LoadCommandImpl<encryption_info_command>{
+class LoadCommand_LC_ENCRYPTION_INFO : public LoadCommandImpl<qv_encryption_info_command>{
 public:
     std::string GetShortCharacteristicDescription()override;
 };
 
-class LoadCommand_LC_ENCRYPTION_INFO_64 : public LoadCommandImpl<encryption_info_command_64>{
+class LoadCommand_LC_ENCRYPTION_INFO_64 : public LoadCommandImpl<qv_encryption_info_command_64>{
 public:
     std::string GetShortCharacteristicDescription()override;
 };
@@ -25,18 +25,18 @@ private:
     LoadCommand_LC_ENCRYPTION_INFO_64 *info64_ = nullptr;
     bool is64_ = false;
 
-    encryption_info_command *data_ = nullptr;
+    qv_encryption_info_command *data_ = nullptr;
 public:
-    encryption_info_command *data(){return data_;};
+    qv_encryption_info_command *data(){return data_;};
 
     LoadCommandEncryptionInfo(LoadCommand * cmd,bool is64){
         is64_ = is64;
         if(is64){
             info_ = static_cast<moex::LoadCommand_LC_ENCRYPTION_INFO*>(cmd);
-            data_ = (encryption_info_command*)info_->offset();
+            data_ = (qv_encryption_info_command*)info_->offset();
         }else{
             info64_ = static_cast<moex::LoadCommand_LC_ENCRYPTION_INFO_64*>(cmd);
-            data_ = (encryption_info_command*)info64_->offset();
+            data_ = (qv_encryption_info_command*)info64_->offset();
         }
     }
 };

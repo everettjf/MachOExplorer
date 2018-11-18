@@ -13,17 +13,17 @@
 
 MOEX_NAMESPACE_BEGIN
 
-// Wrapper for mach_header
+// Wrapper for qv_mach_header
 // Derived from NodeData because some data should be swapped
-class MachHeaderInternal : public NodeData<mach_header>{
+class MachHeaderInternal : public NodeData<qv_mach_header>{
 public:
     void Init(void *offset,NodeContextPtr&ctx) override;
 };
 using MachHeaderInternalPtr = std::shared_ptr<MachHeaderInternal>;
 
-// Wrapper for mach_header
+// Wrapper for qv_mach_header
 // Derived from NodeData because some data should be swapped
-class MachHeader64Internal : public NodeData<mach_header_64>{
+class MachHeader64Internal : public NodeData<qv_mach_header_64>{
 public:
     void Init(void *offset,NodeContextPtr&ctx) override;
 };
@@ -45,8 +45,8 @@ private:
     // Whether it is 64bit
     bool is64_;
 
-    // Pointing to mach_header and mach_header_64 (swapped)
-    mach_header * header_;
+    // Pointing to qv_mach_header and qv_mach_header_64 (swapped)
+    qv_mach_header * header_;
 
     // Load commands
     std::vector<LoadCommandPtr> loadcmds_;
@@ -70,7 +70,7 @@ public:
     bool Is64()const{return is64_;}
 
     // Pointing to swapped header
-    mach_header * data_ptr(){return header_;}
+    qv_mach_header * data_ptr(){return header_;}
 
     // Get all load commands
     std::vector<LoadCommandPtr> &loadcmds_ref(){return loadcmds_;}
@@ -115,7 +115,7 @@ public:
     std::string GetCpuSubTypeString();
 
     // Get cpu sub type detailed array
-    std::vector<std::tuple<cpu_type_t,cpu_subtype_t,std::string>> GetCpuSubTypeArray();
+    std::vector<std::tuple<qv_cpu_type_t,qv_cpu_subtype_t,std::string>> GetCpuSubTypeArray();
 
     // Get base address
     uint64_t GetBaseAddress();

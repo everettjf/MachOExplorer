@@ -9,7 +9,7 @@
 
 MOEX_NAMESPACE_BEGIN
 
-class LoadCommand_LC_MAIN : public LoadCommandImpl<entry_point_command>{
+class LoadCommand_LC_MAIN : public LoadCommandImpl<qv_entry_point_command>{
 public:
     uint64_t  entryoff(){return cmd_->entryoff;}
     uint64_t  stacksize(){return cmd_->stacksize;}
