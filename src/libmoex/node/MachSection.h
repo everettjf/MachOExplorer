@@ -30,8 +30,8 @@ public:
     bool Is64()const{return is64;}
 
     // Shared for 32bit and 64bit struct
-    char   	    (&sectname())[16]{return is64?s64->sectname:s->sectname;}
-    char		(&segname())[16]{return is64?s64->segname:s->segname;}
+    void *      sectname(){return is64?s64->sectname:s->sectname;}
+    void *		segname(){return is64?s64->segname:s->segname;}
     uint32_t	&offset(){return is64?s64->offset:s->offset;}
     uint32_t	&align(){return is64?s64->align:s->align;}
     uint32_t	&reloff(){return is64?s64->reloff:s->reloff;}
@@ -50,9 +50,21 @@ public:
     uint32_t	&reserved3(){return s64->reserved3;}
 
     // Get segname as string
-    std::string segment_name() {return std::string(segname(),16).c_str();}
+    std::string segment_name() {
+        if (is64) {
+            return std::string(s64->segname,16).c_str();
+        } else {
+            return std::string(s->segname,16).c_str();
+        }
+    }
     // Get sectname as string
-    std::string section_name() {return std::string(sectname(),16).c_str();}
+    std::string section_name() {
+        if (is64) {
+            return std::string(s64->sectname,16).c_str();
+        } else {
+            return std::string(s->sectname,16).c_str();
+        }
+    }
 
     // Return either 32bit or 64bit as bigger type
     uint64_t	addr_both(){return is64?s64->addr:(uint64_t)s->addr;}

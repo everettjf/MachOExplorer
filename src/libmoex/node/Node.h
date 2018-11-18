@@ -17,7 +17,7 @@ private:
     std::string error_;
 public:
     NodeException(const std::string & error) { error_ = error;}
-    const char* what() const _NOEXCEPT override { return error_.c_str();}
+    const char* what() const override { return error_.c_str();}
 };
 
 // Context for parsing process

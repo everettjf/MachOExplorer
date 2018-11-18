@@ -86,7 +86,7 @@ void MachHeaderViewNode::InitViewDatas(){
 
         t->AddRow(offset->cpusubtype,"CPU SubType","");
         for(auto & item : d_->GetCpuSubTypeArray()){
-            t->AddRow("",AsHexString((uint)std::get<1>(item)),std::get<2>(item));
+            t->AddRow("",AsHexString((unsigned int)std::get<1>(item)),std::get<2>(item));
         }
 
         t->AddRow(offset->filetype,"File Type",d_->GetFileTypeString());

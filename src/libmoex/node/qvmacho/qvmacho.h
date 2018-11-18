@@ -7,9 +7,9 @@
 
 /*
  * replacement for
-#include <mach-o/loader.h>
-#include <mach-o/swap.h>
-#include <mach-o/qv_nlist.h>
+ <mach-o/loader.h>
+ <mach-o/swap.h>
+ <mach-o/qv_nlist.h>
 
  */
 

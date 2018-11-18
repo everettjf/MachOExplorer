@@ -39,7 +39,7 @@ class SectionViewChildNode_Literals : public SectionViewChildNode{
 protected:
     size_t unitsize_ = 0;
 public:
-    size_t set_unitsize(size_t sz){ unitsize_ = sz;}
+    void set_unitsize(size_t sz){ unitsize_ = sz;}
 
     void InitViewDatas()override {
         SectionViewChildNode::InitViewDatas();

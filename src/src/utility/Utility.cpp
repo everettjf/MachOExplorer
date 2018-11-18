@@ -21,7 +21,7 @@ void openURL(const QString &url)
     QDesktopServices::openUrl(QUrl(url));
 }
 
-QString qstr(const std::__1::string &str)
+QString qstr(const std::string &str)
 {
     return QString::fromStdString(str);
 }
