@@ -17,7 +17,12 @@ private:
     std::string error_;
 public:
     NodeException(const std::string & error) { error_ = error;}
+
+#ifdef __APPLE__
+    const char* what() const _NOEXCEPT override  { return error_.c_str();}
+#else
     const char* what() const override { return error_.c_str();}
+#endif
 };
 
 // Context for parsing process
