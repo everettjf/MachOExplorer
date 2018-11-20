@@ -19,6 +19,11 @@ build-MachOExplorer-Desktop_Qt_5_11_2_MSVC2017_64bit-Profile/
 src/MachOExplorer.pro.user
 
 # vscode cmake-tools extension
-build/
 .vscode/
+
+
+build_macos/
+build_windows/
+
+dist/
 

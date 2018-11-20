@@ -1,0 +1,8 @@
+{
+  "title": "MachOExplorer",
+  "background": "background.png",
+  "contents": [
+    { "x": 355, "y": 150, "type": "link", "path": "/Applications" },
+    { "x": 130, "y": 150, "type": "file", "path": "MachOExplorer.app" }
+  ]
+}
