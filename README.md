@@ -1,6 +1,6 @@
 # MachOExplorer
 
-Explore MachO File (Yet another MachOView)
+Explore MachO File (Yet another MachOView) on **macOS and Windows**
 
 ![MachOExplorerIcon](image/machoexplorer-small.png)
 
@@ -10,23 +10,18 @@ Explore MachO File (Yet another MachOView)
 
 # Latest Version
 
-`v0.4.0 Alpha` (Not a stable version and there must be lots of bugs now)
+`v1.0 Alpha` (Still not a stable version and there must be lots of bugs now)
 
 # How to install
 
 
-(1) [Download MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)
-
-(2) or use brew cask
-
-```
-brew cask install machoexplorer
-```
+- macOS [MachOExplorer.dmg](https://github.com/everettjf/MachOExplorer/releases)
+- Windows [MachOExplorer_Windows.zip](https://github.com/everettjf/MachOExplorer/releases)
 
 # Feature
 
 1. Basic view macho file
-2. macOS support
+2. macOS and Windows support
 
 # Incomplete code
 
@@ -35,12 +30,8 @@ brew cask install machoexplorer
 
 # How to build 
 
-macOS only until now, Windows support in the near future.
+After finish installing Qt SDK >= 5.10.1, just open MachOExplorer.pro and compile.
 
-```
-Qt SDK >= 5.10.1
-CMake (>=3.9)
-```
 
 # Libraries
 
@@ -59,6 +50,7 @@ Thanks for wantline's great design.
 
 # Version History
 
+- 2018-11-21 v1.0 Alpha : Windows support and new user interface
 - 2017-11-05 v0.4.0 Alpha : Command line tool `moex` release and version policy changed
 - 2017-11-05 v0.3 Alpha : Bug fix
 - 2017-11-05 v0.2 Alpha : Icon born
