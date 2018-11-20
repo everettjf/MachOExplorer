@@ -1,6 +1,7 @@
 
 rm -rf build_macos
 
+mkdir build_macos
 cd build_macos
 
 # compile
