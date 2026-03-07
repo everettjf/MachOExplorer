@@ -13,6 +13,10 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     load_commands_->Init(d_);
     children_.push_back(load_commands_.get());
 
+    integrity_report_ = std::make_shared<IntegrityReportViewNode>();
+    integrity_report_->Init(d_);
+    children_.push_back(integrity_report_.get());
+
     sections_ = std::make_shared<SectionsViewNode>();
     sections_->Init(d_);
     children_.push_back(sections_.get());

@@ -18,6 +18,7 @@
 #include "StringTableViewNode.h"
 #include "TwoLevelHintsTableViewNode.h"
 #include "SegmentSplitInfoViewNode.h"
+#include "IntegrityReportViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -37,6 +38,7 @@ private:
     CodeSignatureViewNodePtr  code_signature_;
     TwoLevelHintsTableViewNodePtr twolevel_hints_table_;
     SegmentSplitInfoViewNodePtr segment_split_info_;
+    IntegrityReportViewNodePtr integrity_report_;
 
 public:
     void Init(MachHeaderPtr d);
