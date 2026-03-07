@@ -445,10 +445,13 @@ void MainWindow::createActions()
     menu->file->addAction(action->extractDyldImage);
     connect(action->extractDyldImage, &QAction::triggered, this, [this](bool checked){
         Q_UNUSED(checked)
-        const QString cachePath = QFileDialog::getOpenFileName(
-                this, tr("Select dyld shared cache file"),
-                "/System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld",
-                tr("Dyld Shared Cache (*)"));
+        QString cachePath = WS()->currentFilePath();
+        if (cachePath.isEmpty() || !QFileInfo(cachePath).fileName().startsWith("dyld_shared_cache")) {
+            cachePath = QFileDialog::getOpenFileName(
+                    this, tr("Select dyld shared cache file"),
+                    "/System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld",
+                    tr("Dyld Shared Cache (*)"));
+        }
         if(cachePath.isEmpty()) return;
 
         bool ok = false;

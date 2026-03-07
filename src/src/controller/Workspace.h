@@ -39,6 +39,7 @@ public:
     WorkspaceUI *ui(){return ui_;}
 
     void openFile(const QString & filePath);
+    QString currentFilePath() const { return currentFilePath_; }
     void addLog(const QString & log);
     void showNode(moex::ViewNode *node);
     void selectHexRange(void *data,uint64_t size);
@@ -46,6 +47,7 @@ public:
     void setInformation(const QString & info);
 private:
     WorkspaceUI *ui_;
+    QString currentFilePath_;
 };
 
 inline Workspace * WS(){

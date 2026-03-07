@@ -12,6 +12,7 @@ Workspace::Workspace()
 
 void Workspace::openFile(const QString &filePath)
 {
+    currentFilePath_ = filePath;
     ui_->layout->openFile(filePath);
 }
 
@@ -61,4 +62,3 @@ Workspace *Workspace::Instance()
     static Workspace w;
     return & w;
 }
-
