@@ -19,6 +19,7 @@
 #include "TwoLevelHintsTableViewNode.h"
 #include "SegmentSplitInfoViewNode.h"
 #include "IntegrityReportViewNode.h"
+#include "XrefViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -39,6 +40,7 @@ private:
     TwoLevelHintsTableViewNodePtr twolevel_hints_table_;
     SegmentSplitInfoViewNodePtr segment_split_info_;
     IntegrityReportViewNodePtr integrity_report_;
+    XrefViewNodePtr xref_report_;
 
 public:
     void Init(MachHeaderPtr d);

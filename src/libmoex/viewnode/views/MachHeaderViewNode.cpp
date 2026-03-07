@@ -29,6 +29,10 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     symbol_table_->Init(d_);
     children_.push_back(symbol_table_.get());
 
+    xref_report_ = std::make_shared<XrefViewNode>();
+    xref_report_->Init(d_);
+    children_.push_back(xref_report_.get());
+
     dynamic_symbol_table_ = std::make_shared<DynamicSymbolTable>();
     dynamic_symbol_table_->Init(d_);
     children_.push_back(dynamic_symbol_table_.get());
