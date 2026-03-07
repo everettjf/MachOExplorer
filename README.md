@@ -59,6 +59,9 @@ Capstone is optional. If detected by CMake, `__TEXT,__text` disassembly is enabl
 # list images
 ./build/moex-cache-list /path/to/dyld_shared_cache_arm64e | head -50
 
+# list as JSON with exact match and limit
+./build/moex-cache-list --json --exact --limit=20 /path/to/dyld_shared_cache_arm64e /usr/lib/libobjc.A.dylib
+
 # extract one image with compact file layout (recommended)
 ./build/moex-cache-extract --compact /path/to/dyld_shared_cache_arm64e libswiftCore.dylib /tmp/libswiftCore.extracted.macho
 
