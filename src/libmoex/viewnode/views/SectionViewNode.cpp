@@ -5,7 +5,10 @@
 #include "SectionViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
 #include <algorithm>
+#include <cstring>
+#include <limits>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
@@ -178,6 +181,563 @@ public:
                 t->AddRow({"","0x2","OBJC_IMAGE_SUPPORTS_GC"});
             if(info->flags & OBJC_IMAGE_GC_ONLY)
                 t->AddRow({"","0x4","OBJC_IMAGE_GC_ONLY"});
+        });
+    }
+};
+
+enum class ObjCMetadataKind {
+    ClassList,
+    CategoryList,
+    ProtocolList
+};
+
+class SectionViewChildNode_ObjC2Metadata : public SectionViewChildNode{
+private:
+    ObjCMetadataKind kind_ = ObjCMetadataKind::ClassList;
+
+    struct Resolver {
+        MachHeader *header = nullptr;
+        NodeContextPtr ctx;
+        bool is64 = false;
+
+        bool IsInFile(const void *addr, std::size_t size) const {
+            if (addr == nullptr) return false;
+            const uint64_t base = reinterpret_cast<uint64_t>(ctx->file_start);
+            const uint64_t p = reinterpret_cast<uint64_t>(addr);
+            if (p < base) return false;
+            const uint64_t rel = p - base;
+            return rel <= ctx->file_size && size <= (ctx->file_size - rel);
+        }
+
+        bool VmToPtr(uint64_t vmaddr, char *&out, uint64_t *raw = nullptr) const {
+            out = nullptr;
+
+            if (is64) {
+                for (auto *seg : header->GetSegments64()) {
+                    const uint64_t seg_vm = seg->cmd()->vmaddr;
+                    const uint64_t seg_vmsz = seg->cmd()->vmsize;
+                    if (vmaddr < seg_vm || vmaddr >= seg_vm + seg_vmsz) continue;
+                    const uint64_t delta = vmaddr - seg_vm;
+                    if (delta >= seg->cmd()->filesize) return false;
+                    const uint64_t fileoff = seg->cmd()->fileoff + delta;
+                    if (fileoff >= ctx->file_size) return false;
+                    out = reinterpret_cast<char *>(ctx->file_start) + fileoff;
+                    if (raw != nullptr) *raw = fileoff;
+                    return true;
+                }
+            } else {
+                for (auto *seg : header->GetSegments()) {
+                    const uint64_t seg_vm = seg->cmd()->vmaddr;
+                    const uint64_t seg_vmsz = seg->cmd()->vmsize;
+                    if (vmaddr < seg_vm || vmaddr >= seg_vm + seg_vmsz) continue;
+                    const uint64_t delta = vmaddr - seg_vm;
+                    if (delta >= seg->cmd()->filesize) return false;
+                    const uint64_t fileoff = seg->cmd()->fileoff + delta;
+                    if (fileoff >= ctx->file_size) return false;
+                    out = reinterpret_cast<char *>(ctx->file_start) + fileoff;
+                    if (raw != nullptr) *raw = fileoff;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template <typename T>
+        bool ReadStruct(uint64_t vmaddr, const T *&value, char *&raw_ptr) const {
+            value = nullptr;
+            raw_ptr = nullptr;
+            if (vmaddr == 0) return false;
+
+            if (!VmToPtr(vmaddr, raw_ptr)) return false;
+            if (!IsInFile(raw_ptr, sizeof(T))) return false;
+            value = reinterpret_cast<const T *>(raw_ptr);
+            return true;
+        }
+
+        bool ReadPointer(uint64_t vmaddr, uint64_t &ptr_value, char *&raw_ptr) const {
+            ptr_value = 0;
+            raw_ptr = nullptr;
+            if (vmaddr == 0) return false;
+            if (is64) {
+                const uint64_t *p = nullptr;
+                if (!ReadStruct<uint64_t>(vmaddr, p, raw_ptr)) return false;
+                ptr_value = *p;
+                return true;
+            }
+            const uint32_t *p = nullptr;
+            if (!ReadStruct<uint32_t>(vmaddr, p, raw_ptr)) return false;
+            ptr_value = *p;
+            return true;
+        }
+
+        std::string ReadCString(uint64_t vmaddr) const {
+            if (vmaddr == 0) return "";
+            char *raw = nullptr;
+            uint64_t fileoff = 0;
+            if (!VmToPtr(vmaddr, raw, &fileoff)) return "";
+            if (fileoff >= ctx->file_size) return "";
+            const auto max_len = std::min<uint64_t>(1024, ctx->file_size - fileoff);
+            std::size_t len = 0;
+            while (len < max_len && raw[len] != '\0') ++len;
+            if (len == max_len) return "";
+            return std::string(raw, len);
+        }
+
+        static uint64_t NormalizeClassData(uint64_t data, bool is64bit) {
+            return is64bit ? (data & ~0x7ULL) : (data & ~0x3ULL);
+        }
+    };
+
+private:
+    static std::string Indent(int depth) {
+        return std::string(static_cast<std::size_t>(depth * 2), ' ');
+    }
+
+    static std::string SafeName(const std::string &value, const std::string &fallback) {
+        return value.empty() ? fallback : value;
+    }
+
+    static void AddRowWithVm(
+            const TableViewDataPtr &table,
+            const Resolver &resolver,
+            uint64_t vmaddr,
+            std::size_t size,
+            const std::string &kind,
+            const std::string &name,
+            const std::string &detail)
+    {
+        char *raw = nullptr;
+        resolver.VmToPtr(vmaddr, raw);
+        table->AddRow(raw, raw != nullptr ? static_cast<uint64_t>(size) : 0, {kind, name, detail, AsAddress(vmaddr)});
+    }
+
+    void ParseMethodList(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t list_vmaddr,
+            int depth,
+            const std::string &method_kind)
+    {
+        if (list_vmaddr == 0) return;
+        if (resolver.is64) {
+            const method64_list_t *list = nullptr;
+            char *list_raw = nullptr;
+            if (!resolver.ReadStruct<method64_list_t>(list_vmaddr, list, list_raw)) {
+                AddRowWithVm(table, resolver, list_vmaddr, 0, "MethodList?", Indent(depth) + method_kind, "unmapped");
+                return;
+            }
+
+            const uint32_t entry_size = list->entsize & ~0x3U;
+            if (entry_size < sizeof(method64_t) || list->count > 100000) {
+                AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "MethodList?", Indent(depth) + method_kind, "invalid entsize/count");
+                return;
+            }
+
+            AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "MethodList", Indent(depth) + method_kind,
+                         fmt::format("count={} entsize={}", list->count, entry_size));
+            char *cur = list_raw + sizeof(*list);
+            for (uint32_t i = 0; i < list->count; ++i) {
+                if (!resolver.IsInFile(cur, entry_size)) break;
+                const auto *m = reinterpret_cast<const method64_t *>(cur);
+                const std::string mname = SafeName(resolver.ReadCString(m->name), "<unnamed>");
+                const std::string mtype = resolver.ReadCString(m->types);
+                std::string detail = mtype;
+                if (!detail.empty()) detail += " ";
+                detail += fmt::format("imp=0x{}", AsShortHexString(m->imp));
+                AddRowWithVm(table, resolver, m->imp, 0, "Method", Indent(depth + 1) + mname, detail);
+                cur += entry_size;
+            }
+            return;
+        }
+
+        const method_list_t *list = nullptr;
+        char *list_raw = nullptr;
+        if (!resolver.ReadStruct<method_list_t>(list_vmaddr, list, list_raw)) {
+            AddRowWithVm(table, resolver, list_vmaddr, 0, "MethodList?", Indent(depth) + method_kind, "unmapped");
+            return;
+        }
+
+        const uint32_t entry_size = list->entsize & ~0x3U;
+        if (entry_size < sizeof(method_t) || list->count > 100000) {
+            AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "MethodList?", Indent(depth) + method_kind, "invalid entsize/count");
+            return;
+        }
+
+        AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "MethodList", Indent(depth) + method_kind,
+                     fmt::format("count={} entsize={}", list->count, entry_size));
+        char *cur = list_raw + sizeof(*list);
+        for (uint32_t i = 0; i < list->count; ++i) {
+            if (!resolver.IsInFile(cur, entry_size)) break;
+            const auto *m = reinterpret_cast<const method_t *>(cur);
+            const std::string mname = SafeName(resolver.ReadCString(m->name), "<unnamed>");
+            const std::string mtype = resolver.ReadCString(m->types);
+            std::string detail = mtype;
+            if (!detail.empty()) detail += " ";
+            detail += fmt::format("imp=0x{}", AsShortHexString(m->imp));
+            AddRowWithVm(table, resolver, m->imp, 0, "Method", Indent(depth + 1) + mname, detail);
+            cur += entry_size;
+        }
+    }
+
+    void ParsePropertyList(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t list_vmaddr,
+            int depth)
+    {
+        if (list_vmaddr == 0) return;
+        if (resolver.is64) {
+            const objc_property64_list *list = nullptr;
+            char *list_raw = nullptr;
+            if (!resolver.ReadStruct<objc_property64_list>(list_vmaddr, list, list_raw)) {
+                AddRowWithVm(table, resolver, list_vmaddr, 0, "PropertyList?", Indent(depth), "unmapped");
+                return;
+            }
+            const uint32_t entry_size = list->entsize;
+            if (entry_size < sizeof(objc_property64) || list->count > 100000) {
+                AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "PropertyList?", Indent(depth), "invalid entsize/count");
+                return;
+            }
+            AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "PropertyList", Indent(depth),
+                         fmt::format("count={} entsize={}", list->count, entry_size));
+            char *cur = list_raw + sizeof(*list);
+            for (uint32_t i = 0; i < list->count; ++i) {
+                if (!resolver.IsInFile(cur, entry_size)) break;
+                const auto *p = reinterpret_cast<const objc_property64 *>(cur);
+                const std::string pname = SafeName(resolver.ReadCString(p->name), "<property>");
+                const std::string pattr = resolver.ReadCString(p->attributes);
+                table->AddRow(cur, static_cast<uint64_t>(entry_size), {"Property", Indent(depth + 1) + pname, pattr, AsAddress(list_vmaddr)});
+                cur += entry_size;
+            }
+            return;
+        }
+
+        const objc_property_list *list = nullptr;
+        char *list_raw = nullptr;
+        if (!resolver.ReadStruct<objc_property_list>(list_vmaddr, list, list_raw)) {
+            AddRowWithVm(table, resolver, list_vmaddr, 0, "PropertyList?", Indent(depth), "unmapped");
+            return;
+        }
+        const uint32_t entry_size = list->entsize;
+        if (entry_size < sizeof(objc_property) || list->count > 100000) {
+            AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "PropertyList?", Indent(depth), "invalid entsize/count");
+            return;
+        }
+        AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "PropertyList", Indent(depth),
+                     fmt::format("count={} entsize={}", list->count, entry_size));
+        char *cur = list_raw + sizeof(*list);
+        for (uint32_t i = 0; i < list->count; ++i) {
+            if (!resolver.IsInFile(cur, entry_size)) break;
+            const auto *p = reinterpret_cast<const objc_property *>(cur);
+            const std::string pname = SafeName(resolver.ReadCString(p->name), "<property>");
+            const std::string pattr = resolver.ReadCString(p->attributes);
+            table->AddRow(cur, static_cast<uint64_t>(entry_size), {"Property", Indent(depth + 1) + pname, pattr, AsAddress(list_vmaddr)});
+            cur += entry_size;
+        }
+    }
+
+    void ParseIvarList(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t list_vmaddr,
+            int depth)
+    {
+        if (list_vmaddr == 0) return;
+        if (resolver.is64) {
+            const ivar64_list_t *list = nullptr;
+            char *list_raw = nullptr;
+            if (!resolver.ReadStruct<ivar64_list_t>(list_vmaddr, list, list_raw)) return;
+            const uint32_t entry_size = list->entsize & ~0x3U;
+            if (entry_size < sizeof(ivar64_t) || list->count > 100000) return;
+
+            AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "IvarList", Indent(depth),
+                         fmt::format("count={} entsize={}", list->count, entry_size));
+            char *cur = list_raw + sizeof(*list);
+            for (uint32_t i = 0; i < list->count; ++i) {
+                if (!resolver.IsInFile(cur, entry_size)) break;
+                const auto *iv = reinterpret_cast<const ivar64_t *>(cur);
+                const std::string iname = SafeName(resolver.ReadCString(iv->name), "<ivar>");
+                const std::string itype = resolver.ReadCString(iv->type);
+                uint64_t ivar_offset = 0;
+                char *offset_raw = nullptr;
+                resolver.ReadPointer(iv->offset, ivar_offset, offset_raw);
+                const std::string detail = fmt::format("{} offset={} size={}", itype, ivar_offset, iv->size);
+                table->AddRow(cur, static_cast<uint64_t>(entry_size), {"Ivar", Indent(depth + 1) + iname, detail, AsAddress(list_vmaddr)});
+                cur += entry_size;
+            }
+            return;
+        }
+
+        const ivar_list_t *list = nullptr;
+        char *list_raw = nullptr;
+        if (!resolver.ReadStruct<ivar_list_t>(list_vmaddr, list, list_raw)) return;
+        const uint32_t entry_size = list->entsize & ~0x3U;
+        if (entry_size < sizeof(ivar_t) || list->count > 100000) return;
+
+        AddRowWithVm(table, resolver, list_vmaddr, sizeof(*list), "IvarList", Indent(depth),
+                     fmt::format("count={} entsize={}", list->count, entry_size));
+        char *cur = list_raw + sizeof(*list);
+        for (uint32_t i = 0; i < list->count; ++i) {
+            if (!resolver.IsInFile(cur, entry_size)) break;
+            const auto *iv = reinterpret_cast<const ivar_t *>(cur);
+            const std::string iname = SafeName(resolver.ReadCString(iv->name), "<ivar>");
+            const std::string itype = resolver.ReadCString(iv->type);
+            uint64_t ivar_offset = 0;
+            char *offset_raw = nullptr;
+            resolver.ReadPointer(iv->offset, ivar_offset, offset_raw);
+            const std::string detail = fmt::format("{} offset={} size={}", itype, ivar_offset, iv->size);
+            table->AddRow(cur, static_cast<uint64_t>(entry_size), {"Ivar", Indent(depth + 1) + iname, detail, AsAddress(list_vmaddr)});
+            cur += entry_size;
+        }
+    }
+
+    void ParseProtocol(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t protocol_vmaddr,
+            int depth,
+            std::unordered_set<uint64_t> &visited)
+    {
+        if (protocol_vmaddr == 0 || visited.count(protocol_vmaddr) != 0) return;
+        visited.insert(protocol_vmaddr);
+
+        if (resolver.is64) {
+            const protocol64_t *proto = nullptr;
+            char *proto_raw = nullptr;
+            if (!resolver.ReadStruct<protocol64_t>(protocol_vmaddr, proto, proto_raw)) {
+                AddRowWithVm(table, resolver, protocol_vmaddr, 0, "Protocol?", Indent(depth), "unmapped");
+                return;
+            }
+
+            const std::string pname = SafeName(resolver.ReadCString(proto->name), "<protocol>");
+            table->AddRow(proto_raw, sizeof(*proto), {"Protocol", Indent(depth) + pname, "", AsAddress(protocol_vmaddr)});
+            ParseMethodList(resolver, table, proto->instanceMethods, depth + 1, "instance");
+            ParseMethodList(resolver, table, proto->classMethods, depth + 1, "class");
+            ParseMethodList(resolver, table, proto->optionalInstanceMethods, depth + 1, "optional-instance");
+            ParseMethodList(resolver, table, proto->optionalClassMethods, depth + 1, "optional-class");
+            ParsePropertyList(resolver, table, proto->instanceProperties, depth + 1);
+            ParseProtocolList(resolver, table, proto->protocols, depth + 1, visited);
+            return;
+        }
+
+        const protocol_t *proto = nullptr;
+        char *proto_raw = nullptr;
+        if (!resolver.ReadStruct<protocol_t>(protocol_vmaddr, proto, proto_raw)) {
+            AddRowWithVm(table, resolver, protocol_vmaddr, 0, "Protocol?", Indent(depth), "unmapped");
+            return;
+        }
+
+        const std::string pname = SafeName(resolver.ReadCString(proto->name), "<protocol>");
+        table->AddRow(proto_raw, sizeof(*proto), {"Protocol", Indent(depth) + pname, "", AsAddress(protocol_vmaddr)});
+        ParseMethodList(resolver, table, proto->instanceMethods, depth + 1, "instance");
+        ParseMethodList(resolver, table, proto->classMethods, depth + 1, "class");
+        ParseMethodList(resolver, table, proto->optionalInstanceMethods, depth + 1, "optional-instance");
+        ParseMethodList(resolver, table, proto->optionalClassMethods, depth + 1, "optional-class");
+        ParsePropertyList(resolver, table, proto->instanceProperties, depth + 1);
+        ParseProtocolList(resolver, table, proto->protocols, depth + 1, visited);
+    }
+
+    void ParseProtocolList(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t list_vmaddr,
+            int depth,
+            std::unordered_set<uint64_t> &visited)
+    {
+        if (list_vmaddr == 0) return;
+
+        if (resolver.is64) {
+            const protocol64_list_t *list = nullptr;
+            char *list_raw = nullptr;
+            if (!resolver.ReadStruct<protocol64_list_t>(list_vmaddr, list, list_raw)) return;
+            if (list->count > 100000) return;
+
+            table->AddRow(list_raw, sizeof(*list), {"ProtocolList", Indent(depth), fmt::format("count={}", list->count), AsAddress(list_vmaddr)});
+            char *cur = list_raw + sizeof(*list);
+            for (uint64_t i = 0; i < list->count; ++i) {
+                if (!resolver.IsInFile(cur, sizeof(uint64_t))) break;
+                const uint64_t protocol_ptr = *reinterpret_cast<uint64_t *>(cur);
+                table->AddRow(cur, sizeof(uint64_t), {"ProtocolRef", Indent(depth + 1), "", AsAddress(protocol_ptr)});
+                ParseProtocol(resolver, table, protocol_ptr, depth + 1, visited);
+                cur += sizeof(uint64_t);
+            }
+            return;
+        }
+
+        const protocol_list_t *list = nullptr;
+        char *list_raw = nullptr;
+        if (!resolver.ReadStruct<protocol_list_t>(list_vmaddr, list, list_raw)) return;
+        if (list->count > 100000) return;
+
+        table->AddRow(list_raw, sizeof(*list), {"ProtocolList", Indent(depth), fmt::format("count={}", list->count), AsAddress(list_vmaddr)});
+        char *cur = list_raw + sizeof(*list);
+        for (uint32_t i = 0; i < list->count; ++i) {
+            if (!resolver.IsInFile(cur, sizeof(uint32_t))) break;
+            const uint32_t protocol_ptr = *reinterpret_cast<uint32_t *>(cur);
+            table->AddRow(cur, sizeof(uint32_t), {"ProtocolRef", Indent(depth + 1), "", AsAddress(protocol_ptr)});
+            ParseProtocol(resolver, table, protocol_ptr, depth + 1, visited);
+            cur += sizeof(uint32_t);
+        }
+    }
+
+    void ParseClass(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t class_vmaddr,
+            int depth,
+            std::unordered_set<uint64_t> &visited_classes,
+            std::unordered_set<uint64_t> &visited_protocols)
+    {
+        if (class_vmaddr == 0 || visited_classes.count(class_vmaddr) != 0) return;
+        visited_classes.insert(class_vmaddr);
+
+        if (resolver.is64) {
+            const class64_t *cls = nullptr;
+            char *cls_raw = nullptr;
+            if (!resolver.ReadStruct<class64_t>(class_vmaddr, cls, cls_raw)) {
+                AddRowWithVm(table, resolver, class_vmaddr, 0, "Class?", Indent(depth), "unmapped");
+                return;
+            }
+            const uint64_t ro_vmaddr = Resolver::NormalizeClassData(cls->data, true);
+            const class64_ro_t *ro = nullptr;
+            char *ro_raw = nullptr;
+            if (!resolver.ReadStruct<class64_ro_t>(ro_vmaddr, ro, ro_raw)) {
+                table->AddRow(cls_raw, sizeof(*cls), {"Class?", Indent(depth), "missing class_ro", AsAddress(class_vmaddr)});
+                return;
+            }
+
+            const std::string cname = SafeName(resolver.ReadCString(ro->name), "<class>");
+            const std::string meta = (ro->flags & RO_META) ? "meta" : "instance";
+            table->AddRow(cls_raw, sizeof(*cls), {"Class", Indent(depth) + cname, meta, AsAddress(class_vmaddr)});
+
+            if (cls->superclass != 0) {
+                table->AddRow(cls_raw, sizeof(*cls), {"Superclass", Indent(depth + 1), "", AsAddress(cls->superclass)});
+            }
+            ParseMethodList(resolver, table, ro->baseMethods, depth + 1, "base");
+            ParseIvarList(resolver, table, ro->ivars, depth + 1);
+            ParsePropertyList(resolver, table, ro->baseProperties, depth + 1);
+            ParseProtocolList(resolver, table, ro->baseProtocols, depth + 1, visited_protocols);
+            return;
+        }
+
+        const class_t *cls = nullptr;
+        char *cls_raw = nullptr;
+        if (!resolver.ReadStruct<class_t>(class_vmaddr, cls, cls_raw)) {
+            AddRowWithVm(table, resolver, class_vmaddr, 0, "Class?", Indent(depth), "unmapped");
+            return;
+        }
+        const uint64_t ro_vmaddr = Resolver::NormalizeClassData(cls->data, false);
+        const class_ro_t *ro = nullptr;
+        char *ro_raw = nullptr;
+        if (!resolver.ReadStruct<class_ro_t>(ro_vmaddr, ro, ro_raw)) {
+            table->AddRow(cls_raw, sizeof(*cls), {"Class?", Indent(depth), "missing class_ro", AsAddress(class_vmaddr)});
+            return;
+        }
+
+        const std::string cname = SafeName(resolver.ReadCString(ro->name), "<class>");
+        const std::string meta = (ro->flags & RO_META) ? "meta" : "instance";
+        table->AddRow(cls_raw, sizeof(*cls), {"Class", Indent(depth) + cname, meta, AsAddress(class_vmaddr)});
+
+        if (cls->superclass != 0) {
+            table->AddRow(cls_raw, sizeof(*cls), {"Superclass", Indent(depth + 1), "", AsAddress(cls->superclass)});
+        }
+        ParseMethodList(resolver, table, ro->baseMethods, depth + 1, "base");
+        ParseIvarList(resolver, table, ro->ivars, depth + 1);
+        ParsePropertyList(resolver, table, ro->baseProperties, depth + 1);
+        ParseProtocolList(resolver, table, ro->baseProtocols, depth + 1, visited_protocols);
+    }
+
+    void ParseCategory(
+            const Resolver &resolver,
+            const TableViewDataPtr &table,
+            uint64_t category_vmaddr,
+            int depth,
+            std::unordered_set<uint64_t> &visited_classes,
+            std::unordered_set<uint64_t> &visited_protocols)
+    {
+        if (category_vmaddr == 0) return;
+        if (resolver.is64) {
+            const category64_t *cat = nullptr;
+            char *cat_raw = nullptr;
+            if (!resolver.ReadStruct<category64_t>(category_vmaddr, cat, cat_raw)) {
+                AddRowWithVm(table, resolver, category_vmaddr, 0, "Category?", Indent(depth), "unmapped");
+                return;
+            }
+            const std::string cat_name = SafeName(resolver.ReadCString(cat->name), "<category>");
+            table->AddRow(cat_raw, sizeof(*cat), {"Category", Indent(depth) + cat_name, "", AsAddress(category_vmaddr)});
+            if (cat->cls != 0) {
+                table->AddRow(cat_raw, sizeof(*cat), {"ClassRef", Indent(depth + 1), "", AsAddress(cat->cls)});
+                ParseClass(resolver, table, cat->cls, depth + 2, visited_classes, visited_protocols);
+            }
+            ParseMethodList(resolver, table, cat->instanceMethods, depth + 1, "instance");
+            ParseMethodList(resolver, table, cat->classMethods, depth + 1, "class");
+            ParsePropertyList(resolver, table, cat->instanceProperties, depth + 1);
+            ParseProtocolList(resolver, table, cat->protocols, depth + 1, visited_protocols);
+            return;
+        }
+
+        const category_t *cat = nullptr;
+        char *cat_raw = nullptr;
+        if (!resolver.ReadStruct<category_t>(category_vmaddr, cat, cat_raw)) {
+            AddRowWithVm(table, resolver, category_vmaddr, 0, "Category?", Indent(depth), "unmapped");
+            return;
+        }
+        const std::string cat_name = SafeName(resolver.ReadCString(cat->name), "<category>");
+        table->AddRow(cat_raw, sizeof(*cat), {"Category", Indent(depth) + cat_name, "", AsAddress(category_vmaddr)});
+        if (cat->cls != 0) {
+            table->AddRow(cat_raw, sizeof(*cat), {"ClassRef", Indent(depth + 1), "", AsAddress(cat->cls)});
+            ParseClass(resolver, table, cat->cls, depth + 2, visited_classes, visited_protocols);
+        }
+        ParseMethodList(resolver, table, cat->instanceMethods, depth + 1, "instance");
+        ParseMethodList(resolver, table, cat->classMethods, depth + 1, "class");
+        ParsePropertyList(resolver, table, cat->instanceProperties, depth + 1);
+        ParseProtocolList(resolver, table, cat->protocols, depth + 1, visited_protocols);
+    }
+
+public:
+    void set_kind(ObjCMetadataKind kind) { kind_ = kind; }
+
+    void InitViewDatas() override {
+        SectionViewChildNode::InitViewDatas();
+
+        auto t = CreateTableView();
+        t->SetHeaders({"Kind", "Name", "Details", "VM Address"});
+        t->SetWidths({160, 360, 460, 180});
+
+        Resolver resolver;
+        resolver.header = d_->header();
+        resolver.ctx = d_->ctx();
+        resolver.is64 = d_->Is64();
+
+        std::unordered_set<uint64_t> visited_classes;
+        std::unordered_set<uint64_t> visited_protocols;
+
+        int index = 0;
+        d_->ForEachAs_ObjC2Pointer([&](void *ptr_addr) {
+            uint64_t target = 0;
+            if (d_->Is64()) {
+                target = *reinterpret_cast<uint64_t *>(ptr_addr);
+            } else {
+                target = *reinterpret_cast<uint32_t *>(ptr_addr);
+            }
+
+            t->AddRow(ptr_addr,
+                      static_cast<uint64_t>(d_->Is64() ? sizeof(uint64_t) : sizeof(uint32_t)),
+                      {"Entry", fmt::format("#{}", index++), "", AsAddress(target)});
+
+            if (target == 0) return;
+
+            switch (kind_) {
+                case ObjCMetadataKind::ClassList:
+                    ParseClass(resolver, t, target, 1, visited_classes, visited_protocols);
+                    break;
+                case ObjCMetadataKind::CategoryList:
+                    ParseCategory(resolver, t, target, 1, visited_classes, visited_protocols);
+                    break;
+                case ObjCMetadataKind::ProtocolList:
+                    ParseProtocol(resolver, t, target, 1, visited_protocols);
+                    break;
+            }
         });
     }
 };
@@ -427,11 +987,11 @@ void SectionViewNode::InitChildView()
     if(unique_name == "__TEXT/__text") InitDisassemblyView("Disassembly (Capstone)");
 
     if(has_module){
-        if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist") InitObjC2PointerView("ObjC2 Category List");
-        if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist") InitObjC2PointerView("ObjC2 Class List");
+        if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist") InitObjC2MetadataView("ObjC2 Category Metadata","category");
+        if(unique_name == "__OBJC2/__class_list" || unique_name == "__DATA/__objc_classlist") InitObjC2MetadataView("ObjC2 Class Metadata","class");
         if(unique_name == "__OBJC2/__class_refs" || unique_name == "__DATA/__objc_classrefs") InitObjC2PointerView("ObjC2 Class References");
         if(unique_name == "__OBJC2/__super_refs" || unique_name == "__DATA/__objc_superrefs") InitObjC2PointerView("ObjC2 Super References");
-        if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist") InitObjC2PointerView("ObjC2 Proto List");
+        if(unique_name == "__OBJC2/__protocol_list" || unique_name == "__DATA/__objc_protolist") InitObjC2MetadataView("ObjC2 Protocol Metadata","protocol");
         if(unique_name == "__OBJC2/__message_refs" || unique_name == "__DATA/__objc_msgrefs"){ /* todo */ }
     }
 }
@@ -497,6 +1057,20 @@ void SectionViewNode::InitObjC2PointerView(const std::string &title){
     auto p = std::make_shared<SectionViewChildNode_ObjC2Pointer>();
     p->Init(d_);
     p->set_name(title);
+    children_.push_back(p);
+}
+
+void SectionViewNode::InitObjC2MetadataView(const std::string &title, const std::string &kind){
+    auto p = std::make_shared<SectionViewChildNode_ObjC2Metadata>();
+    p->Init(d_);
+    p->set_name(title);
+    if(kind == "category"){
+        p->set_kind(ObjCMetadataKind::CategoryList);
+    }else if(kind == "protocol"){
+        p->set_kind(ObjCMetadataKind::ProtocolList);
+    }else{
+        p->set_kind(ObjCMetadataKind::ClassList);
+    }
     children_.push_back(p);
 }
 
