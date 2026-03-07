@@ -4,6 +4,7 @@
 
 #include "SectionViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
+#include "../../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
 #include <algorithm>
 #include <cctype>
 #include <cstring>
@@ -948,12 +949,19 @@ public:
     {
         SectionViewChildNode::InitViewDatas();
         auto t = CreateTableView(d_.get());
-        t->SetHeaders({"Address", "Bytes", "Instruction", "Symbol"});
-        t->SetWidths({160, 240, 440, 300});
+        t->SetHeaders({"Address", "Bytes", "Instruction", "Symbol", "Notes"});
+        t->SetWidths({160, 220, 420, 260, 240});
 
         auto *symtab = d_->header()->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
         std::unordered_map<uint64_t, std::string> symbols_exact;
         std::vector<std::pair<uint64_t, std::string>> symbols_sorted;
+        std::unordered_set<uint64_t> function_starts;
+        struct DataInCodeRange {
+            uint64_t begin = 0;
+            uint64_t end = 0;
+            std::string kind;
+        };
+        std::vector<DataInCodeRange> data_in_code_ranges;
         if (symtab != nullptr) {
             for (auto &item : symtab->nlists_ref()) {
                 const uint64_t value = item->Is64() ? item->n_value64() : item->n_value();
@@ -971,6 +979,27 @@ public:
                       [](const std::pair<uint64_t, std::string> &a, const std::pair<uint64_t, std::string> &b) {
                           return a.first < b.first;
                       });
+        }
+
+        auto *function_starts_cmd = d_->header()->FindLoadCommand<LoadCommand_LC_FUNCTION_STARTS>({LC_FUNCTION_STARTS});
+        if (function_starts_cmd != nullptr) {
+            uint64_t addr = d_->header()->GetBaseAddress();
+            for (const auto &entry : function_starts_cmd->GetFunctions()) {
+                if (entry.data == 0) break;
+                addr += entry.data;
+                function_starts.insert(addr);
+            }
+        }
+
+        auto *data_in_code_cmd = d_->header()->FindLoadCommand<LoadCommand_LC_DATA_IN_CODE>({LC_DATA_IN_CODE});
+        if (data_in_code_cmd != nullptr) {
+            for (const auto &dice : data_in_code_cmd->GetDices()) {
+                DataInCodeRange range;
+                range.begin = dice->offset()->offset;
+                range.end = range.begin + dice->offset()->length;
+                range.kind = dice->GetKindString();
+                data_in_code_ranges.push_back(range);
+            }
         }
 
 #if !(defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE)
@@ -1011,6 +1040,18 @@ public:
             std::string text = op.empty() ? std::string(insn.mnemonic) : fmt::format("{} {}", insn.mnemonic, op);
             std::string symbol = LookupSymbolForAddress(insn.address, symbols_exact, symbols_sorted);
             char *raw = GetOffset() + (insn.address - base_addr);
+            const uint64_t raw_off = d_->header()->GetRAW(raw);
+            std::string notes;
+            if (function_starts.count(insn.address) != 0) {
+                notes = "function_start";
+            }
+            for (const auto &range : data_in_code_ranges) {
+                if (raw_off >= range.begin && raw_off < range.end) {
+                    if (!notes.empty()) notes += ", ";
+                    notes += "data_in_code:" + range.kind;
+                    break;
+                }
+            }
 
             t->AddRow(raw,
                       static_cast<uint64_t>(insn.size),
@@ -1018,7 +1059,8 @@ public:
                           AsAddress(insn.address),
                           AsHexData((void *)insn.bytes, static_cast<std::size_t>(insn.size)),
                           text,
-                          symbol
+                          symbol,
+                          notes
                       });
         }
 
