@@ -190,6 +190,26 @@ public:
 
 class SectionViewChildNode_SwiftMetadata : public SectionViewChildNode{
 private:
+    struct SwiftContextDescriptorHeader {
+        uint32_t flags = 0;
+        int32_t parent = 0;
+        int32_t name = 0;
+    };
+
+    struct SwiftFieldDescriptorHeader {
+        int32_t mangled_type_name = 0;
+        int32_t superclass = 0;
+        uint16_t kind = 0;
+        uint16_t field_record_size = 0;
+        uint32_t num_fields = 0;
+    };
+
+    struct SwiftFieldRecord {
+        uint32_t flags = 0;
+        int32_t mangled_type_name = 0;
+        int32_t field_name = 0;
+    };
+
     static bool VmToPtr(MachHeader *header, const NodeContextPtr &ctx, bool is64, uint64_t vmaddr, char *&out) {
         out = nullptr;
         if (is64) {
@@ -219,6 +239,30 @@ private:
             return true;
         }
         return false;
+    }
+
+    static bool IsFileRangeValid(const NodeContextPtr &ctx, const void *ptr, std::size_t size) {
+        if (ctx == nullptr || ptr == nullptr) return false;
+        const uint64_t base = reinterpret_cast<uint64_t>(ctx->file_start);
+        const uint64_t p = reinterpret_cast<uint64_t>(ptr);
+        if (p < base) return false;
+        const uint64_t rel = p - base;
+        return rel <= ctx->file_size && size <= (ctx->file_size - rel);
+    }
+
+    static bool ResolveRelativeTarget(
+            MachHeader *header,
+            const NodeContextPtr &ctx,
+            bool is64,
+            uint64_t rel_field_vmaddr,
+            int32_t rel,
+            uint64_t &target_vmaddr,
+            char *&target_raw) {
+        target_vmaddr = 0;
+        target_raw = nullptr;
+        if (rel == 0) return false;
+        target_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(rel_field_vmaddr) + static_cast<int64_t>(rel));
+        return VmToPtr(header, ctx, is64, target_vmaddr, target_raw);
     }
 
     static std::string TryReadCString(MachHeader *header, const NodeContextPtr &ctx, bool is64, uint64_t vmaddr) {
@@ -267,6 +311,203 @@ private:
         return out;
     }
 
+    static const char *SwiftContextKindName(uint32_t kind) {
+        switch (kind) {
+            case 0: return "module";
+            case 1: return "extension";
+            case 2: return "anonymous";
+            case 3: return "protocol";
+            case 4: return "opaque-type";
+            case 16: return "class";
+            case 17: return "struct";
+            case 18: return "enum";
+            default: return "unknown";
+        }
+    }
+
+    static const char *SwiftFieldDescriptorKindName(uint16_t kind) {
+        switch (kind) {
+            case 0: return "struct";
+            case 1: return "class";
+            case 2: return "enum";
+            case 3: return "multi-payload-enum";
+            case 4: return "protocol";
+            case 5: return "class-protocol";
+            case 6: return "objc-protocol";
+            case 7: return "objc-class";
+            default: return "unknown";
+        }
+    }
+
+    static std::string SafeDisplay(const std::string &text) {
+        if (text.empty()) return "-";
+        return text;
+    }
+
+    static void DecodeContextDescriptor(
+            MachHeader *header,
+            const NodeContextPtr &ctx,
+            bool is64,
+            uint64_t descriptor_vmaddr,
+            std::string &kind,
+            std::string &decoded)
+    {
+        kind = "swift-context";
+        decoded = "unmapped";
+        char *descriptor_raw = nullptr;
+        if (!VmToPtr(header, ctx, is64, descriptor_vmaddr, descriptor_raw) || descriptor_raw == nullptr) {
+            return;
+        }
+        if (!IsFileRangeValid(ctx, descriptor_raw, sizeof(SwiftContextDescriptorHeader))) {
+            decoded = "truncated";
+            return;
+        }
+
+        const auto *desc = reinterpret_cast<const SwiftContextDescriptorHeader *>(descriptor_raw);
+        const uint32_t context_kind = desc->flags & 0x1fU;
+        kind = std::string("context/") + SwiftContextKindName(context_kind);
+
+        uint64_t name_vmaddr = 0;
+        char *name_raw = nullptr;
+        std::string name;
+        if (ResolveRelativeTarget(header, ctx, is64, descriptor_vmaddr + 8, desc->name, name_vmaddr, name_raw)) {
+            name = TryReadCString(header, ctx, is64, name_vmaddr);
+        }
+
+        decoded = fmt::format("flags={} parent_rel={} name={}",
+                              AsShortHexString(desc->flags),
+                              desc->parent,
+                              SafeDisplay(name));
+    }
+
+    void ParseSwiftRelativeSection(const TableViewDataPtr &t, const std::string &section_name) {
+        const bool is64 = d_->Is64();
+        const uint64_t base_addr = is64 ? d_->sect().addr64() : d_->sect().addr();
+        char *section_data = GetOffset();
+        const uint32_t section_size = GetSize();
+
+        const uint32_t stride = sizeof(int32_t);
+        const uint32_t count = section_size / stride;
+        for (uint32_t idx = 0; idx < count; ++idx) {
+            char *cur = section_data + idx * stride;
+            const int32_t rel = *reinterpret_cast<int32_t *>(cur);
+            const uint64_t rel_field_vmaddr = base_addr + idx * stride;
+            uint64_t target_vmaddr = 0;
+            char *target_raw = nullptr;
+            ResolveRelativeTarget(d_->header(), d_->ctx(), is64, rel_field_vmaddr, rel, target_vmaddr, target_raw);
+
+            std::string kind = "rel32";
+            std::string decoded = "-";
+            if (section_name == "__swift5_types" || section_name == "__swift5_protos") {
+                if (target_raw != nullptr) {
+                    DecodeContextDescriptor(d_->header(), d_->ctx(), is64, target_vmaddr, kind, decoded);
+                } else {
+                    decoded = "unmapped";
+                }
+            } else {
+                if (target_raw != nullptr) {
+                    const std::string maybe_cstr = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    if (!maybe_cstr.empty()) decoded = maybe_cstr;
+                }
+            }
+
+            t->AddRow(target_raw, 0, {
+                    AsString(idx),
+                    AsAddress(d_->GetRAW(cur)),
+                    kind,
+                    AsAddress(target_vmaddr),
+                    decoded
+            });
+        }
+    }
+
+    void ParseSwiftFieldMetadata(const TableViewDataPtr &t) {
+        const bool is64 = d_->Is64();
+        const uint64_t base_addr = is64 ? d_->sect().addr64() : d_->sect().addr();
+        char *section_data = GetOffset();
+        const uint32_t section_size = GetSize();
+
+        uint32_t cursor = 0;
+        uint32_t descriptor_index = 0;
+        while (cursor + sizeof(SwiftFieldDescriptorHeader) <= section_size) {
+            char *desc_raw = section_data + cursor;
+            auto *desc = reinterpret_cast<const SwiftFieldDescriptorHeader *>(desc_raw);
+            const uint64_t desc_vmaddr = base_addr + cursor;
+
+            if (desc->field_record_size < sizeof(SwiftFieldRecord) || desc->field_record_size > 256 || desc->num_fields > 65535) {
+                t->AddRow(desc_raw, sizeof(SwiftFieldDescriptorHeader), {
+                        AsString(descriptor_index),
+                        AsAddress(d_->GetRAW(desc_raw)),
+                        "fieldmd/descriptor?",
+                        AsAddress(desc_vmaddr),
+                        "invalid field descriptor size/count"
+                });
+                break;
+            }
+
+            std::string type_name = "-";
+            std::string super_name = "-";
+            uint64_t type_name_vmaddr = 0;
+            uint64_t super_vmaddr = 0;
+            char *tmp_raw = nullptr;
+            if (ResolveRelativeTarget(d_->header(), d_->ctx(), is64, desc_vmaddr, desc->mangled_type_name, type_name_vmaddr, tmp_raw)) {
+                const std::string parsed = TryReadCString(d_->header(), d_->ctx(), is64, type_name_vmaddr);
+                if (!parsed.empty()) type_name = parsed;
+            }
+            if (ResolveRelativeTarget(d_->header(), d_->ctx(), is64, desc_vmaddr + 4, desc->superclass, super_vmaddr, tmp_raw)) {
+                const std::string parsed = TryReadCString(d_->header(), d_->ctx(), is64, super_vmaddr);
+                if (!parsed.empty()) super_name = parsed;
+            }
+
+            t->AddRow(desc_raw, sizeof(SwiftFieldDescriptorHeader), {
+                    AsString(descriptor_index),
+                    AsAddress(d_->GetRAW(desc_raw)),
+                    std::string("fieldmd/") + SwiftFieldDescriptorKindName(desc->kind),
+                    AsAddress(desc_vmaddr),
+                    fmt::format("type={} super={} fields={} record_size={}",
+                                type_name, super_name, desc->num_fields, desc->field_record_size)
+            });
+
+            uint32_t field_cursor = cursor + sizeof(SwiftFieldDescriptorHeader);
+            for (uint32_t i = 0; i < desc->num_fields; ++i) {
+                if (field_cursor + desc->field_record_size > section_size) {
+                    t->AddRow({"-", "-", "field", "-", "truncated field record table"});
+                    cursor = section_size;
+                    break;
+                }
+                char *record_raw = section_data + field_cursor;
+                const auto *record = reinterpret_cast<const SwiftFieldRecord *>(record_raw);
+                const uint64_t record_vmaddr = base_addr + field_cursor;
+
+                std::string field_name = "-";
+                std::string mangled_name = "-";
+                uint64_t target_vmaddr = 0;
+                if (ResolveRelativeTarget(d_->header(), d_->ctx(), is64, record_vmaddr + 8, record->field_name, target_vmaddr, tmp_raw)) {
+                    const std::string parsed = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    if (!parsed.empty()) field_name = parsed;
+                }
+                if (ResolveRelativeTarget(d_->header(), d_->ctx(), is64, record_vmaddr + 4, record->mangled_type_name, target_vmaddr, tmp_raw)) {
+                    const std::string parsed = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    if (!parsed.empty()) mangled_name = parsed;
+                }
+
+                t->AddRow(record_raw, static_cast<uint64_t>(desc->field_record_size), {
+                        AsString(i),
+                        AsAddress(d_->GetRAW(record_raw)),
+                        "field",
+                        field_name,
+                        fmt::format("flags={} type={}", AsShortHexString(record->flags), mangled_name)
+                });
+
+                field_cursor += desc->field_record_size;
+            }
+            if (cursor >= section_size) break;
+            if (field_cursor <= cursor) break;
+            cursor = field_cursor;
+            ++descriptor_index;
+        }
+    }
+
     static std::string ShellEscapeSingleQuote(const std::string &s) {
         std::string out = "'";
         for (char c : s) {
@@ -312,27 +553,11 @@ public:
         t->SetHeaders({"Index", "Offset", "Kind", "Value", "Decoded"});
         t->SetWidths({80, 140, 220, 260, 420});
 
-        const bool is64 = d_->Is64();
-        const uint64_t base_addr = is64 ? d_->sect().addr64() : d_->sect().addr();
-        char *section_data = GetOffset();
-        const uint32_t section_size = GetSize();
-
-        const uint32_t stride = sizeof(int32_t);
-        const uint32_t count = section_size / stride;
-        for (uint32_t idx = 0; idx < count; ++idx) {
-            char *cur = section_data + idx * stride;
-            const int32_t rel = *reinterpret_cast<int32_t *>(cur);
-            const uint64_t item_vmaddr = base_addr + idx * stride;
-            const uint64_t target_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(item_vmaddr) + rel);
-
-            std::string decoded;
-            char *target_raw = nullptr;
-            if (rel != 0 && VmToPtr(d_->header(), d_->ctx(), is64, target_vmaddr, target_raw)) {
-                decoded = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
-            }
-            if (decoded.empty()) decoded = "-";
-
-            t->AddRow(target_raw, 0, {AsString(idx), AsAddress(d_->GetRAW(cur)), "rel32", AsAddress(target_vmaddr), decoded});
+        const std::string section_name = d_->sect().section_name();
+        if (section_name == "__swift5_fieldmd") {
+            ParseSwiftFieldMetadata(t);
+        } else {
+            ParseSwiftRelativeSection(t, section_name);
         }
 
         auto *symtab = d_->header()->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
