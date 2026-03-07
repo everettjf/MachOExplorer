@@ -404,6 +404,27 @@ private:
                 } else {
                     decoded = "unmapped";
                 }
+            } else if (section_name == "__swift5_assocty") {
+                kind = "assocty/rel32";
+                if (target_raw != nullptr) {
+                    std::string ctx_kind;
+                    DecodeContextDescriptor(d_->header(), d_->ctx(), is64, target_vmaddr, ctx_kind, decoded);
+                    if (!ctx_kind.empty()) kind = "assocty->" + ctx_kind;
+                } else {
+                    decoded = "unmapped";
+                }
+            } else if (section_name == "__swift5_capture") {
+                kind = "capture/rel32";
+                if (target_raw != nullptr) {
+                    const std::string maybe_cstr = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    if (!maybe_cstr.empty()) {
+                        decoded = maybe_cstr;
+                    } else {
+                        decoded = "capture-record";
+                    }
+                } else {
+                    decoded = "unmapped";
+                }
             } else {
                 if (target_raw != nullptr) {
                     const std::string maybe_cstr = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
@@ -418,6 +439,50 @@ private:
                     AsAddress(target_vmaddr),
                     decoded
             });
+        }
+    }
+
+    void ParseSwiftReflectionStrings(const TableViewDataPtr &t) {
+        char *section_data = GetOffset();
+        const uint32_t section_size = GetSize();
+        uint32_t cursor = 0;
+        uint32_t index = 0;
+        while (cursor < section_size) {
+            char *cur = section_data + cursor;
+            uint32_t len = 0;
+            while ((cursor + len) < section_size && cur[len] != '\0') {
+                ++len;
+            }
+
+            if (len == 0) {
+                ++cursor;
+                continue;
+            }
+
+            bool printable = true;
+            for (uint32_t i = 0; i < len; ++i) {
+                const auto c = static_cast<unsigned char>(cur[i]);
+                if (c < 0x20 || c > 0x7e) {
+                    printable = false;
+                    break;
+                }
+            }
+            if (!printable) {
+                ++cursor;
+                continue;
+            }
+
+            t->AddRow(cur, len + 1, {
+                    AsString(index++),
+                    AsAddress(d_->GetRAW(cur)),
+                    "reflstr",
+                    AsString(len),
+                    std::string(cur, len)
+            });
+            cursor += len + 1;
+        }
+        if (index == 0) {
+            t->AddRow({"-", "-", "reflstr", "-", "no printable reflection strings"});
         }
     }
 
@@ -554,7 +619,9 @@ public:
         t->SetWidths({80, 140, 220, 260, 420});
 
         const std::string section_name = d_->sect().section_name();
-        if (section_name == "__swift5_fieldmd") {
+        if (section_name == "__swift5_reflstr") {
+            ParseSwiftReflectionStrings(t);
+        } else if (section_name == "__swift5_fieldmd") {
             ParseSwiftFieldMetadata(t);
         } else {
             ParseSwiftRelativeSection(t, section_name);
