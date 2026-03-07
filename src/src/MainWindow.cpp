@@ -18,6 +18,13 @@
 #include <QPalette>
 #include <QSettings>
 #include <QEvent>
+#include <QInputDialog>
+#include <QFileInfo>
+#include <climits>
+
+#ifdef Q_OS_MAC
+#include <libproc.h>
+#endif
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -136,6 +143,36 @@ void MainWindow::createActions()
         if(fileName.length() == 0)
             return;
         WS()->openFile(fileName);
+    });
+
+    action->attachProcess = new QAction(tr("&Attach by PID"));
+    menu->file->addAction(action->attachProcess);
+    connect(action->attachProcess, &QAction::triggered, this, [this](bool checked){
+        Q_UNUSED(checked)
+        bool ok = false;
+        int pid = QInputDialog::getInt(this, tr("Attach Process"), tr("Process ID:"), 0, 1, INT_MAX, 1, &ok);
+        if(!ok) return;
+
+        QString path;
+#ifdef Q_OS_MAC
+        char exec_path[PROC_PIDPATHINFO_MAXSIZE] = {0};
+        const int ret = proc_pidpath(pid, exec_path, sizeof(exec_path));
+        if(ret > 0){
+            path = QString::fromUtf8(exec_path);
+        }
+#endif
+        if(path.isEmpty()){
+            util::showError(this, tr("Unable to resolve process executable path.\nOn macOS this may require extra privileges for target PID."));
+            return;
+        }
+        if(!QFileInfo::exists(path)){
+            util::showError(this, tr("Resolved executable path does not exist:\n%1").arg(path));
+            return;
+        }
+
+        this->showMaximized();
+        WS()->openFile(path);
+        statusBar()->showMessage(tr("Attached to PID %1: %2").arg(pid).arg(path), 6000);
     });
 
     action->quit = new QAction(tr("&Quit"));
