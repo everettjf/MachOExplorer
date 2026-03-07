@@ -217,6 +217,16 @@ void XrefViewNode::InitViewDatas()
                             refs[static_cast<uint64_t>(op.imm)].push_back(
                                     {"__TEXT/__text", is_call ? "call" : "jump",
                                      sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                        } else if (op.type == X86_OP_MEM &&
+                                   (op.mem.base == X86_REG_RIP || op.mem.base == X86_REG_EIP)) {
+                            const uint64_t mem_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + op.mem.disp);
+                            uint64_t target = 0;
+                            const bool is64ptr = (mode == CS_MODE_64);
+                            if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
+                                refs[target].push_back(
+                                        {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
+                                         sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                            }
                         }
                     }
                 }
