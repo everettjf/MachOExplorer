@@ -7,6 +7,7 @@
 
 #include "../ViewNode.h"
 #include "../../node/loadcmd/LoadCommand_DYLD_INFO.h"
+#include "../../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -49,6 +50,26 @@ public:
     void InitViewDatas()override;
 };
 
+class ModernExportsTrieViewNode : public ViewNode {
+private:
+    MachHeaderPtr mh_;
+    LoadCommand_LC_DYLD_EXPORTS_TRIE *cmd_ = nullptr;
+public:
+    void Init(MachHeaderPtr mh, LoadCommand_LC_DYLD_EXPORTS_TRIE *cmd) { mh_ = mh; cmd_ = cmd; }
+    std::string GetDisplayName() override { return "Exports Trie (LC_DYLD_EXPORTS_TRIE)"; }
+    void InitViewDatas() override;
+};
+
+class ModernChainedFixupsViewNode : public ViewNode {
+private:
+    MachHeaderPtr mh_;
+    LoadCommand_LC_DYLD_CHAINED_FIXUPS *cmd_ = nullptr;
+public:
+    void Init(MachHeaderPtr mh, LoadCommand_LC_DYLD_CHAINED_FIXUPS *cmd) { mh_ = mh; cmd_ = cmd; }
+    std::string GetDisplayName() override { return "Chained Fixups (LC_DYLD_CHAINED_FIXUPS)"; }
+    void InitViewDatas() override;
+};
+
 class DynamicLoaderInfoViewNode : public ViewNode{
 private:
     MachHeaderPtr mh_;
@@ -58,6 +79,8 @@ private:
     std::shared_ptr<WeakBindingInfoViewNode> weak_binding_;
     std::shared_ptr<LazyBindingInfoViewNode> lazy_binding_;
     std::shared_ptr<ExportInfoViewNode> export_;
+    std::shared_ptr<ModernExportsTrieViewNode> modern_exports_trie_;
+    std::shared_ptr<ModernChainedFixupsViewNode> modern_chained_fixups_;
 public:
     void Init(MachHeaderPtr mh);
 public:
