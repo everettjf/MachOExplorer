@@ -11,6 +11,7 @@
 #include "FatHeaderViewNode.h"
 #include "MachHeaderViewNode.h"
 #include "ArchiveViewNode.h"
+#include "DyldSharedCacheViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -20,6 +21,7 @@ private:
     FatHeaderViewNodePtr fat_;
     MachHeaderViewNodePtr mh_;
     ArchiveViewNodePtr archive_;
+    DyldSharedCacheViewNodePtr dyld_cache_;
 
 public:
     void Init(BinaryPtr bin);

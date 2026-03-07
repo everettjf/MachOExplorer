@@ -40,10 +40,14 @@ Binary::Binary(const std::string & filepath)
         is_archive_ = true;
         archive_ = std::make_shared<Archive>();
         archive_->Init(memory_, memorysize_, context);
+    } else if (DyldSharedCache::IsSharedCacheMagic(memory_, memorysize_)) {
+        is_dyld_cache_ = true;
+        dyld_cache_ = std::make_shared<DyldSharedCache>();
+        dyld_cache_->Init(memory_, memorysize_, context);
     } else {
         magic_.Parse(memory_);
         if(!magic_.IsValid()){
-            throw NodeException("Not a MachO file or archive");
+            throw NodeException("Not a MachO file, archive, or dyld shared cache");
         }
 
         if(magic_.IsFat()){
@@ -60,6 +64,8 @@ Binary::Binary(const std::string & filepath)
 Node *Binary::GetNode(){
     if(is_archive_)
         return archive_.get();
+    else if(is_dyld_cache_)
+        return dyld_cache_.get();
     else if(magic_.IsFat())
         return fath_.get();
     else
@@ -73,6 +79,9 @@ void Binary::ForEachHeader(std::function<void (MachHeaderPtr)> callback){
                 callback(member->mh);
             }
         }
+    }else if(IsDyldSharedCache()){
+        // dyld shared cache is not represented as embedded MachHeader list for now.
+        return;
     }else if(IsFat()){
         for(auto & arch : fath()->archs()){
             callback(arch->mh());

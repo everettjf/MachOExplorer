@@ -12,6 +12,9 @@ void FileViewNode::Init(BinaryPtr bin) {
     if(bin_->IsArchive()){
         archive_ = std::make_shared<ArchiveViewNode>();
         archive_->Init(bin_->archive());
+    }else if(bin_->IsDyldSharedCache()){
+        dyld_cache_ = std::make_shared<DyldSharedCacheViewNode>();
+        dyld_cache_->Init(bin_->dyld_cache());
     }else if(bin_->IsFat()){
         fat_ = std::make_shared<FatHeaderViewNode>();
         fat_->Init(bin_->fath());
@@ -24,6 +27,8 @@ void FileViewNode::Init(BinaryPtr bin) {
 void FileViewNode::ForEachChild(std::function<void(ViewNode*)> callback){
     if(bin_->IsArchive()){
         callback(archive_.get());
+    }else if(bin_->IsDyldSharedCache()){
+        callback(dyld_cache_.get());
     }else if(bin_->IsFat()){
         callback(fat_.get());
     }else{
@@ -39,6 +44,8 @@ void FileViewNode::InitViewDatas()
     t->SetWidths({300});
     if(bin_->IsArchive()){
         t->AddRow({"It is an archive file (.a)"});
+    }else if(bin_->IsDyldSharedCache()){
+        t->AddRow({"It is a dyld shared cache file"});
     }else if(bin_->IsFat()){
         t->AddRow({"It is a fat file"});
     }else{
