@@ -454,16 +454,6 @@ void MainWindow::createActions()
         }
         if(cachePath.isEmpty()) return;
 
-        bool ok = false;
-        const QString imageSelector = QInputDialog::getText(
-                this,
-                tr("Image Selector"),
-                tr("Image path (exact or substring):"),
-                QLineEdit::Normal,
-                "libswiftCore.dylib",
-                &ok);
-        if(!ok || imageSelector.isEmpty()) return;
-
         QString tool = QCoreApplication::applicationDirPath() + "/moex-cache-extract";
         if(!QFileInfo::exists(tool)){
             tool = QDir::current().absoluteFilePath("build/moex-cache-extract");
@@ -471,6 +461,54 @@ void MainWindow::createActions()
         if(!QFileInfo::exists(tool)){
             util::showError(this, tr("Cannot find moex-cache-extract tool.\nBuild from source first."));
             return;
+        }
+
+        QString imageSelector;
+        {
+            QString listTool = QCoreApplication::applicationDirPath() + "/moex-cache-list";
+            if(!QFileInfo::exists(listTool)){
+                listTool = QDir::current().absoluteFilePath("build/moex-cache-list");
+            }
+
+            QStringList candidateImages;
+            if(QFileInfo::exists(listTool)){
+                QProcess listProc;
+                listProc.start(listTool, {cachePath});
+                if(listProc.waitForFinished(15000) && listProc.exitStatus() == QProcess::NormalExit && listProc.exitCode() == 0){
+                    const QString output = QString::fromUtf8(listProc.readAllStandardOutput());
+                    const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
+                    for(const QString &line : lines){
+                        if(!line.startsWith("0x")) continue;
+                        const int p = line.indexOf(' ');
+                        if(p <= 0 || p + 1 >= line.size()) continue;
+                        const QString path = line.mid(p + 1).trimmed();
+                        if(path.isEmpty()) continue;
+                        candidateImages.push_back(path);
+                        if(candidateImages.size() >= 5000) break;
+                    }
+                }
+            }
+
+            bool ok = false;
+            if(!candidateImages.isEmpty()){
+                imageSelector = QInputDialog::getItem(
+                        this,
+                        tr("Image Selector"),
+                        tr("Choose image path (searchable, editable):"),
+                        candidateImages,
+                        0,
+                        true,
+                        &ok);
+            } else {
+                imageSelector = QInputDialog::getText(
+                        this,
+                        tr("Image Selector"),
+                        tr("Image path (exact or substring):"),
+                        QLineEdit::Normal,
+                        "libswiftCore.dylib",
+                        &ok);
+            }
+            if(!ok || imageSelector.isEmpty()) return;
         }
 
         const QString outputPath = QDir::temp().absoluteFilePath(
