@@ -23,12 +23,22 @@ void DyldSharedCacheImagesViewNode::InitViewDatas()
     t->SetHeaders({"Address", "Path Offset", "Path"});
     t->SetWidths({180, 180, 620});
     uint32_t idx = 0;
-    for (const auto &img : cache_->images()) {
-        std::string path = cache_->ReadPathByOffset(img.pathFileOffset);
-        t->AddRow({AsAddress(img.address), AsAddress(img.pathFileOffset), path});
-        if (++idx >= 5000) {
-            t->AddRow({"-", "-", "(truncated at 5000 entries)"});
-            break;
+    if (!cache_->images().empty()) {
+        for (const auto &img : cache_->images()) {
+            std::string path = cache_->ReadPathByOffset(img.pathFileOffset);
+            t->AddRow({AsAddress(img.address), AsAddress(img.pathFileOffset), path});
+            if (++idx >= 5000) {
+                t->AddRow({"-", "-", "(truncated at 5000 entries)"});
+                break;
+            }
+        }
+    } else {
+        for (const auto &img : cache_->map_images()) {
+            t->AddRow({AsAddress(img.first), "-", img.second});
+            if (++idx >= 5000) {
+                t->AddRow({"-", "-", "(truncated at 5000 entries)"});
+                break;
+            }
         }
     }
 }

@@ -43,7 +43,7 @@ Binary::Binary(const std::string & filepath)
     } else if (DyldSharedCache::IsSharedCacheMagic(memory_, memorysize_)) {
         is_dyld_cache_ = true;
         dyld_cache_ = std::make_shared<DyldSharedCache>();
-        dyld_cache_->Init(memory_, memorysize_, context);
+        dyld_cache_->Init(memory_, memorysize_, context, filepath_);
     } else {
         magic_.Parse(memory_);
         if(!magic_.IsValid()){

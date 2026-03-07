@@ -49,17 +49,19 @@ private:
     dyld_cache_header_min header_{};
     std::vector<dyld_cache_mapping_info_min> mappings_;
     std::vector<dyld_cache_image_info_min> images_;
+    std::vector<std::pair<uint64_t, std::string>> map_images_;
 
 public:
     static bool IsSharedCacheMagic(const void *data, std::size_t size);
 
-    void Init(void *offset, std::size_t size, NodeContextPtr &ctx);
+    void Init(void *offset, std::size_t size, NodeContextPtr &ctx, const std::string &filepath);
 
     NodeContextPtr ctx() { return ctx_; }
     char *base() { return base_; }
     const dyld_cache_header_min &header() const { return header_; }
     const std::vector<dyld_cache_mapping_info_min> &mappings() const { return mappings_; }
     const std::vector<dyld_cache_image_info_min> &images() const { return images_; }
+    const std::vector<std::pair<uint64_t, std::string>> &map_images() const { return map_images_; }
 
     std::string ReadPathByOffset(uint32_t file_offset) const;
 

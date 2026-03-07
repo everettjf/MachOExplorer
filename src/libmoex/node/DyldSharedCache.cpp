@@ -1,5 +1,8 @@
 #include "DyldSharedCache.h"
 #include <cstring>
+#include <fstream>
+#include <regex>
+#include <sstream>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -10,7 +13,7 @@ bool DyldSharedCache::IsSharedCacheMagic(const void *data, std::size_t size)
     return std::strncmp(p, "dyld_v1", 7) == 0;
 }
 
-void DyldSharedCache::Init(void *offset, std::size_t size, NodeContextPtr &ctx)
+void DyldSharedCache::Init(void *offset, std::size_t size, NodeContextPtr &ctx, const std::string &filepath)
 {
     if (offset == nullptr || size < sizeof(dyld_cache_header_min)) {
         throw NodeException("Malformed dyld shared cache: header truncated");
@@ -36,6 +39,36 @@ void DyldSharedCache::Init(void *offset, std::size_t size, NodeContextPtr &ctx)
     }
     const auto *img_ptr = reinterpret_cast<const dyld_cache_image_info_min *>(base_ + header_.imagesOffset);
     images_.assign(img_ptr, img_ptr + header_.imagesCount);
+
+    if (images_.empty()) {
+        const std::string map_path = filepath + ".map";
+        std::ifstream fin(map_path);
+        if (fin.good()) {
+            std::regex text_line("^\\s*__TEXT\\s+0x([0-9A-Fa-f]+)");
+            std::string line;
+            std::string pending_path;
+            while (std::getline(fin, line)) {
+                if (line.empty()) continue;
+                if (line[0] == '/') {
+                    pending_path = line;
+                    map_images_.push_back({0, pending_path});
+                    continue;
+                }
+                if (pending_path.empty()) continue;
+                std::smatch m;
+                if (std::regex_search(line, m, text_line) && m.size() >= 2) {
+                    uint64_t addr = 0;
+                    std::stringstream ss;
+                    ss << std::hex << m[1].str();
+                    ss >> addr;
+                    if (!map_images_.empty() && map_images_.back().second == pending_path) {
+                        map_images_.back().first = addr;
+                    }
+                    pending_path.clear();
+                }
+            }
+        }
+    }
 }
 
 std::string DyldSharedCache::ReadPathByOffset(uint32_t file_offset) const

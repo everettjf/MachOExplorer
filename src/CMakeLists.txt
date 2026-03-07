@@ -62,6 +62,13 @@ if(MOEX_BUILD_PARSER_TOOL)
         tools/moex_diff_main.cpp
     )
     target_include_directories(moex-diff PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+    add_executable(moex-cache-list
+        ${LIBMOEX_SOURCE}
+        ${LIBMOEX_HEADER}
+        tools/moex_cache_list_main.cpp
+    )
+    target_include_directories(moex-cache-list PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 endif()
 
 if(MOEX_ENABLE_FUZZ)
