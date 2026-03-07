@@ -98,11 +98,14 @@ std::vector<char*> ParseStringLiteral(char * offset,uint32_t size);
 template <typename T>
 std::vector<T*> ParsePointerAsType(char *offset, uint32_t size){
     std::vector<T*> results;
+    if (offset == nullptr || size == 0 || sizeof(T) == 0) {
+        return results;
+    }
 
     char *cur = offset;
     char *end = offset + size;
 
-    while(cur < end){
+    while(cur + sizeof(T) <= end){
         results.push_back((T*)cur);
         cur += sizeof(T);
     }

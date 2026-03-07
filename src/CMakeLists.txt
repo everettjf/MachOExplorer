@@ -19,6 +19,9 @@ file(GLOB_RECURSE LIBMOEX_HEADER libmoex/*.h)
 file(GLOB_RECURSE MOEX_SOURCE src/*.cpp)
 file(GLOB_RECURSE MOEX_HEADER src/*.h)
 
+option(MOEX_BUILD_PARSER_TOOL "Build parser CLI for crash-regression tests" ON)
+option(MOEX_ENABLE_FUZZ "Build libFuzzer target for parser fuzzing" OFF)
+
 set(SOURCE_FILES
     ${LIBMOEX_SOURCE}
     ${LIBMOEX_HEADER}
@@ -43,4 +46,28 @@ if(CAPSTONE_INCLUDE_DIR AND CAPSTONE_LIBRARY)
 else()
     message(STATUS "Capstone not found; disassembly view will show unavailable message")
     target_compile_definitions(MachOExplorer PRIVATE MOEX_HAS_CAPSTONE=0)
+endif()
+
+if(MOEX_BUILD_PARSER_TOOL)
+    add_executable(moex-parse
+        ${LIBMOEX_SOURCE}
+        ${LIBMOEX_HEADER}
+        tools/moex_parse_main.cpp
+    )
+    target_include_directories(moex-parse PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+endif()
+
+if(MOEX_ENABLE_FUZZ)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        add_executable(moex-fuzz-parse
+            ${LIBMOEX_SOURCE}
+            ${LIBMOEX_HEADER}
+            fuzz/fuzz_macho_parse.cpp
+        )
+        target_include_directories(moex-fuzz-parse PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+        target_compile_options(moex-fuzz-parse PRIVATE -fsanitize=fuzzer,address,undefined -fno-omit-frame-pointer)
+        target_link_options(moex-fuzz-parse PRIVATE -fsanitize=fuzzer,address,undefined)
+    else()
+        message(WARNING "MOEX_ENABLE_FUZZ requires Clang/libFuzzer; skipping moex-fuzz-parse")
+    endif()
 endif()

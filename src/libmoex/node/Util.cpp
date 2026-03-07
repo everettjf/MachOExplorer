@@ -473,6 +473,9 @@ namespace util {
     std::vector<char*> ParseStringLiteral(char *offset, uint32_t size)
     {
         std::vector<char*> results;
+        if (offset == nullptr || size == 0) {
+            return results;
+        }
 
         char *cur = offset;
         char *end = offset + size;
@@ -483,7 +486,9 @@ namespace util {
                 continue;
             }
             results.push_back(cur);
-            cur += strlen(cur);
+            while (cur < end && *cur != 0) {
+                ++cur;
+            }
         }
 
         return results;
@@ -493,11 +498,14 @@ namespace util {
 
     std::vector<char *> ParseDataAsSize(char *offset, uint32_t size, size_t unitsize){
         std::vector<char*> results;
+        if (offset == nullptr || size == 0 || unitsize == 0) {
+            return results;
+        }
 
         char *cur = offset;
         char *end = offset + size;
 
-        while(cur < end){
+        while(cur + unitsize <= end){
             results.push_back((char*)cur);
             cur += unitsize;
         }

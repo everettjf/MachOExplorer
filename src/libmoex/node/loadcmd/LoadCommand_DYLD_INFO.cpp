@@ -5,6 +5,7 @@
 #include "../MachHeader.h"
 #include "LoadCommand_SEGMENT.h"
 #include <list>
+#include <unordered_set>
 
 
 MOEX_NAMESPACE_BEGIN
@@ -433,6 +434,9 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
     ExportContext ctx;
     char * begin = header()->header_start() + cmd()->export_off;
     uint32_t size = cmd()->export_size;
+    char * end = begin + size;
+    if (size == 0) return;
+    if ((uint64_t)cmd()->export_off + size > header()->ctx()->file_size) return;
 
     // dfs a trie tree
 
@@ -441,32 +445,43 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
         std::string prefix;
     };
     std::list<Entry> queue;
+    std::unordered_set<uint64_t> visited;
     {
         Entry entry;
         entry.addr = begin;
         entry.prefix = "";
         queue.push_back(entry);
     }
-    while(queue.size() > 0){
+    int guard = 0;
+    while(queue.size() > 0 && guard < 200000){
+        ++guard;
         Entry entry = queue.front();
         queue.pop_front();
         char * cur = entry.addr;
+        if (cur < begin || cur >= end) continue;
+        uint64_t node_off = (uint64_t)(cur - begin);
+        if (visited.count(node_off) != 0) continue;
+        visited.insert(node_off);
 
         ExportItem item;
+        if (cur + sizeof(uint8_t) > end) continue;
         item.terminal_size_addr = (uint8_t*)cur;
         item.terminal_size= *(uint8_t*)cur;
         cur += sizeof(uint8_t);
 
         if(item.terminal_size > 0){
             item.flags_addr = (uint8_t*)cur;
-            moex::util::readUnsignedLeb128(cur,item.flags,item.flags_size);
+            const char *next = moex::util::readUnsignedLeb128(cur,item.flags,item.flags_size);
+            if (next == nullptr || next > end) continue;
             cur+= item.flags_size;
 
             item.offset_addr = (uint8_t*)cur;
-            moex::util::readUnsignedLeb128(cur,item.offset,item.offset_size);
+            next = moex::util::readUnsignedLeb128(cur,item.offset,item.offset_size);
+            if (next == nullptr || next > end) continue;
             cur+= item.offset_size;
         }
 
+        if (cur + sizeof(uint8_t) > end) continue;
         item.child_count_addr = (uint8_t*)cur;
         item.child_count = *(uint8_t*)cur;
         cur+= sizeof(uint8_t);
@@ -478,14 +493,18 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
 
             ExportChildItem child;
             char * name = (char*)cur;
-            int len = strlen(name);
+            char *name_end = (char*)memchr(name, '\0', (size_t)(end - name));
+            if (name_end == nullptr) break;
+            int len = (int)(name_end - name);
             child.label = std::string(name);
             child.label_addr = (uint8_t*)name;
             child.label_size = len + 1;
             cur += child.label_size;
+            if (cur > end) break;
 
             child.skip_addr = (uint8_t*)cur;
-            moex::util::readUnsignedLeb128(cur,child.skip,child.skip_size);
+            const char *next = moex::util::readUnsignedLeb128(cur,child.skip,child.skip_size);
+            if (next == nullptr || next > end) break;
             cur+= child.skip_size;
 
             // callback
@@ -495,10 +514,11 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
             child_entry.addr = begin + child.skip;
             child_entry.prefix = entry.prefix + child.label;
 
-            queue.push_back(child_entry);
+            if (child_entry.addr >= begin && child_entry.addr < end) {
+                queue.push_back(child_entry);
+            }
         }
     }
 }
 
 MOEX_NAMESPACE_END
-
