@@ -113,10 +113,14 @@ static bool VmToFileOffset(const moex::DyldSharedCachePtr &cache, uint64_t vmadd
     return false;
 }
 
-static std::vector<std::pair<uint64_t, std::string>> CollectImages(const moex::DyldSharedCachePtr &cache, const std::string &selector) {
+static std::vector<std::pair<uint64_t, std::string>> CollectImages(
+        const moex::DyldSharedCachePtr &cache,
+        const std::string &selector,
+        bool exact_match) {
     std::vector<std::pair<uint64_t, std::string>> out;
     auto match = [&](const std::string &path) {
         if (path == selector) return true;
+        if (exact_match) return false;
         return path.find(selector) != std::string::npos;
     };
 
@@ -149,6 +153,7 @@ static std::string BaseName(const std::string &path) {
 int main(int argc, char **argv) {
     bool compact_mode = false;
     bool extract_all = false;
+    bool exact_match = false;
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
@@ -162,11 +167,16 @@ int main(int argc, char **argv) {
             ++arg_index;
             continue;
         }
+        if (opt == "--exact") {
+            exact_match = true;
+            ++arg_index;
+            continue;
+        }
         break;
     }
 
     if (argc - arg_index != 3) {
-        std::cerr << "usage: moex-cache-extract [--compact] [--all] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
         return 2;
     }
 
@@ -182,7 +192,7 @@ int main(int argc, char **argv) {
         }
         auto cache = bin.dyld_cache();
 
-        auto matched_images = CollectImages(cache, image_selector);
+        auto matched_images = CollectImages(cache, image_selector, exact_match);
         if (matched_images.empty()) {
             std::cerr << "image not found: " << image_selector << "\n";
             return 1;
