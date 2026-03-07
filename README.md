@@ -1,103 +1,100 @@
 # MachOExplorer
 
-> Explore Mach-O binaries with a modern Qt interface on macOS and Windows (yet another MachOView). `v2.0.0` is the current major renovation release.
+> A modern Mach-O explorer with Qt UI for macOS and Windows. Current major release: `v2.0.0`.
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Table of Contents
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Examples](#examples)
-- [Development](#development)
-- [Roadmap / TODO](#roadmap--todo)
-- [Version History](#version-history)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Star History](#star-history)
+## Highlights
+- Native desktop UI with layout tree, table inspector, hex view, log panel, and info panel.
+- Robust Mach-O parsing with load-command boundary validation for malformed binaries.
+- Expanded load-command coverage (including modern commands).
+- Theme switching: `Follow System`, `Light`, `Dark`.
+- Cross-platform project files: CMake and Qt `.pro`.
 
-## Features
-- Inspect Mach-O files with a dedicated desktop UI built with Qt.
-- Works on both macOS and Windows with identical workflows and visuals.
-- Ships with native icons, dock widgets, and screenshot previews so you understand the layout quickly.
-- Expanded load-command coverage for modern Mach-O binaries (`LC_BUILD_VERSION`, `LC_NOTE`, `LC_RPATH`, `LC_FILESET_ENTRY`, `LC_DYLD_EXPORTS_TRIE`, `LC_DYLD_CHAINED_FIXUPS`, and more).
+## Load Command Coverage (Selected)
+MachOExplorer now supports display/parsing for a broad set of commands, including:
+- `LC_SEGMENT`, `LC_SEGMENT_64`
+- `LC_SYMTAB`, `LC_DYSYMTAB`, `LC_TWOLEVEL_HINTS`
+- `LC_LOAD_DYLIB`, `LC_ID_DYLIB`, `LC_LOAD_WEAK_DYLIB`, `LC_REEXPORT_DYLIB`, `LC_LAZY_LOAD_DYLIB`, `LC_LOAD_UPWARD_DYLIB`
+- `LC_LOAD_DYLINKER`, `LC_ID_DYLINKER`, `LC_DYLD_ENVIRONMENT`
+- `LC_DYLD_INFO`, `LC_DYLD_INFO_ONLY`
+- `LC_RPATH`, `LC_MAIN`, `LC_UUID`, `LC_SOURCE_VERSION`
+- `LC_VERSION_MIN_*`, `LC_BUILD_VERSION`
+- `LC_CODE_SIGNATURE`, `LC_SEGMENT_SPLIT_INFO`, `LC_FUNCTION_STARTS`, `LC_DATA_IN_CODE`, `LC_DYLIB_CODE_SIGN_DRS`, `LC_LINKER_OPTIMIZATION_HINT`
+- `LC_NOTE`, `LC_LINKER_OPTION`, `LC_DYLD_EXPORTS_TRIE`, `LC_DYLD_CHAINED_FIXUPS`, `LC_FILESET_ENTRY`
 
-## Quick Start
-1. Download the latest `MachOExplorer.dmg` (macOS) or `MachOExplorer_Windows.zip` (Windows) from the [releases page](https://github.com/everettjf/MachOExplorer/releases).
-2. Install or unzip the application just like any other desktop app.
-3. Launch MachOExplorer and open any Mach-O binary (try the included samples) to explore its structure immediately.
-
-## Installation
-### macOS
-- Grab the packaged [`MachOExplorer.dmg`](https://github.com/everettjf/MachOExplorer/releases).
-- Drag the app into `/Applications` or run it directly from the DMG.
-
-### Windows
-- Download [`MachOExplorer_Windows.zip`](https://github.com/everettjf/MachOExplorer/releases).
-- Extract the archive and launch `MachOExplorer.exe`.
-
-## Usage
-- Launch the app, then open a Mach-O file via the file picker or by dragging and dropping it onto the window.
-- Navigate headers, sections, and symbols using the dock widgets to inspect the full binary layout.
-- Use the bundled [sample binaries](#examples) if you need something to experiment with or to verify functionality on a new install.
-
+## Screenshot
 ![MachOExplorer Screenshot](image/screenshot.png)
 
-## Configuration
-- **Packaged apps:** No runtime configuration is required beyond running the binary.
-- **Building from source:**
-  - macOS expects Qt SDK `>= 5.10.1` (scripts assume 5.11.2). Symlink your Qt install with `sudo ln -s ~/qt/5.11.2 /opt/qt` and install `appdmg` globally via `npm install -g appdmg`.
-  - Windows builds need Qt 5.11.2 (MSVC 2017 64-bit), `nmake`, `windeployqt`, and Inno Setup (see `res/windows_setup.iss`). Keep Qt under `C:\Qt\Qt5.11.2\5.11.2` so scripts can find it.
+## Quick Start
+1. Download release artifacts from [GitHub Releases](https://github.com/everettjf/MachOExplorer/releases).
+2. Launch the app.
+3. Open a Mach-O file (or drag and drop one) to inspect headers, commands, sections, symbols, and raw bytes.
 
-## Examples
-- The `sample/` directory contains minimal Mach-O files (`simple`, `complex`, and `simple.c`). Open them inside MachOExplorer to verify parsing, demo features, or aid debugging.
+## Build From Source
 
-## Development
-MachOExplorer is a Qt project (`src/MachOExplorer.pro`). Open it in Qt Creator or use the provided build scripts.
+### Prerequisites
+- CMake `>= 3.16`
+- Qt 6 (recommended) or Qt 5 with Widgets/Network modules
+- A C++14 compiler
 
-### macOS build
-1. Install Qt 5.11.2 (or newer) and make sure it is accessible at `/opt/qt/5.11.2`.
-2. Run `./build_macos.sh` to configure via `qmake`, build with `make`, and run `macdeployqt`.
-3. The script repackages the DMG using `appdmg` and copies the artifact to `dist/MachOExplorer.dmg`.
+### macOS / Linux (CMake)
+```bash
+cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/path/to/Qt/6.x.x/macos"
+cmake --build build -j8
+./build/MachOExplorer
+```
 
-### Windows build
-1. Install Qt 5.11.2 for MSVC 2017 64-bit so `qmake.exe`, `nmake`, and `windeployqt.exe` are on the path, and install Inno Setup when packaging installers.
-2. Run `build_windows.bat` from a Visual Studio Developer Command Prompt.
-3. The script builds the release target, runs `windeployqt`, and copies the distributable into `dist/MachOExplorer_Windows/`.
+Example Qt path on this repo's recent setup:
+```bash
+-DCMAKE_PREFIX_PATH="/Users/eevv/Qt/6.10.2/macos"
+```
 
-### Dependencies
-- Qt 5.11.x for the UI and platform integration.
-- Vendorized third-party libraries inside `src/libmoex` such as [fmt](https://github.com/fmtlib/fmt), [cpp-mmaplib](https://github.com/yhirose/cpp-mmaplib), and [nlohmann/json](https://github.com/nlohmann/json).
+### Windows (CMake)
+```powershell
+cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:/Qt/6.x.x/msvcXXXX_64"
+cmake --build build --config Release
+```
 
-## Roadmap / TODO
-- Display symbol names for addresses.
-- Improve Windows support (port is present but still unstable).
+### Qt Creator / qmake (legacy workflow)
+- Open `src/MachOExplorer.pro` in Qt Creator.
+- Build and run from IDE.
+
+## Included Samples
+`sample/` includes test files:
+- `sample/simple`
+- `sample/complex`
+- `sample/simple.c`
+
+## Project Structure
+- `src/libmoex/`: Mach-O parsing + view-node data model
+- `src/src/`: Qt UI, controllers, dialogs, widgets
+- `sample/`: sample binaries
+- `image/`: screenshots and icons used in README
+
+## Roadmap
+- Better symbol-to-address correlation in more views.
+- Continue widening modern Mach-O coverage and deep field decoding.
+- Improve Windows packaging and test matrix.
 
 ## Version History
-- 2026-03-07 — `v2.0.0`: Major renovation release with broader Mach-O load command support, safer parser bounds checks, and modernized CMake Qt discovery.
-- 2018-11-21 — `v1.0 Alpha`: Windows support and new user interface.
-- 2017-11-05 — `v0.4.0 Alpha`: Command line tool `moex` release and version policy change.
-- 2017-11-05 — `v0.3 Alpha`: Bug fixes.
-- 2017-11-05 — `v0.2 Alpha`: Icon created.
-- 2017-11-04 — `v0.1 Alpha`: First release.
+- 2026-03-07 — `v2.0.0`: major renovation release (parser hardening, modern load commands, Qt6-friendly build, theme switching).
+- 2018-11-21 — `v1.0 Alpha`: Windows support and redesigned UI.
+- 2017-11-05 — `v0.4.0 Alpha`: command line tool `moex` release.
 
 ## Contributing
-Contributions are welcome! Please open an issue or pull request if you spot bugs, want to improve the UI, or can help with feature parity across platforms.
-
-## License
-Distributed under the [MIT License](LICENSE).
+PRs and issues are welcome:
+- Project: https://github.com/everettjf/MachOExplorer
+- Issues: https://github.com/everettjf/MachOExplorer/issues
 
 ## Acknowledgements
-- Icon designed by [wantline](https://weibo.com/wantline).
-- Special thanks to everyone who provided feedback on early alpha builds.
+- Original inspiration: MachOView
+- Icon designed by [wantline](https://weibo.com/wantline)
 
-![MachOExplorer Icon](image/machoexplorer-small.png)
+## License
+MIT. See [LICENSE](LICENSE).
 
 ## Star History
-
 [![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer&type=Date)](https://star-history.com/#everettjf/MachOExplorer&Date)

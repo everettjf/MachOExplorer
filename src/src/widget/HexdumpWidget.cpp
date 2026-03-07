@@ -24,9 +24,6 @@
 
 
 
-#define kGuiBackgroundColor QColor(255, 255, 255)
-#define kBorderTextColor QColor(0, 0, 0)
-#define kHighlightTextColor QColor(210, 210, 255)
 #define kTextFont QFont("Inconsolata", 12)
 
 
@@ -331,13 +328,10 @@ void HexdumpWidget::setupFont()
 
 void HexdumpWidget::setupColors()
 {
-    QString styleSheet = QString("QTextEdit { background-color: %1; color: %2; }")
-            .arg(kGuiBackgroundColor.name())
-            .arg(kBorderTextColor.name());
-
-    ui->hexOffsetText->setStyleSheet(styleSheet);
-    ui->hexHexText->setStyleSheet(styleSheet);
-    ui->hexASCIIText->setStyleSheet(styleSheet);
+    // Follow application-level theme stylesheet.
+    ui->hexOffsetText->setStyleSheet(QString());
+    ui->hexHexText->setStyleSheet(QString());
+    ui->hexASCIIText->setStyleSheet(QString());
 }
 
 void HexdumpWidget::updateHeaders()
@@ -638,4 +632,3 @@ void HexdumpWidget::selectionChanged()
 
     m_isSelecting = false;
 }
-

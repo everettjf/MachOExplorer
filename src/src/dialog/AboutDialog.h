@@ -24,6 +24,8 @@ private slots:
 
     void on_pushButton_everettjf_clicked();
 
+    void on_pushButton_project_clicked();
+
     void on_pushButton_wantline_clicked();
 
 private:

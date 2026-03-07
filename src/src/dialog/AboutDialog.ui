@@ -71,7 +71,20 @@
      <item>
       <widget class="QPushButton" name="pushButton_everettjf">
        <property name="text">
-        <string>Visit everettjf's personal page</string>
+        <string>Visit everettjf's GitHub</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_project">
+       <property name="text">
+        <string>Open Source Project on GitHub</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>

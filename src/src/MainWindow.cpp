@@ -14,8 +14,10 @@
 #include <QProcess>
 #include <QStatusBar>
 #include <QFontDatabase>
-#include <QDockWidget>
 #include <QTabWidget>
+#include <QPalette>
+#include <QSettings>
+#include <QEvent>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -30,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createUI();
     createActions();
     createStatusBar();
-    applyVisualRefresh();
+    setThemeMode(loadThemeMode(), false);
 }
 
 void MainWindow::displayNewFileDialog()
@@ -45,6 +47,14 @@ void MainWindow::openNewFile(const QString &filePath)
     this->showMaximized();
 
     WS()->openFile(filePath);
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::ApplicationPaletteChange && themeMode == ThemeMode::System) {
+        applyVisualRefresh();
+    }
+    return QMainWindow::event(event);
 }
 
 #define InitDock(dockvar,dockclass,dockaction) \
@@ -143,6 +153,7 @@ void MainWindow::createActions()
     InitAction("Log",action->showLogWindow,ui->log);
     InitAction("Information",action->showInformationWindow,ui->information);
 //    InitAction("SourceCode",action->showSourceCodeWindow,ui->sourcecode);
+    createThemeActions();
 
 
 
@@ -181,6 +192,73 @@ void MainWindow::createStatusBar()
     statusBar()->showMessage(tr("Welcome"));
 }
 
+void MainWindow::createThemeActions()
+{
+    QMenu *themeMenu = menu->window->addMenu(tr("Theme"));
+
+    themeActionGroup = new QActionGroup(this);
+    themeActionGroup->setExclusive(true);
+
+    action->themeSystem = themeMenu->addAction(tr("Follow System"));
+    action->themeSystem->setCheckable(true);
+    themeActionGroup->addAction(action->themeSystem);
+    connect(action->themeSystem, &QAction::triggered, this, [this](bool checked) {
+        if (checked) setThemeMode(ThemeMode::System, true);
+    });
+
+    action->themeLight = themeMenu->addAction(tr("Light"));
+    action->themeLight->setCheckable(true);
+    themeActionGroup->addAction(action->themeLight);
+    connect(action->themeLight, &QAction::triggered, this, [this](bool checked) {
+        if (checked) setThemeMode(ThemeMode::Light, true);
+    });
+
+    action->themeDark = themeMenu->addAction(tr("Dark"));
+    action->themeDark->setCheckable(true);
+    themeActionGroup->addAction(action->themeDark);
+    connect(action->themeDark, &QAction::triggered, this, [this](bool checked) {
+        if (checked) setThemeMode(ThemeMode::Dark, true);
+    });
+}
+
+MainWindow::ThemeMode MainWindow::loadThemeMode() const
+{
+    QSettings settings;
+    const QString saved = settings.value("ui/theme_mode", "system").toString();
+    if (saved == "light") return ThemeMode::Light;
+    if (saved == "dark") return ThemeMode::Dark;
+    return ThemeMode::System;
+}
+
+bool MainWindow::isDarkMode() const
+{
+    if (themeMode == ThemeMode::Dark) return true;
+    if (themeMode == ThemeMode::Light) return false;
+    return palette().color(QPalette::Window).lightness() < 128;
+}
+
+void MainWindow::updateThemeActionChecks()
+{
+    if (!action->themeSystem || !action->themeLight || !action->themeDark) return;
+    action->themeSystem->setChecked(themeMode == ThemeMode::System);
+    action->themeLight->setChecked(themeMode == ThemeMode::Light);
+    action->themeDark->setChecked(themeMode == ThemeMode::Dark);
+}
+
+void MainWindow::setThemeMode(ThemeMode mode, bool persist)
+{
+    themeMode = mode;
+    updateThemeActionChecks();
+    applyVisualRefresh();
+
+    if (!persist) return;
+    QSettings settings;
+    QString value = "system";
+    if (mode == ThemeMode::Light) value = "light";
+    if (mode == ThemeMode::Dark) value = "dark";
+    settings.setValue("ui/theme_mode", value);
+}
+
 void MainWindow::applyVisualRefresh()
 {
     QFontDatabase::addApplicationFont(":/res/fonts/Inconsolata-Regular.ttf");
@@ -193,7 +271,78 @@ void MainWindow::applyVisualRefresh()
     }
     setFont(uiFont);
 
-    const QString style = R"(
+    const QString style = isDarkMode() ? R"(
+QMainWindow {
+    background: #0b1020;
+}
+QMenuBar {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 4px;
+}
+QMenuBar::item {
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+QMenuBar::item:selected {
+    background: #1e293b;
+}
+QMenu {
+    background: #111827;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+}
+QMenu::item:selected {
+    background: #1f2937;
+}
+QStatusBar {
+    background: #020617;
+    color: #cbd5e1;
+}
+QDockWidget {
+    titlebar-close-icon: none;
+    titlebar-normal-icon: none;
+    font-weight: 600;
+}
+QDockWidget::title {
+    text-align: left;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 6px 10px;
+}
+QTableView, QTreeView, QTextEdit {
+    background: #0f172a;
+    alternate-background-color: #111827;
+    color: #e2e8f0;
+    gridline-color: #334155;
+    selection-background-color: #0284c7;
+    selection-color: #ffffff;
+    border: 1px solid #334155;
+}
+QHeaderView::section {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 0;
+    border-right: 1px solid #334155;
+    border-bottom: 1px solid #334155;
+    padding: 6px;
+    font-weight: 600;
+}
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #0b1220;
+}
+QTabBar::tab {
+    background: #1e293b;
+    color: #cbd5e1;
+    padding: 6px 12px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #0284c7;
+    color: #ffffff;
+}
+)" : R"(
 QMainWindow {
     background: #f4f6f8;
 }
@@ -267,5 +416,3 @@ QTabBar::tab:selected {
 )";
     setStyleSheet(style);
 }
-
-

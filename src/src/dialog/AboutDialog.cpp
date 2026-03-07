@@ -39,7 +39,12 @@ void AboutDialog::on_pushButton_clicked()
 
 void AboutDialog::on_pushButton_everettjf_clicked()
 {
-    util::openURL("https://weibo.com/everettjf");
+    util::openURL("https://github.com/everettjf");
+}
+
+void AboutDialog::on_pushButton_project_clicked()
+{
+    util::openURL("https://github.com/everettjf/MachOExplorer");
 }
 
 void AboutDialog::on_pushButton_wantline_clicked()
