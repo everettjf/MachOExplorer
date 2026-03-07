@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QEvent>
 #include <QInputDialog>
+#include <QLineEdit>
 #include <QFileInfo>
 #include <QFile>
 #include <QDir>
@@ -438,6 +439,56 @@ void MainWindow::createActions()
 #else
         util::showError(this, tr("Memory snapshot attach is only available on macOS."));
 #endif
+    });
+
+    action->extractDyldImage = new QAction(tr("Extract Image From Dyld Cache..."));
+    menu->file->addAction(action->extractDyldImage);
+    connect(action->extractDyldImage, &QAction::triggered, this, [this](bool checked){
+        Q_UNUSED(checked)
+        const QString cachePath = QFileDialog::getOpenFileName(
+                this, tr("Select dyld shared cache file"),
+                "/System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld",
+                tr("Dyld Shared Cache (*)"));
+        if(cachePath.isEmpty()) return;
+
+        bool ok = false;
+        const QString imageSelector = QInputDialog::getText(
+                this,
+                tr("Image Selector"),
+                tr("Image path (exact or substring):"),
+                QLineEdit::Normal,
+                "libswiftCore.dylib",
+                &ok);
+        if(!ok || imageSelector.isEmpty()) return;
+
+        QString tool = QCoreApplication::applicationDirPath() + "/moex-cache-extract";
+        if(!QFileInfo::exists(tool)){
+            tool = QDir::current().absoluteFilePath("build/moex-cache-extract");
+        }
+        if(!QFileInfo::exists(tool)){
+            util::showError(this, tr("Cannot find moex-cache-extract tool.\nBuild from source first."));
+            return;
+        }
+
+        const QString outputPath = QDir::temp().absoluteFilePath(
+                QString("MachOExplorer-cache-extract-%1-%2")
+                        .arg(QFileInfo(cachePath).fileName())
+                        .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz")));
+
+        QProcess proc;
+        proc.start(tool, {cachePath, imageSelector, outputPath});
+        if(!proc.waitForFinished(600000)){
+            util::showError(this, tr("Extraction timed out."));
+            return;
+        }
+        if(proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0){
+            util::showError(this, tr("Extraction failed:\n%1").arg(QString::fromUtf8(proc.readAllStandardError())));
+            return;
+        }
+
+        this->showMaximized();
+        WS()->openFile(outputPath);
+        statusBar()->showMessage(tr("Extracted and opened: %1").arg(outputPath), 8000);
     });
 
     action->quit = new QAction(tr("&Quit"));

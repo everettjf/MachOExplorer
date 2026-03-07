@@ -24,6 +24,7 @@ struct MainWindowAction{
     QAction *openFile;
     QAction *attachProcessPath;
     QAction *attachProcessSnapshot;
+    QAction *extractDyldImage;
     QAction *quit;
 
     QAction *showLayoutWindow;
