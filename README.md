@@ -1,55 +1,48 @@
 # MachOExplorer
 
-> A modern Mach-O explorer with Qt UI for macOS and Windows. Current major release: `v2.0.0`.
+> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.0.0`.
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Highlights
-- Native desktop UI with layout tree, table inspector, hex view, log panel, and info panel.
-- Robust Mach-O parsing with load-command boundary validation for malformed binaries.
-- Expanded load-command coverage (including modern commands).
-- Theme switching: `Follow System`, `Light`, `Dark`.
-- Cross-platform project files: CMake and Qt `.pro`.
+## What It Can Do
+- Parse and inspect Mach-O, Fat Mach-O, and Unix Archive (`.a`) containers.
+- Inspect load commands, sections, symbols, string tables, relocation tables, and dyld info.
+- Disassemble `__TEXT,__text` with optional Capstone integration and symbol association.
+- Decode modern dyld data for `LC_DYLD_EXPORTS_TRIE` and `LC_DYLD_CHAINED_FIXUPS`.
+- Explore ObjC2 metadata trees (classes/categories/protocols/methods/properties).
+- Inspect Swift metadata sections (`__swift5_*`) and show basic demangled-style hints.
+- Attach by PID on macOS (path-based workflow) to inspect the target executable.
+- Switch theme mode: `Follow System`, `Light`, `Dark`.
 
-## Load Command Coverage (Selected)
-MachOExplorer now supports display/parsing for a broad set of commands, including:
+## Screenshot
+![MachOExplorer Screenshot](image/screenshot.png)
+
+## Supported Commands (Selected)
 - `LC_SEGMENT`, `LC_SEGMENT_64`
 - `LC_SYMTAB`, `LC_DYSYMTAB`, `LC_TWOLEVEL_HINTS`
 - `LC_LOAD_DYLIB`, `LC_ID_DYLIB`, `LC_LOAD_WEAK_DYLIB`, `LC_REEXPORT_DYLIB`, `LC_LAZY_LOAD_DYLIB`, `LC_LOAD_UPWARD_DYLIB`
 - `LC_LOAD_DYLINKER`, `LC_ID_DYLINKER`, `LC_DYLD_ENVIRONMENT`
 - `LC_DYLD_INFO`, `LC_DYLD_INFO_ONLY`
+- `LC_DYLD_EXPORTS_TRIE`, `LC_DYLD_CHAINED_FIXUPS`
 - `LC_RPATH`, `LC_MAIN`, `LC_UUID`, `LC_SOURCE_VERSION`
 - `LC_VERSION_MIN_*`, `LC_BUILD_VERSION`
 - `LC_CODE_SIGNATURE`, `LC_SEGMENT_SPLIT_INFO`, `LC_FUNCTION_STARTS`, `LC_DATA_IN_CODE`, `LC_DYLIB_CODE_SIGN_DRS`, `LC_LINKER_OPTIMIZATION_HINT`
-- `LC_NOTE`, `LC_LINKER_OPTION`, `LC_DYLD_EXPORTS_TRIE`, `LC_DYLD_CHAINED_FIXUPS`, `LC_FILESET_ENTRY`
+- `LC_NOTE`, `LC_LINKER_OPTION`, `LC_FILESET_ENTRY`
 
-## Screenshot
-![MachOExplorer Screenshot](image/screenshot.png)
-
-## Quick Start
-1. Download release artifacts from [GitHub Releases](https://github.com/everettjf/MachOExplorer/releases).
-2. Launch the app.
-3. Open a Mach-O file (or drag and drop one) to inspect headers, commands, sections, symbols, and raw bytes.
-
-## Build From Source
+## Build
 
 ### Prerequisites
 - CMake `>= 3.16`
-- Qt 6 (recommended) or Qt 5 with Widgets/Network modules
-- A C++14 compiler
+- Qt 6 (recommended) or Qt 5 with `Core/Gui/Widgets/Network`
+- C++14 compiler
 
-### macOS / Linux (CMake)
+### macOS (CMake)
 ```bash
-cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/path/to/Qt/6.x.x/macos"
+cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/Users/eevv/Qt/6.10.2/macos"
 cmake --build build -j8
 ./build/MachOExplorer
-```
-
-Example Qt path on this repo's recent setup:
-```bash
--DCMAKE_PREFIX_PATH="/Users/eevv/Qt/6.10.2/macos"
 ```
 
 ### Windows (CMake)
@@ -58,40 +51,57 @@ cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:/Qt/6.x.
 cmake --build build --config Release
 ```
 
-### Qt Creator / qmake (legacy workflow)
-- Open `src/MachOExplorer.pro` in Qt Creator.
-- Build and run from IDE.
+### Optional: Capstone Disassembly Backend
+Capstone is optional. If detected by CMake, `__TEXT,__text` disassembly is enabled automatically.
+
+## Parser Regression / Fuzz
+
+### Crash Regression Runner
+```bash
+cmake -S src -B build -DCMAKE_PREFIX_PATH="/Users/eevv/Qt/6.10.2/macos"
+cmake --build build -j8
+tests/regression/run_regression.sh
+```
+
+### Build Fuzz Target (Clang)
+```bash
+cmake -S src -B build-fuzz -DMOEX_ENABLE_FUZZ=ON -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang
+cmake --build build-fuzz -j8
+./build-fuzz/moex-fuzz-parse
+```
 
 ## Included Samples
-`sample/` includes test files:
 - `sample/simple`
 - `sample/complex`
 - `sample/simple.c`
 
-## Project Structure
-- `src/libmoex/`: Mach-O parsing + view-node data model
-- `src/src/`: Qt UI, controllers, dialogs, widgets
+## Project Layout
+- `src/libmoex/`: parser and view-node model
+- `src/src/`: Qt UI and controllers
+- `src/tools/moex_parse_main.cpp`: parser CLI for crash-regression
+- `src/fuzz/fuzz_macho_parse.cpp`: fuzz target
+- `tests/regression/`: regression cases and runner
 - `sample/`: sample binaries
-- `image/`: screenshots and icons used in README
+- `image/`: screenshots/icons for docs
 
-## Roadmap
-- Better symbol-to-address correlation in more views.
-- Continue widening modern Mach-O coverage and deep field decoding.
-- Improve Windows packaging and test matrix.
-
-## Version History
-- 2026-03-07 — `v2.0.0`: major renovation release (parser hardening, modern load commands, Qt6-friendly build, theme switching).
-- 2018-11-21 — `v1.0 Alpha`: Windows support and redesigned UI.
-- 2017-11-05 — `v0.4.0 Alpha`: command line tool `moex` release.
+## Version Notes
+- 2026-03-07 — `v2.0.0`: major modernization release.
+  - Qt6-friendly build fixes and dark/light theme support
+  - `.a` archive browsing
+  - Capstone-backed disassembly view
+  - deeper relocation / ObjC / Swift / modern dyld decoding
+  - parser hardening + fuzz/regression infrastructure
+- 2018-11-21 — `v1.0 Alpha`
+- 2017-11-05 — `v0.4.0 Alpha`
 
 ## Contributing
-PRs and issues are welcome:
+Issues and PRs are welcome:
 - Project: https://github.com/everettjf/MachOExplorer
 - Issues: https://github.com/everettjf/MachOExplorer/issues
 
 ## Acknowledgements
-- Original inspiration: MachOView
-- Icon designed by [wantline](https://weibo.com/wantline)
+- Inspiration: MachOView
+- Icon by [wantline](https://weibo.com/wantline)
 
 ## License
 MIT. See [LICENSE](LICENSE).
