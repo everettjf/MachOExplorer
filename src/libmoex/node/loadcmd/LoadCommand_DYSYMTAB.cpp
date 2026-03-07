@@ -40,5 +40,24 @@ void LoadCommand_LC_DYSYMTAB::ForEachIndirectSymbols(std::function<void(uint32_t
     }
 }
 
-MOEX_NAMESPACE_END
+void LoadCommand_LC_DYSYMTAB::ForEachExternalRelocations(std::function<void(char *entry, uint32_t index)> callback){
+    if(!ExistExternalRelocations()) return;
 
+    char *offset = (char*)header_->header_start() + cmd_->extreloff;
+    const uint32_t entry_size = sizeof(struct qv_relocation_info);
+    for(uint32_t i = 0; i < cmd_->nextrel; ++i){
+        callback(offset + i * entry_size, i);
+    }
+}
+
+void LoadCommand_LC_DYSYMTAB::ForEachLocalRelocations(std::function<void(char *entry, uint32_t index)> callback){
+    if(!ExistLocalRelocations()) return;
+
+    char *offset = (char*)header_->header_start() + cmd_->locreloff;
+    const uint32_t entry_size = sizeof(struct qv_relocation_info);
+    for(uint32_t i = 0; i < cmd_->nlocrel; ++i){
+        callback(offset + i * entry_size, i);
+    }
+}
+
+MOEX_NAMESPACE_END

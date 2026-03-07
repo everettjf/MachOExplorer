@@ -14,7 +14,11 @@ public:
     // valid,offset,size
     std::tuple<bool,uint32_t,uint32_t> GetDataRange();
     bool ExistIndirectSymbols(){return cmd()->nindirectsyms > 0;}
+    bool ExistExternalRelocations(){return cmd()->extreloff > 0 && cmd()->nextrel > 0;}
+    bool ExistLocalRelocations(){return cmd()->locreloff > 0 && cmd()->nlocrel > 0;}
     void ForEachIndirectSymbols(std::function<void(uint32_t* indirect_index)> callback);
+    void ForEachExternalRelocations(std::function<void(char *entry, uint32_t index)> callback);
+    void ForEachLocalRelocations(std::function<void(char *entry, uint32_t index)> callback);
 };
 
 
