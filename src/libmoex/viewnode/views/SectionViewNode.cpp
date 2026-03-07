@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <cstdio>
 #include <limits>
 #include <unordered_map>
 #include <unordered_set>
@@ -266,6 +267,43 @@ private:
         return out;
     }
 
+    static std::string ShellEscapeSingleQuote(const std::string &s) {
+        std::string out = "'";
+        for (char c : s) {
+            if (c == '\'') out += "'\\''";
+            else out += c;
+        }
+        out += "'";
+        return out;
+    }
+
+    static std::string DemangleSwiftSymbolExternal(const std::string &name) {
+#ifdef __APPLE__
+        if (name.empty()) return "";
+        const std::string cmd = "xcrun swift-demangle " + ShellEscapeSingleQuote(name) + " 2>/dev/null";
+        FILE *fp = popen(cmd.c_str(), "r");
+        if (fp == nullptr) return "";
+        char buf[4096] = {0};
+        std::string output;
+        while (fgets(buf, sizeof(buf), fp) != nullptr) {
+            output += buf;
+        }
+        pclose(fp);
+        if (output.empty()) return "";
+        while (!output.empty() && (output.back() == '\n' || output.back() == '\r')) output.pop_back();
+        // expected format: <mangled> ---> <demangled>
+        const std::string marker = " ---> ";
+        const auto pos = output.find(marker);
+        if (pos != std::string::npos && pos + marker.size() < output.size()) {
+            return output.substr(pos + marker.size());
+        }
+        return output;
+#else
+        (void)name;
+        return "";
+#endif
+    }
+
 public:
     void InitViewDatas() override {
         SectionViewChildNode::InitViewDatas();
@@ -303,6 +341,7 @@ public:
         t->AddSeparator();
         t->AddRow({"-", "-", "Swift Symbols", "-", "-"});
         int swift_index = 0;
+        std::unordered_map<std::string, std::string> demangle_cache;
         for (auto &item : symtab->nlists_ref()) {
             if (item->n_strx() == 0) continue;
             std::string name = symtab->GetStringByStrX(item->n_strx());
@@ -315,8 +354,16 @@ public:
             if (!is_swift) continue;
 
             const uint64_t symbol_vmaddr = item->Is64() ? item->n_value64() : item->n_value();
-            std::string decoded = DecodeSwiftMangledSymbol(name);
-            if (decoded.empty()) decoded = "(raw mangled)";
+            std::string decoded;
+            auto hit = demangle_cache.find(name);
+            if (hit != demangle_cache.end()) {
+                decoded = hit->second;
+            } else {
+                decoded = DemangleSwiftSymbolExternal(name);
+                if (decoded.empty()) decoded = DecodeSwiftMangledSymbol(name);
+                if (decoded.empty()) decoded = "(raw mangled)";
+                demangle_cache[name] = decoded;
+            }
             t->AddRow({AsString(swift_index++), AsAddress(symbol_vmaddr), "symbol", name, decoded});
         }
     }
