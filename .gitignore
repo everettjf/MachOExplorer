@@ -24,6 +24,10 @@ src/MachOExplorer.pro.user
 
 build_macos/
 build_windows/
+build/
+src/build/
+
+.qtcreator/
+src/.qtcreator/
 
 dist/
-

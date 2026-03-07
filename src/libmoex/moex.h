@@ -20,6 +20,11 @@
 #include "libmoex/node/loadcmd/LoadCommand_ENCRYPTION_INFO.h"
 #include "libmoex/node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
 #include "libmoex/node/loadcmd/LoadCommand_TWOLEVEL_HINTS.h"
+#include "libmoex/node/loadcmd/LoadCommand_RPATH.h"
+#include "libmoex/node/loadcmd/LoadCommand_LINKER_OPTION.h"
+#include "libmoex/node/loadcmd/LoadCommand_BUILD_VERSION.h"
+#include "libmoex/node/loadcmd/LoadCommand_NOTE.h"
+#include "libmoex/node/loadcmd/LoadCommand_FILESET_ENTRY.h"
 
 
 #endif //MOEX_MOEX_H

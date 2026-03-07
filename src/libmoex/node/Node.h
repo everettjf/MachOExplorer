@@ -29,6 +29,8 @@ public:
 struct NodeContext{
     // File start address ( beginning of the file )
     void *file_start;
+    // File size in bytes.
+    std::size_t file_size;
 };
 using NodeContextPtr = std::shared_ptr<NodeContext>;
 

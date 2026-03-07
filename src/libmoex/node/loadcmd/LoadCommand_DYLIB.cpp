@@ -11,6 +11,13 @@ MOEX_NAMESPACE_BEGIN
 void LoadCommand_DYLIB::Init(void * offset,NodeContextPtr & ctx){
     LoadCommandImpl::Init(offset,ctx);
 
+    if(cmd_->dylib.name.offset >= cmd_->cmdsize){
+        dylib_path_.clear();
+        dylib_name_.clear();
+        dylib_path_offset_ = nullptr;
+        return;
+    }
+
     dylib_path_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->dylib.name.offset);
     dylib_path_ = dylib_path_offset_;
 

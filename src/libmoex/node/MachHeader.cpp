@@ -56,15 +56,34 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
     const uint32_t cmd_count = header_->ncmds;
     const uint32_t sizeofcmds = header_->sizeofcmds;
 
-    uint32_t index = 0;
+    const uint64_t header_raw = reinterpret_cast<uint64_t>(offset) - reinterpret_cast<uint64_t>(ctx_->file_start);
+    if (header_raw + cur_datasize > ctx_->file_size) {
+        throw NodeException("Malformed Mach-O: header exceeds file size");
+    }
+    if (header_raw + cur_datasize + sizeofcmds > ctx_->file_size) {
+        throw NodeException("Malformed Mach-O: load commands exceed file size");
+    }
+
     qv_load_command *first_cmd = reinterpret_cast<qv_load_command*>((char*)offset + cur_datasize);
     qv_load_command *cur_cmd = first_cmd;
+    uint64_t parsed_size = 0;
     for(uint32_t index = 0; index < cmd_count; ++index){
+        if (parsed_size + sizeof(qv_load_command) > sizeofcmds) {
+            throw NodeException("Malformed Mach-O: truncated load command");
+        }
+        if (cur_cmd->cmdsize < sizeof(qv_load_command)) {
+            throw NodeException("Malformed Mach-O: invalid load command size");
+        }
+        if (parsed_size + cur_cmd->cmdsize > sizeofcmds) {
+            throw NodeException("Malformed Mach-O: load command size overflow");
+        }
+
         // current
         LoadCommandPtr cmd = LoadCommandFactory::Create(cur_cmd,ctx,this);
         loadcmds_.push_back(cmd);
 
         // next
+        parsed_size += cur_cmd->cmdsize;
         cur_cmd = reinterpret_cast<qv_load_command*>((char*)cur_cmd + cur_cmd->cmdsize);
     }
 }

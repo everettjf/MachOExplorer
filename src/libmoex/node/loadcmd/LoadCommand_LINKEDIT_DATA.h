@@ -58,6 +58,14 @@ class LoadCommand_LC_LINKER_OPTIMIZATION_HINT: public LoadCommandImpl<qv_linkedi
 public:
 };
 //-------------------------------------------------
+class LoadCommand_LC_DYLD_EXPORTS_TRIE: public LoadCommandImpl<qv_linkedit_data_command>{
+public:
+};
+//-------------------------------------------------
+class LoadCommand_LC_DYLD_CHAINED_FIXUPS: public LoadCommandImpl<qv_linkedit_data_command>{
+public:
+};
+//-------------------------------------------------
 MOEX_NAMESPACE_END
 
 #endif //MACHOEXPLORER_LOADCOMMAND_LINKEDIT_DATA_H

@@ -69,11 +69,11 @@ template <typename T>
 std::string AsHexData(T & value){
     if(sizeof(value) == sizeof(uint8_t)){
         char sz[2+1] = {0,0,0};
-        sprintf(sz,"%02X",value);
+        snprintf(sz,sizeof(sz),"%02X",value);
         return std::string(sz);
     }else if(sizeof(value) == sizeof(uint16_t)){
         char sz[4+1] = {0,0,0,0,0};
-        sprintf(sz,"%04X",value);
+        snprintf(sz,sizeof(sz),"%04X",value);
         return std::string(sz);
     }else if(sizeof(value) == sizeof(uint32_t)){
         return fmt::format("{0:0>8X}",value);

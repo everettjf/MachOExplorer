@@ -16,6 +16,11 @@
 #include "../../node/loadcmd/LoadCommand_MAIN.h"
 #include "../../node/loadcmd/LoadCommand_ENCRYPTION_INFO.h"
 #include "../../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
+#include "../../node/loadcmd/LoadCommand_RPATH.h"
+#include "../../node/loadcmd/LoadCommand_LINKER_OPTION.h"
+#include "../../node/loadcmd/LoadCommand_BUILD_VERSION.h"
+#include "../../node/loadcmd/LoadCommand_NOTE.h"
+#include "../../node/loadcmd/LoadCommand_FILESET_ENTRY.h"
 
 
 MOEX_NAMESPACE_BEGIN
@@ -235,6 +240,62 @@ IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LINKER_OPTIMIZATION_HINT)
     t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
     t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
 IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYLD_EXPORTS_TRIE)
+    t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+    t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_DYLD_CHAINED_FIXUPS)
+    t->AddRow(c->cmd()->dataoff,"Data Offset",AsShortHexString(c->cmd()->dataoff));
+    t->AddRow(c->cmd()->datasize,"Data Size",AsShortHexString(c->cmd()->datasize));
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_RPATH)
+    t->AddRow(c->cmd()->path.offset,"Path Offset",AsShortHexString(c->cmd()->path.offset));
+    t->AddSeparator();
+    if(c->path_offset() != nullptr){
+        t->AddRow((void*)c->path_offset(),(uint64_t)c->path().length(),"Path",c->path());
+    }
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_LINKER_OPTION)
+    t->AddRow(c->cmd()->count,"Option Count",AsString(c->cmd()->count));
+    int index = 0;
+    for(const auto &option : c->options()){
+        t->AddRow("",fmt::format("Option {}", index++),option);
+    }
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_BUILD_VERSION)
+    t->AddRow(c->cmd()->platform,"Platform",LoadCommand_LC_BUILD_VERSION::GetPlatformString(c->cmd()->platform));
+    t->AddRow(c->cmd()->minos,"Min OS",util::FormatVersion(c->cmd()->minos));
+    t->AddRow(c->cmd()->sdk,"SDK",util::FormatVersion(c->cmd()->sdk));
+    t->AddRow(c->cmd()->ntools,"Tool Count",AsString(c->cmd()->ntools));
+    int index = 0;
+    for(const auto &tool : c->tools()){
+        t->AddRow("",fmt::format("Tool {}", index++),fmt::format("{} ({})",
+                 LoadCommand_LC_BUILD_VERSION::GetToolString(tool.tool),
+                 util::FormatVersion(tool.version)));
+    }
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_NOTE)
+    t->AddRow("","Data Owner",c->owner());
+    t->AddRow(c->cmd()->offset,"Data Offset",AsShortHexString(c->cmd()->offset));
+    t->AddRow(c->cmd()->size,"Data Size",AsShortHexString(c->cmd()->size));
+IMPL_LOADCOMMAND_VIEWNODE_END
+
+IMPL_LOADCOMMAND_VIEWNODE_BEGIN(LC_FILESET_ENTRY)
+    t->AddRow(c->cmd()->vmaddr,"VM Address",AsShortHexString(c->cmd()->vmaddr));
+    t->AddRow(c->cmd()->fileoff,"File Offset",AsShortHexString(c->cmd()->fileoff));
+    t->AddRow(c->cmd()->entry_id.offset,"Entry ID Offset",AsShortHexString(c->cmd()->entry_id.offset));
+    t->AddRow(c->cmd()->reserved,"Reserved",AsString(c->cmd()->reserved));
+    if(c->entry_id_offset() != nullptr){
+        t->AddSeparator();
+        t->AddRow((void*)c->entry_id_offset(),(uint64_t)c->entry_id().length(),"Entry ID",c->entry_id());
+    }
+IMPL_LOADCOMMAND_VIEWNODE_END
 //////////////////////////////////////////////////////////////////////////////////
 
 LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
@@ -244,8 +305,11 @@ LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
         CASE_LOADCOMMAND_VIEWNODE(LC_SEGMENT_64)
 
         CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_LOAD_DYLIB, DYLIB)
+        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_ID_DYLIB, DYLIB)
         CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_LOAD_WEAK_DYLIB, DYLIB)
         CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_REEXPORT_DYLIB, DYLIB)
+        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_LAZY_LOAD_DYLIB, DYLIB)
+        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_LOAD_UPWARD_DYLIB, DYLIB)
 
         CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_DYLD_INFO, DYLD_INFO)
         CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_DYLD_INFO_ONLY, DYLD_INFO)
@@ -254,6 +318,9 @@ LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
         CASE_LOADCOMMAND_VIEWNODE(LC_DYSYMTAB)
 
         CASE_LOADCOMMAND_VIEWNODE(LC_LOAD_DYLINKER)
+        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_ID_DYLINKER, LC_LOAD_DYLINKER)
+        CASE_LOADCOMMAND_VIEWNODE_CLASS(LC_DYLD_ENVIRONMENT, LC_LOAD_DYLINKER)
+        CASE_LOADCOMMAND_VIEWNODE(LC_RPATH)
 
         CASE_LOADCOMMAND_VIEWNODE(LC_UUID)
 
@@ -274,6 +341,12 @@ LoadCommandViewNodePtr LoadCommandViewNodeFactory::Create(LoadCommandPtr d){
         CASE_LOADCOMMAND_VIEWNODE(LC_DATA_IN_CODE)
         CASE_LOADCOMMAND_VIEWNODE(LC_DYLIB_CODE_SIGN_DRS)
         CASE_LOADCOMMAND_VIEWNODE(LC_LINKER_OPTIMIZATION_HINT)
+        CASE_LOADCOMMAND_VIEWNODE(LC_DYLD_EXPORTS_TRIE)
+        CASE_LOADCOMMAND_VIEWNODE(LC_DYLD_CHAINED_FIXUPS)
+        CASE_LOADCOMMAND_VIEWNODE(LC_LINKER_OPTION)
+        CASE_LOADCOMMAND_VIEWNODE(LC_BUILD_VERSION)
+        CASE_LOADCOMMAND_VIEWNODE(LC_NOTE)
+        CASE_LOADCOMMAND_VIEWNODE(LC_FILESET_ENTRY)
         default:{
             res = std::make_shared<LoadCommandViewNode>();
             break;

@@ -15,7 +15,7 @@
 CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0,0,0,0);
     this->setLayout(layout);
 
     table = new TableInfoWidget(this);
@@ -28,7 +28,6 @@ void CentralWidget::showTableViewData(moex::TableViewData *data)
     if(!data)return;
     table->showViewData(data);
 }
-
 
 
 

@@ -56,6 +56,7 @@ protected:
     void createUI();
     void createActions();
     void createStatusBar();
+    void applyVisualRefresh();
 
 };
 

@@ -23,5 +23,5 @@ QString AppInfo::GetAppVersion()
 
 QString AppInfo::GetAppEdition()
 {
-    return "alpha";
+    return "renovated";
 }

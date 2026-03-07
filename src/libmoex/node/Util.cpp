@@ -12,8 +12,8 @@ MOEX_NAMESPACE_BEGIN
 namespace util {
 
     std::string FormatUUIDArray(uint8_t d[]){
-        char buffer[33];
-        sprintf(buffer,
+        char buffer[37];
+        snprintf(buffer, sizeof(buffer),
                 "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                 d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
                 d[8], d[9], d[10], d[11], d[12], d[13], d[14], d[15]);
@@ -73,6 +73,11 @@ namespace util {
                 DECLARE_MAP_ITEM(LC_LINKER_OPTIMIZATION_HINT)
                 DECLARE_MAP_ITEM(LC_VERSION_MIN_TVOS)
                 DECLARE_MAP_ITEM(LC_VERSION_MIN_WATCHOS)
+                DECLARE_MAP_ITEM(LC_NOTE)
+                DECLARE_MAP_ITEM(LC_BUILD_VERSION)
+                DECLARE_MAP_ITEM(LC_DYLD_EXPORTS_TRIE)
+                DECLARE_MAP_ITEM(LC_DYLD_CHAINED_FIXUPS)
+                DECLARE_MAP_ITEM(LC_FILESET_ENTRY)
         };
         try{
             return mapper.at(cmd);
@@ -336,6 +341,11 @@ namespace util {
                 DECLARE_MAP_ITEM(LC_LINKER_OPTIMIZATION_HINT)
                 DECLARE_MAP_ITEM(LC_VERSION_MIN_TVOS)
                 DECLARE_MAP_ITEM(LC_VERSION_MIN_WATCHOS)
+                DECLARE_MAP_ITEM(LC_NOTE)
+                DECLARE_MAP_ITEM(LC_BUILD_VERSION)
+                DECLARE_MAP_ITEM(LC_DYLD_EXPORTS_TRIE)
+                DECLARE_MAP_ITEM(LC_DYLD_CHAINED_FIXUPS)
+                DECLARE_MAP_ITEM(LC_FILESET_ENTRY)
         };
         try{
             return mapper.at(cmd);
@@ -356,7 +366,7 @@ namespace util {
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
             char sz[3] = {0,0,0};
-            sprintf(sz,"%02X",(uint8_t)offset[idx]);
+            snprintf(sz,sizeof(sz),"%02X",(uint8_t)offset[idx]);
             res += std::string(sz);
         }
         return res;
@@ -369,7 +379,7 @@ namespace util {
         const char *pos = (const char*)address;
         for(auto idx = 0; idx < size; ++idx){
             char sz[3] = {0,0,0};
-            sprintf(sz,"%02X",(uint8_t)offset[idx]);
+            snprintf(sz,sizeof(sz),"%02X",(uint8_t)offset[idx]);
             res += std::string(sz);
         }
         return res;
@@ -499,4 +509,3 @@ namespace util {
 
 
 MOEX_NAMESPACE_END
-

@@ -111,7 +111,6 @@ public:
         if(d_->Is64()){
             auto results = util::ParsePointerAsType<cfstring64_t>(GetOffset(),GetSize());
             for(auto *cur : results){
-                const char *pstr = (const char*)cur->cstr;
                 t->AddRow(cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
                 t->AddRow(cur->data,"Data",AsShortHexString(cur->data));
                 t->AddRow(cur->cstr,"String",AsShortHexString(cur->cstr));
@@ -122,7 +121,6 @@ public:
         }else{
             auto results = util::ParsePointerAsType<cfstring_t>(GetOffset(),GetSize());
             for(auto *cur : results){
-                const char *pstr = (const char*)cur->cstr;
                 t->AddRow(cur->ptr,"CFString Ptr",AsShortHexString(cur->ptr));
                 t->AddRow(cur->data,"Data",AsShortHexString(cur->data));
                 t->AddRow(cur->cstr,"String",AsShortHexString(cur->cstr));

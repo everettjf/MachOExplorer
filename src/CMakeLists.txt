@@ -1,30 +1,15 @@
-cmake_minimum_required(VERSION 3.9)
-project(MachOExplorer)
-
-set(Qt5Core_DIR /opt/qt/clang_64/lib/cmake/Qt5Core)
-set(Qt5Gui_DIR /opt/qt/clang_64/lib/cmake/Qt5Gui)
-set(Qt5Widgets_DIR /opt/qt/clang_64/lib/cmake/Qt5Widgets)
-set(Qt5Network_DIR /opt/qt/clang_64/lib/cmake/Qt5Network)
+cmake_minimum_required(VERSION 3.16)
+project(MachOExplorer LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-SET(CMAKE_AUTOMOC ON)
-SET(CMAKE_AUTOUIC ON)
-SET(CMAKE_AUTORCC ON)
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-FIND_PACKAGE(Qt5Core REQUIRED)
-FIND_PACKAGE(Qt5Gui REQUIRED)
-FIND_PACKAGE(Qt5Widgets REQUIRED)
-FIND_PACKAGE(Qt5Network REQUIRED)
-
-include_directories(
-        ${Qt5Widgets_INCLUDES}
-        ${Qt5Widgets_PRIVATE_INCLUDE_DIRS}
-        ${Qt5Gui_INCLUDE_DIRS}
-        ${Qt5Gui_PRIVATE_INCLUDE_DIRS}
-        ${Qt5Network_INCLUDE_DIRS}
-)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network)
 
 file(GLOB_RECURSE LIBMOEX_SOURCE libmoex/*.cpp)
 file(GLOB_RECURSE LIBMOEX_HEADER libmoex/*.h)
@@ -32,13 +17,17 @@ file(GLOB_RECURSE MOEX_SOURCE src/*.cpp)
 file(GLOB_RECURSE MOEX_HEADER src/*.h)
 
 set(SOURCE_FILES
-        ${LIBMOEX_SOURCE}
-        ${LIBMOEX_HEADER}
-        ${MOEX_SOURCE}
-        ${MOEX_HEADER}
-        MachOExplorer.qrc)
+    ${LIBMOEX_SOURCE}
+    ${LIBMOEX_HEADER}
+    ${MOEX_SOURCE}
+    ${MOEX_HEADER}
+    MachOExplorer.qrc
+)
 
-
-include_directories(./src)
 add_executable(MachOExplorer ${SOURCE_FILES})
-target_link_libraries(MachOExplorer Qt5::Widgets Qt5::Gui Qt5::Network)
+target_include_directories(MachOExplorer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(MachOExplorer PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Network
+)

@@ -159,9 +159,10 @@ bool OpenFileDialog::fillRecentFilesList()
         }
         else
         {
+            const QDateTime createdAt = info.birthTime().isValid() ? info.birthTime() : info.lastModified();
             QListWidgetItem *item = new QListWidgetItem(
                     getIconFor(name, i++),
-                    file + "\nCreated: " + info.created().toString() + "\nSize: " + util::formatBytecount(info.size())
+                    file + "\nCreated: " + createdAt.toString() + "\nSize: " + util::formatBytecount(info.size())
             );
             item->setData(Qt::UserRole, file);
             ui->recentsListWidget->addItem(item);

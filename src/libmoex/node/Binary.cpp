@@ -33,6 +33,7 @@ Binary::Binary(const std::string & filepath)
     // Context
     NodeContextPtr context = std::make_shared<NodeContext>();
     context->file_start = memory_;
+    context->file_size = memorysize_;
 
     // Header
     magic_.Parse(memory_);

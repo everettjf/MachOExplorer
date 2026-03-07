@@ -1,7 +1,5 @@
 #include "MoexApplication.h"
 #include "base/AppInfo.h"
-#include <QDesktopWidget>
-#include <QTextCodec>
 #include <QCommandLineParser>
 
 MoexApplication::MoexApplication(int argc,char *argv[]) : QApplication(argc,argv){
@@ -10,8 +8,6 @@ MoexApplication::MoexApplication(int argc,char *argv[]) : QApplication(argc,argv
     setOrganizationDomain("everettjf.com");
     setApplicationVersion(AppInfo::Instance().GetAppVersion());
     setWindowIcon(QIcon(":MachOExplorer.icns"));
-
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     QCommandLineParser cmd_parser;
     cmd_parser.setApplicationDescription(QObject::tr("MachO Explorer"));

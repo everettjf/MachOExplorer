@@ -688,6 +688,9 @@ struct qv_symtab_command {
 #define LC_VERSION_MIN_WATCHOS 0x30 /* build for Watch min OS version */
 #define LC_NOTE 0x31 /* arbitrary data included within a Mach-O file */
 #define LC_BUILD_VERSION 0x32 /* build for platform min OS version */
+#define LC_DYLD_EXPORTS_TRIE (0x33 | LC_REQ_DYLD)
+#define LC_DYLD_CHAINED_FIXUPS (0x34 | LC_REQ_DYLD)
+#define LC_FILESET_ENTRY (0x35 | LC_REQ_DYLD)
 
 struct qv_dysymtab_command {
     uint32_t cmd;	/* LC_DYSYMTAB */
@@ -811,6 +814,11 @@ struct qv_dylinker_command {
     uint32_t	cmdsize;	/* includes pathname string */
     union qv_lc_str    name;		/* dynamic linker's path name */
 };
+struct qv_rpath_command {
+    uint32_t cmd;		/* LC_RPATH */
+    uint32_t cmdsize;	/* includes path string */
+    union qv_lc_str path;	/* path to add to run path */
+};
 struct qv_uuid_command {
     uint32_t	cmd;		/* LC_UUID */
     uint32_t	cmdsize;	/* sizeof(struct uuid_command) */
@@ -825,6 +833,34 @@ struct qv_version_min_command {
     uint32_t	version;	/* X.Y.Z is encoded in nibbles xxxx.yy.zz */
     uint32_t	sdk;		/* X.Y.Z is encoded in nibbles xxxx.yy.zz */
 };
+struct qv_build_tool_version {
+    uint32_t tool;		/* enum for the tool */
+    uint32_t version;	/* packed version number */
+};
+struct qv_build_version_command {
+    uint32_t cmd;		/* LC_BUILD_VERSION */
+    uint32_t cmdsize;	/* sizeof(command) + ntools * sizeof(tool) */
+    uint32_t platform;	/* platform */
+    uint32_t minos;	/* X.Y.Z encoded in nibbles xxxx.yy.zz */
+    uint32_t sdk;		/* X.Y.Z encoded in nibbles xxxx.yy.zz */
+    uint32_t ntools;	/* number of tool entries following */
+};
+
+#define PLATFORM_MACOS 1
+#define PLATFORM_IOS 2
+#define PLATFORM_TVOS 3
+#define PLATFORM_WATCHOS 4
+#define PLATFORM_BRIDGEOS 5
+#define PLATFORM_MACCATALYST 6
+#define PLATFORM_IOSSIMULATOR 7
+#define PLATFORM_TVOSSIMULATOR 8
+#define PLATFORM_WATCHOSSIMULATOR 9
+#define PLATFORM_DRIVERKIT 10
+
+#define TOOL_CLANG 1
+#define TOOL_SWIFT 2
+#define TOOL_LD 3
+
 struct qv_entry_point_command {
     uint32_t  cmd;	/* LC_MAIN only used in MH_EXECUTE filetypes */
     uint32_t  cmdsize;	/* 24 */
@@ -868,6 +904,26 @@ struct qv_linkedit_data_command {
     uint32_t	cmdsize;	/* sizeof(struct linkedit_data_command) */
     uint32_t	dataoff;	/* file offset of data in __LINKEDIT segment */
     uint32_t	datasize;	/* file size of data in __LINKEDIT segment  */
+};
+struct qv_linker_option_command {
+    uint32_t cmd;		/* LC_LINKER_OPTION */
+    uint32_t cmdsize;	/* includes count strings */
+    uint32_t count;	/* number of strings */
+};
+struct qv_note_command {
+    uint32_t cmd;		/* LC_NOTE */
+    uint32_t cmdsize;	/* sizeof(struct qv_note_command) */
+    char data_owner[16];	/* owner name for this note data */
+    uint64_t offset;	/* file offset of this note data */
+    uint64_t size;		/* length of this note data in bytes */
+};
+struct qv_fileset_entry_command {
+    uint32_t cmd;		/* LC_FILESET_ENTRY */
+    uint32_t cmdsize;	/* includes id string */
+    uint64_t vmaddr;	/* memory address of the entry */
+    uint64_t fileoff;	/* file offset of the entry */
+    union qv_lc_str entry_id;	/* entry name string */
+    uint32_t reserved;	/* reserved */
 };
 struct qv_data_in_code_entry {
     uint32_t	offset;  /* from mach_header to start of data range*/

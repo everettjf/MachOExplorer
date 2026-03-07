@@ -20,6 +20,11 @@ public:
     void Init(void * offset,NodeContextPtr & ctx)override {
         LoadCommandImpl::Init(offset,ctx);
 
+        if(cmd_->name.offset >= cmd_->cmdsize){
+            dylinker_path_name_.clear();
+            dylinker_path_name_offset_ = nullptr;
+            return;
+        }
         dylinker_path_name_offset_ = reinterpret_cast<char*>((char*)offset_ + cmd_->name.offset);
         dylinker_path_name_ = dylinker_path_name_offset_;
     }

@@ -14,7 +14,7 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     controller = nullptr;
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0,0,0,0);
     setLayout(layout);
 
     tableView = new QTableView(this);

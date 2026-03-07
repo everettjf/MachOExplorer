@@ -13,6 +13,9 @@
 #include "src/dialog/AboutDialog.h"
 #include <QProcess>
 #include <QStatusBar>
+#include <QFontDatabase>
+#include <QDockWidget>
+#include <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -27,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createUI();
     createActions();
     createStatusBar();
+    applyVisualRefresh();
 }
 
 void MainWindow::displayNewFileDialog()
@@ -57,6 +61,8 @@ void MainWindow::createUI()
     setCentralWidget(ui->main);
 
     setDockNestingEnabled(true);
+    setDockOptions(dockOptions() | QMainWindow::AllowTabbedDocks | QMainWindow::AnimatedDocks);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 
     // Layout View
     InitDock(ui->layout,LayoutDockWidget,action->showLayoutWindow);
@@ -175,6 +181,91 @@ void MainWindow::createStatusBar()
     statusBar()->showMessage(tr("Welcome"));
 }
 
+void MainWindow::applyVisualRefresh()
+{
+    QFontDatabase::addApplicationFont(":/res/fonts/Inconsolata-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/res/fonts/Anonymous Pro.ttf");
 
+    QFont uiFont("Inconsolata", 12);
+    if (!uiFont.exactMatch()) {
+        uiFont = font();
+        uiFont.setPointSize(11);
+    }
+    setFont(uiFont);
+
+    const QString style = R"(
+QMainWindow {
+    background: #f4f6f8;
+}
+QMenuBar {
+    background: #111827;
+    color: #f8fafc;
+    padding: 4px;
+}
+QMenuBar::item {
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+QMenuBar::item:selected {
+    background: #1f2937;
+}
+QMenu {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #d1d5db;
+}
+QMenu::item:selected {
+    background: #e5e7eb;
+}
+QStatusBar {
+    background: #111827;
+    color: #cbd5e1;
+}
+QDockWidget {
+    titlebar-close-icon: none;
+    titlebar-normal-icon: none;
+    font-weight: 600;
+}
+QDockWidget::title {
+    text-align: left;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 6px 10px;
+}
+QTableView, QTreeView, QTextEdit {
+    background: #ffffff;
+    alternate-background-color: #f8fafc;
+    color: #0f172a;
+    gridline-color: #e2e8f0;
+    selection-background-color: #0ea5e9;
+    selection-color: #ffffff;
+    border: 1px solid #dbe3ea;
+}
+QHeaderView::section {
+    background: #e2e8f0;
+    color: #0f172a;
+    border: 0;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    padding: 6px;
+    font-weight: 600;
+}
+QScrollBar:vertical, QScrollBar:horizontal {
+    background: #f1f5f9;
+}
+QTabBar::tab {
+    background: #cbd5e1;
+    color: #0f172a;
+    padding: 6px 12px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #0ea5e9;
+    color: #ffffff;
+}
+)";
+    setStyleSheet(style);
+}
 
 

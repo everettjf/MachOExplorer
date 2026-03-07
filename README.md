@@ -1,6 +1,6 @@
 # MachOExplorer
 
-> Explore Mach-O binaries with a modern Qt interface on macOS and Windows (yet another MachOView). `v1.0 Alpha` is the latest release and remains unstable while bugs are being fixed.
+> Explore Mach-O binaries with a modern Qt interface on macOS and Windows (yet another MachOView). `v2.0.0` is the current major renovation release.
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
@@ -25,6 +25,7 @@
 - Inspect Mach-O files with a dedicated desktop UI built with Qt.
 - Works on both macOS and Windows with identical workflows and visuals.
 - Ships with native icons, dock widgets, and screenshot previews so you understand the layout quickly.
+- Expanded load-command coverage for modern Mach-O binaries (`LC_BUILD_VERSION`, `LC_NOTE`, `LC_RPATH`, `LC_FILESET_ENTRY`, `LC_DYLD_EXPORTS_TRIE`, `LC_DYLD_CHAINED_FIXUPS`, and more).
 
 ## Quick Start
 1. Download the latest `MachOExplorer.dmg` (macOS) or `MachOExplorer_Windows.zip` (Windows) from the [releases page](https://github.com/everettjf/MachOExplorer/releases).
@@ -78,6 +79,7 @@ MachOExplorer is a Qt project (`src/MachOExplorer.pro`). Open it in Qt Creator o
 - Improve Windows support (port is present but still unstable).
 
 ## Version History
+- 2026-03-07 — `v2.0.0`: Major renovation release with broader Mach-O load command support, safer parser bounds checks, and modernized CMake Qt discovery.
 - 2018-11-21 — `v1.0 Alpha`: Windows support and new user interface.
 - 2017-11-05 — `v0.4.0 Alpha`: Command line tool `moex` release and version policy change.
 - 2017-11-05 — `v0.3 Alpha`: Bug fixes.
