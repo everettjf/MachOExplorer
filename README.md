@@ -54,6 +54,15 @@ cmake --build build --config Release
 ### Optional: Capstone Disassembly Backend
 Capstone is optional. If detected by CMake, `__TEXT,__text` disassembly is enabled automatically.
 
+## Dyld Shared Cache Tools
+```bash
+# list images
+./build/moex-cache-list /path/to/dyld_shared_cache_arm64e | head -50
+
+# extract one image with compact file layout (recommended)
+./build/moex-cache-extract --compact /path/to/dyld_shared_cache_arm64e libswiftCore.dylib /tmp/libswiftCore.extracted.macho
+```
+
 ## Parser Regression / Fuzz
 
 ### Crash Regression Runner

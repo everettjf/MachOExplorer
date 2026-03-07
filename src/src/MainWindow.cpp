@@ -476,7 +476,7 @@ void MainWindow::createActions()
                         .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz")));
 
         QProcess proc;
-        proc.start(tool, {cachePath, imageSelector, outputPath});
+        proc.start(tool, {"--compact", cachePath, imageSelector, outputPath});
         if(!proc.waitForFinished(600000)){
             util::showError(this, tr("Extraction timed out."));
             return;

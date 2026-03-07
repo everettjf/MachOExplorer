@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 namespace {
@@ -10,10 +11,96 @@ namespace {
 struct SegmentCopyPlan {
     std::string name;
     uint64_t vmaddr = 0;
+    uint64_t image_fileoff = 0;
     uint64_t source_fileoff = 0;
     uint64_t target_fileoff = 0;
     uint64_t size = 0;
 };
+
+static uint64_t AlignUp(uint64_t value, uint64_t alignment) {
+    if (alignment == 0) return value;
+    const uint64_t mask = alignment - 1;
+    return (value + mask) & ~mask;
+}
+
+static bool RemapFileOffset(const std::vector<SegmentCopyPlan> &plans, uint32_t old_off, uint32_t &new_off) {
+    for (const auto &p : plans) {
+        if (old_off < p.image_fileoff || old_off >= p.image_fileoff + p.size) continue;
+        const uint64_t mapped = p.target_fileoff + (old_off - p.image_fileoff);
+        if (mapped > std::numeric_limits<uint32_t>::max()) return false;
+        new_off = static_cast<uint32_t>(mapped);
+        return true;
+    }
+    return false;
+}
+
+static void PatchLoadCommandsForCompaction(char *cmd_data, uint32_t sizeofcmds, const std::vector<SegmentCopyPlan> &plans, bool is64) {
+    uint32_t parsed = 0;
+    char *cur = cmd_data;
+    while (parsed + sizeof(qv_load_command) <= sizeofcmds) {
+        auto *lc = reinterpret_cast<qv_load_command *>(cur);
+        if (lc->cmdsize < sizeof(qv_load_command) || parsed + lc->cmdsize > sizeofcmds) break;
+
+        if (lc->cmd == LC_SEGMENT_64 && lc->cmdsize >= sizeof(qv_segment_command_64) && is64) {
+            auto *seg = reinterpret_cast<qv_segment_command_64 *>(lc);
+            for (const auto &p : plans) {
+                if (p.vmaddr == seg->vmaddr) {
+                    seg->fileoff = p.target_fileoff;
+                    break;
+                }
+            }
+        } else if (lc->cmd == LC_SEGMENT && lc->cmdsize >= sizeof(qv_segment_command) && !is64) {
+            auto *seg = reinterpret_cast<qv_segment_command *>(lc);
+            for (const auto &p : plans) {
+                if (p.vmaddr == seg->vmaddr) {
+                    seg->fileoff = static_cast<uint32_t>(p.target_fileoff);
+                    break;
+                }
+            }
+        } else if (lc->cmd == LC_SYMTAB && lc->cmdsize >= sizeof(qv_symtab_command)) {
+            auto *cmd = reinterpret_cast<qv_symtab_command *>(lc);
+            uint32_t mapped = 0;
+            if (RemapFileOffset(plans, cmd->symoff, mapped)) cmd->symoff = mapped;
+            if (RemapFileOffset(plans, cmd->stroff, mapped)) cmd->stroff = mapped;
+        } else if (lc->cmd == LC_DYSYMTAB && lc->cmdsize >= sizeof(qv_dysymtab_command)) {
+            auto *cmd = reinterpret_cast<qv_dysymtab_command *>(lc);
+            uint32_t mapped = 0;
+            if (RemapFileOffset(plans, cmd->tocoff, mapped)) cmd->tocoff = mapped;
+            if (RemapFileOffset(plans, cmd->modtaboff, mapped)) cmd->modtaboff = mapped;
+            if (RemapFileOffset(plans, cmd->extrefsymoff, mapped)) cmd->extrefsymoff = mapped;
+            if (RemapFileOffset(plans, cmd->indirectsymoff, mapped)) cmd->indirectsymoff = mapped;
+            if (RemapFileOffset(plans, cmd->extreloff, mapped)) cmd->extreloff = mapped;
+            if (RemapFileOffset(plans, cmd->locreloff, mapped)) cmd->locreloff = mapped;
+        } else if ((lc->cmd == LC_DYLD_INFO || lc->cmd == LC_DYLD_INFO_ONLY) && lc->cmdsize >= sizeof(qv_dyld_info_command)) {
+            auto *cmd = reinterpret_cast<qv_dyld_info_command *>(lc);
+            uint32_t mapped = 0;
+            if (RemapFileOffset(plans, cmd->rebase_off, mapped)) cmd->rebase_off = mapped;
+            if (RemapFileOffset(plans, cmd->bind_off, mapped)) cmd->bind_off = mapped;
+            if (RemapFileOffset(plans, cmd->weak_bind_off, mapped)) cmd->weak_bind_off = mapped;
+            if (RemapFileOffset(plans, cmd->lazy_bind_off, mapped)) cmd->lazy_bind_off = mapped;
+            if (RemapFileOffset(plans, cmd->export_off, mapped)) cmd->export_off = mapped;
+        } else if ((lc->cmd == LC_FUNCTION_STARTS ||
+                    lc->cmd == LC_DATA_IN_CODE ||
+                    lc->cmd == LC_CODE_SIGNATURE ||
+                    lc->cmd == LC_SEGMENT_SPLIT_INFO ||
+                    lc->cmd == LC_DYLIB_CODE_SIGN_DRS ||
+                    lc->cmd == LC_LINKER_OPTIMIZATION_HINT ||
+                    lc->cmd == LC_DYLD_EXPORTS_TRIE ||
+                    lc->cmd == LC_DYLD_CHAINED_FIXUPS) &&
+                   lc->cmdsize >= sizeof(qv_linkedit_data_command)) {
+            auto *cmd = reinterpret_cast<qv_linkedit_data_command *>(lc);
+            uint32_t mapped = 0;
+            if (RemapFileOffset(plans, cmd->dataoff, mapped)) cmd->dataoff = mapped;
+        } else if (lc->cmd == LC_TWOLEVEL_HINTS && lc->cmdsize >= sizeof(qv_twolevel_hints_command)) {
+            auto *cmd = reinterpret_cast<qv_twolevel_hints_command *>(lc);
+            uint32_t mapped = 0;
+            if (RemapFileOffset(plans, cmd->offset, mapped)) cmd->offset = mapped;
+        }
+
+        parsed += lc->cmdsize;
+        cur += lc->cmdsize;
+    }
+}
 
 static bool VmToFileOffset(const moex::DyldSharedCachePtr &cache, uint64_t vmaddr, uint64_t &fileoff) {
     for (const auto &m : cache->mappings()) {
@@ -55,14 +142,21 @@ static bool PickImage(const moex::DyldSharedCachePtr &cache, const std::string &
 } // namespace
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        std::cerr << "usage: moex-cache-extract <dyld_shared_cache_file> <image-path-or-substr> <output-macho>\n";
+    bool compact_mode = false;
+    int arg_index = 1;
+    if (argc >= 2 && std::string(argv[1]) == "--compact") {
+        compact_mode = true;
+        arg_index = 2;
+    }
+
+    if (argc - arg_index != 3) {
+        std::cerr << "usage: moex-cache-extract [--compact] <dyld_shared_cache_file> <image-path-or-substr> <output-macho>\n";
         return 2;
     }
 
-    const std::string cache_path = argv[1];
-    const std::string image_selector = argv[2];
-    const std::string output_path = argv[3];
+    const std::string cache_path = argv[arg_index];
+    const std::string image_selector = argv[arg_index + 1];
+    const std::string output_path = argv[arg_index + 2];
 
     try {
         moex::Binary bin(cache_path);
@@ -135,7 +229,7 @@ int main(int argc, char **argv) {
                 if (seg->filesize > 0) {
                     uint64_t src_off = 0;
                     if (VmToFileOffset(cache, seg->vmaddr, src_off)) {
-                        plans.push_back({std::string(seg->segname, 16).c_str(), seg->vmaddr, src_off, seg->fileoff, seg->filesize});
+                        plans.push_back({std::string(seg->segname, 16).c_str(), seg->vmaddr, seg->fileoff, src_off, seg->fileoff, seg->filesize});
                     }
                 }
             } else if (lc->cmd == LC_SEGMENT && lc->cmdsize >= sizeof(qv_segment_command)) {
@@ -143,7 +237,7 @@ int main(int argc, char **argv) {
                 if (seg->filesize > 0) {
                     uint64_t src_off = 0;
                     if (VmToFileOffset(cache, seg->vmaddr, src_off)) {
-                        plans.push_back({std::string(seg->segname, 16).c_str(), seg->vmaddr, src_off, seg->fileoff, seg->filesize});
+                        plans.push_back({std::string(seg->segname, 16).c_str(), seg->vmaddr, seg->fileoff, src_off, seg->fileoff, seg->filesize});
                     }
                 }
             }
@@ -154,6 +248,18 @@ int main(int argc, char **argv) {
         if (plans.empty()) {
             std::cerr << "no loadable segments found\n";
             return 1;
+        }
+
+        if (compact_mode) {
+            std::sort(plans.begin(), plans.end(), [](const SegmentCopyPlan &a, const SegmentCopyPlan &b) {
+                if (a.image_fileoff != b.image_fileoff) return a.image_fileoff < b.image_fileoff;
+                return a.vmaddr < b.vmaddr;
+            });
+            uint64_t next_off = AlignUp(mh_size + sizeofcmds, 0x1000);
+            for (auto &p : plans) {
+                p.target_fileoff = AlignUp(next_off, 0x1000);
+                next_off = p.target_fileoff + p.size;
+            }
         }
 
         uint64_t out_size = mh_size + sizeofcmds;
@@ -176,8 +282,14 @@ int main(int argc, char **argv) {
             out.write(&z, 1);
         }
 
+        std::vector<char> header_blob(static_cast<size_t>(mh_size + sizeofcmds));
+        memcpy(header_blob.data(), cache_bytes + header_fileoff, header_blob.size());
+        if (compact_mode) {
+            PatchLoadCommandsForCompaction(header_blob.data() + mh_size, sizeofcmds, plans, is64);
+        }
+
         out.seekp(0);
-        out.write(cache_bytes + header_fileoff, static_cast<std::streamsize>(mh_size + sizeofcmds));
+        out.write(header_blob.data(), static_cast<std::streamsize>(header_blob.size()));
 
         constexpr uint64_t kChunk = 1024 * 1024;
         std::vector<char> buf(kChunk);
@@ -194,6 +306,7 @@ int main(int argc, char **argv) {
         out.close();
 
         std::cout << "extracted: " << image_path << "\n";
+        std::cout << "mode: " << (compact_mode ? "compact" : "raw-fileoff") << "\n";
         std::cout << "output: " << output_path << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
         return 0;
     } catch (const std::exception &ex) {
