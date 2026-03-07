@@ -6,6 +6,7 @@
 #define MOEX_MOEX_H
 
 #include "libmoex/node/Binary.h"
+#include "libmoex/node/Archive.h"
 #include "libmoex/node/Util.h"
 #include "libmoex/node/loadcmd/LoadCommand_SEGMENT.h"
 #include "libmoex/node/loadcmd/LoadCommand_DYLIB.h"

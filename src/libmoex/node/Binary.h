@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include "FatHeader.h"
 #include "MachHeader.h"
+#include "Archive.h"
 #include "../base/mmap/mmaplib.h"
 
 MOEX_NAMESPACE_BEGIN
@@ -44,12 +45,17 @@ private:
     // Data : MachO header
     MachHeaderPtr mh_;
 
+    // Data : ar archive
+    ArchivePtr archive_;
+    bool is_archive_ = false;
+
 public:
     // Get the root node
     Node *GetNode();
 
     // Whether it is a Fat file
     bool IsFat(){return magic_.IsFat();}
+    bool IsArchive(){return is_archive_;}
 
     // Getter for address of begging of file
     char *memory(){return (char*)memory_;}
@@ -62,6 +68,7 @@ public:
 
     // Getter for MachO Header ( one arch )
     MachHeaderPtr & mh(){return mh_;}
+    ArchivePtr & archive(){return archive_;}
 
     // Loop each header
     void ForEachHeader(std::function<void(MachHeaderPtr)> callback);

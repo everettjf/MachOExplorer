@@ -10,6 +10,7 @@
 #include "libmoex/node/Binary.h"
 #include "FatHeaderViewNode.h"
 #include "MachHeaderViewNode.h"
+#include "ArchiveViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -18,6 +19,7 @@ private:
     BinaryPtr bin_;
     FatHeaderViewNodePtr fat_;
     MachHeaderViewNodePtr mh_;
+    ArchiveViewNodePtr archive_;
 
 public:
     void Init(BinaryPtr bin);

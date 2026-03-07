@@ -36,30 +36,44 @@ Binary::Binary(const std::string & filepath)
     context->file_size = memorysize_;
 
     // Header
-    magic_.Parse(memory_);
-    if(!magic_.IsValid()){
-        throw NodeException("Not a MachO file");
-    }
+    if (Archive::IsArchiveMagic(memory_, memorysize_)) {
+        is_archive_ = true;
+        archive_ = std::make_shared<Archive>();
+        archive_->Init(memory_, memorysize_, context);
+    } else {
+        magic_.Parse(memory_);
+        if(!magic_.IsValid()){
+            throw NodeException("Not a MachO file or archive");
+        }
 
-    if(magic_.IsFat()){
+        if(magic_.IsFat()){
         fath_ = std::make_shared<FatHeader>();
         fath_->Init(memory_,context);
-    }else{
-        mh_ = std::make_shared<MachHeader>();
-        mh_->Init(memory_,context);
+        }else{
+            mh_ = std::make_shared<MachHeader>();
+            mh_->Init(memory_,context);
+        }
     }
 }
 
 
 Node *Binary::GetNode(){
-    if(magic_.IsFat())
+    if(is_archive_)
+        return archive_.get();
+    else if(magic_.IsFat())
         return fath_.get();
     else
         return mh_.get();
 }
 
 void Binary::ForEachHeader(std::function<void (MachHeaderPtr)> callback){
-    if(IsFat()){
+    if(IsArchive()){
+        for(auto & member : archive_->members()){
+            if(member->is_macho && member->mh){
+                callback(member->mh);
+            }
+        }
+    }else if(IsFat()){
         for(auto & arch : fath()->archs()){
             callback(arch->mh());
         }
