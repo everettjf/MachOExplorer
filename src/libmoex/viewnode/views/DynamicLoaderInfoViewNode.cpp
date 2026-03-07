@@ -687,10 +687,15 @@ void ModernExportsTrieViewNode::InitViewDatas()
             uint32_t flags_size = 0;
             const char *q = util::readUnsignedLeb128(p, flags, flags_size);
             if (q != nullptr && q <= terminal_end) {
+                std::string flag_kind = "regular";
+                const uint64_t kind = flags & EXPORT_SYMBOL_FLAGS_KIND_MASK;
+                if (kind == EXPORT_SYMBOL_FLAGS_KIND_THREAD_LOCAL) flag_kind = "thread_local";
+                if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT) flag_kind = "reexport";
+                if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER) flag_kind = "stub_and_resolver";
                 t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(p - blob_begin)),
                            "terminal.flags",
                            cur.prefix,
-                           fmt::format("0x{}", AsShortHexString(flags))});
+                           fmt::format("0x{} ({})", AsShortHexString(flags), flag_kind)});
 
                 uint64_t value = 0;
                 uint32_t value_size = 0;
@@ -700,6 +705,39 @@ void ModernExportsTrieViewNode::InitViewDatas()
                                "terminal.value",
                                cur.prefix,
                                fmt::format("0x{}", AsShortHexString(value))});
+
+                    if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT) {
+                        uint64_t import_name_off = 0;
+                        uint32_t import_name_size = 0;
+                        const char *import_name_ptr = util::readUnsignedLeb128(r, import_name_off, import_name_size);
+                        if (import_name_ptr != nullptr && import_name_ptr <= terminal_end) {
+                            const char *name_end = static_cast<const char *>(memchr(import_name_ptr, '\0', static_cast<size_t>(terminal_end - import_name_ptr)));
+                            std::string import_name = "<none>";
+                            if (name_end != nullptr) {
+                                import_name.assign(import_name_ptr, static_cast<size_t>(name_end - import_name_ptr));
+                                if (import_name.empty()) import_name = "<same-name>";
+                            }
+                            t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(import_name_ptr - blob_begin)),
+                                       "terminal.reexport",
+                                       cur.prefix,
+                                       fmt::format("ordinal={} import={}", value, import_name)});
+                        }
+                    } else if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER) {
+                        uint64_t resolver = 0;
+                        uint32_t resolver_size = 0;
+                        const char *resolver_ptr = util::readUnsignedLeb128(r, resolver, resolver_size);
+                        if (resolver_ptr != nullptr && resolver_ptr <= terminal_end) {
+                            t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(resolver_ptr - blob_begin)),
+                                       "terminal.resolver",
+                                       cur.prefix,
+                                       fmt::format("stub=0x{} resolver=0x{}", AsShortHexString(value), AsShortHexString(resolver))});
+                        }
+                    } else {
+                        t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(q - blob_begin)),
+                                   "terminal.address",
+                                   cur.prefix,
+                                   fmt::format("symbol=0x{}", AsShortHexString(value))});
+                    }
                 }
             }
         }
