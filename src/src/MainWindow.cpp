@@ -20,10 +20,251 @@
 #include <QEvent>
 #include <QInputDialog>
 #include <QFileInfo>
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
 #include <climits>
+#include <algorithm>
+#include <cstring>
+#include <vector>
 
 #ifdef Q_OS_MAC
 #include <libproc.h>
+#include <mach/mach.h>
+#include <mach/mach_vm.h>
+#endif
+
+#ifdef Q_OS_MAC
+namespace {
+
+struct dyld_image_info_min {
+    mach_vm_address_t imageLoadAddress;
+    mach_vm_address_t imageFilePath;
+    uint64_t imageFileModDate;
+};
+
+struct dyld_all_image_infos_min {
+    uint32_t version;
+    uint32_t infoArrayCount;
+    mach_vm_address_t infoArray;
+};
+
+struct RemoteSegmentInfo {
+    uint64_t vmaddr = 0;
+    uint64_t vmsize = 0;
+    uint64_t fileoff = 0;
+    uint64_t filesize = 0;
+};
+
+static bool ReadRemote(task_t task, mach_vm_address_t address, void *buffer, size_t size, QString &error)
+{
+    mach_vm_size_t out_size = 0;
+    const kern_return_t kr = mach_vm_read_overwrite(task, address, size, reinterpret_cast<mach_vm_address_t>(buffer), &out_size);
+    if (kr != KERN_SUCCESS || out_size != size) {
+        error = QString("mach_vm_read_overwrite failed at 0x%1 (kr=%2, size=%3, out=%4)")
+                .arg(QString::number(address, 16))
+                .arg(kr)
+                .arg(size)
+                .arg(out_size);
+        return false;
+    }
+    return true;
+}
+
+static QString ReadRemoteCString(task_t task, mach_vm_address_t address, size_t max_len, QString &error)
+{
+    std::vector<char> buf(max_len + 1, 0);
+    if (!ReadRemote(task, address, buf.data(), max_len, error)) {
+        return QString();
+    }
+    buf[max_len] = 0;
+    size_t len = 0;
+    while (len < max_len && buf[len] != 0) ++len;
+    return QString::fromUtf8(buf.data(), static_cast<int>(len));
+}
+
+static bool DumpProcessMainImageToFile(pid_t pid, QString &snapshot_path, QString &error)
+{
+    task_t task = MACH_PORT_NULL;
+    const kern_return_t tfp = task_for_pid(mach_task_self(), pid, &task);
+    if (tfp != KERN_SUCCESS || task == MACH_PORT_NULL) {
+        error = QString("task_for_pid failed (kr=%1). This mode requires root/codesign entitlements.").arg(tfp);
+        return false;
+    }
+
+    task_dyld_info_data_t dyld_info{};
+    mach_msg_type_number_t dyld_count = TASK_DYLD_INFO_COUNT;
+    const kern_return_t dyld_kr = task_info(task, TASK_DYLD_INFO, reinterpret_cast<task_info_t>(&dyld_info), &dyld_count);
+    if (dyld_kr != KERN_SUCCESS || dyld_info.all_image_info_addr == 0) {
+        error = QString("task_info(TASK_DYLD_INFO) failed (kr=%1)").arg(dyld_kr);
+        return false;
+    }
+
+    dyld_all_image_infos_min infos_header{};
+    if (!ReadRemote(task, dyld_info.all_image_info_addr, &infos_header, sizeof(infos_header), error)) {
+        return false;
+    }
+    if (infos_header.infoArray == 0 || infos_header.infoArrayCount == 0) {
+        error = "Remote dyld infoArray is empty";
+        return false;
+    }
+
+    const uint32_t image_count = std::min<uint32_t>(infos_header.infoArrayCount, 4096);
+    std::vector<dyld_image_info_min> image_infos(image_count);
+    if (!ReadRemote(task, static_cast<mach_vm_address_t>(infos_header.infoArray),
+                    image_infos.data(), sizeof(dyld_image_info_min) * image_count, error)) {
+        return false;
+    }
+
+    char exec_path[PROC_PIDPATHINFO_MAXSIZE] = {0};
+    proc_pidpath(pid, exec_path, sizeof(exec_path));
+    const QString exec_path_q = QString::fromUtf8(exec_path);
+
+    mach_vm_address_t image_load_addr = static_cast<mach_vm_address_t>(image_infos[0].imageLoadAddress);
+    for (const auto &info : image_infos) {
+        if (info.imageLoadAddress == 0 || info.imageFilePath == 0) continue;
+        QString read_error;
+        const QString remote_path = ReadRemoteCString(task,
+                                                      reinterpret_cast<mach_vm_address_t>(info.imageFilePath),
+                                                      PROC_PIDPATHINFO_MAXSIZE - 1,
+                                                      read_error);
+        if (!read_error.isEmpty()) continue;
+        if (!exec_path_q.isEmpty() && remote_path == exec_path_q) {
+            image_load_addr = static_cast<mach_vm_address_t>(info.imageLoadAddress);
+            break;
+        }
+    }
+
+    qv_mach_header_64 hdr64{};
+    if (!ReadRemote(task, image_load_addr, &hdr64, sizeof(hdr64), error)) {
+        return false;
+    }
+
+    const bool is64 = (hdr64.magic == MH_MAGIC_64 || hdr64.magic == MH_CIGAM_64);
+    const bool is32 = (hdr64.magic == MH_MAGIC || hdr64.magic == MH_CIGAM);
+    if (!is64 && !is32) {
+        error = QString("Remote image magic not Mach-O: 0x%1").arg(QString::number(hdr64.magic, 16));
+        return false;
+    }
+
+    uint32_t ncmds = 0;
+    uint32_t sizeofcmds = 0;
+    size_t header_size = 0;
+    if (is64) {
+        ncmds = hdr64.ncmds;
+        sizeofcmds = hdr64.sizeofcmds;
+        header_size = sizeof(qv_mach_header_64);
+    } else {
+        qv_mach_header hdr32{};
+        if (!ReadRemote(task, image_load_addr, &hdr32, sizeof(hdr32), error)) {
+            return false;
+        }
+        ncmds = hdr32.ncmds;
+        sizeofcmds = hdr32.sizeofcmds;
+        header_size = sizeof(qv_mach_header);
+    }
+
+    if (ncmds > 65536 || sizeofcmds > (64u * 1024u * 1024u)) {
+        error = QString("Suspicious load commands (ncmds=%1 sizeofcmds=%2)").arg(ncmds).arg(sizeofcmds);
+        return false;
+    }
+
+    std::vector<uint8_t> hdr_blob(header_size + sizeofcmds);
+    if (!ReadRemote(task, image_load_addr, hdr_blob.data(), hdr_blob.size(), error)) {
+        return false;
+    }
+
+    std::vector<RemoteSegmentInfo> segments;
+    const uint8_t *cmd_cur = hdr_blob.data() + header_size;
+    uint32_t consumed = 0;
+    for (uint32_t i = 0; i < ncmds; ++i) {
+        if (consumed + sizeof(qv_load_command) > sizeofcmds) {
+            error = "Malformed remote load commands (truncated command)";
+            return false;
+        }
+        const auto *lc = reinterpret_cast<const qv_load_command *>(cmd_cur);
+        if (lc->cmdsize < sizeof(qv_load_command) || consumed + lc->cmdsize > sizeofcmds) {
+            error = "Malformed remote load commands (invalid cmdsize)";
+            return false;
+        }
+        if (lc->cmd == LC_SEGMENT_64 && lc->cmdsize >= sizeof(qv_segment_command_64)) {
+            const auto *seg = reinterpret_cast<const qv_segment_command_64 *>(lc);
+            segments.push_back({seg->vmaddr, seg->vmsize, seg->fileoff, seg->filesize});
+        } else if (lc->cmd == LC_SEGMENT && lc->cmdsize >= sizeof(qv_segment_command)) {
+            const auto *seg = reinterpret_cast<const qv_segment_command *>(lc);
+            segments.push_back({seg->vmaddr, seg->vmsize, seg->fileoff, seg->filesize});
+        }
+        consumed += lc->cmdsize;
+        cmd_cur += lc->cmdsize;
+    }
+
+    if (segments.empty()) {
+        error = "No segment commands found in remote image";
+        return false;
+    }
+
+    uint64_t vmaddr_file0 = 0;
+    bool vmaddr_file0_found = false;
+    uint64_t output_size = 0;
+    for (const auto &seg : segments) {
+        if (!vmaddr_file0_found && seg.fileoff == 0 && seg.filesize > 0) {
+            vmaddr_file0 = seg.vmaddr;
+            vmaddr_file0_found = true;
+        }
+        const uint64_t seg_end = seg.fileoff + seg.filesize;
+        if (seg_end > output_size) output_size = seg_end;
+    }
+    if (!vmaddr_file0_found) {
+        error = "Cannot determine image slide (missing fileoff=0 segment)";
+        return false;
+    }
+    if (output_size == 0 || output_size > (1024ULL * 1024ULL * 1024ULL * 2ULL)) {
+        error = QString("Suspicious output size: %1").arg(output_size);
+        return false;
+    }
+
+    const uint64_t slide = image_load_addr - vmaddr_file0;
+    std::vector<uint8_t> output(static_cast<size_t>(output_size), 0);
+    if (hdr_blob.size() <= output.size()) {
+        memcpy(output.data(), hdr_blob.data(), hdr_blob.size());
+    }
+
+    constexpr size_t kChunkSize = 1024 * 1024;
+    std::vector<uint8_t> chunk(kChunkSize);
+    for (const auto &seg : segments) {
+        if (seg.filesize == 0) continue;
+        if (seg.fileoff + seg.filesize > output_size) continue;
+        const uint64_t remote_base = seg.vmaddr + slide;
+        uint64_t copied = 0;
+        while (copied < seg.filesize) {
+            const size_t to_read = static_cast<size_t>(std::min<uint64_t>(kChunkSize, seg.filesize - copied));
+            if (!ReadRemote(task, remote_base + copied, chunk.data(), to_read, error)) {
+                return false;
+            }
+            memcpy(output.data() + seg.fileoff + copied, chunk.data(), to_read);
+            copied += to_read;
+        }
+    }
+
+    const QString temp_name = QString("MachOExplorer-attach-%1-%2.macho")
+            .arg(pid)
+            .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz"));
+    const QString temp_path = QDir(QDir::tempPath()).filePath(temp_name);
+    QFile out_file(temp_path);
+    if (!out_file.open(QIODevice::WriteOnly)) {
+        error = QString("Cannot create snapshot file: %1").arg(temp_path);
+        return false;
+    }
+    if (out_file.write(reinterpret_cast<const char *>(output.data()), static_cast<qint64>(output.size())) != static_cast<qint64>(output.size())) {
+        error = QString("Write snapshot failed: %1").arg(temp_path);
+        return false;
+    }
+    out_file.close();
+    snapshot_path = temp_path;
+    return true;
+}
+
+}
 #endif
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
@@ -145,9 +386,9 @@ void MainWindow::createActions()
         WS()->openFile(fileName);
     });
 
-    action->attachProcess = new QAction(tr("&Attach by PID"));
-    menu->file->addAction(action->attachProcess);
-    connect(action->attachProcess, &QAction::triggered, this, [this](bool checked){
+    action->attachProcessPath = new QAction(tr("Attach by PID (&Executable Path)"));
+    menu->file->addAction(action->attachProcessPath);
+    connect(action->attachProcessPath, &QAction::triggered, this, [this](bool checked){
         Q_UNUSED(checked)
         bool ok = false;
         int pid = QInputDialog::getInt(this, tr("Attach Process"), tr("Process ID:"), 0, 1, INT_MAX, 1, &ok);
@@ -172,7 +413,31 @@ void MainWindow::createActions()
 
         this->showMaximized();
         WS()->openFile(path);
-        statusBar()->showMessage(tr("Attached to PID %1: %2").arg(pid).arg(path), 6000);
+        statusBar()->showMessage(tr("Attached by path to PID %1: %2").arg(pid).arg(path), 6000);
+    });
+
+    action->attachProcessSnapshot = new QAction(tr("Attach by PID (&Memory Snapshot)"));
+    menu->file->addAction(action->attachProcessSnapshot);
+    connect(action->attachProcessSnapshot, &QAction::triggered, this, [this](bool checked){
+        Q_UNUSED(checked)
+        bool ok = false;
+        int pid = QInputDialog::getInt(this, tr("Attach Process (Memory Snapshot)"), tr("Process ID:"), 0, 1, INT_MAX, 1, &ok);
+        if(!ok) return;
+
+#ifdef Q_OS_MAC
+        QString snapshot_path;
+        QString error;
+        if(!DumpProcessMainImageToFile(pid, snapshot_path, error)){
+            util::showError(this, tr("Attach snapshot failed for PID %1\n%2").arg(pid).arg(error));
+            return;
+        }
+
+        this->showMaximized();
+        WS()->openFile(snapshot_path);
+        statusBar()->showMessage(tr("Attached by memory snapshot to PID %1: %2").arg(pid).arg(snapshot_path), 8000);
+#else
+        util::showError(this, tr("Memory snapshot attach is only available on macOS."));
+#endif
     });
 
     action->quit = new QAction(tr("&Quit"));

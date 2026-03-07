@@ -22,7 +22,8 @@ struct MainWindowAction{
     QAction *newWindow;
     QAction *closeWindow;
     QAction *openFile;
-    QAction *attachProcess;
+    QAction *attachProcessPath;
+    QAction *attachProcessSnapshot;
     QAction *quit;
 
     QAction *showLayoutWindow;
