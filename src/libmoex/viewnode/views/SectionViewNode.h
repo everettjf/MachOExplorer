@@ -70,6 +70,7 @@ public:
     void InitPointersView(const std::string & title);
     void InitIndirectPointersView(const std::string & title);
     void InitIndirectStubsView(const std::string &title);
+    void InitDisassemblyView(const std::string &title);
     void InitCFStringView(const std::string &title);
     void InitObjC2PointerView(const std::string &title);
     void InitObjC2ImageInfo(const std::string &title);

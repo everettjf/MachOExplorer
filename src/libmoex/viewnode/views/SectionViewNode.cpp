@@ -3,6 +3,14 @@
 //
 
 #include "SectionViewNode.h"
+#include "../../node/loadcmd/LoadCommand_SYMTAB.h"
+#include <algorithm>
+#include <unordered_map>
+#include <vector>
+
+#if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+#include <capstone/capstone.h>
+#endif
 
 MOEX_NAMESPACE_BEGIN
 using namespace moex::util;
@@ -173,6 +181,156 @@ public:
         });
     }
 };
+
+class SectionViewChildNode_Disassembly : public SectionViewChildNode{
+private:
+    static bool ResolveCapstoneMode(MachHeader *header, uint32_t &arch, uint32_t &mode)
+    {
+#if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+        switch (header->data_ptr()->cputype) {
+            case CPU_TYPE_I386:
+                arch = CS_ARCH_X86;
+                mode = CS_MODE_32;
+                return true;
+            case CPU_TYPE_X86_64:
+                arch = CS_ARCH_X86;
+                mode = CS_MODE_64;
+                return true;
+            case CPU_TYPE_ARM:
+                arch = CS_ARCH_ARM;
+                mode = CS_MODE_ARM;
+                return true;
+            case CPU_TYPE_ARM64:
+                arch = CS_ARCH_ARM64;
+                mode = CS_MODE_ARM;
+                return true;
+            default:
+                return false;
+        }
+#else
+        (void)header;
+        (void)arch;
+        (void)mode;
+        return false;
+#endif
+    }
+
+    static std::string LookupSymbolForAddress(
+            uint64_t addr,
+            const std::unordered_map<uint64_t, std::string> &exact,
+            const std::vector<std::pair<uint64_t, std::string>> &sorted)
+    {
+        auto hit = exact.find(addr);
+        if (hit != exact.end()) {
+            return hit->second;
+        }
+        if (sorted.empty()) {
+            return "";
+        }
+
+        auto up = std::upper_bound(
+                sorted.begin(),
+                sorted.end(),
+                addr,
+                [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                    return value < item.first;
+                });
+        if (up == sorted.begin()) {
+            return "";
+        }
+
+        const auto &prev = *(up - 1);
+        const uint64_t delta = addr - prev.first;
+        if (delta > 0x100000) {
+            return "";
+        }
+        return fmt::format("{}+0x{}", prev.second, AsShortHexString(delta));
+    }
+
+public:
+    void InitViewDatas() override
+    {
+        SectionViewChildNode::InitViewDatas();
+        auto t = CreateTableView(d_.get());
+        t->SetHeaders({"Address", "Bytes", "Instruction", "Symbol"});
+        t->SetWidths({160, 240, 440, 300});
+
+        auto *symtab = d_->header()->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
+        std::unordered_map<uint64_t, std::string> symbols_exact;
+        std::vector<std::pair<uint64_t, std::string>> symbols_sorted;
+        if (symtab != nullptr) {
+            for (auto &item : symtab->nlists_ref()) {
+                const uint64_t value = item->Is64() ? item->n_value64() : item->n_value();
+                if (value == 0 || item->n_strx() == 0) {
+                    continue;
+                }
+                std::string name = symtab->GetStringByStrX(item->n_strx());
+                if (name.empty()) {
+                    continue;
+                }
+                symbols_exact[value] = name;
+                symbols_sorted.emplace_back(value, name);
+            }
+            std::sort(symbols_sorted.begin(), symbols_sorted.end(),
+                      [](const std::pair<uint64_t, std::string> &a, const std::pair<uint64_t, std::string> &b) {
+                          return a.first < b.first;
+                      });
+        }
+
+#if !(defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE)
+        t->AddRow({"-", "-", "Capstone not enabled. Reconfigure with Capstone installed.", "-"});
+        return;
+#else
+        uint32_t raw_arch = 0;
+        uint32_t raw_mode = 0;
+        if (!ResolveCapstoneMode(d_->header(), raw_arch, raw_mode)) {
+            t->AddRow({"-", "-", "Unsupported architecture for Capstone disassembly.", "-"});
+            return;
+        }
+
+        csh handle;
+        const cs_arch arch = static_cast<cs_arch>(raw_arch);
+        const cs_mode mode = static_cast<cs_mode>(raw_mode);
+        if (cs_open(arch, mode, &handle) != CS_ERR_OK) {
+            t->AddRow({"-", "-", "Failed to initialize Capstone.", "-"});
+            return;
+        }
+        cs_option(handle, CS_OPT_DETAIL, CS_OPT_OFF);
+
+        const uint8_t *code = reinterpret_cast<const uint8_t *>(GetOffset());
+        const std::size_t code_size = static_cast<std::size_t>(GetSize());
+        const uint64_t base_addr = d_->Is64() ? d_->sect().addr64() : d_->sect().addr();
+
+        cs_insn *insns = nullptr;
+        const std::size_t count = cs_disasm(handle, code, code_size, base_addr, 0, &insns);
+        if (count == 0 || insns == nullptr) {
+            t->AddRow({"-", "-", fmt::format("Disassembly failed: {}", cs_strerror(cs_errno(handle))), "-"});
+            cs_close(&handle);
+            return;
+        }
+
+        for (std::size_t i = 0; i < count; ++i) {
+            const cs_insn &insn = insns[i];
+            std::string op = insn.op_str;
+            std::string text = op.empty() ? std::string(insn.mnemonic) : fmt::format("{} {}", insn.mnemonic, op);
+            std::string symbol = LookupSymbolForAddress(insn.address, symbols_exact, symbols_sorted);
+            char *raw = GetOffset() + (insn.address - base_addr);
+
+            t->AddRow(raw,
+                      static_cast<uint64_t>(insn.size),
+                      {
+                          AsAddress(insn.address),
+                          AsHexData((void *)insn.bytes, static_cast<std::size_t>(insn.size)),
+                          text,
+                          symbol
+                      });
+        }
+
+        cs_free(insns, count);
+        cs_close(&handle);
+#endif
+    }
+};
 //////////////////////////////////////////////////////////////////////////
 
 SectionViewNodePtr SectionViewNodeFactory::Create(MachSectionPtr d){
@@ -266,6 +424,7 @@ void SectionViewNode::InitChildView()
     if(unique_name == "__OBJC/__protocol_ext"){ /* todo */ }
     if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo") InitObjC2ImageInfo("ObjC2 Image Info");
     if(section_name == "__cfstring") InitCFStringView("ObjC CFStrings");
+    if(unique_name == "__TEXT/__text") InitDisassemblyView("Disassembly (Capstone)");
 
     if(has_module){
         if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist") InitObjC2PointerView("ObjC2 Category List");
@@ -325,6 +484,15 @@ void SectionViewNode::InitCFStringView(const std::string &title)
     p->set_name(title);
     children_.push_back(p);
 }
+
+void SectionViewNode::InitDisassemblyView(const std::string &title)
+{
+    auto p = std::make_shared<SectionViewChildNode_Disassembly>();
+    p->Init(d_);
+    p->set_name(title);
+    children_.push_back(p);
+}
+
 void SectionViewNode::InitObjC2PointerView(const std::string &title){
     auto p = std::make_shared<SectionViewChildNode_ObjC2Pointer>();
     p->Init(d_);
