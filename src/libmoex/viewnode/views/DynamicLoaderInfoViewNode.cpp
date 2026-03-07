@@ -44,6 +44,27 @@ struct dyld_chained_starts_in_segment {
     // followed by page_start[page_count]
 };
 
+struct dyld_chained_import {
+    uint32_t lib_ordinal : 8;
+    uint32_t weak_import : 1;
+    uint32_t name_offset : 23;
+};
+
+struct dyld_chained_import_addend {
+    uint32_t lib_ordinal : 8;
+    uint32_t weak_import : 1;
+    uint32_t name_offset : 23;
+    int32_t addend;
+};
+
+struct dyld_chained_import_addend64 {
+    uint64_t lib_ordinal : 16;
+    uint64_t weak_import : 1;
+    uint64_t reserved : 15;
+    uint64_t name_offset : 32;
+    uint64_t addend;
+};
+
 enum : uint16_t {
     DYLD_CHAINED_PTR_ARM64E = 1,
     DYLD_CHAINED_PTR_64 = 2,
@@ -84,6 +105,81 @@ static std::string ImportFormatName(uint32_t fmt) {
         case 3: return "DYLD_CHAINED_IMPORT_ADDEND64";
         default: return "UNKNOWN";
     }
+}
+
+static bool Is64BitPointerFormat(uint16_t fmt) {
+    switch (fmt) {
+        case DYLD_CHAINED_PTR_64:
+        case DYLD_CHAINED_PTR_64_OFFSET:
+        case DYLD_CHAINED_PTR_ARM64E:
+        case DYLD_CHAINED_PTR_ARM64E_KERNEL:
+        case DYLD_CHAINED_PTR_64_KERNEL_CACHE:
+        case DYLD_CHAINED_PTR_ARM64E_USERLAND:
+        case DYLD_CHAINED_PTR_ARM64E_FIRMWARE:
+        case DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE:
+        case DYLD_CHAINED_PTR_ARM64E_USERLAND24:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static uint64_t DecodeNext(uint16_t fmt, uint64_t raw) {
+    if (!Is64BitPointerFormat(fmt)) {
+        return (raw >> 26) & 0x1F;
+    }
+    return (raw >> 51) & 0x7FF;
+}
+
+static std::string DecodePointerDetail(uint16_t fmt, uint64_t raw) {
+    if (fmt == DYLD_CHAINED_PTR_64 || fmt == DYLD_CHAINED_PTR_64_OFFSET ||
+        fmt == DYLD_CHAINED_PTR_64_KERNEL_CACHE || fmt == DYLD_CHAINED_PTR_X86_64_KERNEL_CACHE) {
+        const bool bind = ((raw >> 63) & 0x1) != 0;
+        if (bind) {
+            const uint64_t ordinal = raw & 0x00FFFFFFULL;
+            const uint64_t addend = (raw >> 24) & 0xFF;
+            return fmt::format("bind ordinal={} addend={}", ordinal, addend);
+        }
+        const uint64_t target = raw & 0x0000000FFFFFFFFFULL;
+        const uint64_t high8 = (raw >> 36) & 0xFF;
+        if (fmt == DYLD_CHAINED_PTR_64_OFFSET) {
+            return fmt::format("rebase target-fileoff=0x{} high8=0x{}", util::AsShortHexString(target), util::AsShortHexString(high8));
+        }
+        return fmt::format("rebase target-vm=0x{} high8=0x{}", util::AsShortHexString(target), util::AsShortHexString(high8));
+    }
+
+    if (fmt == DYLD_CHAINED_PTR_ARM64E || fmt == DYLD_CHAINED_PTR_ARM64E_USERLAND ||
+        fmt == DYLD_CHAINED_PTR_ARM64E_USERLAND24 || fmt == DYLD_CHAINED_PTR_ARM64E_KERNEL ||
+        fmt == DYLD_CHAINED_PTR_ARM64E_FIRMWARE) {
+        const bool auth = ((raw >> 63) & 0x1) != 0;
+        const bool bind = ((raw >> 62) & 0x1) != 0;
+        if (!auth && bind) {
+            const uint64_t ordinal = raw & 0xFFFF;
+            const uint64_t addend = (raw >> 32) & 0x7FFFF;
+            return fmt::format("arm64e bind ordinal={} addend={}", ordinal, addend);
+        }
+        if (!auth && !bind) {
+            const uint64_t target = raw & ((1ULL << 43) - 1);
+            const uint64_t high8 = (raw >> 43) & 0xFF;
+            return fmt::format("arm64e rebase target=0x{} high8=0x{}", util::AsShortHexString(target), util::AsShortHexString(high8));
+        }
+        if (auth && bind) {
+            const uint64_t ordinal = raw & 0xFFFF;
+            const uint64_t diversity = (raw >> 32) & 0xFFFF;
+            const uint64_t addr_div = (raw >> 48) & 0x1;
+            const uint64_t key = (raw >> 49) & 0x3;
+            return fmt::format("arm64e auth-bind ordinal={} key={} addrDiv={} diversity=0x{}",
+                               ordinal, key, addr_div, util::AsShortHexString(diversity));
+        }
+        const uint64_t target = raw & 0xFFFFFFFFULL;
+        const uint64_t diversity = (raw >> 32) & 0xFFFF;
+        const uint64_t addr_div = (raw >> 48) & 0x1;
+        const uint64_t key = (raw >> 49) & 0x3;
+        return fmt::format("arm64e auth-rebase target=0x{} key={} addrDiv={} diversity=0x{}",
+                           util::AsShortHexString(target), key, addr_div, util::AsShortHexString(diversity));
+    }
+
+    return fmt::format("raw=0x{}", util::AsShortHexString(raw));
 }
 
 static bool InFile(const NodeContextPtr &ctx, const char *ptr, std::size_t sz) {
@@ -701,6 +797,36 @@ void ModernChainedFixupsViewNode::InitViewDatas()
             t->AddRow({AsAddress(dataoff + seg_info_off + 20), "segment", fmt::format("seg[{}].page_count", seg_index), AsString(seg->page_count)});
 
             const char *page_starts = reinterpret_cast<const char *>(seg) + sizeof(dyld_chained_starts_in_segment);
+            const char *overflow_starts = page_starts + static_cast<size_t>(seg->page_count) * sizeof(uint16_t);
+            auto decode_chain = [&](uint16_t start_offset, uint16_t page_index, int multi_index) {
+                uint64_t fixup_off = seg->segment_offset + static_cast<uint64_t>(page_index) * seg->page_size + start_offset;
+                for (int chain_index = 0; chain_index < 1024; ++chain_index) {
+                    if (!Is64BitPointerFormat(seg->pointer_format)) {
+                        if (fixup_off + sizeof(uint32_t) > mh_->ctx()->file_size) break;
+                        const uint32_t raw32 = *reinterpret_cast<const uint32_t *>(reinterpret_cast<const char *>(mh_->ctx()->file_start) + fixup_off);
+                        const uint64_t next = DecodeNext(seg->pointer_format, raw32);
+                        t->AddRow({AsAddress(fixup_off),
+                                   "fixup32",
+                                   fmt::format("seg[{}] page[{}] chain[{}:{}]", seg_index, page_index, multi_index, chain_index),
+                                   fmt::format("raw=0x{} next={}", AsShortHexString(raw32), next)});
+                        if (next == 0) break;
+                        fixup_off += next * 4;
+                        continue;
+                    }
+
+                    if (fixup_off + sizeof(uint64_t) > mh_->ctx()->file_size) break;
+                    const uint64_t raw = *reinterpret_cast<const uint64_t *>(reinterpret_cast<const char *>(mh_->ctx()->file_start) + fixup_off);
+                    const uint64_t next = DecodeNext(seg->pointer_format, raw);
+                    const std::string detail = DecodePointerDetail(seg->pointer_format, raw);
+                    t->AddRow({AsAddress(fixup_off),
+                               "fixup",
+                               fmt::format("seg[{}] page[{}] chain[{}:{}]", seg_index, page_index, multi_index, chain_index),
+                               fmt::format("raw=0x{} next={} {}", AsShortHexString(raw), next, detail)});
+                    if (next == 0) break;
+                    fixup_off += next * 4;
+                }
+            };
+
             for (uint16_t page_index = 0; page_index < seg->page_count; ++page_index) {
                 const char *ps = page_starts + page_index * sizeof(uint16_t);
                 if (!InFile(mh_->ctx(), ps, sizeof(uint16_t))) break;
@@ -712,31 +838,29 @@ void ModernChainedFixupsViewNode::InitViewDatas()
                            fmt::format("seg[{}] page[{}]", seg_index, page_index),
                            AsShortHexString(start)});
 
-                if ((start & DYLD_CHAINED_PTR_START_MULTI) != 0) continue;
-                uint64_t fixup_off = seg->segment_offset + static_cast<uint64_t>(page_index) * seg->page_size + start;
+                if ((start & DYLD_CHAINED_PTR_START_MULTI) == 0) {
+                    decode_chain(start, page_index, 0);
+                    continue;
+                }
 
-                for (int chain_index = 0; chain_index < 1024; ++chain_index) {
-                    const uint64_t file_raw = fixup_off;
-                    if (file_raw + sizeof(uint64_t) > mh_->ctx()->file_size) break;
-                    const uint64_t raw = *reinterpret_cast<const uint64_t *>(reinterpret_cast<const char *>(mh_->ctx()->file_start) + file_raw);
-                    const uint64_t next = (raw >> 51) & 0x7FF;
-                    const bool bind = (raw >> 63) != 0;
-                    std::string detail;
-                    if (bind) {
-                        const uint64_t ordinal = raw & 0x00FFFFFFULL;
-                        const uint64_t addend = (raw >> 24) & 0xFF;
-                        detail = fmt::format("bind ordinal={} addend={}", ordinal, addend);
-                    } else {
-                        const uint64_t target = raw & 0x0000000FFFFFFFFFULL;
-                        const uint64_t high8 = (raw >> 36) & 0xFF;
-                        detail = fmt::format("rebase target=0x{} high8=0x{}", AsShortHexString(target), AsShortHexString(high8));
-                    }
+                const uint16_t overflow_index = static_cast<uint16_t>(start & ~DYLD_CHAINED_PTR_START_LAST);
+                t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(ps - blob)),
+                           "page_start_multi",
+                           fmt::format("seg[{}] page[{}].overflow_index", seg_index, page_index),
+                           AsString(overflow_index)});
 
-                    t->AddRow({AsAddress(file_raw), "fixup", fmt::format("seg[{}] page[{}] chain[{}]", seg_index, page_index, chain_index),
-                               fmt::format("raw=0x{} next={} {}", AsShortHexString(raw), next, detail)});
-
-                    if (next == 0) break;
-                    fixup_off += next * 4;
+                for (int overflow_iter = 0; overflow_iter < 1024; ++overflow_iter) {
+                    const char *ov = overflow_starts + (overflow_index + overflow_iter) * sizeof(uint16_t);
+                    if (!InFile(mh_->ctx(), ov, sizeof(uint16_t))) break;
+                    const uint16_t ov_start = *reinterpret_cast<const uint16_t *>(ov);
+                    const bool is_last = (ov_start & DYLD_CHAINED_PTR_START_LAST) != 0;
+                    const uint16_t start_off = static_cast<uint16_t>(ov_start & ~DYLD_CHAINED_PTR_START_LAST);
+                    t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(ov - blob)),
+                               "page_start_multi.item",
+                               fmt::format("seg[{}] page[{}] overflow[{}]", seg_index, page_index, overflow_iter),
+                               fmt::format("start=0x{} last={}", AsShortHexString(start_off), is_last ? "true" : "false")});
+                    decode_chain(start_off, page_index, overflow_iter);
+                    if (is_last) break;
                 }
             }
         }
@@ -746,12 +870,38 @@ void ModernChainedFixupsViewNode::InitViewDatas()
         t->AddRow({"-", "-", "-", "-"});
         t->AddRow({AsAddress(dataoff + header->imports_offset), "imports", "format", ImportFormatName(header->imports_format)});
         for (uint32_t i = 0; i < header->imports_count && i < 4096; ++i) {
-            const uint64_t entry_off = header->imports_offset + static_cast<uint64_t>(i) * 4;
-            if (entry_off + 4 > datasize) break;
-            const uint32_t raw = *reinterpret_cast<const uint32_t *>(blob + entry_off);
-            const uint32_t lib_ordinal = raw & 0xFF;
-            const uint32_t weak = (raw >> 8) & 0x1;
-            const uint32_t name_off = (raw >> 9);
+            uint64_t entry_off = 0;
+            uint64_t lib_ordinal = 0;
+            uint64_t weak = 0;
+            uint64_t name_off = 0;
+            std::string addend_detail = "-";
+            if (header->imports_format == 1) {
+                entry_off = header->imports_offset + static_cast<uint64_t>(i) * sizeof(dyld_chained_import);
+                if (entry_off + sizeof(dyld_chained_import) > datasize) break;
+                const auto *im = reinterpret_cast<const dyld_chained_import *>(blob + entry_off);
+                lib_ordinal = im->lib_ordinal;
+                weak = im->weak_import;
+                name_off = im->name_offset;
+            } else if (header->imports_format == 2) {
+                entry_off = header->imports_offset + static_cast<uint64_t>(i) * sizeof(dyld_chained_import_addend);
+                if (entry_off + sizeof(dyld_chained_import_addend) > datasize) break;
+                const auto *im = reinterpret_cast<const dyld_chained_import_addend *>(blob + entry_off);
+                lib_ordinal = im->lib_ordinal;
+                weak = im->weak_import;
+                name_off = im->name_offset;
+                addend_detail = AsString(im->addend);
+            } else if (header->imports_format == 3) {
+                entry_off = header->imports_offset + static_cast<uint64_t>(i) * sizeof(dyld_chained_import_addend64);
+                if (entry_off + sizeof(dyld_chained_import_addend64) > datasize) break;
+                const auto *im = reinterpret_cast<const dyld_chained_import_addend64 *>(blob + entry_off);
+                lib_ordinal = im->lib_ordinal;
+                weak = im->weak_import;
+                name_off = im->name_offset;
+                addend_detail = AsShortHexString(im->addend);
+            } else {
+                break;
+            }
+
             std::string symbol_name = "<invalid>";
             if (header->symbols_offset + name_off < datasize) {
                 const char *sp = blob + header->symbols_offset + name_off;
@@ -759,7 +909,7 @@ void ModernChainedFixupsViewNode::InitViewDatas()
                 if (end != nullptr) symbol_name.assign(sp, static_cast<size_t>(end - sp));
             }
             t->AddRow({AsAddress(dataoff + entry_off), "import", fmt::format("#{}", i),
-                       fmt::format("lib={} weak={} symbol={}", lib_ordinal, weak, symbol_name)});
+                       fmt::format("lib={} weak={} addend={} symbol={}", lib_ordinal, weak, addend_detail, symbol_name)});
         }
     }
 
