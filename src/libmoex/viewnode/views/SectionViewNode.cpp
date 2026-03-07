@@ -5,6 +5,7 @@
 #include "SectionViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <limits>
 #include <unordered_map>
@@ -182,6 +183,141 @@ public:
             if(info->flags & OBJC_IMAGE_GC_ONLY)
                 t->AddRow({"","0x4","OBJC_IMAGE_GC_ONLY"});
         });
+    }
+};
+
+class SectionViewChildNode_SwiftMetadata : public SectionViewChildNode{
+private:
+    static bool VmToPtr(MachHeader *header, const NodeContextPtr &ctx, bool is64, uint64_t vmaddr, char *&out) {
+        out = nullptr;
+        if (is64) {
+            for (auto *seg : header->GetSegments64()) {
+                const uint64_t seg_vm = seg->cmd()->vmaddr;
+                const uint64_t seg_vmsize = seg->cmd()->vmsize;
+                if (vmaddr < seg_vm || vmaddr >= seg_vm + seg_vmsize) continue;
+                const uint64_t delta = vmaddr - seg_vm;
+                if (delta >= seg->cmd()->filesize) return false;
+                const uint64_t fileoff = seg->cmd()->fileoff + delta;
+                if (fileoff >= ctx->file_size) return false;
+                out = reinterpret_cast<char *>(ctx->file_start) + fileoff;
+                return true;
+            }
+            return false;
+        }
+
+        for (auto *seg : header->GetSegments()) {
+            const uint64_t seg_vm = seg->cmd()->vmaddr;
+            const uint64_t seg_vmsize = seg->cmd()->vmsize;
+            if (vmaddr < seg_vm || vmaddr >= seg_vm + seg_vmsize) continue;
+            const uint64_t delta = vmaddr - seg_vm;
+            if (delta >= seg->cmd()->filesize) return false;
+            const uint64_t fileoff = seg->cmd()->fileoff + delta;
+            if (fileoff >= ctx->file_size) return false;
+            out = reinterpret_cast<char *>(ctx->file_start) + fileoff;
+            return true;
+        }
+        return false;
+    }
+
+    static std::string TryReadCString(MachHeader *header, const NodeContextPtr &ctx, bool is64, uint64_t vmaddr) {
+        char *raw = nullptr;
+        if (!VmToPtr(header, ctx, is64, vmaddr, raw) || raw == nullptr) return "";
+        const uint64_t base = reinterpret_cast<uint64_t>(ctx->file_start);
+        const uint64_t pos = reinterpret_cast<uint64_t>(raw) - base;
+        if (pos >= ctx->file_size) return "";
+        const uint64_t max_len = std::min<uint64_t>(ctx->file_size - pos, 512);
+        uint64_t i = 0;
+        for (; i < max_len; ++i) {
+            if (raw[i] == '\0') break;
+            if (static_cast<unsigned char>(raw[i]) < 0x20 || static_cast<unsigned char>(raw[i]) > 0x7e) return "";
+        }
+        if (i == 0 || i >= max_len) return "";
+        return std::string(raw, static_cast<std::size_t>(i));
+    }
+
+    static std::string DecodeSwiftMangledSymbol(std::string name) {
+        if (name.empty()) return "";
+        if (!name.empty() && name[0] == '_') name.erase(name.begin());
+        if (name.size() < 2 || name[0] != '$') return "";
+        if (name[1] != 's' && name[1] != 'S') return "";
+
+        std::vector<std::string> parts;
+        std::size_t i = 2;
+        while (i < name.size()) {
+            if (!std::isdigit(static_cast<unsigned char>(name[i]))) break;
+            std::size_t len = 0;
+            while (i < name.size() && std::isdigit(static_cast<unsigned char>(name[i]))) {
+                len = len * 10 + static_cast<std::size_t>(name[i] - '0');
+                ++i;
+                if (len > 1024) return "";
+            }
+            if (len == 0 || i + len > name.size()) break;
+            parts.push_back(name.substr(i, len));
+            i += len;
+            if (parts.size() >= 8) break;
+        }
+        if (parts.empty()) return "";
+        std::string out;
+        for (std::size_t idx = 0; idx < parts.size(); ++idx) {
+            if (idx > 0) out += ".";
+            out += parts[idx];
+        }
+        return out;
+    }
+
+public:
+    void InitViewDatas() override {
+        SectionViewChildNode::InitViewDatas();
+
+        auto t = CreateTableView();
+        t->SetHeaders({"Index", "Offset", "Kind", "Value", "Decoded"});
+        t->SetWidths({80, 140, 220, 260, 420});
+
+        const bool is64 = d_->Is64();
+        const uint64_t base_addr = is64 ? d_->sect().addr64() : d_->sect().addr();
+        char *section_data = GetOffset();
+        const uint32_t section_size = GetSize();
+
+        const uint32_t stride = sizeof(int32_t);
+        const uint32_t count = section_size / stride;
+        for (uint32_t idx = 0; idx < count; ++idx) {
+            char *cur = section_data + idx * stride;
+            const int32_t rel = *reinterpret_cast<int32_t *>(cur);
+            const uint64_t item_vmaddr = base_addr + idx * stride;
+            const uint64_t target_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(item_vmaddr) + rel);
+
+            std::string decoded;
+            char *target_raw = nullptr;
+            if (rel != 0 && VmToPtr(d_->header(), d_->ctx(), is64, target_vmaddr, target_raw)) {
+                decoded = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+            }
+            if (decoded.empty()) decoded = "-";
+
+            t->AddRow(target_raw, 0, {AsString(idx), AsAddress(d_->GetRAW(cur)), "rel32", AsAddress(target_vmaddr), decoded});
+        }
+
+        auto *symtab = d_->header()->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
+        if (symtab == nullptr) return;
+
+        t->AddSeparator();
+        t->AddRow({"-", "-", "Swift Symbols", "-", "-"});
+        int swift_index = 0;
+        for (auto &item : symtab->nlists_ref()) {
+            if (item->n_strx() == 0) continue;
+            std::string name = symtab->GetStringByStrX(item->n_strx());
+            if (name.empty()) continue;
+            bool is_swift = false;
+            if (name.rfind("_$s", 0) == 0 || name.rfind("$s", 0) == 0 ||
+                name.rfind("_$S", 0) == 0 || name.rfind("$S", 0) == 0) {
+                is_swift = true;
+            }
+            if (!is_swift) continue;
+
+            const uint64_t symbol_vmaddr = item->Is64() ? item->n_value64() : item->n_value();
+            std::string decoded = DecodeSwiftMangledSymbol(name);
+            if (decoded.empty()) decoded = "(raw mangled)";
+            t->AddRow({AsString(swift_index++), AsAddress(symbol_vmaddr), "symbol", name, decoded});
+        }
     }
 };
 
@@ -985,6 +1121,7 @@ void SectionViewNode::InitChildView()
     if(unique_name == "__OBJC/__image_info" || unique_name == "__DATA/__objc_imageinfo") InitObjC2ImageInfo("ObjC2 Image Info");
     if(section_name == "__cfstring") InitCFStringView("ObjC CFStrings");
     if(unique_name == "__TEXT/__text") InitDisassemblyView("Disassembly (Capstone)");
+    if(section_name.rfind("__swift5_", 0) == 0) InitSwiftMetadataView("Swift Metadata");
 
     if(has_module){
         if(unique_name == "__OBJC2/__category_list" || unique_name == "__DATA/__objc_catlist") InitObjC2MetadataView("ObjC2 Category Metadata","category");
@@ -1040,6 +1177,14 @@ void SectionViewNode::InitIndirectStubsView(const std::string &title)
 void SectionViewNode::InitCFStringView(const std::string &title)
 {
     auto p = std::make_shared<SectionViewChildNode_CFString>();
+    p->Init(d_);
+    p->set_name(title);
+    children_.push_back(p);
+}
+
+void SectionViewNode::InitSwiftMetadataView(const std::string &title)
+{
+    auto p = std::make_shared<SectionViewChildNode_SwiftMetadata>();
     p->Init(d_);
     p->set_name(title);
     children_.push_back(p);

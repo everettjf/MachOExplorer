@@ -72,6 +72,7 @@ public:
     void InitIndirectStubsView(const std::string &title);
     void InitDisassemblyView(const std::string &title);
     void InitCFStringView(const std::string &title);
+    void InitSwiftMetadataView(const std::string &title);
     void InitObjC2PointerView(const std::string &title);
     void InitObjC2MetadataView(const std::string &title, const std::string &kind);
     void InitObjC2ImageInfo(const std::string &title);
