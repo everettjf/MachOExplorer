@@ -1,6 +1,11 @@
 #include "XrefViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SEGMENT.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
+#include <unordered_map>
+
+#if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+#include <capstone/capstone.h>
+#endif
 
 MOEX_NAMESPACE_BEGIN
 
@@ -51,8 +56,10 @@ void XrefViewNode::InitViewDatas()
     }
 
     struct RefItem {
-        std::string section;
+        std::string source;
+        std::string kind;
         uint64_t ref_raw = 0;
+        uint64_t ref_vm = 0;
     };
     std::unordered_map<uint64_t, std::vector<RefItem>> refs;
 
@@ -64,13 +71,13 @@ void XrefViewNode::InitViewDatas()
                 for (auto *cur : util::ParsePointerAsType<uint64_t>(sect->GetOffset(), sect->GetSize())) {
                     const uint64_t target = *cur;
                     if (target == 0) continue;
-                    refs[target].push_back({sec_name, sect->GetRAW(cur)});
+                    refs[target].push_back({sec_name, "pointer", sect->GetRAW(cur), 0});
                 }
             } else {
                 for (auto *cur : util::ParsePointerAsType<uint32_t>(sect->GetOffset(), sect->GetSize())) {
                     const uint64_t target = *cur;
                     if (target == 0) continue;
-                    refs[target].push_back({sec_name, sect->GetRAW(cur)});
+                    refs[target].push_back({sec_name, "pointer", sect->GetRAW(cur), 0});
                 }
             }
         }
@@ -82,6 +89,65 @@ void XrefViewNode::InitViewDatas()
     mh_->ForEachLoadCommand<LoadCommand_LC_SEGMENT_64>({LC_SEGMENT_64}, [&](LoadCommand_LC_SEGMENT_64 *seg, bool &stop) {
         collect_from_sections(seg);
     });
+
+#if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+    auto scan_text_disasm = [&](auto *seg_cmd) {
+        for (auto &sect : seg_cmd->sections_ref()) {
+            if (sect->sect().segment_name() != "__TEXT" || sect->sect().section_name() != "__text") continue;
+            uint32_t arch = 0, mode = 0;
+            switch (mh_->data_ptr()->cputype) {
+                case CPU_TYPE_I386: arch = CS_ARCH_X86; mode = CS_MODE_32; break;
+                case CPU_TYPE_X86_64: arch = CS_ARCH_X86; mode = CS_MODE_64; break;
+                case CPU_TYPE_ARM: arch = CS_ARCH_ARM; mode = CS_MODE_ARM; break;
+                case CPU_TYPE_ARM64: arch = CS_ARCH_ARM64; mode = CS_MODE_ARM; break;
+                default: return;
+            }
+            csh handle;
+            if (cs_open(static_cast<cs_arch>(arch), static_cast<cs_mode>(mode), &handle) != CS_ERR_OK) return;
+            cs_option(handle, CS_OPT_DETAIL, CS_OPT_ON);
+
+            const uint8_t *code = reinterpret_cast<const uint8_t *>(sect->GetOffset());
+            const size_t code_size = sect->GetSize();
+            const uint64_t base = sect->Is64() ? sect->sect().addr64() : sect->sect().addr();
+            cs_insn *insn = nullptr;
+            const size_t count = cs_disasm(handle, code, code_size, base, 0, &insn);
+            for (size_t i = 0; i < count; ++i) {
+                const auto &ci = insn[i];
+                bool is_branch = false;
+                bool is_call = false;
+                for (uint8_t g = 0; g < ci.detail->groups_count; ++g) {
+                    const uint8_t grp = ci.detail->groups[g];
+                    if (grp == CS_GRP_JUMP) is_branch = true;
+                    if (grp == CS_GRP_CALL) is_call = true;
+                }
+                if (!is_branch && !is_call) continue;
+                if (arch == CS_ARCH_X86) {
+                    for (uint8_t o = 0; o < ci.detail->x86.op_count; ++o) {
+                        const auto &op = ci.detail->x86.operands[o];
+                        if (op.type == X86_OP_IMM) {
+                            refs[static_cast<uint64_t>(op.imm)].push_back(
+                                    {"__TEXT/__text", is_call ? "call" : "jump",
+                                     sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                        }
+                    }
+                }
+                if (arch == CS_ARCH_ARM64) {
+                    for (uint8_t o = 0; o < ci.detail->arm64.op_count; ++o) {
+                        const auto &op = ci.detail->arm64.operands[o];
+                        if (op.type == ARM64_OP_IMM) {
+                            refs[static_cast<uint64_t>(op.imm)].push_back(
+                                    {"__TEXT/__text", is_call ? "call" : "jump", sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                        }
+                    }
+                }
+            }
+            if (insn) cs_free(insn, count);
+            cs_close(&handle);
+        }
+    };
+    mh_->ForEachLoadCommand<LoadCommand_LC_SEGMENT>({LC_SEGMENT}, [&](LoadCommand_LC_SEGMENT *seg, bool &stop) { scan_text_disasm(seg); });
+    mh_->ForEachLoadCommand<LoadCommand_LC_SEGMENT_64>({LC_SEGMENT_64}, [&](LoadCommand_LC_SEGMENT_64 *seg, bool &stop) { scan_text_disasm(seg); });
+#endif
 
     std::vector<uint64_t> targets;
     targets.reserve(refs.size());
@@ -95,7 +161,11 @@ void XrefViewNode::InitViewDatas()
         if (sym_it != symbols.end()) symbol = sym_it->second;
         t->AddRow({AsAddress(target), symbol, AsString(items.size()), ""});
         for (const auto &item : items) {
-            t->AddRow({AsAddress(target), symbol, "", fmt::format("{} @ 0x{}", item.section, AsShortHexString(item.ref_raw))});
+            std::string ref = fmt::format("{} [{}] @ raw 0x{}", item.source, item.kind, AsShortHexString(item.ref_raw));
+            if (item.ref_vm != 0) {
+                ref += fmt::format(" vm 0x{}", AsShortHexString(item.ref_vm));
+            }
+            t->AddRow({AsAddress(target), symbol, "", ref});
         }
         t->AddSeparator();
     }
