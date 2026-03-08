@@ -71,6 +71,7 @@ Capstone is optional. If detected by CMake, `__TEXT,__text` disassembly is enabl
 # extract all matched images to a directory
 mkdir -p /tmp/moex-cache-batch
 ./build/moex-cache-extract --compact --all /path/to/dyld_shared_cache_arm64e libswift /tmp/moex-cache-batch
+# (--all will create the output directory if it does not exist)
 ```
 
 ## Parser Regression / Fuzz

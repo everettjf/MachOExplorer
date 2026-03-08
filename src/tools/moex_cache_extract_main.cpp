@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <sys/stat.h>
 #include <unordered_map>
 #include <vector>
 
@@ -146,6 +147,26 @@ static std::string BaseName(const std::string &path) {
     if (pos == std::string::npos) return path;
     if (pos + 1 >= path.size()) return "";
     return path.substr(pos + 1);
+}
+
+static bool EnsureDirectory(const std::string &path, std::string &error) {
+    if (path.empty()) {
+        error = "output directory path is empty";
+        return false;
+    }
+    struct stat st = {};
+    if (::stat(path.c_str(), &st) == 0) {
+        if ((st.st_mode & S_IFDIR) == 0) {
+            error = "output path exists but is not a directory: " + path;
+            return false;
+        }
+        return true;
+    }
+    if (::mkdir(path.c_str(), 0755) == 0) {
+        return true;
+    }
+    error = "cannot create output directory: " + path;
+    return false;
 }
 
 } // namespace
@@ -343,6 +364,12 @@ int main(int argc, char **argv) {
                           << " images, using first: " << matched_images[0].second << "\n";
             }
             return extract_one(matched_images[0].first, matched_images[0].second, output_path) ? 0 : 1;
+        }
+
+        std::string dir_error;
+        if (!EnsureDirectory(output_path, dir_error)) {
+            std::cerr << dir_error << "\n";
+            return 1;
         }
 
         std::unordered_map<std::string, uint32_t> name_count;
