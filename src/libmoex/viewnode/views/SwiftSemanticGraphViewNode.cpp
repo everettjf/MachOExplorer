@@ -27,6 +27,35 @@ struct SwiftFieldDescriptorHeader {
     uint32_t num_fields = 0;
 };
 
+struct SwiftFieldRecordHead {
+    uint32_t flags = 0;
+    int32_t mangled_type_name = 0;
+    int32_t field_name = 0;
+};
+
+static std::string FieldDescriptorKindName(uint16_t kind) {
+    switch (kind) {
+        case 0: return "struct";
+        case 1: return "class";
+        case 2: return "enum";
+        case 3: return "multi-payload-enum";
+        case 4: return "protocol";
+        case 5: return "class-protocol";
+        case 6: return "objc-protocol";
+        case 7: return "objc-class";
+        default: return "unknown";
+    }
+}
+
+static std::string SectionRelationName(const std::string &sectname) {
+    if (sectname == "__swift5_types") return "context-ref";
+    if (sectname == "__swift5_protos") return "protocol-ref";
+    if (sectname == "__swift5_typeref") return "type-string-ref";
+    if (sectname == "__swift5_assocty") return "associated-type-ref";
+    if (sectname == "__swift5_capture") return "capture-type-ref";
+    return "rel32-ref";
+}
+
 static bool VmToPtr(MachHeader *mh, uint64_t vmaddr, char *&out) {
     out = nullptr;
     for (auto *seg : mh->GetSegments64()) {
@@ -186,7 +215,13 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
     });
 
     std::map<uint64_t, std::string> entity_names;
-    std::vector<std::tuple<uint64_t, uint64_t, std::string>> edges;
+    struct Edge {
+        uint64_t from = 0;
+        uint64_t to = 0;
+        std::string section;
+        std::string relation;
+    };
+    std::vector<Edge> edges;
     std::unordered_set<std::string> edge_dedup;
 
     for (const auto &sec : sections) {
@@ -218,15 +253,80 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
 
         if (sec.sectname == "__swift5_fieldmd") {
             uint32_t cursor = 0;
+            uint32_t descriptor_index = 0;
             while (cursor + sizeof(SwiftFieldDescriptorHeader) <= sec.size) {
                 char *raw = sec.offset + cursor;
                 auto *fd = reinterpret_cast<const SwiftFieldDescriptorHeader *>(raw);
                 const uint64_t vm = sec.vmaddr + cursor;
+                const std::string descriptor_name = fmt::format("fieldmd#{}", descriptor_index++);
+                entity_names[vm] = descriptor_name;
                 t->AddRow(raw, sizeof(SwiftFieldDescriptorHeader), {
                     "fieldmd", "descriptor", sec_label, AsAddress(vm),
-                    fmt::format("kind={} fields={} record={}", fd->kind, fd->num_fields, fd->field_record_size)
+                    fmt::format("kind={} ({}) fields={} record={}",
+                                fd->kind, FieldDescriptorKindName(fd->kind),
+                                fd->num_fields, fd->field_record_size)
                 });
+
+                auto add_edge = [&](uint64_t from, uint64_t to, const std::string &relation) {
+                    if (to == 0) return;
+                    const std::string edge_key = fmt::format("{}:{}:{}:{}",
+                                                             sec_label, from, to, relation);
+                    if (!edge_dedup.insert(edge_key).second) return;
+                    edges.push_back({from, to, sec_label, relation});
+                };
+
+                const uint64_t type_rel_base = vm + offsetof(SwiftFieldDescriptorHeader, mangled_type_name);
+                const uint64_t super_rel_base = vm + offsetof(SwiftFieldDescriptorHeader, superclass);
+                const uint64_t type_vm = static_cast<uint64_t>(static_cast<int64_t>(type_rel_base) + fd->mangled_type_name);
+                const uint64_t super_vm = static_cast<uint64_t>(static_cast<int64_t>(super_rel_base) + fd->superclass);
+                if (fd->mangled_type_name != 0) {
+                    const std::string s = TryReadCString(mh_.get(), type_vm, 256);
+                    if (!s.empty()) {
+                        const std::string dem = DemangleSwiftSymbolExternal(s);
+                        entity_names[type_vm] = dem.empty() ? s : dem;
+                    }
+                    add_edge(vm, type_vm, "descriptor-type");
+                }
+                if (fd->superclass != 0) {
+                    const std::string s = TryReadCString(mh_.get(), super_vm, 256);
+                    if (!s.empty()) {
+                        const std::string dem = DemangleSwiftSymbolExternal(s);
+                        entity_names[super_vm] = dem.empty() ? s : dem;
+                    }
+                    add_edge(vm, super_vm, "descriptor-superclass");
+                }
+
                 if (fd->field_record_size < 12 || fd->field_record_size > 256 || fd->num_fields > 65535) break;
+                uint64_t rec_cursor = vm + sizeof(SwiftFieldDescriptorHeader);
+                for (uint32_t fi = 0; fi < fd->num_fields; ++fi) {
+                    if (cursor + sizeof(SwiftFieldDescriptorHeader) + (fi + 1) * fd->field_record_size > sec.size) break;
+                    char *rec_raw = sec.offset + cursor + sizeof(SwiftFieldDescriptorHeader) + fi * fd->field_record_size;
+                    if (fd->field_record_size < sizeof(SwiftFieldRecordHead)) continue;
+                    auto *fr = reinterpret_cast<const SwiftFieldRecordHead *>(rec_raw);
+                    const uint64_t rec_vm = rec_cursor + fi * fd->field_record_size;
+                    const uint64_t field_type_vm = static_cast<uint64_t>(static_cast<int64_t>(rec_vm + offsetof(SwiftFieldRecordHead, mangled_type_name)) + fr->mangled_type_name);
+                    const uint64_t field_name_vm = static_cast<uint64_t>(static_cast<int64_t>(rec_vm + offsetof(SwiftFieldRecordHead, field_name)) + fr->field_name);
+                    std::string field_name = TryReadCString(mh_.get(), field_name_vm, 128);
+                    std::string type_name = TryReadCString(mh_.get(), field_type_vm, 256);
+                    if (!type_name.empty()) {
+                        const std::string dem = DemangleSwiftSymbolExternal(type_name);
+                        if (!dem.empty()) type_name = dem;
+                    }
+                    if (!field_name.empty()) entity_names[field_name_vm] = field_name;
+                    if (!type_name.empty()) entity_names[field_type_vm] = type_name;
+                    const std::string display_name = field_name.empty() ? fmt::format("#{}", fi) : field_name;
+                    t->AddRow(rec_raw, sizeof(SwiftFieldRecordHead), {
+                        "field-record",
+                        display_name,
+                        sec_label,
+                        AsAddress(rec_vm),
+                        fmt::format("flags=0x{} type={}",
+                                    AsShortHexString(fr->flags),
+                                    type_name.empty() ? "-" : type_name)
+                    });
+                    if (fr->field_name != 0) add_edge(vm, field_name_vm, "field-name");
+                    if (fr->mangled_type_name != 0) add_edge(vm, field_type_vm, "field-type");
+                }
                 cursor += sizeof(SwiftFieldDescriptorHeader) + (fd->field_record_size * fd->num_fields);
             }
             continue;
@@ -267,9 +367,10 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
             }
 
             if (target_vm != 0) {
-                const std::string edge_key = fmt::format("{}:{}:{}", sec_label, from_vm, target_vm);
+                const std::string relation = SectionRelationName(sec.sectname);
+                const std::string edge_key = fmt::format("{}:{}:{}:{}", sec_label, from_vm, target_vm, relation);
                 if (edge_dedup.insert(edge_key).second) {
-                    edges.push_back({from_vm, target_vm, sec_label});
+                    edges.push_back({from_vm, target_vm, sec_label, relation});
                 }
             }
             std::string sym = nearest_symbol(target_vm);
@@ -283,12 +384,12 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
         t->AddRow({"edge", "Swift Metadata Relations", "-", "-", fmt::format("count={}", edges.size())});
         std::size_t idx = 0;
         for (const auto &e : edges) {
-            const uint64_t from = std::get<0>(e);
-            const uint64_t to = std::get<1>(e);
+            const uint64_t from = e.from;
+            const uint64_t to = e.to;
             const std::string from_name = entity_names.count(from) ? entity_names[from] : AsAddress(from);
             const std::string to_name = entity_names.count(to) ? entity_names[to] : AsAddress(to);
-            t->AddRow({ "edge", fmt::format("#{}", idx++), std::get<2>(e), AsAddress(from),
-                        fmt::format("{} -> {}", from_name, to_name) });
+            t->AddRow({ "edge", fmt::format("#{}", idx++), e.section, AsAddress(from),
+                        fmt::format("[{}] {} -> {}", e.relation, from_name, to_name) });
         }
     } else {
         t->AddSeparator();
