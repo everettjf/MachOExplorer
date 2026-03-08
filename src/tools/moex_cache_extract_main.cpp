@@ -172,6 +172,15 @@ static bool EnsureDirectory(const std::string &path, std::string &error) {
 } // namespace
 
 int main(int argc, char **argv) {
+    auto print_usage = []() {
+        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] [--max=N] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        std::cerr << "  --compact   rewrite segment file offsets for compact output\n";
+        std::cerr << "  --all       extract all matched images into output directory\n";
+        std::cerr << "  --exact     exact path match (default: substring)\n";
+        std::cerr << "  --dry-run   print extraction plan without writing output files\n";
+        std::cerr << "  --max=N     max image count processed in --all mode (0 means unlimited)\n";
+    };
+
     bool compact_mode = false;
     bool extract_all = false;
     bool exact_match = false;
@@ -180,6 +189,10 @@ int main(int argc, char **argv) {
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
+        if (opt == "--help" || opt == "-h") {
+            print_usage();
+            return 0;
+        }
         if (opt == "--compact") {
             compact_mode = true;
             ++arg_index;
@@ -209,7 +222,7 @@ int main(int argc, char **argv) {
     }
 
     if (argc - arg_index != 3) {
-        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] [--max=N] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        print_usage();
         return 2;
     }
 
