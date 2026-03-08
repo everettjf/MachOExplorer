@@ -17,6 +17,18 @@ Run regression:
 tests/regression/run_regression.sh
 ```
 
+Run dyld cache tools smoke test:
+
+```bash
+tests/regression/run_cache_tools_smoke.sh
+```
+
+Optional cache path:
+
+```bash
+tests/regression/run_cache_tools_smoke.sh /path/to/dyld_shared_cache_arm64e
+```
+
 ## Add New Cases
 
 Put crashing/minimized samples in `tests/regression/cases/`.
