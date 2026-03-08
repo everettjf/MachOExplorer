@@ -22,6 +22,14 @@ static std::string JsonEscape(const std::string &s) {
 }
 
 int main(int argc, char **argv) {
+    auto print_usage = []() {
+        std::cerr << "usage: moex-cache-list [--json] [--exact] [--limit=N] [--output=file] <dyld_shared_cache_file> [path-filter]\n";
+        std::cerr << "  --json         output JSON payload\n";
+        std::cerr << "  --exact        exact path match (default: substring)\n";
+        std::cerr << "  --limit=N      stop after N matches (0 means unlimited)\n";
+        std::cerr << "  --output=file  write output to file instead of stdout\n";
+    };
+
     bool json_mode = false;
     bool exact_match = false;
     uint32_t limit = 0;
@@ -29,6 +37,10 @@ int main(int argc, char **argv) {
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
+        if (opt == "--help" || opt == "-h") {
+            print_usage();
+            return 0;
+        }
         if (opt == "--json") {
             json_mode = true;
             ++arg_index;
@@ -53,7 +65,7 @@ int main(int argc, char **argv) {
     }
 
     if ((argc - arg_index) < 1 || (argc - arg_index) > 2) {
-        std::cerr << "usage: moex-cache-list [--json] [--exact] [--limit=N] <dyld_shared_cache_file> [path-filter]\n";
+        print_usage();
         return 2;
     }
 
