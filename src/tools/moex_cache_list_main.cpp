@@ -1,5 +1,6 @@
 #include "libmoex/node/Binary.h"
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 
 namespace {
@@ -24,6 +25,7 @@ int main(int argc, char **argv) {
     bool json_mode = false;
     bool exact_match = false;
     uint32_t limit = 0;
+    std::string output_file;
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
@@ -39,6 +41,11 @@ int main(int argc, char **argv) {
         }
         if (opt.rfind("--limit=", 0) == 0) {
             limit = static_cast<uint32_t>(std::max(0, std::stoi(opt.substr(8))));
+            ++arg_index;
+            continue;
+        }
+        if (opt.rfind("--output=", 0) == 0) {
+            output_file = opt.substr(9);
             ++arg_index;
             continue;
         }
@@ -66,15 +73,26 @@ int main(int argc, char **argv) {
             return path.find(filter) != std::string::npos;
         };
 
+        std::ostream *out = &std::cout;
+        std::ofstream fout;
+        if (!output_file.empty()) {
+            fout.open(output_file, std::ios::out | std::ios::binary | std::ios::trunc);
+            if (!fout.good()) {
+                std::cerr << "cannot open output file: " << output_file << "\n";
+                return 1;
+            }
+            out = &fout;
+        }
+
         if (!json_mode) {
-            std::cout << "magic: " << std::string(header.magic, header.magic + 16) << "\n";
-            std::cout << "mappingCount: " << header.mappingCount << " imageCount: " << header.imagesCount << "\n";
+            (*out) << "magic: " << std::string(header.magic, header.magic + 16) << "\n";
+            (*out) << "mappingCount: " << header.mappingCount << " imageCount: " << header.imagesCount << "\n";
         } else {
-            std::cout << "{";
-            std::cout << "\"magic\":\"" << JsonEscape(std::string(header.magic, header.magic + 16)) << "\",";
-            std::cout << "\"mappingCount\":" << header.mappingCount << ",";
-            std::cout << "\"imageCount\":" << header.imagesCount << ",";
-            std::cout << "\"images\":[";
+            (*out) << "{";
+            (*out) << "\"magic\":\"" << JsonEscape(std::string(header.magic, header.magic + 16)) << "\",";
+            (*out) << "\"mappingCount\":" << header.mappingCount << ",";
+            (*out) << "\"imageCount\":" << header.imagesCount << ",";
+            (*out) << "\"images\":[";
         }
 
         uint32_t shown = 0;
@@ -86,14 +104,14 @@ int main(int argc, char **argv) {
                     continue;
                 }
                 if (!json_mode) {
-                    std::cout << "0x" << moex::util::AsShortHexString(img.address) << " " << path << "\n";
+                    (*out) << "0x" << moex::util::AsShortHexString(img.address) << " " << path << "\n";
                 } else {
-                    if (!first_json_item) std::cout << ",";
+                    if (!first_json_item) (*out) << ",";
                     first_json_item = false;
-                    std::cout << "{";
-                    std::cout << "\"address\":\"0x" << moex::util::AsShortHexString(img.address) << "\",";
-                    std::cout << "\"path\":\"" << JsonEscape(path) << "\"";
-                    std::cout << "}";
+                    (*out) << "{";
+                    (*out) << "\"address\":\"0x" << moex::util::AsShortHexString(img.address) << "\",";
+                    (*out) << "\"path\":\"" << JsonEscape(path) << "\"";
+                    (*out) << "}";
                 }
                 ++shown;
                 if (limit > 0 && shown >= limit) break;
@@ -104,14 +122,14 @@ int main(int argc, char **argv) {
                     continue;
                 }
                 if (!json_mode) {
-                    std::cout << "0x" << moex::util::AsShortHexString(img.first) << " " << img.second << "\n";
+                    (*out) << "0x" << moex::util::AsShortHexString(img.first) << " " << img.second << "\n";
                 } else {
-                    if (!first_json_item) std::cout << ",";
+                    if (!first_json_item) (*out) << ",";
                     first_json_item = false;
-                    std::cout << "{";
-                    std::cout << "\"address\":\"0x" << moex::util::AsShortHexString(img.first) << "\",";
-                    std::cout << "\"path\":\"" << JsonEscape(img.second) << "\"";
-                    std::cout << "}";
+                    (*out) << "{";
+                    (*out) << "\"address\":\"0x" << moex::util::AsShortHexString(img.first) << "\",";
+                    (*out) << "\"path\":\"" << JsonEscape(img.second) << "\"";
+                    (*out) << "}";
                 }
                 ++shown;
                 if (limit > 0 && shown >= limit) break;
@@ -119,9 +137,9 @@ int main(int argc, char **argv) {
         }
 
         if (!json_mode) {
-            std::cout << "shown: " << shown << "\n";
+            (*out) << "shown: " << shown << "\n";
         } else {
-            std::cout << "],\"shown\":" << shown << "}\n";
+            (*out) << "],\"shown\":" << shown << "}\n";
         }
         return 0;
     } catch (const std::exception &ex) {
