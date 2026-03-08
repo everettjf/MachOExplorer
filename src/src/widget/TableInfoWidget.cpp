@@ -72,9 +72,11 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     QHeaderView *verticalHeader = tableView->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(24);
+    tableView->horizontalHeader()->setStretchLastSection(true);
 
     tableView->setSelectionBehavior(QTableView::SelectRows);
     tableView->setSelectionMode(QTableView::SingleSelection);
+    tableView->setSortingEnabled(true);
 
     connect(tableView,&QTableView::clicked,this,&TableInfoWidget::clicked);
     connect(tableView, &QTableView::doubleClicked, this, [this](const QModelIndex &index) {
@@ -197,6 +199,7 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     tableView->setModel(proxyModel);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView->sortByColumn(0, Qt::AscendingOrder);
 
     for(uint32_t idx = 0; idx < node->widths.size(); ++idx){
         tableView->setColumnWidth(idx,node->widths.at(idx));
