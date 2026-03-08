@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 MOEX_NAMESPACE_BEGIN
@@ -118,6 +119,7 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
     t->SetWidths({170, 280, 180, 180, 500});
 
     std::unordered_map<uint64_t, std::string> symbols;
+    std::vector<std::pair<uint64_t, std::string>> sorted_symbols;
     auto *symtab = mh_->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
     if (symtab != nullptr) {
         for (auto &n : symtab->nlists_ref()) {
@@ -126,10 +128,31 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
             if (vm == 0) continue;
             if (symbols.count(vm) == 0) {
                 const std::string s = symtab->GetStringByStrX(n->n_strx());
-                if (!s.empty()) symbols[vm] = s;
+                if (!s.empty()) {
+                    symbols[vm] = s;
+                    sorted_symbols.push_back({vm, s});
+                }
             }
         }
     }
+    std::sort(sorted_symbols.begin(), sorted_symbols.end(),
+              [](const std::pair<uint64_t, std::string> &a, const std::pair<uint64_t, std::string> &b) {
+                  return a.first < b.first;
+              });
+    auto nearest_symbol = [&](uint64_t addr) -> std::string {
+        auto exact = symbols.find(addr);
+        if (exact != symbols.end()) return exact->second;
+        if (sorted_symbols.empty()) return "";
+        auto up = std::upper_bound(
+                sorted_symbols.begin(), sorted_symbols.end(), addr,
+                [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                    return value < item.first;
+                });
+        if (up == sorted_symbols.begin()) return "";
+        --up;
+        if (addr == up->first) return up->second;
+        return fmt::format("{}+0x{}", up->second, AsShortHexString(addr - up->first));
+    };
 
     struct SwiftSectionRef {
         std::string segname;
@@ -164,6 +187,7 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
 
     std::map<uint64_t, std::string> entity_names;
     std::vector<std::tuple<uint64_t, uint64_t, std::string>> edges;
+    std::unordered_set<std::string> edge_dedup;
 
     for (const auto &sec : sections) {
         const std::string sec_label = sec.segname + "/" + sec.sectname;
@@ -243,8 +267,13 @@ void SwiftSemanticGraphViewNode::InitViewDatas()
             }
 
             if (target_vm != 0) {
-                edges.push_back({from_vm, target_vm, sec_label});
+                const std::string edge_key = fmt::format("{}:{}:{}", sec_label, from_vm, target_vm);
+                if (edge_dedup.insert(edge_key).second) {
+                    edges.push_back({from_vm, target_vm, sec_label});
+                }
             }
+            std::string sym = nearest_symbol(target_vm);
+            if (!sym.empty()) detail += " symbol=" + sym;
             t->AddRow(raw, sizeof(int32_t), {kind, fmt::format("#{}", i), sec_label, AsAddress(target_vm), detail});
         }
     }
