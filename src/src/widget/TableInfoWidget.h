@@ -11,6 +11,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QPointer>
+#include <QProcess>
 #include "src/controller/TableInfoController.h"
 #include <QModelIndex>
 
@@ -32,6 +34,8 @@ private:
     QPushButton *exportButton;
     QSortFilterProxyModel *proxyModel;
     TableInfoController *controller;
+    bool dyldRowExtractInProgress_ = false;
+    QPointer<QProcess> dyldRowExtractProcess_;
 private:
     void clicked(const QModelIndex &index);
     void openDyldCacheImageFromRow(const QModelIndex &sourceIndex);

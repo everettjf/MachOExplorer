@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QProcess>
+#include <QProgressDialog>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -187,6 +188,11 @@ void TableInfoWidget::clicked(const QModelIndex &index)
 
 void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
 {
+    if (dyldRowExtractInProgress_) {
+        util::showInfo(this, tr("An extraction task is already running."));
+        return;
+    }
+
     if (proxyModel == nullptr || proxyModel->sourceModel() == nullptr) return;
     if (sourceIndex.row() < 0) return;
 
@@ -217,17 +223,58 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
                     .arg(QFileInfo(imagePath).fileName())
                     .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz")));
 
-    QProcess proc;
-    proc.start(tool, {"--compact", cachePath, imagePath, outPath});
-    if(!proc.waitForFinished(600000)){
-        util::showError(this, tr("Extraction timed out."));
-        return;
-    }
-    if(proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0){
-        util::showError(this, tr("Extraction failed:\n%1").arg(QString::fromUtf8(proc.readAllStandardError())));
-        return;
-    }
+    auto *progress = new QProgressDialog(tr("Extracting selected image..."),
+                                         tr("Cancel"), 0, 0, this);
+    progress->setWindowModality(Qt::WindowModal);
+    progress->setMinimumDuration(0);
+    progress->setAutoClose(false);
+    progress->setAutoReset(false);
+    progress->show();
 
-    WS()->openFile(outPath);
-    util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
+    auto *proc = new QProcess(this);
+    dyldRowExtractInProgress_ = true;
+    dyldRowExtractProcess_ = proc;
+
+    connect(progress, &QProgressDialog::canceled, this, [this, proc]() {
+        if (proc->state() != QProcess::NotRunning) proc->kill();
+    });
+
+    connect(proc, &QProcess::finished, this,
+            [this, proc, progress, outPath](int exitCode, QProcess::ExitStatus exitStatus) {
+        const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
+        const bool canceled = progress->wasCanceled();
+
+        dyldRowExtractInProgress_ = false;
+        dyldRowExtractProcess_.clear();
+        progress->hide();
+        progress->deleteLater();
+
+        if (canceled) {
+            proc->deleteLater();
+            return;
+        }
+
+        if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+            util::showError(this, tr("Extraction failed:\n%1").arg(stderrText));
+            proc->deleteLater();
+            return;
+        }
+
+        WS()->openFile(outPath);
+        util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
+        proc->deleteLater();
+    });
+
+    connect(proc, &QProcess::errorOccurred, this, [this, proc, progress](QProcess::ProcessError) {
+        if (!dyldRowExtractInProgress_) return;
+        const QString err = proc->errorString();
+        dyldRowExtractInProgress_ = false;
+        dyldRowExtractProcess_.clear();
+        progress->hide();
+        progress->deleteLater();
+        util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
+        proc->deleteLater();
+    });
+
+    proc->start(tool, {"--compact", cachePath, imagePath, outPath});
 }
