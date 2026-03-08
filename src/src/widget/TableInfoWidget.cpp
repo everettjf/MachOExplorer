@@ -13,6 +13,9 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QCoreApplication>
+#include <QDateTime>
+#include <QProcess>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -68,6 +71,12 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     tableView->setSelectionMode(QTableView::SingleSelection);
 
     connect(tableView,&QTableView::clicked,this,&TableInfoWidget::clicked);
+    connect(tableView, &QTableView::doubleClicked, this, [this](const QModelIndex &index) {
+        if (!index.isValid() || proxyModel == nullptr) return;
+        const QModelIndex sourceIndex = proxyModel->mapToSource(index);
+        if (!sourceIndex.isValid()) return;
+        openDyldCacheImageFromRow(sourceIndex);
+    });
     connect(filterEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         if (proxyModel == nullptr) return;
         proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -174,4 +183,51 @@ void TableInfoWidget::clicked(const QModelIndex &index)
     std::string desc = controller->model()->data_ptr()->GetRowDescription(sourceIndex.row());
     qDebug() << desc.c_str();
     WS()->setInformation(QString::fromStdString(desc));
+}
+
+void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
+{
+    if (proxyModel == nullptr || proxyModel->sourceModel() == nullptr) return;
+    if (sourceIndex.row() < 0) return;
+
+    const QString cachePath = WS()->currentFilePath();
+    if (cachePath.isEmpty() || !QFileInfo(cachePath).fileName().startsWith("dyld_shared_cache")) return;
+
+    const int cols = proxyModel->sourceModel()->columnCount();
+    if (cols < 3) return;
+    const QString h0 = proxyModel->sourceModel()->headerData(0, Qt::Horizontal, Qt::DisplayRole).toString();
+    const QString h1 = proxyModel->sourceModel()->headerData(1, Qt::Horizontal, Qt::DisplayRole).toString();
+    const QString h2 = proxyModel->sourceModel()->headerData(2, Qt::Horizontal, Qt::DisplayRole).toString();
+    if (h0 != "Address" || h1 != "Path Offset" || h2 != "Path") return;
+
+    const QString imagePath = proxyModel->sourceModel()->index(sourceIndex.row(), 2).data(Qt::DisplayRole).toString().trimmed();
+    if (imagePath.isEmpty() || imagePath.startsWith("(")) return;
+
+    QString tool = QCoreApplication::applicationDirPath() + "/moex-cache-extract";
+    if(!QFileInfo::exists(tool)){
+        tool = QDir::current().absoluteFilePath("build/moex-cache-extract");
+    }
+    if(!QFileInfo::exists(tool)){
+        util::showError(this, tr("Cannot find moex-cache-extract tool.\nBuild from source first."));
+        return;
+    }
+
+    const QString outPath = QDir::temp().absoluteFilePath(
+            QString("MachOExplorer-cache-row-%1-%2")
+                    .arg(QFileInfo(imagePath).fileName())
+                    .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz")));
+
+    QProcess proc;
+    proc.start(tool, {"--compact", cachePath, imagePath, outPath});
+    if(!proc.waitForFinished(600000)){
+        util::showError(this, tr("Extraction timed out."));
+        return;
+    }
+    if(proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0){
+        util::showError(this, tr("Extraction failed:\n%1").arg(QString::fromUtf8(proc.readAllStandardError())));
+        return;
+    }
+
+    WS()->openFile(outPath);
+    util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
 }

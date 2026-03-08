@@ -34,6 +34,7 @@ private:
     TableInfoController *controller;
 private:
     void clicked(const QModelIndex &index);
+    void openDyldCacheImageFromRow(const QModelIndex &sourceIndex);
 
 signals:
 
