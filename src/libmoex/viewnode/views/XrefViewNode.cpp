@@ -311,7 +311,11 @@ void XrefViewNode::InitViewDatas()
     }
 
     if (targets.empty()) {
-        t->AddRow({"-", "-", "0", "No pointer-based xrefs found"});
+#if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+        t->AddRow({"-", "-", "0", "No xrefs found (pointer + disassembly scan)"});
+#else
+        t->AddRow({"-", "-", "0", "No xrefs found (pointer scan only; build with Capstone for instruction xrefs)"});
+#endif
     }
 }
 
