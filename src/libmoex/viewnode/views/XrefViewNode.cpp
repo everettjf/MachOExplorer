@@ -177,10 +177,12 @@ void XrefViewNode::InitViewDatas()
             const uint64_t base = sect->Is64() ? sect->sect().addr64() : sect->sect().addr();
             cs_insn *insn = nullptr;
             const size_t count = cs_disasm(handle, code, code_size, base, 0, &insn);
+            std::unordered_map<unsigned int, uint64_t> x86_reg_targets;
             std::unordered_map<unsigned int, uint64_t> arm64_reg_targets;
             for (size_t i = 0; i < count; ++i) {
                 const auto &ci = insn[i];
                 if (!function_starts.empty() && function_starts.count(ci.address) != 0) {
+                    x86_reg_targets.clear();
                     arm64_reg_targets.clear();
                 }
                 bool is_branch = false;
@@ -259,6 +261,62 @@ void XrefViewNode::InitViewDatas()
                     }
                 }
 
+                if (arch == CS_ARCH_X86) {
+                    uint8_t regs_read[36] = {0};
+                    uint8_t regs_write[36] = {0};
+                    uint8_t read_count = 0;
+                    uint8_t write_count = 0;
+                    if (cs_regs_access(handle, &ci, regs_read, &read_count, regs_write, &write_count) == 0) {
+                        for (uint8_t ri = 0; ri < write_count; ++ri) {
+                            x86_reg_targets.erase(regs_write[ri]);
+                        }
+                    }
+
+                    const auto &x = ci.detail->x86;
+                    const bool is64 = (mode == CS_MODE_64);
+                    if (ci.id == X86_INS_LEA &&
+                        x.op_count >= 2 &&
+                        x.operands[0].type == X86_OP_REG &&
+                        x.operands[1].type == X86_OP_MEM &&
+                        (x.operands[1].mem.base == X86_REG_RIP || x.operands[1].mem.base == X86_REG_EIP)) {
+                        x86_reg_targets[x.operands[0].reg] = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + x.operands[1].mem.disp);
+                    } else if (ci.id == X86_INS_MOV &&
+                               x.op_count >= 2 &&
+                               x.operands[0].type == X86_OP_REG) {
+                        if (x.operands[1].type == X86_OP_IMM) {
+                            x86_reg_targets[x.operands[0].reg] = static_cast<uint64_t>(x.operands[1].imm);
+                        } else if (x.operands[1].type == X86_OP_REG) {
+                            auto hit = x86_reg_targets.find(x.operands[1].reg);
+                            if (hit != x86_reg_targets.end()) x86_reg_targets[x.operands[0].reg] = hit->second;
+                        } else if (x.operands[1].type == X86_OP_MEM &&
+                                   (x.operands[1].mem.base == X86_REG_RIP || x.operands[1].mem.base == X86_REG_EIP)) {
+                            const uint64_t mem_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + x.operands[1].mem.disp);
+                            uint64_t pointed = 0;
+                            if (ReadPointerAtVm(mh_, mem_vmaddr, is64, pointed) && pointed != 0) {
+                                x86_reg_targets[x.operands[0].reg] = pointed;
+                            }
+                        }
+                    } else if ((ci.id == X86_INS_ADD || ci.id == X86_INS_SUB) &&
+                               x.op_count >= 2 &&
+                               x.operands[0].type == X86_OP_REG &&
+                               x.operands[1].type == X86_OP_IMM) {
+                        auto hit = x86_reg_targets.find(x.operands[0].reg);
+                        if (hit != x86_reg_targets.end()) {
+                            const int64_t delta = x.operands[1].imm;
+                            x86_reg_targets[x.operands[0].reg] = static_cast<uint64_t>(
+                                    ci.id == X86_INS_ADD ?
+                                    static_cast<int64_t>(hit->second) + delta :
+                                    static_cast<int64_t>(hit->second) - delta);
+                        }
+                    } else if (ci.id == X86_INS_XOR &&
+                               x.op_count >= 2 &&
+                               x.operands[0].type == X86_OP_REG &&
+                               x.operands[1].type == X86_OP_REG &&
+                               x.operands[0].reg == x.operands[1].reg) {
+                        x86_reg_targets[x.operands[0].reg] = 0;
+                    }
+                }
+
                 if (!is_branch && !is_call) continue;
 
                 if (arch == CS_ARCH_X86) {
@@ -276,6 +334,12 @@ void XrefViewNode::InitViewDatas()
                             if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
                                 add_ref(target, {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
                                                  sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                            }
+                        } else if (op.type == X86_OP_REG) {
+                            auto hit = x86_reg_targets.find(op.reg);
+                            if (hit != x86_reg_targets.end()) {
+                                add_ref(hit->second, {"__TEXT/__text", is_call ? "call-reg" : "jump-reg",
+                                                      sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                             }
                         }
                     }
