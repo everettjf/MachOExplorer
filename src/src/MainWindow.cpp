@@ -516,7 +516,19 @@ void MainWindow::createActions()
             if(QFileInfo::exists(listTool)){
                 QProcess listProc;
                 listProc.start(listTool, {"--json", "--limit=5000", cachePath});
-                if(listProc.waitForFinished(15000) && listProc.exitStatus() == QProcess::NormalExit && listProc.exitCode() == 0){
+                const bool finished = listProc.waitForFinished(15000);
+                if(!finished){
+                    listProc.kill();
+                    listProc.waitForFinished(2000);
+                    WS()->addLog(tr("[cache-list] timeout for %1").arg(cachePath));
+                    statusBar()->showMessage(tr("Image preloading timed out, fallback to manual selector."), 4000);
+                } else if (listProc.exitStatus() != QProcess::NormalExit || listProc.exitCode() != 0) {
+                    const QString err = QString::fromUtf8(listProc.readAllStandardError()).trimmed();
+                    WS()->addLog(tr("[cache-list] failed exit=%1 status=%2 err=%3")
+                                         .arg(listProc.exitCode())
+                                         .arg(listProc.exitStatus() == QProcess::NormalExit ? "normal" : "crash")
+                                         .arg(err.isEmpty() ? "(empty)" : err));
+                } else {
                     const QByteArray outputBytes = listProc.readAllStandardOutput();
                     QJsonParseError parseError{};
                     const QJsonDocument doc = QJsonDocument::fromJson(outputBytes, &parseError);
