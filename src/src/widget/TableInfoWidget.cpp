@@ -43,6 +43,8 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 {
     controller = nullptr;
     proxyModel = nullptr;
+    filterDebounceTimer = new QTimer(this);
+    filterDebounceTimer->setSingleShot(true);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
@@ -79,11 +81,15 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
         if (!sourceIndex.isValid()) return;
         openDyldCacheImageFromRow(sourceIndex);
     });
-    connect(filterEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
+    connect(filterEdit, &QLineEdit::textChanged, this, [this](const QString &) {
+        filterDebounceTimer->start(120);
+    });
+    connect(filterDebounceTimer, &QTimer::timeout, this, [this]() {
         if (proxyModel == nullptr) return;
+        const QString text = filterEdit->text();
         proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         proxyModel->setFilterRegularExpression(QRegularExpression(QRegularExpression::escape(text),
-                                                                 QRegularExpression::CaseInsensitiveOption));
+                                                                  QRegularExpression::CaseInsensitiveOption));
         const int visible = proxyModel->rowCount();
         const int total = proxyModel->sourceModel() ? proxyModel->sourceModel()->rowCount() : visible;
         filterStatus->setText(QString("%1/%2").arg(visible).arg(total));
@@ -180,6 +186,7 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
         tableView->setColumnWidth(idx,node->widths.at(idx));
     }
     filterEdit->clear();
+    filterDebounceTimer->stop();
     filterStatus->setText(QString("%1/%1").arg(node->rows.size()));
 
 

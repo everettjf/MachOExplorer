@@ -13,6 +13,7 @@
 #include <QSortFilterProxyModel>
 #include <QPointer>
 #include <QProcess>
+#include <QTimer>
 #include "src/controller/TableInfoController.h"
 #include <QModelIndex>
 
@@ -35,6 +36,7 @@ private:
     QPushButton *exportButton;
     QSortFilterProxyModel *proxyModel;
     TableInfoController *controller;
+    QTimer *filterDebounceTimer;
     bool dyldRowExtractInProgress_ = false;
     QPointer<QProcess> dyldRowExtractProcess_;
 private:
