@@ -236,6 +236,33 @@ void XrefViewNode::InitViewDatas()
                         if (hit != arm64_reg_targets.end()) {
                             arm64_reg_targets[arm.operands[0].reg] = hit->second;
                         }
+                    } else if (ci.id == ARM64_INS_MOVZ &&
+                               arm.op_count >= 2 &&
+                               arm.operands[0].type == ARM64_OP_REG &&
+                               arm.operands[1].type == ARM64_OP_IMM) {
+                        uint64_t value = static_cast<uint64_t>(arm.operands[1].imm);
+                        if (arm.op_count >= 3 && arm.operands[2].type == ARM64_OP_IMM) {
+                            const uint64_t shift = static_cast<uint64_t>(arm.operands[2].imm);
+                            if (shift < 64) value <<= shift;
+                        }
+                        arm64_reg_targets[arm.operands[0].reg] = value;
+                    } else if (ci.id == ARM64_INS_MOVK &&
+                               arm.op_count >= 2 &&
+                               arm.operands[0].type == ARM64_OP_REG &&
+                               arm.operands[1].type == ARM64_OP_IMM) {
+                        auto hit = arm64_reg_targets.find(arm.operands[0].reg);
+                        if (hit != arm64_reg_targets.end()) {
+                            uint64_t base_val = hit->second;
+                            const uint64_t imm16 = static_cast<uint64_t>(arm.operands[1].imm) & 0xffffULL;
+                            uint64_t shift = 0;
+                            if (arm.op_count >= 3 && arm.operands[2].type == ARM64_OP_IMM) {
+                                shift = static_cast<uint64_t>(arm.operands[2].imm);
+                                if (shift >= 64) shift = 0;
+                            }
+                            const uint64_t mask = ~(0xffffULL << shift);
+                            base_val = (base_val & mask) | (imm16 << shift);
+                            arm64_reg_targets[arm.operands[0].reg] = base_val;
+                        }
                     } else if ((ci.id == ARM64_INS_LDR || ci.id == ARM64_INS_LDUR || ci.id == ARM64_INS_LDRSW) &&
                                arm.op_count >= 2 &&
                                arm.operands[0].type == ARM64_OP_REG &&
@@ -277,9 +304,18 @@ void XrefViewNode::InitViewDatas()
                     if (ci.id == X86_INS_LEA &&
                         x.op_count >= 2 &&
                         x.operands[0].type == X86_OP_REG &&
-                        x.operands[1].type == X86_OP_MEM &&
-                        (x.operands[1].mem.base == X86_REG_RIP || x.operands[1].mem.base == X86_REG_EIP)) {
-                        x86_reg_targets[x.operands[0].reg] = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + x.operands[1].mem.disp);
+                        x.operands[1].type == X86_OP_MEM) {
+                        const auto base_reg = x.operands[1].mem.base;
+                        if (base_reg == X86_REG_RIP || base_reg == X86_REG_EIP) {
+                            x86_reg_targets[x.operands[0].reg] =
+                                    static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + x.operands[1].mem.disp);
+                        } else if (x.operands[1].mem.index == X86_REG_INVALID) {
+                            auto hit = x86_reg_targets.find(base_reg);
+                            if (hit != x86_reg_targets.end()) {
+                                x86_reg_targets[x.operands[0].reg] = static_cast<uint64_t>(
+                                        static_cast<int64_t>(hit->second) + x.operands[1].mem.disp);
+                            }
+                        }
                     } else if (ci.id == X86_INS_MOV &&
                                x.op_count >= 2 &&
                                x.operands[0].type == X86_OP_REG) {
@@ -334,6 +370,18 @@ void XrefViewNode::InitViewDatas()
                             if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
                                 add_ref(target, {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
                                                  sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                            }
+                        } else if (op.type == X86_OP_MEM && op.mem.index == X86_REG_INVALID) {
+                            auto hit = x86_reg_targets.find(op.mem.base);
+                            if (hit != x86_reg_targets.end()) {
+                                const uint64_t mem_vmaddr = static_cast<uint64_t>(
+                                        static_cast<int64_t>(hit->second) + op.mem.disp);
+                                uint64_t target = 0;
+                                const bool is64ptr = (mode == CS_MODE_64);
+                                if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
+                                    add_ref(target, {"__TEXT/__text", is_call ? "call-regmem" : "jump-regmem",
+                                                     sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                                }
                             }
                         } else if (op.type == X86_OP_REG) {
                             auto hit = x86_reg_targets.find(op.reg);
