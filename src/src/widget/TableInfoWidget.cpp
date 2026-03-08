@@ -257,15 +257,19 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
     timeout->setSingleShot(true);
     dyldRowExtractInProgress_ = true;
     dyldRowExtractProcess_ = proc;
+    WS()->addLog(tr("[extract-row] start cache=%1 selector=%2 out=%3")
+                         .arg(cachePath, imagePath, outPath));
 
     connect(progress, &QProgressDialog::canceled, this, [this, proc]() {
         if (proc->state() != QProcess::NotRunning) proc->kill();
+        WS()->addLog("[extract-row] canceled by user");
     });
 
-    connect(timeout, &QTimer::timeout, this, [proc, progress]() {
+    connect(timeout, &QTimer::timeout, this, [this, proc, progress]() {
         if (proc->state() == QProcess::NotRunning) return;
         progress->cancel();
         proc->kill();
+        WS()->addLog("[extract-row] canceled by timeout");
     });
 
     connect(proc, &QProcess::finished, this,
@@ -282,24 +286,31 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         progress->deleteLater();
 
         if (canceled) {
+            WS()->addLog("[extract-row] finished with canceled state");
             proc->deleteLater();
             return;
         }
 
         if (exitStatus != QProcess::NormalExit || exitCode != 0) {
             const QString details = (stderrText + "\n" + stdoutText).trimmed();
+            WS()->addLog(tr("[extract-row] failed exit=%1 status=%2 details=%3")
+                                 .arg(exitCode)
+                                 .arg(exitStatus == QProcess::NormalExit ? "normal" : "crash")
+                                 .arg(details.isEmpty() ? "(no process output)" : details));
             util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
             proc->deleteLater();
             return;
         }
         const QFileInfo outInfo(outPath);
         if (!outInfo.exists() || outInfo.size() <= 0) {
+            WS()->addLog(tr("[extract-row] failed output missing/empty: %1").arg(outPath));
             util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outPath));
             proc->deleteLater();
             return;
         }
 
         WS()->openFile(outPath);
+        WS()->addLog(tr("[extract-row] success out=%1 size=%2").arg(outPath).arg(outInfo.size()));
         util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
         proc->deleteLater();
     });
@@ -313,6 +324,7 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         timeout->deleteLater();
         progress->hide();
         progress->deleteLater();
+        WS()->addLog(tr("[extract-row] process start error: %1").arg(err));
         util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
         proc->deleteLater();
     });

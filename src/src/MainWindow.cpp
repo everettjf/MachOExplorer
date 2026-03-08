@@ -590,10 +590,13 @@ void MainWindow::createActions()
         dyldExtractInProgress_ = true;
         dyldExtractProcess_ = proc;
         action->extractDyldImage->setEnabled(false);
+        WS()->addLog(tr("[extract] start cache=%1 selector=%2 out=%3")
+                             .arg(cachePath, imageSelector, outputPath));
         statusBar()->showMessage(tr("Extracting image: %1").arg(imageSelector), 3000);
 
         connect(progress, &QProgressDialog::canceled, this, [this, proc]() {
             if (proc->state() != QProcess::NotRunning) proc->kill();
+            WS()->addLog("[extract] canceled by user");
             statusBar()->showMessage(tr("Extraction canceled."), 5000);
         });
 
@@ -601,6 +604,7 @@ void MainWindow::createActions()
             if (proc->state() == QProcess::NotRunning) return;
             progress->cancel();
             proc->kill();
+            WS()->addLog("[extract] canceled by timeout");
             statusBar()->showMessage(tr("Extraction timed out and was canceled."), 6000);
         });
 
@@ -619,18 +623,24 @@ void MainWindow::createActions()
             progress->deleteLater();
 
             if (canceled) {
+                WS()->addLog("[extract] finished with canceled state");
                 proc->deleteLater();
                 return;
             }
 
             if (exitStatus != QProcess::NormalExit || exitCode != 0) {
                 const QString details = (stderrText + "\n" + stdoutText).trimmed();
+                WS()->addLog(tr("[extract] failed exit=%1 status=%2 details=%3")
+                                     .arg(exitCode)
+                                     .arg(exitStatus == QProcess::NormalExit ? "normal" : "crash")
+                                     .arg(details.isEmpty() ? "(no process output)" : details));
                 util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
                 proc->deleteLater();
                 return;
             }
             const QFileInfo outInfo(outputPath);
             if (!outInfo.exists() || outInfo.size() <= 0) {
+                WS()->addLog(tr("[extract] failed output missing/empty: %1").arg(outputPath));
                 util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outputPath));
                 proc->deleteLater();
                 return;
@@ -638,6 +648,7 @@ void MainWindow::createActions()
 
             this->showMaximized();
             WS()->openFile(outputPath);
+            WS()->addLog(tr("[extract] success out=%1 size=%2").arg(outputPath).arg(outInfo.size()));
             statusBar()->showMessage(tr("Extracted and opened: %1").arg(outputPath), 8000);
             proc->deleteLater();
         });
@@ -652,6 +663,7 @@ void MainWindow::createActions()
             timeout->deleteLater();
             progress->hide();
             progress->deleteLater();
+            WS()->addLog(tr("[extract] process start error: %1").arg(err));
             util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
             proc->deleteLater();
         });
