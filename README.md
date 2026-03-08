@@ -10,10 +10,12 @@
 - Parse and inspect Mach-O, Fat Mach-O, and Unix Archive (`.a`) containers.
 - Inspect load commands, sections, symbols, string tables, relocation tables, and dyld info.
 - Disassemble `__TEXT,__text` with optional Capstone integration and symbol association.
+- Build instruction-level xref/callgraph data, including register-based indirect call/jump tracking.
 - Decode modern dyld data for `LC_DYLD_EXPORTS_TRIE` and `LC_DYLD_CHAINED_FIXUPS`.
 - Explore ObjC2 metadata trees (classes/categories/protocols/methods/properties).
-- Inspect Swift metadata sections (`__swift5_*`) and show basic demangled-style hints.
+- Inspect Swift metadata sections (`__swift5_*`) with semantic graph edges and field-record decoding.
 - Attach by PID on macOS (path-based workflow) to inspect the target executable.
+- Extract dyld shared cache images and open directly (menu workflow + double-click from `Images` table).
 - Switch theme mode: `Follow System`, `Light`, `Dark`.
 
 ## Screenshot
@@ -94,7 +96,7 @@ Tool quick reference:
 ```bash
 cmake -S src -B build -DCMAKE_PREFIX_PATH="/Users/eevv/Qt/6.10.2/macos"
 cmake --build build -j8
-tests/regression/run_regression.sh
+tests/regression/run_all.sh
 ```
 
 ### Build Fuzz Target (Clang)
@@ -119,6 +121,11 @@ cmake --build build-fuzz -j8
 - `image/`: screenshots/icons for docs
 
 ## Version Notes
+- 2026-03-08 — `v2.1.1` (in-progress): deep xref + Swift semantic + dyld cache drill-in + crash-regression hardening.
+  - Xref: x86 register/memory indirect flows and ARM64 `movz/movk` constant-chain tracking.
+  - Swift Semantic Graph: typed relation edges and `__swift5_fieldmd` field-record decoding.
+  - Dyld cache UX: double-click image row to extract-and-open directly.
+  - Security regression: malformed-input crash runner integrated into `tests/regression/run_all.sh`.
 - 2026-03-08 — `v2.1.0`: semantic graph + call graph + interaction milestone.
   - New `Swift Semantic Graph` view: cross-section aggregation for `__swift5_*` metadata with relation edges.
   - Xref enhanced to function-level call graph summary and stronger ARM64 data-flow tracking.
