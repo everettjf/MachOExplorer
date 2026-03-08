@@ -10,6 +10,9 @@
 #include <QHeaderView>
 #include <QRegularExpression>
 #include <QShortcut>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -48,8 +51,10 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     filterEdit->setPlaceholderText(tr("Filter rows (all columns)..."));
     filterStatus = new QLabel(this);
     filterStatus->setMinimumWidth(120);
+    exportButton = new QPushButton(tr("Export CSV"), this);
     topBar->addWidget(filterEdit, 1);
     topBar->addWidget(filterStatus);
+    topBar->addWidget(exportButton);
     layout->addLayout(topBar);
 
     tableView = new QTableView(this);
@@ -82,6 +87,42 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     auto *clearFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clearFilterShortcut, &QShortcut::activated, this, [this]() {
         if (!filterEdit->text().isEmpty()) filterEdit->clear();
+    });
+
+    connect(exportButton, &QPushButton::clicked, this, [this]() {
+        if (proxyModel == nullptr || proxyModel->sourceModel() == nullptr) return;
+        const QString outPath = QFileDialog::getSaveFileName(
+                this,
+                tr("Export Visible Rows to CSV"),
+                QDir::home().absoluteFilePath("MachOExplorer-export.csv"),
+                tr("CSV Files (*.csv)"));
+        if (outPath.isEmpty()) return;
+        QFile f(outPath);
+        if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+            util::showError(this, tr("Cannot write file: %1").arg(outPath));
+            return;
+        }
+        QTextStream ts(&f);
+        const int cols = proxyModel->columnCount();
+        const int rows = proxyModel->rowCount();
+        auto csv_escape = [](QString s) {
+            s.replace("\"", "\"\"");
+            return QString("\"%1\"").arg(s);
+        };
+        QStringList headerVals;
+        for (int c = 0; c < cols; ++c) {
+            headerVals << csv_escape(proxyModel->headerData(c, Qt::Horizontal, Qt::DisplayRole).toString());
+        }
+        ts << headerVals.join(",") << "\n";
+        for (int r = 0; r < rows; ++r) {
+            QStringList rowVals;
+            for (int c = 0; c < cols; ++c) {
+                rowVals << csv_escape(proxyModel->index(r, c).data(Qt::DisplayRole).toString());
+            }
+            ts << rowVals.join(",") << "\n";
+        }
+        f.close();
+        util::showInfo(this, tr("Exported %1 rows to %2").arg(rows).arg(outPath));
     });
 }
 

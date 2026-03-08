@@ -9,6 +9,7 @@
 #include <QTableView>
 #include <QLineEdit>
 #include <QLabel>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
 #include "src/controller/TableInfoController.h"
 #include <QModelIndex>
@@ -28,6 +29,7 @@ private:
     QTableView *tableView;
     QLineEdit *filterEdit;
     QLabel *filterStatus;
+    QPushButton *exportButton;
     QSortFilterProxyModel *proxyModel;
     TableInfoController *controller;
 private:
