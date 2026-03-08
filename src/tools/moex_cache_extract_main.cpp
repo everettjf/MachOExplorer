@@ -176,6 +176,7 @@ int main(int argc, char **argv) {
     bool extract_all = false;
     bool exact_match = false;
     bool dry_run = false;
+    uint32_t max_extract = 0;
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
@@ -199,11 +200,16 @@ int main(int argc, char **argv) {
             ++arg_index;
             continue;
         }
+        if (opt.rfind("--max=", 0) == 0) {
+            max_extract = static_cast<uint32_t>(std::max(0, std::stoi(opt.substr(6))));
+            ++arg_index;
+            continue;
+        }
         break;
     }
 
     if (argc - arg_index != 3) {
-        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] [--max=N] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
         return 2;
     }
 
@@ -389,7 +395,9 @@ int main(int argc, char **argv) {
 
         std::unordered_map<std::string, uint32_t> name_count;
         uint32_t ok_count = 0;
+        uint32_t processed = 0;
         for (const auto &m : matched_images) {
+            if (max_extract > 0 && processed >= max_extract) break;
             std::string base = BaseName(m.second);
             if (base.empty()) base = "image";
             uint32_t &count = name_count[base];
@@ -406,9 +414,10 @@ int main(int argc, char **argv) {
             if (extract_one(m.first, m.second, full_output)) {
                 ++ok_count;
             }
+            ++processed;
         }
-        std::cout << "batch: matched=" << matched_images.size() << " extracted=" << ok_count << "\n";
-        return ok_count == matched_images.size() ? 0 : 1;
+        std::cout << "batch: matched=" << matched_images.size() << " processed=" << processed << " extracted=" << ok_count << "\n";
+        return ok_count == processed ? 0 : 1;
     } catch (const std::exception &ex) {
         std::cerr << "moex-cache-extract failed: " << ex.what() << "\n";
         return 1;

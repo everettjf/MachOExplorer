@@ -75,6 +75,9 @@ mkdir -p /tmp/moex-cache-batch
 
 # preview planned extraction without writing files
 ./build/moex-cache-extract --compact --all --dry-run /path/to/dyld_shared_cache_arm64e libswift /tmp/moex-cache-batch
+
+# cap batch extraction count
+./build/moex-cache-extract --compact --all --max=5 /path/to/dyld_shared_cache_arm64e libswift /tmp/moex-cache-batch
 ```
 
 ## Parser Regression / Fuzz
