@@ -2,6 +2,7 @@
 #include "../../node/loadcmd/LoadCommand_SEGMENT.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
 #include <algorithm>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -308,6 +309,58 @@ void XrefViewNode::InitViewDatas()
             t->AddRow({AsAddress(target), symbol, "", ref});
         }
         t->AddSeparator();
+    }
+
+    // Function-level call graph summary from instruction-based references.
+    std::map<uint64_t, std::unordered_set<uint64_t>> caller_to_targets;
+    for (const auto &it : refs) {
+        const uint64_t target = it.first;
+        for (const auto &item : it.second) {
+            if (item.ref_vm == 0) continue;
+            if (item.kind.find("call") != 0 && item.kind.find("jump") != 0) continue;
+            caller_to_targets[item.ref_vm].insert(target);
+        }
+    }
+    if (!caller_to_targets.empty()) {
+        t->AddRow({"-", "-", "-", "Call Graph Summary"});
+        for (const auto &entry : caller_to_targets) {
+            const uint64_t caller_vm = entry.first;
+            const auto &callee_set = entry.second;
+
+            std::string caller_name;
+            auto caller_exact = symbols.find(caller_vm);
+            if (caller_exact != symbols.end()) {
+                caller_name = caller_exact->second;
+            } else if (!sorted_symbols.empty()) {
+                auto up = std::upper_bound(
+                        sorted_symbols.begin(), sorted_symbols.end(), caller_vm,
+                        [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                            return value < item.first;
+                        });
+                if (up != sorted_symbols.begin()) {
+                    --up;
+                    if (caller_vm > up->first) {
+                        caller_name = fmt::format("{}+0x{}", up->second, AsShortHexString(caller_vm - up->first));
+                    }
+                }
+            }
+            if (caller_name.empty()) caller_name = AsAddress(caller_vm);
+
+            t->AddRow({AsAddress(caller_vm), caller_name, AsString(callee_set.size()), "caller"});
+
+            std::vector<uint64_t> callees(callee_set.begin(), callee_set.end());
+            std::sort(callees.begin(), callees.end());
+            for (uint64_t callee_vm : callees) {
+                std::string callee_name;
+                auto callee_exact = symbols.find(callee_vm);
+                if (callee_exact != symbols.end()) {
+                    callee_name = callee_exact->second;
+                }
+                if (callee_name.empty()) callee_name = AsAddress(callee_vm);
+                t->AddRow({AsAddress(callee_vm), callee_name, "", "callee"});
+            }
+            t->AddSeparator();
+        }
     }
 
     if (targets.empty()) {
