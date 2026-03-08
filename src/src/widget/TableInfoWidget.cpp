@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QRegularExpression>
+#include <QShortcut>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -70,6 +71,17 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
         const int visible = proxyModel->rowCount();
         const int total = proxyModel->sourceModel() ? proxyModel->sourceModel()->rowCount() : visible;
         filterStatus->setText(QString("%1/%2").arg(visible).arg(total));
+    });
+
+    auto *focusSearchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(focusSearchShortcut, &QShortcut::activated, this, [this]() {
+        filterEdit->setFocus();
+        filterEdit->selectAll();
+    });
+
+    auto *clearFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearFilterShortcut, &QShortcut::activated, this, [this]() {
+        if (!filterEdit->text().isEmpty()) filterEdit->clear();
     });
 }
 
