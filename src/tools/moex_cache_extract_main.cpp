@@ -175,6 +175,7 @@ int main(int argc, char **argv) {
     bool compact_mode = false;
     bool extract_all = false;
     bool exact_match = false;
+    bool dry_run = false;
     int arg_index = 1;
     while (arg_index < argc) {
         const std::string opt = argv[arg_index];
@@ -193,11 +194,16 @@ int main(int argc, char **argv) {
             ++arg_index;
             continue;
         }
+        if (opt == "--dry-run") {
+            dry_run = true;
+            ++arg_index;
+            continue;
+        }
         break;
     }
 
     if (argc - arg_index != 3) {
-        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
         return 2;
     }
 
@@ -318,6 +324,13 @@ int main(int argc, char **argv) {
                 }
             }
 
+            if (dry_run) {
+                std::cout << "plan: " << image_path << " -> " << final_output_path
+                          << " mode=" << (compact_mode ? "compact" : "raw-fileoff")
+                          << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
+                return true;
+            }
+
             std::fstream out(final_output_path, std::ios::out | std::ios::binary | std::ios::trunc);
             if (!out.good()) {
                 std::cerr << "cannot open output file: " << final_output_path << "\n";
@@ -367,9 +380,11 @@ int main(int argc, char **argv) {
         }
 
         std::string dir_error;
-        if (!EnsureDirectory(output_path, dir_error)) {
-            std::cerr << dir_error << "\n";
-            return 1;
+        if (!dry_run) {
+            if (!EnsureDirectory(output_path, dir_error)) {
+                std::cerr << dir_error << "\n";
+                return 1;
+            }
         }
 
         std::unordered_map<std::string, uint32_t> name_count;
