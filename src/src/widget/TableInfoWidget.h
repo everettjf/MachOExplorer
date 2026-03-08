@@ -7,6 +7,9 @@
 
 #include <QWidget>
 #include <QTableView>
+#include <QLineEdit>
+#include <QLabel>
+#include <QSortFilterProxyModel>
 #include "src/controller/TableInfoController.h"
 #include <QModelIndex>
 
@@ -23,6 +26,9 @@ public:
     void showViewData(moex::TableViewData *data);
 private:
     QTableView *tableView;
+    QLineEdit *filterEdit;
+    QLabel *filterStatus;
+    QSortFilterProxyModel *proxyModel;
     TableInfoController *controller;
 private:
     void clicked(const QModelIndex &index);
