@@ -205,6 +205,17 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     filterDebounceTimer->stop();
     filterStatus->setText(QString("%1/%1").arg(node->rows.size()));
 
+    if (proxyModel->rowCount() > 0 && proxyModel->columnCount() > 0) {
+        const QModelIndex first = proxyModel->index(0, 0);
+        if (first.isValid()) {
+            tableView->setCurrentIndex(first);
+            clicked(first);
+        }
+    } else {
+        WS()->clearHexSelection();
+        WS()->setInformation(QString());
+    }
+
 
 }
 void TableInfoWidget::clicked(const QModelIndex &index)
