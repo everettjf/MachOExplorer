@@ -1,7 +1,10 @@
 #include "XrefViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SEGMENT.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
+#include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
 #include <capstone/capstone.h>
@@ -78,6 +81,7 @@ void XrefViewNode::InitViewDatas()
     t->SetWidths({180, 360, 120, 460});
 
     std::unordered_map<uint64_t, std::string> symbols;
+    std::vector<std::pair<uint64_t, std::string>> sorted_symbols;
     auto *symtab = mh_->FindLoadCommand<LoadCommand_LC_SYMTAB>({LC_SYMTAB});
     if (symtab != nullptr) {
         for (auto &n : symtab->nlists_ref()) {
@@ -87,9 +91,14 @@ void XrefViewNode::InitViewDatas()
             std::string name = symtab->GetStringByStrX(n->n_strx());
             if (!name.empty() && symbols.count(addr) == 0) {
                 symbols[addr] = name;
+                sorted_symbols.push_back({addr, name});
             }
         }
     }
+    std::sort(sorted_symbols.begin(), sorted_symbols.end(),
+              [](const std::pair<uint64_t, std::string> &a, const std::pair<uint64_t, std::string> &b) {
+                  return a.first < b.first;
+              });
 
     struct RefItem {
         std::string source;
@@ -98,6 +107,14 @@ void XrefViewNode::InitViewDatas()
         uint64_t ref_vm = 0;
     };
     std::unordered_map<uint64_t, std::vector<RefItem>> refs;
+    std::unordered_map<uint64_t, std::unordered_set<std::string>> ref_dedup;
+    auto add_ref = [&](uint64_t target, const RefItem &item) {
+        const std::string key = item.source + "|" + item.kind + "|" +
+                                std::to_string(item.ref_raw) + "|" + std::to_string(item.ref_vm);
+        if (ref_dedup[target].insert(key).second) {
+            refs[target].push_back(item);
+        }
+    };
 
     auto collect_from_sections = [&](auto *seg_cmd) {
         for (auto &sect : seg_cmd->sections_ref()) {
@@ -107,13 +124,13 @@ void XrefViewNode::InitViewDatas()
                 for (auto *cur : util::ParsePointerAsType<uint64_t>(sect->GetOffset(), sect->GetSize())) {
                     const uint64_t target = *cur;
                     if (target == 0) continue;
-                    refs[target].push_back({sec_name, "pointer", sect->GetRAW(cur), 0});
+                    add_ref(target, {sec_name, "pointer", sect->GetRAW(cur), 0});
                 }
             } else {
                 for (auto *cur : util::ParsePointerAsType<uint32_t>(sect->GetOffset(), sect->GetSize())) {
                     const uint64_t target = *cur;
                     if (target == 0) continue;
-                    refs[target].push_back({sec_name, "pointer", sect->GetRAW(cur), 0});
+                    add_ref(target, {sec_name, "pointer", sect->GetRAW(cur), 0});
                 }
             }
         }
@@ -214,7 +231,7 @@ void XrefViewNode::InitViewDatas()
                     for (uint8_t o = 0; o < ci.detail->x86.op_count; ++o) {
                         const auto &op = ci.detail->x86.operands[o];
                         if (op.type == X86_OP_IMM) {
-                            refs[static_cast<uint64_t>(op.imm)].push_back(
+                            add_ref(static_cast<uint64_t>(op.imm),
                                     {"__TEXT/__text", is_call ? "call" : "jump",
                                      sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                         } else if (op.type == X86_OP_MEM &&
@@ -223,9 +240,8 @@ void XrefViewNode::InitViewDatas()
                             uint64_t target = 0;
                             const bool is64ptr = (mode == CS_MODE_64);
                             if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
-                                refs[target].push_back(
-                                        {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
-                                         sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                                add_ref(target, {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
+                                                 sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                             }
                         }
                     }
@@ -234,8 +250,9 @@ void XrefViewNode::InitViewDatas()
                     for (uint8_t o = 0; o < ci.detail->arm64.op_count; ++o) {
                         const auto &op = ci.detail->arm64.operands[o];
                         if (op.type == ARM64_OP_IMM) {
-                            refs[static_cast<uint64_t>(op.imm)].push_back(
-                                    {"__TEXT/__text", is_call ? "call" : "jump", sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                            add_ref(static_cast<uint64_t>(op.imm),
+                                    {"__TEXT/__text", is_call ? "call" : "jump",
+                                     sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                         }
                     }
 
@@ -245,9 +262,8 @@ void XrefViewNode::InitViewDatas()
                         auto hit = arm64_reg_targets.find(op.reg);
                         if (hit == arm64_reg_targets.end()) continue;
                         const uint64_t target = hit->second;
-                        refs[target].push_back(
-                                {"__TEXT/__text", is_call ? "call-reg" : "jump-reg",
-                                 sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
+                        add_ref(target, {"__TEXT/__text", is_call ? "call-reg" : "jump-reg",
+                                         sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                     }
                 }
             }
@@ -268,7 +284,21 @@ void XrefViewNode::InitViewDatas()
         auto &items = refs[target];
         std::string symbol = "";
         auto sym_it = symbols.find(target);
-        if (sym_it != symbols.end()) symbol = sym_it->second;
+        if (sym_it != symbols.end()) {
+            symbol = sym_it->second;
+        } else if (!sorted_symbols.empty()) {
+            auto up = std::upper_bound(
+                    sorted_symbols.begin(), sorted_symbols.end(), target,
+                    [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                        return value < item.first;
+                    });
+            if (up != sorted_symbols.begin()) {
+                --up;
+                if (target > up->first) {
+                    symbol = fmt::format("{}+0x{}", up->second, AsShortHexString(target - up->first));
+                }
+            }
+        }
         t->AddRow({AsAddress(target), symbol, AsString(items.size()), ""});
         for (const auto &item : items) {
             std::string ref = fmt::format("{} [{}] @ raw 0x{}", item.source, item.kind, AsShortHexString(item.ref_raw));
