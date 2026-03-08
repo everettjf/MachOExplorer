@@ -17,6 +17,12 @@ Run regression:
 tests/regression/run_regression.sh
 ```
 
+Run all regression checks:
+
+```bash
+tests/regression/run_all.sh
+```
+
 Run dyld cache tools smoke test:
 
 ```bash
