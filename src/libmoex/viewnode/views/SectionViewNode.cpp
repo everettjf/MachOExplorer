@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cstdio>
 #include <limits>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -362,11 +363,19 @@ private:
         return text;
     }
 
+    static std::string DemangleSwiftSymbolCached(const std::string &name) {
+        static std::map<std::string, std::string> cache;
+        auto hit = cache.find(name);
+        if (hit != cache.end()) return hit->second;
+        std::string demangled = DemangleSwiftSymbolExternal(name);
+        if (demangled.empty()) demangled = DecodeSwiftMangledSymbol(name);
+        cache[name] = demangled;
+        return demangled;
+    }
+
     static std::string DecodeSwiftLikeText(const std::string &text) {
         if (text.empty()) return "-";
-        std::string demangled = DemangleSwiftSymbolExternal(text);
-        if (!demangled.empty()) return demangled;
-        demangled = DecodeSwiftMangledSymbol(text);
+        std::string demangled = DemangleSwiftSymbolCached(text);
         if (!demangled.empty()) return demangled;
         if (text.rfind("_$s", 0) == 0 || text.rfind("$s", 0) == 0 ||
             text.rfind("_$S", 0) == 0 || text.rfind("$S", 0) == 0) {
@@ -673,7 +682,6 @@ public:
         t->AddSeparator();
         t->AddRow({"-", "-", "Swift Symbols", "-", "-"});
         int swift_index = 0;
-        std::unordered_map<std::string, std::string> demangle_cache;
         for (auto &item : symtab->nlists_ref()) {
             if (item->n_strx() == 0) continue;
             std::string name = symtab->GetStringByStrX(item->n_strx());
@@ -686,16 +694,8 @@ public:
             if (!is_swift) continue;
 
             const uint64_t symbol_vmaddr = item->Is64() ? item->n_value64() : item->n_value();
-            std::string decoded;
-            auto hit = demangle_cache.find(name);
-            if (hit != demangle_cache.end()) {
-                decoded = hit->second;
-            } else {
-                decoded = DemangleSwiftSymbolExternal(name);
-                if (decoded.empty()) decoded = DecodeSwiftMangledSymbol(name);
-                if (decoded.empty()) decoded = "(raw mangled)";
-                demangle_cache[name] = decoded;
-            }
+            std::string decoded = DemangleSwiftSymbolCached(name);
+            if (decoded.empty()) decoded = "(raw mangled)";
             t->AddRow({AsString(swift_index++), AsAddress(symbol_vmaddr), "symbol", name, decoded});
         }
     }
