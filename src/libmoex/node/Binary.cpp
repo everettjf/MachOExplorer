@@ -45,6 +45,9 @@ Binary::Binary(const std::string & filepath)
         dyld_cache_ = std::make_shared<DyldSharedCache>();
         dyld_cache_->Init(memory_, memorysize_, context, filepath_);
     } else {
+        if (memorysize_ < sizeof(uint32_t)) {
+            throw NodeException("Not a MachO file, archive, or dyld shared cache");
+        }
         magic_.Parse(memory_);
         if(!magic_.IsValid()){
             throw NodeException("Not a MachO file, archive, or dyld shared cache");

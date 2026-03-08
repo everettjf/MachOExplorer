@@ -12,7 +12,7 @@ MOEX_NAMESPACE_BEGIN
 
 class Magic{
 private:
-    uint32_t magic_;
+    uint32_t magic_ = 0;
 public:
     // Construct empty
     Magic(){}
@@ -42,7 +42,7 @@ public:
 
     // Whether it is a valid MachO file format
     bool IsValid(){
-        return IsFat() || Is64();
+        return IsFat() || Is64() || magic_ == MH_MAGIC || magic_ == MH_CIGAM;
     }
 
     // Whether should be swapped

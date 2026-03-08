@@ -29,6 +29,12 @@ Run dyld cache tools smoke test:
 tests/regression/run_cache_tools_smoke.sh
 ```
 
+Run malformed-input crash regression:
+
+```bash
+tests/regression/run_crash_regression.sh
+```
+
 Optional cache path:
 
 ```bash
