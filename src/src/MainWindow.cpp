@@ -557,6 +557,12 @@ void MainWindow::createActions()
             }
 
             bool ok = false;
+            if (!candidateImages.isEmpty()) {
+                candidateImages.removeDuplicates();
+                std::sort(candidateImages.begin(), candidateImages.end(), [](const QString &a, const QString &b) {
+                    return a.compare(b, Qt::CaseInsensitive) < 0;
+                });
+            }
             if(!candidateImages.isEmpty()){
                 imageSelector = QInputDialog::getItem(
                         this,
