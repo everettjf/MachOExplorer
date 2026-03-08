@@ -563,7 +563,12 @@ void MainWindow::createActions()
                         "libswiftCore.dylib",
                         &ok);
             }
+            imageSelector = imageSelector.trimmed();
             if(!ok || imageSelector.isEmpty()) return;
+            if (imageSelector.contains('\n') || imageSelector.contains('\r')) {
+                util::showError(this, tr("Invalid image selector: newline is not allowed."));
+                return;
+            }
         }
 
         const QString outputPath = QDir::temp().absoluteFilePath(

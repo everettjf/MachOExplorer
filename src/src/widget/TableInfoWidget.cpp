@@ -225,6 +225,10 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
 
     const QString imagePath = proxyModel->sourceModel()->index(sourceIndex.row(), 2).data(Qt::DisplayRole).toString().trimmed();
     if (imagePath.isEmpty() || imagePath.startsWith("(")) return;
+    if (imagePath.contains('\n') || imagePath.contains('\r')) {
+        util::showError(this, tr("Invalid image path: newline is not allowed."));
+        return;
+    }
 
     QString tool = QCoreApplication::applicationDirPath() + "/moex-cache-extract";
     if(!QFileInfo::exists(tool)){
