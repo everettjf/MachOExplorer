@@ -169,6 +169,22 @@ static bool EnsureDirectory(const std::string &path, std::string &error) {
     return false;
 }
 
+static std::string JsonEscape(const std::string &s) {
+    std::string out;
+    out.reserve(s.size() + 16);
+    for (char c : s) {
+        switch (c) {
+            case '\\': out += "\\\\"; break;
+            case '"': out += "\\\""; break;
+            case '\n': out += "\\n"; break;
+            case '\r': out += "\\r"; break;
+            case '\t': out += "\\t"; break;
+            default: out += c; break;
+        }
+    }
+    return out;
+}
+
 } // namespace
 
 int main(int argc, char **argv) {
@@ -356,7 +372,7 @@ int main(int argc, char **argv) {
                               << " mode=" << (compact_mode ? "compact" : "raw-fileoff")
                               << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
                 } else {
-                    std::cout << "{\"event\":\"plan\",\"image\":\"" << image_path << "\",\"output\":\"" << final_output_path
+                    std::cout << "{\"event\":\"plan\",\"image\":\"" << JsonEscape(image_path) << "\",\"output\":\"" << JsonEscape(final_output_path)
                               << "\",\"mode\":\"" << (compact_mode ? "compact" : "raw-fileoff")
                               << "\",\"size\":" << out_size << ",\"segments\":" << plans.size() << "}\n";
                 }
@@ -402,7 +418,7 @@ int main(int argc, char **argv) {
                 std::cout << "mode: " << (compact_mode ? "compact" : "raw-fileoff") << "\n";
                 std::cout << "output: " << final_output_path << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
             } else {
-                std::cout << "{\"event\":\"extracted\",\"image\":\"" << image_path << "\",\"output\":\"" << final_output_path
+                std::cout << "{\"event\":\"extracted\",\"image\":\"" << JsonEscape(image_path) << "\",\"output\":\"" << JsonEscape(final_output_path)
                           << "\",\"mode\":\"" << (compact_mode ? "compact" : "raw-fileoff")
                           << "\",\"size\":" << out_size << ",\"segments\":" << plans.size() << "}\n";
             }
@@ -416,7 +432,7 @@ int main(int argc, char **argv) {
                               << " images, using first: " << matched_images[0].second << "\n";
                 } else {
                     std::cerr << "{\"event\":\"warning\",\"message\":\"multiple matches; using first\",\"matched\":"
-                              << matched_images.size() << ",\"image\":\"" << matched_images[0].second << "\"}\n";
+                              << matched_images.size() << ",\"image\":\"" << JsonEscape(matched_images[0].second) << "\"}\n";
                 }
             }
             return extract_one(matched_images[0].first, matched_images[0].second, output_path) ? 0 : 1;
