@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QProgressDialog>
 #include <climits>
 #include <algorithm>
 #include <cstring>
@@ -448,6 +449,11 @@ void MainWindow::createActions()
     menu->file->addAction(action->extractDyldImage);
     connect(action->extractDyldImage, &QAction::triggered, this, [this](bool checked){
         Q_UNUSED(checked)
+        if (dyldExtractInProgress_) {
+            statusBar()->showMessage(tr("An extraction task is already running."), 4000);
+            return;
+        }
+
         QString cachePath = WS()->currentFilePath();
         if (cachePath.isEmpty() || !QFileInfo(cachePath).fileName().startsWith("dyld_shared_cache")) {
             cachePath = QFileDialog::getOpenFileName(
@@ -532,20 +538,66 @@ void MainWindow::createActions()
                         .arg(QFileInfo(cachePath).fileName())
                         .arg(QDateTime::currentDateTimeUtc().toString("yyyyMMdd-hhmmss-zzz")));
 
-        QProcess proc;
-        proc.start(tool, {"--compact", cachePath, imageSelector, outputPath});
-        if(!proc.waitForFinished(600000)){
-            util::showError(this, tr("Extraction timed out."));
-            return;
-        }
-        if(proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0){
-            util::showError(this, tr("Extraction failed:\n%1").arg(QString::fromUtf8(proc.readAllStandardError())));
-            return;
-        }
+        auto *progress = new QProgressDialog(tr("Extracting image from dyld shared cache..."),
+                                             tr("Cancel"), 0, 0, this);
+        progress->setWindowModality(Qt::WindowModal);
+        progress->setMinimumDuration(0);
+        progress->setAutoClose(false);
+        progress->setAutoReset(false);
+        progress->show();
 
-        this->showMaximized();
-        WS()->openFile(outputPath);
-        statusBar()->showMessage(tr("Extracted and opened: %1").arg(outputPath), 8000);
+        auto *proc = new QProcess(this);
+        dyldExtractInProgress_ = true;
+        dyldExtractProcess_ = proc;
+        action->extractDyldImage->setEnabled(false);
+        statusBar()->showMessage(tr("Extracting image: %1").arg(imageSelector), 3000);
+
+        connect(progress, &QProgressDialog::canceled, this, [this, proc]() {
+            if (proc->state() != QProcess::NotRunning) proc->kill();
+            statusBar()->showMessage(tr("Extraction canceled."), 5000);
+        });
+
+        connect(proc, &QProcess::finished, this,
+                [this, proc, progress, outputPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
+            const bool canceled = progress->wasCanceled();
+
+            dyldExtractInProgress_ = false;
+            dyldExtractProcess_.clear();
+            action->extractDyldImage->setEnabled(true);
+            progress->hide();
+            progress->deleteLater();
+
+            if (canceled) {
+                proc->deleteLater();
+                return;
+            }
+
+            if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+                util::showError(this, tr("Extraction failed:\n%1").arg(stderrText));
+                proc->deleteLater();
+                return;
+            }
+
+            this->showMaximized();
+            WS()->openFile(outputPath);
+            statusBar()->showMessage(tr("Extracted and opened: %1").arg(outputPath), 8000);
+            proc->deleteLater();
+        });
+
+        connect(proc, &QProcess::errorOccurred, this, [this, proc, progress](QProcess::ProcessError) {
+            if (!dyldExtractInProgress_) return;
+            const QString err = proc->errorString();
+            dyldExtractInProgress_ = false;
+            dyldExtractProcess_.clear();
+            action->extractDyldImage->setEnabled(true);
+            progress->hide();
+            progress->deleteLater();
+            util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
+            proc->deleteLater();
+        });
+
+        proc->start(tool, {"--compact", cachePath, imageSelector, outputPath});
     });
 
     action->quit = new QAction(tr("&Quit"));

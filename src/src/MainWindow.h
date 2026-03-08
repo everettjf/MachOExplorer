@@ -8,6 +8,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QActionGroup>
+#include <QPointer>
+#include <QProcess>
 #include "src/dialog/OpenFileDialog.h"
 
 #include "src/controller/Workspace.h"
@@ -59,6 +61,8 @@ private:
     MainWindowAction *action;
     QActionGroup *themeActionGroup = nullptr;
     ThemeMode themeMode = ThemeMode::System;
+    bool dyldExtractInProgress_ = false;
+    QPointer<QProcess> dyldExtractProcess_;
 
     OpenFileDialog *openFileDialog = nullptr;
 
