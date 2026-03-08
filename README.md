@@ -80,6 +80,13 @@ mkdir -p /tmp/moex-cache-batch
 ./build/moex-cache-extract --compact --all --max=5 /path/to/dyld_shared_cache_arm64e libswift /tmp/moex-cache-batch
 ```
 
+Tool quick reference:
+- `moex-cache-list --help`
+- `moex-cache-list --json --exact --limit=N --output=<file> <cache> <filter>`
+- `moex-cache-extract --help`
+- `moex-cache-extract --compact --exact <cache> <image> <out>`
+- `moex-cache-extract --compact --all [--max=N] [--dry-run] <cache> <filter> <out-dir>`
+
 ## Parser Regression / Fuzz
 
 ### Crash Regression Runner
