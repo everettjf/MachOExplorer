@@ -11,8 +11,8 @@ if [ ! -x "${BUILD_DIR}/moex-cache-list" ] || [ ! -x "${BUILD_DIR}/moex-cache-ex
   exit 2
 fi
 
-"${BUILD_DIR}/moex-cache-list" --help >/dev/null
-"${BUILD_DIR}/moex-cache-extract" --help >/dev/null
+"${BUILD_DIR}/moex-cache-list" --help >/dev/null 2>&1
+"${BUILD_DIR}/moex-cache-extract" --help >/dev/null 2>&1
 
 if [ ! -f "${CACHE_FILE}" ]; then
   echo "cache-smoke: skipped (cache file not found: ${CACHE_FILE})"
