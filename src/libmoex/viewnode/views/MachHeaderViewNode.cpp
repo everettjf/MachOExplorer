@@ -33,6 +33,10 @@ void MachHeaderViewNode::Init(MachHeaderPtr d){
     xref_report_->Init(d_);
     children_.push_back(xref_report_.get());
 
+    swift_semantic_graph_ = std::make_shared<SwiftSemanticGraphViewNode>();
+    swift_semantic_graph_->Init(d_);
+    children_.push_back(swift_semantic_graph_.get());
+
     dynamic_symbol_table_ = std::make_shared<DynamicSymbolTable>();
     dynamic_symbol_table_->Init(d_);
     children_.push_back(dynamic_symbol_table_.get());

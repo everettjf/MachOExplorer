@@ -20,6 +20,7 @@
 #include "SegmentSplitInfoViewNode.h"
 #include "IntegrityReportViewNode.h"
 #include "XrefViewNode.h"
+#include "SwiftSemanticGraphViewNode.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -41,6 +42,7 @@ private:
     SegmentSplitInfoViewNodePtr segment_split_info_;
     IntegrityReportViewNodePtr integrity_report_;
     XrefViewNodePtr xref_report_;
+    SwiftSemanticGraphViewNodePtr swift_semantic_graph_;
 
 public:
     void Init(MachHeaderPtr d);
