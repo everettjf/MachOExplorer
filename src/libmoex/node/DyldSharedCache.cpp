@@ -26,6 +26,19 @@ void DyldSharedCache::Init(void *offset, std::size_t size, NodeContextPtr &ctx, 
         return off <= size && sz <= (size - off);
     };
 
+    if (header_.mappingCount > 1'000'000 || header_.imagesCount > 10'000'000) {
+        throw NodeException("Malformed dyld shared cache: unreasonable mapping/image count");
+    }
+    if (header_.mappingCount == 0) {
+        throw NodeException("Malformed dyld shared cache: empty mapping table");
+    }
+    if (header_.mappingOffset < sizeof(dyld_cache_header_min)) {
+        throw NodeException("Malformed dyld shared cache: mapping offset overlaps header");
+    }
+    if (header_.imagesCount > 0 && header_.imagesOffset < sizeof(dyld_cache_header_min)) {
+        throw NodeException("Malformed dyld shared cache: images offset overlaps header");
+    }
+
     const uint64_t map_bytes = static_cast<uint64_t>(header_.mappingCount) * sizeof(dyld_cache_mapping_info_min);
     if (!in_range(header_.mappingOffset, map_bytes)) {
         throw NodeException("Malformed dyld shared cache: mapping array out of range");
