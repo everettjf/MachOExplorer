@@ -624,6 +624,12 @@ void MainWindow::createActions()
                 proc->deleteLater();
                 return;
             }
+            const QFileInfo outInfo(outputPath);
+            if (!outInfo.exists() || outInfo.size() <= 0) {
+                util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outputPath));
+                proc->deleteLater();
+                return;
+            }
 
             this->showMaximized();
             WS()->openFile(outputPath);

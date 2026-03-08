@@ -288,6 +288,12 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
             proc->deleteLater();
             return;
         }
+        const QFileInfo outInfo(outPath);
+        if (!outInfo.exists() || outInfo.size() <= 0) {
+            util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outPath));
+            proc->deleteLater();
+            return;
+        }
 
         WS()->openFile(outPath);
         util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
