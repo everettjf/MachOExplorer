@@ -281,6 +281,24 @@ private:
         return std::string(raw, static_cast<std::size_t>(i));
     }
 
+    static std::string TryReadPrintableAscii(MachHeader *header, const NodeContextPtr &ctx, bool is64, uint64_t vmaddr, uint64_t max_len = 256) {
+        char *raw = nullptr;
+        if (!VmToPtr(header, ctx, is64, vmaddr, raw) || raw == nullptr) return "";
+        const uint64_t base = reinterpret_cast<uint64_t>(ctx->file_start);
+        const uint64_t pos = reinterpret_cast<uint64_t>(raw) - base;
+        if (pos >= ctx->file_size) return "";
+        const uint64_t limit = std::min<uint64_t>(ctx->file_size - pos, max_len);
+        uint64_t i = 0;
+        for (; i < limit; ++i) {
+            const unsigned char c = static_cast<unsigned char>(raw[i]);
+            if (c == '\0') break;
+            const bool ok = std::isalnum(c) || c == '_' || c == '$' || c == '.' || c == ':' || c == '<' || c == '>' || c == ' ' || c == '?';
+            if (!ok) break;
+        }
+        if (i == 0) return "";
+        return std::string(raw, static_cast<std::size_t>(i));
+    }
+
     static std::string DecodeSwiftMangledSymbol(std::string name) {
         if (name.empty()) return "";
         if (!name.empty() && name[0] == '_') name.erase(name.begin());
@@ -341,6 +359,19 @@ private:
 
     static std::string SafeDisplay(const std::string &text) {
         if (text.empty()) return "-";
+        return text;
+    }
+
+    static std::string DecodeSwiftLikeText(const std::string &text) {
+        if (text.empty()) return "-";
+        std::string demangled = DemangleSwiftSymbolExternal(text);
+        if (!demangled.empty()) return demangled;
+        demangled = DecodeSwiftMangledSymbol(text);
+        if (!demangled.empty()) return demangled;
+        if (text.rfind("_$s", 0) == 0 || text.rfind("$s", 0) == 0 ||
+            text.rfind("_$S", 0) == 0 || text.rfind("$S", 0) == 0) {
+            return "(mangled) " + text;
+        }
         return text;
     }
 
@@ -422,6 +453,15 @@ private:
                     } else {
                         decoded = "capture-record";
                     }
+                } else {
+                    decoded = "unmapped";
+                }
+            } else if (section_name == "__swift5_typeref") {
+                kind = "typeref/rel32";
+                if (target_raw != nullptr) {
+                    std::string raw_text = TryReadPrintableAscii(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    if (raw_text.empty()) raw_text = TryReadCString(d_->header(), d_->ctx(), is64, target_vmaddr);
+                    decoded = DecodeSwiftLikeText(raw_text);
                 } else {
                     decoded = "unmapped";
                 }
