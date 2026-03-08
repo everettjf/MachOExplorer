@@ -17,6 +17,7 @@
 #include <QDateTime>
 #include <QProcess>
 #include <QProgressDialog>
+#include <QTimer>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -232,6 +233,8 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
     progress->show();
 
     auto *proc = new QProcess(this);
+    auto *timeout = new QTimer(this);
+    timeout->setSingleShot(true);
     dyldRowExtractInProgress_ = true;
     dyldRowExtractProcess_ = proc;
 
@@ -239,9 +242,18 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         if (proc->state() != QProcess::NotRunning) proc->kill();
     });
 
+    connect(timeout, &QTimer::timeout, this, [proc, progress]() {
+        if (proc->state() == QProcess::NotRunning) return;
+        progress->cancel();
+        proc->kill();
+    });
+
     connect(proc, &QProcess::finished, this,
-            [this, proc, progress, outPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            [this, proc, progress, timeout, outPath](int exitCode, QProcess::ExitStatus exitStatus) {
+        timeout->stop();
+        timeout->deleteLater();
         const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
+        const QString stdoutText = QString::fromUtf8(proc->readAllStandardOutput());
         const bool canceled = progress->wasCanceled();
 
         dyldRowExtractInProgress_ = false;
@@ -255,7 +267,8 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         }
 
         if (exitStatus != QProcess::NormalExit || exitCode != 0) {
-            util::showError(this, tr("Extraction failed:\n%1").arg(stderrText));
+            const QString details = (stderrText + "\n" + stdoutText).trimmed();
+            util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
             proc->deleteLater();
             return;
         }
@@ -265,11 +278,13 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         proc->deleteLater();
     });
 
-    connect(proc, &QProcess::errorOccurred, this, [this, proc, progress](QProcess::ProcessError) {
+    connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout](QProcess::ProcessError) {
         if (!dyldRowExtractInProgress_) return;
         const QString err = proc->errorString();
         dyldRowExtractInProgress_ = false;
         dyldRowExtractProcess_.clear();
+        timeout->stop();
+        timeout->deleteLater();
         progress->hide();
         progress->deleteLater();
         util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
@@ -277,4 +292,5 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
     });
 
     proc->start(tool, {"--compact", cachePath, imagePath, outPath});
+    timeout->start(600000);
 }

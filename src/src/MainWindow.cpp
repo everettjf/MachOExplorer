@@ -28,6 +28,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProgressDialog>
+#include <QTimer>
 #include <climits>
 #include <algorithm>
 #include <cstring>
@@ -547,6 +548,8 @@ void MainWindow::createActions()
         progress->show();
 
         auto *proc = new QProcess(this);
+        auto *timeout = new QTimer(this);
+        timeout->setSingleShot(true);
         dyldExtractInProgress_ = true;
         dyldExtractProcess_ = proc;
         action->extractDyldImage->setEnabled(false);
@@ -557,9 +560,19 @@ void MainWindow::createActions()
             statusBar()->showMessage(tr("Extraction canceled."), 5000);
         });
 
+        connect(timeout, &QTimer::timeout, this, [this, proc, progress]() {
+            if (proc->state() == QProcess::NotRunning) return;
+            progress->cancel();
+            proc->kill();
+            statusBar()->showMessage(tr("Extraction timed out and was canceled."), 6000);
+        });
+
         connect(proc, &QProcess::finished, this,
-                [this, proc, progress, outputPath](int exitCode, QProcess::ExitStatus exitStatus) {
+                [this, proc, progress, timeout, outputPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            timeout->stop();
+            timeout->deleteLater();
             const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
+            const QString stdoutText = QString::fromUtf8(proc->readAllStandardOutput());
             const bool canceled = progress->wasCanceled();
 
             dyldExtractInProgress_ = false;
@@ -574,7 +587,8 @@ void MainWindow::createActions()
             }
 
             if (exitStatus != QProcess::NormalExit || exitCode != 0) {
-                util::showError(this, tr("Extraction failed:\n%1").arg(stderrText));
+                const QString details = (stderrText + "\n" + stdoutText).trimmed();
+                util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
                 proc->deleteLater();
                 return;
             }
@@ -585,12 +599,14 @@ void MainWindow::createActions()
             proc->deleteLater();
         });
 
-        connect(proc, &QProcess::errorOccurred, this, [this, proc, progress](QProcess::ProcessError) {
+        connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout](QProcess::ProcessError) {
             if (!dyldExtractInProgress_) return;
             const QString err = proc->errorString();
             dyldExtractInProgress_ = false;
             dyldExtractProcess_.clear();
             action->extractDyldImage->setEnabled(true);
+            timeout->stop();
+            timeout->deleteLater();
             progress->hide();
             progress->deleteLater();
             util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
@@ -598,6 +614,7 @@ void MainWindow::createActions()
         });
 
         proc->start(tool, {"--compact", cachePath, imageSelector, outputPath});
+        timeout->start(600000);
     });
 
     action->quit = new QAction(tr("&Quit"));
