@@ -18,6 +18,8 @@
 #include <QProcess>
 #include <QProgressDialog>
 #include <QTimer>
+#include <QApplication>
+#include <QClipboard>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -104,6 +106,20 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     auto *clearFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clearFilterShortcut, &QShortcut::activated, this, [this]() {
         if (!filterEdit->text().isEmpty()) filterEdit->clear();
+    });
+
+    auto *copyRowShortcut = new QShortcut(QKeySequence::Copy, this);
+    connect(copyRowShortcut, &QShortcut::activated, this, [this]() {
+        if (proxyModel == nullptr) return;
+        const QModelIndex idx = tableView->currentIndex();
+        if (!idx.isValid()) return;
+        if (!proxyModel->mapToSource(idx).isValid()) return;
+        QStringList vals;
+        const int cols = proxyModel->columnCount();
+        for (int c = 0; c < cols; ++c) {
+            vals << proxyModel->data(proxyModel->index(idx.row(), c), Qt::DisplayRole).toString();
+        }
+        QGuiApplication::clipboard()->setText(vals.join('\t'));
     });
 
     connect(exportButton, &QPushButton::clicked, this, [this]() {
