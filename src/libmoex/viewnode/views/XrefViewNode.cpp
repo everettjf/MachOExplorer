@@ -1,8 +1,10 @@
 #include "XrefViewNode.h"
 #include "../../node/loadcmd/LoadCommand_SEGMENT.h"
+#include "../../node/loadcmd/LoadCommand_LINKEDIT_DATA.h"
 #include "../../node/loadcmd/LoadCommand_SYMTAB.h"
 #include <algorithm>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -145,6 +147,16 @@ void XrefViewNode::InitViewDatas()
     });
 
 #if defined(MOEX_HAS_CAPSTONE) && MOEX_HAS_CAPSTONE
+    std::set<uint64_t> function_starts;
+    auto *function_starts_cmd = mh_->FindLoadCommand<LoadCommand_LC_FUNCTION_STARTS>({LC_FUNCTION_STARTS});
+    if (function_starts_cmd != nullptr) {
+        uint64_t addr = mh_->GetBaseAddress();
+        for (const auto &entry : function_starts_cmd->GetFunctions()) {
+            addr += entry.data;
+            function_starts.insert(addr);
+        }
+    }
+
     auto scan_text_disasm = [&](auto *seg_cmd) {
         for (auto &sect : seg_cmd->sections_ref()) {
             if (sect->sect().segment_name() != "__TEXT" || sect->sect().section_name() != "__text") continue;
@@ -168,6 +180,9 @@ void XrefViewNode::InitViewDatas()
             std::unordered_map<unsigned int, uint64_t> arm64_reg_targets;
             for (size_t i = 0; i < count; ++i) {
                 const auto &ci = insn[i];
+                if (!function_starts.empty() && function_starts.count(ci.address) != 0) {
+                    arm64_reg_targets.clear();
+                }
                 bool is_branch = false;
                 bool is_call = false;
                 for (uint8_t g = 0; g < ci.detail->groups_count; ++g) {
@@ -202,6 +217,15 @@ void XrefViewNode::InitViewDatas()
                         if (hit != arm64_reg_targets.end()) {
                             arm64_reg_targets[arm.operands[0].reg] = static_cast<uint64_t>(static_cast<int64_t>(hit->second) + arm.operands[2].imm);
                         }
+                    } else if (ci.id == ARM64_INS_SUB &&
+                               arm.op_count >= 3 &&
+                               arm.operands[0].type == ARM64_OP_REG &&
+                               arm.operands[1].type == ARM64_OP_REG &&
+                               arm.operands[2].type == ARM64_OP_IMM) {
+                        auto hit = arm64_reg_targets.find(arm.operands[1].reg);
+                        if (hit != arm64_reg_targets.end()) {
+                            arm64_reg_targets[arm.operands[0].reg] = static_cast<uint64_t>(static_cast<int64_t>(hit->second) - arm.operands[2].imm);
+                        }
                     } else if (ci.id == ARM64_INS_MOV &&
                                arm.op_count >= 2 &&
                                arm.operands[0].type == ARM64_OP_REG &&
@@ -222,6 +246,15 @@ void XrefViewNode::InitViewDatas()
                             if (ReadPointerAtVm(mh_, mem_vmaddr, true, pointed) && pointed != 0) {
                                 arm64_reg_targets[arm.operands[0].reg] = pointed;
                             }
+                        }
+                    } else if ((ci.id == ARM64_INS_LDR || ci.id == ARM64_INS_LDRSW) &&
+                               arm.op_count >= 2 &&
+                               arm.operands[0].type == ARM64_OP_REG &&
+                               arm.operands[1].type == ARM64_OP_IMM) {
+                        const uint64_t mem_vmaddr = static_cast<uint64_t>(arm.operands[1].imm);
+                        uint64_t pointed = 0;
+                        if (ReadPointerAtVm(mh_, mem_vmaddr, true, pointed) && pointed != 0) {
+                            arm64_reg_targets[arm.operands[0].reg] = pointed;
                         }
                     }
                 }
