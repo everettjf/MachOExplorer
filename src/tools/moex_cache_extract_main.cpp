@@ -173,11 +173,12 @@ static bool EnsureDirectory(const std::string &path, std::string &error) {
 
 int main(int argc, char **argv) {
     auto print_usage = []() {
-        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] [--max=N] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
+        std::cerr << "usage: moex-cache-extract [--compact] [--all] [--exact] [--dry-run] [--json] [--max=N] <dyld_shared_cache_file> <image-path-or-substr> <output-macho-or-dir>\n";
         std::cerr << "  --compact   rewrite segment file offsets for compact output\n";
         std::cerr << "  --all       extract all matched images into output directory\n";
         std::cerr << "  --exact     exact path match (default: substring)\n";
         std::cerr << "  --dry-run   print extraction plan without writing output files\n";
+        std::cerr << "  --json      print machine-readable JSON lines\n";
         std::cerr << "  --max=N     max image count processed in --all mode (0 means unlimited)\n";
     };
 
@@ -185,6 +186,7 @@ int main(int argc, char **argv) {
     bool extract_all = false;
     bool exact_match = false;
     bool dry_run = false;
+    bool json_output = false;
     uint32_t max_extract = 0;
     int arg_index = 1;
     while (arg_index < argc) {
@@ -210,6 +212,11 @@ int main(int argc, char **argv) {
         }
         if (opt == "--dry-run") {
             dry_run = true;
+            ++arg_index;
+            continue;
+        }
+        if (opt == "--json") {
+            json_output = true;
             ++arg_index;
             continue;
         }
@@ -344,9 +351,15 @@ int main(int argc, char **argv) {
             }
 
             if (dry_run) {
-                std::cout << "plan: " << image_path << " -> " << final_output_path
-                          << " mode=" << (compact_mode ? "compact" : "raw-fileoff")
-                          << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
+                if (!json_output) {
+                    std::cout << "plan: " << image_path << " -> " << final_output_path
+                              << " mode=" << (compact_mode ? "compact" : "raw-fileoff")
+                              << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
+                } else {
+                    std::cout << "{\"event\":\"plan\",\"image\":\"" << image_path << "\",\"output\":\"" << final_output_path
+                              << "\",\"mode\":\"" << (compact_mode ? "compact" : "raw-fileoff")
+                              << "\",\"size\":" << out_size << ",\"segments\":" << plans.size() << "}\n";
+                }
                 return true;
             }
 
@@ -384,16 +397,27 @@ int main(int argc, char **argv) {
             }
             out.close();
 
-            std::cout << "extracted: " << image_path << "\n";
-            std::cout << "mode: " << (compact_mode ? "compact" : "raw-fileoff") << "\n";
-            std::cout << "output: " << final_output_path << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
+            if (!json_output) {
+                std::cout << "extracted: " << image_path << "\n";
+                std::cout << "mode: " << (compact_mode ? "compact" : "raw-fileoff") << "\n";
+                std::cout << "output: " << final_output_path << " size=" << out_size << " bytes segments=" << plans.size() << "\n";
+            } else {
+                std::cout << "{\"event\":\"extracted\",\"image\":\"" << image_path << "\",\"output\":\"" << final_output_path
+                          << "\",\"mode\":\"" << (compact_mode ? "compact" : "raw-fileoff")
+                          << "\",\"size\":" << out_size << ",\"segments\":" << plans.size() << "}\n";
+            }
             return true;
         };
 
         if (!extract_all) {
             if (matched_images.size() > 1) {
-                std::cerr << "warning: selector matched " << matched_images.size()
-                          << " images, using first: " << matched_images[0].second << "\n";
+                if (!json_output) {
+                    std::cerr << "warning: selector matched " << matched_images.size()
+                              << " images, using first: " << matched_images[0].second << "\n";
+                } else {
+                    std::cerr << "{\"event\":\"warning\",\"message\":\"multiple matches; using first\",\"matched\":"
+                              << matched_images.size() << ",\"image\":\"" << matched_images[0].second << "\"}\n";
+                }
             }
             return extract_one(matched_images[0].first, matched_images[0].second, output_path) ? 0 : 1;
         }
@@ -429,7 +453,12 @@ int main(int argc, char **argv) {
             }
             ++processed;
         }
-        std::cout << "batch: matched=" << matched_images.size() << " processed=" << processed << " extracted=" << ok_count << "\n";
+        if (!json_output) {
+            std::cout << "batch: matched=" << matched_images.size() << " processed=" << processed << " extracted=" << ok_count << "\n";
+        } else {
+            std::cout << "{\"event\":\"batch\",\"matched\":" << matched_images.size()
+                      << ",\"processed\":" << processed << ",\"extracted\":" << ok_count << "}\n";
+        }
         return ok_count == processed ? 0 : 1;
     } catch (const std::exception &ex) {
         std::cerr << "moex-cache-extract failed: " << ex.what() << "\n";

@@ -86,6 +86,7 @@ Tool quick reference:
 - `moex-cache-extract --help`
 - `moex-cache-extract --compact --exact <cache> <image> <out>`
 - `moex-cache-extract --compact --all [--max=N] [--dry-run] <cache> <filter> <out-dir>`
+- `moex-cache-extract --json --compact --all --dry-run <cache> <filter> <out-dir>`
 
 ## Parser Regression / Fuzz
 
