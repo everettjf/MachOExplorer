@@ -25,6 +25,7 @@ class TableInfoWidget : public QWidget
     Q_OBJECT
 public:
     explicit TableInfoWidget(QWidget *parent = 0);
+    ~TableInfoWidget() override;
 
     void showViewData(moex::TableViewData *data);
 private:

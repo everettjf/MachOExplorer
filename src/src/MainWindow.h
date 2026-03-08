@@ -10,6 +10,7 @@
 #include <QActionGroup>
 #include <QPointer>
 #include <QProcess>
+#include <QCloseEvent>
 #include "src/dialog/OpenFileDialog.h"
 
 #include "src/controller/Workspace.h"
@@ -68,12 +69,14 @@ private:
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow() override;
 
     void displayNewFileDialog();
     void openNewFile(const QString & filePath);
 
 protected:
     bool event(QEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
     void createUI();
     void createActions();
     void createStatusBar();

@@ -137,6 +137,22 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     });
 }
 
+TableInfoWidget::~TableInfoWidget()
+{
+    if (dyldRowExtractProcess_) {
+        disconnect(dyldRowExtractProcess_, nullptr, this, nullptr);
+        if (dyldRowExtractProcess_->state() != QProcess::NotRunning) {
+            dyldRowExtractProcess_->terminate();
+            if (!dyldRowExtractProcess_->waitForFinished(2000)) {
+                dyldRowExtractProcess_->kill();
+                dyldRowExtractProcess_->waitForFinished(2000);
+            }
+        }
+    }
+    dyldRowExtractInProgress_ = false;
+    dyldRowExtractProcess_.clear();
+}
+
 void TableInfoWidget::showViewData(moex::TableViewData *data)
 {
     moex::TableViewData *node = data;

@@ -270,6 +270,17 @@ static bool DumpProcessMainImageToFile(pid_t pid, QString &snapshot_path, QStrin
     return true;
 }
 
+static void StopProcessSync(QProcess *proc)
+{
+    if (proc == nullptr) return;
+    if (proc->state() == QProcess::NotRunning) return;
+    proc->terminate();
+    if (!proc->waitForFinished(2000)) {
+        proc->kill();
+        proc->waitForFinished(2000);
+    }
+}
+
 }
 #endif
 
@@ -287,6 +298,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createActions();
     createStatusBar();
     setThemeMode(loadThemeMode(), false);
+}
+
+MainWindow::~MainWindow()
+{
+    if (dyldExtractProcess_) {
+        disconnect(dyldExtractProcess_, nullptr, this, nullptr);
+        StopProcessSync(dyldExtractProcess_);
+    }
+    dyldExtractInProgress_ = false;
+    dyldExtractProcess_.clear();
 }
 
 void MainWindow::displayNewFileDialog()
@@ -309,6 +330,17 @@ bool MainWindow::event(QEvent *event)
         applyVisualRefresh();
     }
     return QMainWindow::event(event);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (dyldExtractProcess_) {
+        disconnect(dyldExtractProcess_, nullptr, this, nullptr);
+        StopProcessSync(dyldExtractProcess_);
+        dyldExtractInProgress_ = false;
+        dyldExtractProcess_.clear();
+    }
+    QMainWindow::closeEvent(event);
 }
 
 #define InitDock(dockvar,dockclass,dockaction) \
