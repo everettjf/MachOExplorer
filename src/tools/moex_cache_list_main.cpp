@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 namespace {
 static std::string JsonEscape(const std::string &s) {
@@ -107,45 +108,45 @@ int main(int argc, char **argv) {
             (*out) << "\"images\":[";
         }
 
-        uint32_t shown = 0;
-        bool first_json_item = true;
+        std::vector<std::pair<uint64_t, std::string>> candidates;
         if (!cache->images().empty()) {
             for (const auto &img : cache->images()) {
                 std::string path = cache->ReadPathByOffset(img.pathFileOffset);
                 if (!match_filter(path)) {
                     continue;
                 }
-                if (!json_mode) {
-                    (*out) << "0x" << moex::util::AsShortHexString(img.address) << " " << path << "\n";
-                } else {
-                    if (!first_json_item) (*out) << ",";
-                    first_json_item = false;
-                    (*out) << "{";
-                    (*out) << "\"address\":\"0x" << moex::util::AsShortHexString(img.address) << "\",";
-                    (*out) << "\"path\":\"" << JsonEscape(path) << "\"";
-                    (*out) << "}";
-                }
-                ++shown;
-                if (limit > 0 && shown >= limit) break;
+                candidates.push_back({img.address, path});
             }
         } else {
             for (const auto &img : cache->map_images()) {
                 if (!match_filter(img.second)) {
                     continue;
                 }
-                if (!json_mode) {
-                    (*out) << "0x" << moex::util::AsShortHexString(img.first) << " " << img.second << "\n";
-                } else {
-                    if (!first_json_item) (*out) << ",";
-                    first_json_item = false;
-                    (*out) << "{";
-                    (*out) << "\"address\":\"0x" << moex::util::AsShortHexString(img.first) << "\",";
-                    (*out) << "\"path\":\"" << JsonEscape(img.second) << "\"";
-                    (*out) << "}";
-                }
-                ++shown;
-                if (limit > 0 && shown >= limit) break;
+                candidates.push_back({img.first, img.second});
             }
+        }
+
+        std::sort(candidates.begin(), candidates.end(),
+                  [](const std::pair<uint64_t, std::string> &a, const std::pair<uint64_t, std::string> &b) {
+                      if (a.second != b.second) return a.second < b.second;
+                      return a.first < b.first;
+                  });
+
+        uint32_t shown = 0;
+        bool first_json_item = true;
+        for (const auto &item : candidates) {
+            if (!json_mode) {
+                (*out) << "0x" << moex::util::AsShortHexString(item.first) << " " << item.second << "\n";
+            } else {
+                if (!first_json_item) (*out) << ",";
+                first_json_item = false;
+                (*out) << "{";
+                (*out) << "\"address\":\"0x" << moex::util::AsShortHexString(item.first) << "\",";
+                (*out) << "\"path\":\"" << JsonEscape(item.second) << "\"";
+                (*out) << "}";
+            }
+            ++shown;
+            if (limit > 0 && shown >= limit) break;
         }
 
         if (!json_mode) {
