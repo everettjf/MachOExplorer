@@ -361,6 +361,70 @@ void XrefViewNode::InitViewDatas()
             }
             t->AddSeparator();
         }
+
+        std::map<uint64_t, std::unordered_set<uint64_t>> function_to_targets;
+        auto resolve_function_base = [&](uint64_t addr, std::string &label) -> uint64_t {
+            label.clear();
+            auto exact = symbols.find(addr);
+            if (exact != symbols.end()) {
+                label = exact->second;
+                return addr;
+            }
+            if (!sorted_symbols.empty()) {
+                auto up = std::upper_bound(
+                        sorted_symbols.begin(), sorted_symbols.end(), addr,
+                        [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                            return value < item.first;
+                        });
+                if (up != sorted_symbols.begin()) {
+                    --up;
+                    label = up->second;
+                    return up->first;
+                }
+            }
+            label = AsAddress(addr);
+            return addr;
+        };
+
+        for (const auto &entry : caller_to_targets) {
+            std::string caller_label;
+            const uint64_t caller_func = resolve_function_base(entry.first, caller_label);
+            auto &set = function_to_targets[caller_func];
+            for (uint64_t callee : entry.second) set.insert(callee);
+        }
+
+        t->AddRow({"-", "-", "-", "Function Call Graph (approx)"});
+        for (const auto &entry : function_to_targets) {
+            std::string caller_label;
+            resolve_function_base(entry.first, caller_label);
+            t->AddRow({AsAddress(entry.first), caller_label, AsString(entry.second.size()), "caller-func"});
+
+            std::vector<uint64_t> callees(entry.second.begin(), entry.second.end());
+            std::sort(callees.begin(), callees.end());
+            for (uint64_t callee_vm : callees) {
+                std::string callee_name;
+                auto callee_exact = symbols.find(callee_vm);
+                if (callee_exact != symbols.end()) callee_name = callee_exact->second;
+                if (callee_name.empty()) {
+                    auto up = std::upper_bound(
+                            sorted_symbols.begin(), sorted_symbols.end(), callee_vm,
+                            [](uint64_t value, const std::pair<uint64_t, std::string> &item) {
+                                return value < item.first;
+                            });
+                    if (up != sorted_symbols.begin()) {
+                        --up;
+                        if (callee_vm > up->first) {
+                            callee_name = fmt::format("{}+0x{}", up->second, AsShortHexString(callee_vm - up->first));
+                        } else {
+                            callee_name = up->second;
+                        }
+                    }
+                }
+                if (callee_name.empty()) callee_name = AsAddress(callee_vm);
+                t->AddRow({AsAddress(callee_vm), callee_name, "", "callee-func"});
+            }
+            t->AddSeparator();
+        }
     }
 
     if (targets.empty()) {
