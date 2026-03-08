@@ -24,6 +24,9 @@
 #include <QFile>
 #include <QDir>
 #include <QDateTime>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <climits>
 #include <algorithm>
 #include <cstring>
@@ -473,18 +476,31 @@ void MainWindow::createActions()
             QStringList candidateImages;
             if(QFileInfo::exists(listTool)){
                 QProcess listProc;
-                listProc.start(listTool, {cachePath});
+                listProc.start(listTool, {"--json", "--limit=5000", cachePath});
                 if(listProc.waitForFinished(15000) && listProc.exitStatus() == QProcess::NormalExit && listProc.exitCode() == 0){
-                    const QString output = QString::fromUtf8(listProc.readAllStandardOutput());
-                    const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
-                    for(const QString &line : lines){
-                        if(!line.startsWith("0x")) continue;
-                        const int p = line.indexOf(' ');
-                        if(p <= 0 || p + 1 >= line.size()) continue;
-                        const QString path = line.mid(p + 1).trimmed();
-                        if(path.isEmpty()) continue;
-                        candidateImages.push_back(path);
-                        if(candidateImages.size() >= 5000) break;
+                    const QByteArray outputBytes = listProc.readAllStandardOutput();
+                    QJsonParseError parseError{};
+                    const QJsonDocument doc = QJsonDocument::fromJson(outputBytes, &parseError);
+                    if(parseError.error == QJsonParseError::NoError && doc.isObject()){
+                        const QJsonArray images = doc.object().value("images").toArray();
+                        for(const QJsonValue &v : images){
+                            const QString path = v.toObject().value("path").toString().trimmed();
+                            if(path.isEmpty()) continue;
+                            candidateImages.push_back(path);
+                        }
+                    } else {
+                        // fallback for older CLI output format
+                        const QString output = QString::fromUtf8(outputBytes);
+                        const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
+                        for(const QString &line : lines){
+                            if(!line.startsWith("0x")) continue;
+                            const int p = line.indexOf(' ');
+                            if(p <= 0 || p + 1 >= line.size()) continue;
+                            const QString path = line.mid(p + 1).trimmed();
+                            if(path.isEmpty()) continue;
+                            candidateImages.push_back(path);
+                            if(candidateImages.size() >= 5000) break;
+                        }
                     }
                 }
             }
