@@ -20,6 +20,8 @@
 #include <QTimer>
 #include <QApplication>
 #include <QClipboard>
+#include <QElapsedTimer>
+#include <memory>
 #include "../controller/Workspace.h"
 
 namespace {
@@ -306,6 +308,8 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
 
     auto *proc = new QProcess(this);
     auto *timeout = new QTimer(this);
+    auto elapsed = std::make_shared<QElapsedTimer>();
+    elapsed->start();
     timeout->setSingleShot(true);
     dyldRowExtractInProgress_ = true;
     dyldRowExtractProcess_ = proc;
@@ -325,7 +329,8 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
     });
 
     connect(proc, &QProcess::finished, this,
-            [this, proc, progress, timeout, outPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            [this, proc, progress, timeout, elapsed, outPath](int exitCode, QProcess::ExitStatus exitStatus) {
+        const qint64 elapsedMs = elapsed->elapsed();
         timeout->stop();
         timeout->deleteLater();
         const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
@@ -339,7 +344,7 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
 
         if (canceled) {
             QFile::remove(outPath);
-            WS()->addLog("[extract-row] finished with canceled state");
+            WS()->addLog(tr("[extract-row] finished with canceled state (%1 ms)").arg(elapsedMs));
             proc->deleteLater();
             return;
         }
@@ -350,7 +355,8 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
             WS()->addLog(tr("[extract-row] failed exit=%1 status=%2 details=%3")
                                  .arg(exitCode)
                                  .arg(exitStatus == QProcess::NormalExit ? "normal" : "crash")
-                                 .arg(details.isEmpty() ? "(no process output)" : details));
+                                 .arg(details.isEmpty() ? "(no process output)" : details)
+                         + tr(" (%1 ms)").arg(elapsedMs));
             util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
             proc->deleteLater();
             return;
@@ -365,13 +371,15 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         }
 
         WS()->openFile(outPath);
-        WS()->addLog(tr("[extract-row] success out=%1 size=%2").arg(outPath).arg(outInfo.size()));
+        WS()->addLog(tr("[extract-row] success out=%1 size=%2 (%3 ms)")
+                             .arg(outPath).arg(outInfo.size()).arg(elapsedMs));
         util::showInfo(this, tr("Extracted and opened:\n%1").arg(outPath));
         proc->deleteLater();
     });
 
-    connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout](QProcess::ProcessError) {
+    connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout, elapsed](QProcess::ProcessError) {
         if (!dyldRowExtractInProgress_) return;
+        const qint64 elapsedMs = elapsed->elapsed();
         const QString err = proc->errorString();
         dyldRowExtractInProgress_ = false;
         dyldRowExtractProcess_.clear();
@@ -379,7 +387,7 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         timeout->deleteLater();
         progress->hide();
         progress->deleteLater();
-        WS()->addLog(tr("[extract-row] process start error: %1").arg(err));
+        WS()->addLog(tr("[extract-row] process start error: %1 (%2 ms)").arg(err).arg(elapsedMs));
         util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
         proc->deleteLater();
     });

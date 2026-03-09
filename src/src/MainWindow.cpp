@@ -28,10 +28,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProgressDialog>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <climits>
 #include <algorithm>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 #ifdef Q_OS_MAC
@@ -606,6 +608,8 @@ void MainWindow::createActions()
 
         auto *proc = new QProcess(this);
         auto *timeout = new QTimer(this);
+        auto elapsed = std::make_shared<QElapsedTimer>();
+        elapsed->start();
         timeout->setSingleShot(true);
         dyldExtractInProgress_ = true;
         dyldExtractProcess_ = proc;
@@ -629,7 +633,8 @@ void MainWindow::createActions()
         });
 
         connect(proc, &QProcess::finished, this,
-                [this, proc, progress, timeout, outputPath](int exitCode, QProcess::ExitStatus exitStatus) {
+                [this, proc, progress, timeout, elapsed, outputPath](int exitCode, QProcess::ExitStatus exitStatus) {
+            const qint64 elapsedMs = elapsed->elapsed();
             timeout->stop();
             timeout->deleteLater();
             const QString stderrText = QString::fromUtf8(proc->readAllStandardError());
@@ -644,7 +649,7 @@ void MainWindow::createActions()
 
             if (canceled) {
                 QFile::remove(outputPath);
-                WS()->addLog("[extract] finished with canceled state");
+                WS()->addLog(tr("[extract] finished with canceled state (%1 ms)").arg(elapsedMs));
                 proc->deleteLater();
                 return;
             }
@@ -655,7 +660,8 @@ void MainWindow::createActions()
                 WS()->addLog(tr("[extract] failed exit=%1 status=%2 details=%3")
                                      .arg(exitCode)
                                      .arg(exitStatus == QProcess::NormalExit ? "normal" : "crash")
-                                     .arg(details.isEmpty() ? "(no process output)" : details));
+                                     .arg(details.isEmpty() ? "(no process output)" : details)
+                             + tr(" (%1 ms)").arg(elapsedMs));
                 util::showError(this, tr("Extraction failed:\n%1").arg(details.isEmpty() ? tr("(no process output)") : details));
                 proc->deleteLater();
                 return;
@@ -671,13 +677,15 @@ void MainWindow::createActions()
 
             this->showMaximized();
             WS()->openFile(outputPath);
-            WS()->addLog(tr("[extract] success out=%1 size=%2").arg(outputPath).arg(outInfo.size()));
+            WS()->addLog(tr("[extract] success out=%1 size=%2 (%3 ms)")
+                                 .arg(outputPath).arg(outInfo.size()).arg(elapsedMs));
             statusBar()->showMessage(tr("Extracted and opened: %1").arg(outputPath), 8000);
             proc->deleteLater();
         });
 
-        connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout](QProcess::ProcessError) {
+        connect(proc, &QProcess::errorOccurred, this, [this, proc, progress, timeout, elapsed](QProcess::ProcessError) {
             if (!dyldExtractInProgress_) return;
+            const qint64 elapsedMs = elapsed->elapsed();
             const QString err = proc->errorString();
             dyldExtractInProgress_ = false;
             dyldExtractProcess_.clear();
@@ -686,7 +694,7 @@ void MainWindow::createActions()
             timeout->deleteLater();
             progress->hide();
             progress->deleteLater();
-            WS()->addLog(tr("[extract] process start error: %1").arg(err));
+            WS()->addLog(tr("[extract] process start error: %1 (%2 ms)").arg(err).arg(elapsedMs));
             util::showError(this, tr("Failed to start extraction:\n%1").arg(err));
             proc->deleteLater();
         });
