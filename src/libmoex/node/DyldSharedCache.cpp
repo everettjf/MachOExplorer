@@ -45,6 +45,11 @@ void DyldSharedCache::Init(void *offset, std::size_t size, NodeContextPtr &ctx, 
     }
     const auto *map_ptr = reinterpret_cast<const dyld_cache_mapping_info_min *>(base_ + header_.mappingOffset);
     mappings_.assign(map_ptr, map_ptr + header_.mappingCount);
+    for (const auto &m : mappings_) {
+        if (m.fileOffset > size || m.size > (size - m.fileOffset)) {
+            throw NodeException("Malformed dyld shared cache: mapping entry file range out of bounds");
+        }
+    }
 
     const uint64_t image_bytes = static_cast<uint64_t>(header_.imagesCount) * sizeof(dyld_cache_image_info_min);
     if (!in_range(header_.imagesOffset, image_bytes)) {
