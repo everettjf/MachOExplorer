@@ -4,6 +4,7 @@
 //
 #include "Workspace.h"
 #include "src/MainWindow.h"
+#include <QFileInfo>
 
 Workspace::Workspace()
 {
@@ -12,6 +13,14 @@ Workspace::Workspace()
 
 void Workspace::openFile(const QString &filePath)
 {
+    if (filePath.isEmpty()) {
+        addLog("[workspace] openFile ignored: empty path");
+        return;
+    }
+    if (!QFileInfo::exists(filePath)) {
+        addLog(QString("[workspace] openFile ignored: missing file %1").arg(filePath));
+        return;
+    }
     currentFilePath_ = filePath;
     ui_->layout->openFile(filePath);
 }
