@@ -145,6 +145,10 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
         const int cols = proxyModel->columnCount();
         const int rows = proxyModel->rowCount();
         if (cols <= 0 || rows <= 0) return;
+        if (rows > 20000) {
+            util::showError(this, tr("Too many rows to copy at once (%1). Please filter first.").arg(rows));
+            return;
+        }
         QStringList lines;
         QStringList headers;
         for (int c = 0; c < cols; ++c) {
