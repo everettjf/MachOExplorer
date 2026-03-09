@@ -62,3 +62,6 @@ brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplo
 
 ## 许可证
 MIT，详见 [LICENSE](LICENSE)。
+
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer&type=Date)](https://star-history.com/#everettjf/MachOExplorer&Date)
