@@ -60,9 +60,11 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     filterEdit->setPlaceholderText(tr("Filter rows (all columns)..."));
     filterStatus = new QLabel(this);
     filterStatus->setMinimumWidth(120);
+    clearFilterButton = new QPushButton(tr("Clear"), this);
     exportButton = new QPushButton(tr("Export CSV"), this);
     topBar->addWidget(filterEdit, 1);
     topBar->addWidget(filterStatus);
+    topBar->addWidget(clearFilterButton);
     topBar->addWidget(exportButton);
     layout->addLayout(topBar);
 
@@ -107,6 +109,9 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 
     auto *clearFilterShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clearFilterShortcut, &QShortcut::activated, this, [this]() {
+        if (!filterEdit->text().isEmpty()) filterEdit->clear();
+    });
+    connect(clearFilterButton, &QPushButton::clicked, this, [this]() {
         if (!filterEdit->text().isEmpty()) filterEdit->clear();
     });
 

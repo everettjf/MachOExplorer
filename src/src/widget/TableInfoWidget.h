@@ -33,6 +33,7 @@ private:
     QTableView *tableView;
     QLineEdit *filterEdit;
     QLabel *filterStatus;
+    QPushButton *clearFilterButton;
     QPushButton *exportButton;
     QSortFilterProxyModel *proxyModel;
     TableInfoController *controller;
