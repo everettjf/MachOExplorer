@@ -22,6 +22,12 @@ printf '\xcf\xfa\xed' > "${TMP_DIR}/truncated_macho.bin"
 # Archive magic without member header.
 printf '!<arch>\n' > "${TMP_DIR}/broken_archive.a"
 
+# Archive with invalid member size field (non-decimal).
+printf '!<arch>\n' > "${TMP_DIR}/bad_size_archive.a"
+# name[16] mtime[12] uid[6] gid[6] mode[8] size[10] fmag[2]
+printf '%-16s%-12s%-6s%-6s%-8s%-10s`\n' \
+  "bad.o/" "0" "0" "0" "100644" "12x" >> "${TMP_DIR}/bad_size_archive.a"
+
 # dyld magic prefix but too short.
 printf 'dyld_v1   arm64e' > "${TMP_DIR}/truncated_dyld.cache"
 
