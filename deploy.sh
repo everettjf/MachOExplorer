@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VER_FILE="${ROOT_DIR}/src/libmoex/ver.h"
 BUILD_DIR="${ROOT_DIR}/build"
+BUILD_APP_DIR="${BUILD_DIR}/MachOExplorer.app"
+BUILD_APP_BIN="${BUILD_APP_DIR}/Contents/MacOS/MachOExplorer"
+BUILD_APP_FLAT_BIN="${BUILD_DIR}/MachOExplorer"
 APP_DIR="${ROOT_DIR}/dist/macos/MachOExplorer.app"
 DMG_PATH="${ROOT_DIR}/dist/macos/MachOExplorer.dmg"
 ICON_PATH="${ROOT_DIR}/src/MachOExplorer.icns"
@@ -82,12 +85,16 @@ if [[ -z "${MACDEPLOYQT}" || ! -x "${MACDEPLOYQT}" ]]; then
 fi
 
 rm -rf "${APP_DIR}"
-mkdir -p "${APP_DIR}/Contents/MacOS" "${APP_DIR}/Contents/Resources"
-cp "${BUILD_DIR}/MachOExplorer" "${APP_DIR}/Contents/MacOS/MachOExplorer"
-if [[ -f "${ICON_PATH}" ]]; then
-  cp "${ICON_PATH}" "${APP_DIR}/Contents/Resources/MachOExplorer.icns"
-fi
-cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
+mkdir -p "$(dirname "${APP_DIR}")"
+if [[ -d "${BUILD_APP_DIR}" ]]; then
+  cp -R "${BUILD_APP_DIR}" "${APP_DIR}"
+elif [[ -x "${BUILD_APP_FLAT_BIN}" ]]; then
+  mkdir -p "${APP_DIR}/Contents/MacOS" "${APP_DIR}/Contents/Resources"
+  cp "${BUILD_APP_FLAT_BIN}" "${APP_DIR}/Contents/MacOS/MachOExplorer"
+  if [[ -f "${ICON_PATH}" ]]; then
+    cp "${ICON_PATH}" "${APP_DIR}/Contents/Resources/MachOExplorer.icns"
+  fi
+  cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -107,6 +114,10 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+else
+  echo "built app not found; expected ${BUILD_APP_DIR} or ${BUILD_APP_FLAT_BIN}" >&2
+  exit 1
+fi
 
 "${MACDEPLOYQT}" "${APP_DIR}" -verbose=0
 mkdir -p "${ROOT_DIR}/dist/macos"
