@@ -103,6 +103,7 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key><string>${new_version}</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
+  <key>NSRequiresAquaSystemAppearance</key><false/>
 </dict>
 </plist>
 PLIST

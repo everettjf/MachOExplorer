@@ -47,11 +47,30 @@ printf '\x60\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | dd o
 printf '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
   | dd of="${bad_map}" bs=1 seek=96 conv=notrunc 2>/dev/null
 
+# Valid minimal FAT64 with one x86_64 MH_MAGIC_64 image at offset 0x1000.
+valid_fat64="${TMP_DIR}/valid_fat64.bin"
+truncate -s 4096 "${valid_fat64}"
+printf '\xca\xfe\xba\xbf\x00\x00\x00\x01' \
+  | dd of="${valid_fat64}" bs=1 seek=0 conv=notrunc 2>/dev/null
+printf '\x01\x00\x00\x07\x00\x00\x00\x03' \
+  | dd of="${valid_fat64}" bs=1 seek=8 conv=notrunc 2>/dev/null
+printf '\x00\x00\x00\x00\x00\x00\x10\x00' \
+  | dd of="${valid_fat64}" bs=1 seek=16 conv=notrunc 2>/dev/null
+printf '\x00\x00\x00\x00\x00\x00\x00\x20' \
+  | dd of="${valid_fat64}" bs=1 seek=24 conv=notrunc 2>/dev/null
+printf '\x00\x00\x00\x0c\x00\x00\x00\x00' \
+  | dd of="${valid_fat64}" bs=1 seek=32 conv=notrunc 2>/dev/null
+printf '\xcf\xfa\xed\xfe\x07\x00\x00\x01\x03\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+  | dd of="${valid_fat64}" bs=1 seek=4096 conv=notrunc 2>/dev/null
+
 FAIL=0
 TOTAL=0
 REJECTED=0
 ACCEPTED=0
 for f in "${TMP_DIR}"/*; do
+  if [[ "$(basename "${f}")" == "valid_fat64.bin" ]]; then
+    continue
+  fi
   TOTAL=$((TOTAL + 1))
   set +e
   "${PARSER_BIN}" "${f}" >/dev/null 2>&1
@@ -72,6 +91,17 @@ for f in "${TMP_DIR}"/*; do
     echo "[ok] malformed input rejected safely: $(basename "${f}")"
   fi
 done
+
+set +e
+"${PARSER_BIN}" "${valid_fat64}" >/dev/null 2>&1
+valid_rc=$?
+set -e
+if [[ "${valid_rc}" -ne 0 ]]; then
+  echo "[fail] valid FAT64 should parse successfully: ${valid_fat64}"
+  FAIL=1
+else
+  echo "[ok] valid FAT64 parsed successfully: $(basename "${valid_fat64}")"
+fi
 
 if [[ "${FAIL}" -ne 0 ]]; then
   echo "crash-regression: failed"

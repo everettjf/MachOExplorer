@@ -31,7 +31,8 @@ public:
 
     // Whether it is Fat binary
     bool IsFat(){
-        return magic_ == FAT_MAGIC || magic_ == FAT_CIGAM;
+        return magic_ == FAT_MAGIC || magic_ == FAT_CIGAM ||
+               magic_ == FAT_MAGIC_64 || magic_ == FAT_CIGAM_64;
     }
 
     // Whether it is 64 bit arch

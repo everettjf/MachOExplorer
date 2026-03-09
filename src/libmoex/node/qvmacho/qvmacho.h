@@ -283,6 +283,15 @@ struct qv_fat_arch {
 #define FAT_MAGIC_64	0xcafebabf
 #define FAT_CIGAM_64	0xbfbafeca	/* NXSwapLong(FAT_MAGIC_64) */
 
+struct qv_fat_arch_64 {
+    qv_cpu_type_t    cputype;     /* cpu specifier (int) */
+    qv_cpu_subtype_t cpusubtype;  /* machine specifier (int) */
+    uint64_t         offset;      /* file offset to this object file */
+    uint64_t         size;        /* size of this object file */
+    uint32_t         align;       /* alignment as a power of 2 */
+    uint32_t         reserved;    /* reserved */
+};
+
 
 /*
  * The 32-bit mach header appears at the very beginning of the object file for
@@ -373,6 +382,18 @@ enum NXByteOrder {
 
 #define OSSwapInt32(x) OSSwapConstInt32(x)
 
+#define OSSwapConstInt64(x) \
+    ((uint64_t)((((uint64_t)(x) & 0xff00000000000000ULL) >> 56) | \
+                (((uint64_t)(x) & 0x00ff000000000000ULL) >> 40) | \
+                (((uint64_t)(x) & 0x0000ff0000000000ULL) >> 24) | \
+                (((uint64_t)(x) & 0x000000ff00000000ULL) >>  8) | \
+                (((uint64_t)(x) & 0x00000000ff000000ULL) <<  8) | \
+                (((uint64_t)(x) & 0x0000000000ff0000ULL) << 24) | \
+                (((uint64_t)(x) & 0x000000000000ff00ULL) << 40) | \
+                (((uint64_t)(x) & 0x00000000000000ffULL) << 56)))
+
+#define OSSwapInt64(x) OSSwapConstInt64(x)
+
 
 inline void
 qv_swap_fat_arch(
@@ -399,6 +420,23 @@ enum NXByteOrder target_byte_sex)
 {
     fat_header->magic     = OSSwapInt32(fat_header->magic);
     fat_header->nfat_arch = OSSwapInt32(fat_header->nfat_arch);
+}
+
+inline void
+qv_swap_fat_arch_64(
+struct qv_fat_arch_64 *fat_archs,
+uint32_t nfat_arch,
+enum NXByteOrder target_byte_sex)
+{
+    uint32_t i;
+    for (i = 0; i < nfat_arch; i++) {
+        fat_archs[i].cputype = OSSwapInt32(fat_archs[i].cputype);
+        fat_archs[i].cpusubtype = OSSwapInt32(fat_archs[i].cpusubtype);
+        fat_archs[i].offset = OSSwapInt64(fat_archs[i].offset);
+        fat_archs[i].size = OSSwapInt64(fat_archs[i].size);
+        fat_archs[i].align = OSSwapInt32(fat_archs[i].align);
+        fat_archs[i].reserved = OSSwapInt32(fat_archs[i].reserved);
+    }
 }
 
 inline

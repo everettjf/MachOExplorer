@@ -38,6 +38,25 @@ target_link_libraries(MachOExplorer PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
 )
 
+if(APPLE)
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/libmoex/ver.h"
+        MOEX_VER_LINE REGEX "^#define LIBMOEX_VERSION \".*\"$")
+    set(MOEX_APP_VERSION "0.0.0")
+    if(MOEX_VER_LINE)
+        string(REGEX REPLACE ".*\"([0-9]+\\.[0-9]+\\.[0-9]+)\".*" "\\1"
+            MOEX_APP_VERSION "${MOEX_VER_LINE}")
+    endif()
+
+    set_target_properties(MachOExplorer PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_BUNDLE_NAME "MachOExplorer"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.everettjf.machoexplorer"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${MOEX_APP_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${MOEX_APP_VERSION}"
+        MACOSX_BUNDLE_INFO_STRING "MachOExplorer ${MOEX_APP_VERSION}"
+    )
+endif()
+
 if(CAPSTONE_INCLUDE_DIR AND CAPSTONE_LIBRARY)
     message(STATUS "Capstone enabled: ${CAPSTONE_LIBRARY}")
     target_compile_definitions(MachOExplorer PRIVATE MOEX_HAS_CAPSTONE=1)
