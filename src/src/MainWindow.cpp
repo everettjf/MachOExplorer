@@ -33,6 +33,8 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QRegularExpression>
+#include <QApplication>
+#include <QDebug>
 #include <climits>
 #include <algorithm>
 #include <cstring>
@@ -329,6 +331,9 @@ static QString NormalizeVersion(const QString &v)
 static constexpr const char *kUpdateRemindUntil = "update/remind_until_utc";
 static constexpr const char *kReleaseApiUrl = "https://api.github.com/repos/everettjf/MachOExplorer/releases/latest";
 static constexpr const char *kReleasePageUrl = "https://github.com/everettjf/MachOExplorer/releases";
+static bool gStartupUpdateCheckScheduled = false;
+static bool gGlobalUpdateCheckInProgress = false;
+static qint64 gUpdateCheckSeq = 0;
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
@@ -361,7 +366,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::displayNewFileDialog()
 {
-    openFileDialog = new OpenFileDialog();
+    openFileDialog = new OpenFileDialog(this);
     openFileDialog->setAttribute(Qt::WA_DeleteOnClose);
     openFileDialog->show();
 }
@@ -799,7 +804,15 @@ void MainWindow::createActions()
 
 void MainWindow::initUpdateCheckOnStartup()
 {
+    if (gStartupUpdateCheckScheduled) {
+        qInfo() << "[update][startup] skip scheduling: already scheduled window=" << static_cast<void *>(this);
+        return;
+    }
+    gStartupUpdateCheckScheduled = true;
+    qInfo() << "[update][startup] scheduled window=" << static_cast<void *>(this);
+
     QTimer::singleShot(1500, this, [this]() {
+        qInfo() << "[update][startup] timer fired window=" << static_cast<void *>(this);
         QSettings settings;
         const qint64 remindUntil = settings.value(kUpdateRemindUntil, 0).toLongLong();
         const qint64 nowUtc = QDateTime::currentDateTimeUtc().toSecsSinceEpoch();
@@ -810,15 +823,31 @@ void MainWindow::initUpdateCheckOnStartup()
 
 void MainWindow::checkForUpdates(bool interactive)
 {
+    const qint64 seq = ++gUpdateCheckSeq;
+    qInfo() << "[update][entry] seq=" << seq
+            << "window=" << static_cast<void *>(this)
+            << "interactive=" << interactive
+            << "global_in_progress=" << gGlobalUpdateCheckInProgress
+            << "local_in_progress=" << updateCheckInProgress_;
+
+    if (gGlobalUpdateCheckInProgress) {
+        if (interactive) {
+            statusBar()->showMessage(tr("Update check is already in progress."), 3000);
+        }
+        qInfo() << "[update][skip] seq=" << seq << "reason=global_in_progress";
+        return;
+    }
     if (updateCheckInProgress_) {
         if (interactive) {
             statusBar()->showMessage(tr("Update check is already in progress."), 3000);
         }
+        qInfo() << "[update][skip] seq=" << seq << "reason=local_in_progress";
         return;
     }
     if (updateNetworkManager_ == nullptr) return;
 
     updateCheckInProgress_ = true;
+    gGlobalUpdateCheckInProgress = true;
     if (interactive) {
         statusBar()->showMessage(tr("Checking for updates..."), 3000);
     }
@@ -829,8 +858,12 @@ void MainWindow::checkForUpdates(bool interactive)
     req.setRawHeader("Accept", "application/vnd.github+json");
 
     QNetworkReply *reply = updateNetworkManager_->get(req);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, interactive]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, interactive, seq]() {
         updateCheckInProgress_ = false;
+        gGlobalUpdateCheckInProgress = false;
+        qInfo() << "[update][reply] seq=" << seq
+                << "window=" << static_cast<void *>(this)
+                << "error=" << reply->error();
         const bool ok = (reply->error() == QNetworkReply::NoError);
         if (!ok) {
             const QString err = reply->errorString();
@@ -872,6 +905,9 @@ void MainWindow::checkForUpdates(bool interactive)
         }
 
         WS()->addLog(tr("[update] new version available current=%1 latest=%2").arg(curVersion, latestVersion));
+        qInfo() << "[update][dialog] seq=" << seq
+                << "show_update_dialog window=" << static_cast<void *>(this)
+                << "current=" << curVersion << "latest=" << latestVersion;
         QMessageBox msg(this);
         msg.setWindowTitle(tr("Update Available"));
         msg.setIcon(QMessageBox::Information);
@@ -980,11 +1016,34 @@ void MainWindow::applyVisualRefresh()
         uiFont = font();
         uiFont.setPointSize(11);
     }
-    setFont(uiFont);
+    qApp->setFont(uiFont);
 
     const QString style = isDarkMode() ? R"(
 QMainWindow {
     background: #15171b;
+}
+QDialog#OpenFileDialog {
+    background: #15171b;
+    color: #e6e7ea;
+}
+QDialog#OpenFileDialog QLabel {
+    color: #e6e7ea;
+}
+QDialog#OpenFileDialog QPlainTextEdit,
+QDialog#OpenFileDialog QListWidget {
+    background: #0f1218;
+    color: #e5e9f0;
+    border: 1px solid #353c47;
+}
+QDialog#OpenFileDialog QPushButton {
+    background: #2b313a;
+    color: #dbe0e7;
+    border: 1px solid #3a414c;
+    border-radius: 8px;
+    padding: 6px 14px;
+}
+QDialog#OpenFileDialog QPushButton:hover {
+    background: #343b46;
 }
 QMenuBar {
     background: #1a1d22;
@@ -1053,13 +1112,63 @@ QTabBar::tab:selected {
     background: #3f7d6a;
     color: #ffffff;
 }
+QLineEdit#tableFilterEdit {
+    background: #1f232a;
+    color: #e5e9f0;
+    border: 1px solid #3b424d;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+QLineEdit#tableFilterEdit:focus {
+    border: 1px solid #4f9b84;
+}
+QLabel#tableFilterStatus {
+    color: #cdd2da;
+}
+QPushButton#tableClearFilterButton, QPushButton#tableExportCsvButton {
+    background: #2b313a;
+    color: #dbe0e7;
+    border: 1px solid #3a414c;
+    border-radius: 6px;
+    padding: 4px 10px;
+}
+QPushButton#tableClearFilterButton:hover, QPushButton#tableExportCsvButton:hover {
+    background: #343b46;
+}
+QPushButton#tableClearFilterButton:pressed, QPushButton#tableExportCsvButton:pressed {
+    background: #3e4652;
+}
 )" : R"(
 QMainWindow {
     background: #f2f3f5;
 }
+QDialog#OpenFileDialog {
+    background: #f4f6f9;
+    color: #1f232a;
+}
+QDialog#OpenFileDialog QLabel {
+    color: #1f232a;
+}
+QDialog#OpenFileDialog QPlainTextEdit,
+QDialog#OpenFileDialog QListWidget {
+    background: #ffffff;
+    color: #20242b;
+    border: 1px solid #d9dde3;
+}
+QDialog#OpenFileDialog QPushButton {
+    background: #e7ebf0;
+    color: #20242b;
+    border: 1px solid #cdd3db;
+    border-radius: 8px;
+    padding: 6px 14px;
+}
+QDialog#OpenFileDialog QPushButton:hover {
+    background: #dfe4ea;
+}
 QMenuBar {
-    background: #242830;
-    color: #f4f5f7;
+    background: #f7f8fa;
+    color: #1f232a;
+    border-bottom: 1px solid #d7dce3;
     padding: 4px;
 }
 QMenuBar::item {
@@ -1068,7 +1177,8 @@ QMenuBar::item {
     border-radius: 6px;
 }
 QMenuBar::item:selected {
-    background: #3a404b;
+    background: #e3e8ee;
+    color: #1f232a;
 }
 QMenu {
     background: #ffffff;
@@ -1079,8 +1189,9 @@ QMenu::item:selected {
     background: #e7eaee;
 }
 QStatusBar {
-    background: #242830;
-    color: #d5d8de;
+    background: #f7f8fa;
+    color: #2b313a;
+    border-top: 1px solid #d7dce3;
 }
 QDockWidget {
     titlebar-close-icon: none;
@@ -1124,6 +1235,32 @@ QTabBar::tab:selected {
     background: #5f8f7f;
     color: #ffffff;
 }
+QLineEdit#tableFilterEdit {
+    background: #ffffff;
+    color: #1f232a;
+    border: 1px solid #c5ccd5;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+QLineEdit#tableFilterEdit:focus {
+    border: 1px solid #5f8f7f;
+}
+QLabel#tableFilterStatus {
+    color: #313744;
+}
+QPushButton#tableClearFilterButton, QPushButton#tableExportCsvButton {
+    background: #e7ebf0;
+    color: #20242b;
+    border: 1px solid #cdd3db;
+    border-radius: 6px;
+    padding: 4px 10px;
+}
+QPushButton#tableClearFilterButton:hover, QPushButton#tableExportCsvButton:hover {
+    background: #dfe4ea;
+}
+QPushButton#tableClearFilterButton:pressed, QPushButton#tableExportCsvButton:pressed {
+    background: #d5dbe3;
+}
 )";
-    setStyleSheet(style);
+    qApp->setStyleSheet(style);
 }

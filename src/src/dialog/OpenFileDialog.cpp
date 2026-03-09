@@ -195,8 +195,11 @@ void OpenFileDialog::loadFile(const QString &filename)
 
     settings.setValue("recentFileList", files);
 
-    // Close dialog and open MainWindow/OptionsDialog
-    MainWindow *main = new MainWindow();
+    // Reuse existing main window when launched from startup dialog.
+    MainWindow *main = qobject_cast<MainWindow *>(parentWidget());
+    if (main == nullptr) {
+        main = new MainWindow();
+    }
     main->openNewFile(filename);
 
     close();

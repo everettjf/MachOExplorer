@@ -3,7 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="${ROOT_DIR}/build"
-APP_BIN="${BUILD_DIR}/MachOExplorer"
+APP_BUNDLE_BIN="${BUILD_DIR}/MachOExplorer.app/Contents/MacOS/MachOExplorer"
+APP_BIN="${APP_BUNDLE_BIN}"
 SAMPLE_FILE="${ROOT_DIR}/sample/simple"
 OUT_TEXT="/tmp/moex-cli-smoke.txt"
 OUT_JSON="/tmp/moex-cli-smoke.json"

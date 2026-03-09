@@ -59,13 +59,17 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     topBar->setContentsMargins(4,4,4,0);
     topBar->setSpacing(6);
     filterEdit = new QLineEdit(this);
+    filterEdit->setObjectName("tableFilterEdit");
     filterEdit->setPlaceholderText(tr("Filter rows (all columns)..."));
     filterEdit->setToolTip(tr("Filter rows by keyword across all columns (Cmd/Ctrl+F to focus)."));
     filterStatus = new QLabel(this);
+    filterStatus->setObjectName("tableFilterStatus");
     filterStatus->setMinimumWidth(120);
     clearFilterButton = new QPushButton(tr("Clear"), this);
+    clearFilterButton->setObjectName("tableClearFilterButton");
     clearFilterButton->setToolTip(tr("Clear current filter text (same as Esc)."));
     exportButton = new QPushButton(tr("Export CSV"), this);
+    exportButton->setObjectName("tableExportCsvButton");
     exportButton->setToolTip(tr("Export currently visible rows to CSV."));
     topBar->addWidget(filterEdit, 1);
     topBar->addWidget(filterStatus);
