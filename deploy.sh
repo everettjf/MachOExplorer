@@ -37,6 +37,65 @@ require_cmd() {
   fi
 }
 
+resolve_qt_prefix() {
+  local has_qt_config
+  has_qt_config() {
+    local prefix="$1"
+    [[ -f "${prefix}/lib/cmake/Qt6/Qt6Config.cmake" || -f "${prefix}/lib/cmake/Qt5/Qt5Config.cmake" ]]
+  }
+
+  if [[ -n "${CMAKE_PREFIX_PATH:-}" ]]; then
+    if has_qt_config "${CMAKE_PREFIX_PATH}"; then
+      printf '%s\n' "${CMAKE_PREFIX_PATH}"
+      return 0
+    fi
+  fi
+
+  local cache_file
+  local cache_prefix
+  local cache_qt_dir
+  local candidate
+
+  cache_file="${BUILD_DIR}/CMakeCache.txt"
+  if [[ -f "${cache_file}" ]]; then
+    cache_prefix="$(sed -n 's/^CMAKE_PREFIX_PATH:.*=//p' "${cache_file}" | head -n1)"
+    if [[ -n "${cache_prefix}" && -d "${cache_prefix}" ]] && has_qt_config "${cache_prefix}"; then
+      printf '%s\n' "${cache_prefix}"
+      return 0
+    fi
+
+    cache_qt_dir="$(sed -n 's/^\(Qt[56]_DIR\|QT_DIR\):.*=//p' "${cache_file}" | head -n1)"
+    if [[ -n "${cache_qt_dir}" ]]; then
+      candidate="${cache_qt_dir%/lib/cmake/Qt[56]}"
+      if [[ -d "${candidate}" ]] && has_qt_config "${candidate}"; then
+        printf '%s\n' "${candidate}"
+        return 0
+      fi
+    fi
+  fi
+
+  for candidate in \
+    "/Users/eevv/Qt/6.10.2/macos" \
+    "/Users/eevv/Qt/6.9.3/macos"
+  do
+    if [[ -d "${candidate}" ]] && has_qt_config "${candidate}"; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+
+  candidate="$(find /Users/eevv/Qt -type f \( -name Qt6Config.cmake -o -name Qt5Config.cmake \) 2>/dev/null | head -n1)"
+  if [[ -n "${candidate}" ]]; then
+    candidate="${candidate%/lib/cmake/Qt[56]/Qt[56]Config.cmake}"
+    if [[ -d "${candidate}" ]] && has_qt_config "${candidate}"; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-homebrew) NO_HOMEBREW=1; shift ;;
@@ -71,7 +130,14 @@ if [[ -f "${VER_FILE}" ]]; then
   echo "version file updated: ${VER_FILE}"
 fi
 
-cmake -S "${ROOT_DIR}/src" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH:-/Users/eevv/Qt/6.10.2/macos}"
+QT_PREFIX="$(resolve_qt_prefix || true)"
+if [[ -z "${QT_PREFIX}" ]]; then
+  echo "unable to determine Qt CMake prefix; set CMAKE_PREFIX_PATH=/path/to/Qt/<ver>/macos" >&2
+  exit 1
+fi
+echo "using Qt prefix: ${QT_PREFIX}"
+
+cmake -S "${ROOT_DIR}/src" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${QT_PREFIX}"
 cmake --build "${BUILD_DIR}" -j8
 "${ROOT_DIR}/tests/regression/run_all.sh"
 
