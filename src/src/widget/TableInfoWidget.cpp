@@ -139,6 +139,28 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
         QGuiApplication::clipboard()->setText(vals.join('\t'));
     });
 
+    auto *copyAllVisibleShortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+C")), this);
+    connect(copyAllVisibleShortcut, &QShortcut::activated, this, [this]() {
+        if (proxyModel == nullptr) return;
+        const int cols = proxyModel->columnCount();
+        const int rows = proxyModel->rowCount();
+        if (cols <= 0 || rows <= 0) return;
+        QStringList lines;
+        QStringList headers;
+        for (int c = 0; c < cols; ++c) {
+            headers << proxyModel->headerData(c, Qt::Horizontal, Qt::DisplayRole).toString();
+        }
+        lines << headers.join('\t');
+        for (int r = 0; r < rows; ++r) {
+            QStringList vals;
+            for (int c = 0; c < cols; ++c) {
+                vals << proxyModel->index(r, c).data(Qt::DisplayRole).toString();
+            }
+            lines << vals.join('\t');
+        }
+        QGuiApplication::clipboard()->setText(lines.join('\n'));
+    });
+
     connect(exportButton, &QPushButton::clicked, this, [this]() {
         if (proxyModel == nullptr || proxyModel->sourceModel() == nullptr) return;
         const QString outPath = QFileDialog::getSaveFileName(
