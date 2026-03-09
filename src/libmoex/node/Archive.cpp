@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
+#include <cstdint>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -50,6 +51,11 @@ uint64_t ParseSize(const ArHeaderRaw *hdr) {
     std::string str(hdr->size, sizeof(hdr->size));
     str = TrimRight(str);
     if (str.empty()) return 0;
+    for (char c : str) {
+        if (!std::isdigit(static_cast<unsigned char>(c))) {
+            return UINT64_MAX;
+        }
+    }
     return std::strtoull(str.c_str(), nullptr, 10);
 }
 }
@@ -87,6 +93,9 @@ void Archive::Parse(void *offset, std::size_t file_size) {
         }
 
         const uint64_t file_size_member = ParseSize(hdr);
+        if (file_size_member == UINT64_MAX) {
+            throw NodeException("Malformed archive file: non-decimal member size");
+        }
         uint64_t data_offset = cur + sizeof(ArHeaderRaw);
         if (data_offset + file_size_member > file_size) {
             throw NodeException("Malformed archive file: member payload out of range");
