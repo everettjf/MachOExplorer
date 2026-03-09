@@ -1,10 +1,38 @@
 # MachOExplorer
 
 > A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.0.0`.
+>
+> Language: **English** | [简体中文](README.zh-CN.md)
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Install
+
+### macOS
+- GitHub Release: https://github.com/everettjf/MachOExplorer/releases/tag/v2.0.0
+- Homebrew:
+  ```bash
+  brew tap everettjf/homebrew-tap
+  brew install --cask machoexplorer
+  ```
+
+### Windows
+- Build an installer with Inno Setup (step-by-step in `docs/release_packaging.md`).
+- Included scripts:
+  - `packaging/windows/MachOExplorer.iss`
+  - `scripts/build_windows_installer.ps1`
+
+## Update Checks
+- `Help -> Check for Updates`
+- Startup auto-check is enabled.
+- When a new version is found, users can choose:
+  - `Download`
+  - `Remind in 7 days`
+  - `Remind in 30 days`
+  - `Later`
+- Download is guided to GitHub Releases.
 
 ## What It Can Do
 - Parse and inspect Mach-O, Fat Mach-O, and Unix Archive (`.a`) containers.
@@ -125,30 +153,15 @@ cmake --build build-fuzz -j8
 - `image/`: screenshots/icons for docs
 
 ## Version Notes
-- 2026-03-09 — `v2.2.0`: stability and usability release milestone.
-  - Parser hardening: stricter archive header/size validation and stronger dyld cache mapping/path bounds checks.
-  - Regression expansion: malformed archive/dyld crash-regression cases and clearer crash-run summary counters.
-  - Extraction workflow stability: async lifecycle logging with elapsed time, temp-file cleanup on failure/cancel, and safer output validation.
-  - Table usability upgrades: debounced filter, clear button, richer status text, keyboard-sync detail updates, row copy and copy-all-visible shortcuts.
-- 2026-03-08 — `v2.1.1` (in-progress): deep xref + Swift semantic + dyld cache drill-in + crash-regression hardening.
-  - Xref: x86 register/memory indirect flows and ARM64 `movz/movk` constant-chain tracking.
-  - Swift Semantic Graph: typed relation edges and `__swift5_fieldmd` field-record decoding.
-  - Dyld cache UX: double-click image row to extract-and-open directly.
-  - Security regression: malformed-input crash runner integrated into `tests/regression/run_all.sh`.
-- 2026-03-08 — `v2.1.0`: semantic graph + call graph + interaction milestone.
-  - New `Swift Semantic Graph` view: cross-section aggregation for `__swift5_*` metadata with relation edges.
-  - Xref enhanced to function-level call graph summary and stronger ARM64 data-flow tracking.
-  - Table UX modernization: live filtering, keyboard shortcuts (`Cmd/Ctrl+F`, `Esc`), and CSV export of visible rows.
-  - Dyld cache tooling automation: JSON-oriented list/extract flows, dry-run, batch cap, exact match, stable output sorting.
-  - Regression tooling improved with unified `tests/regression/run_all.sh`.
-- 2026-03-07 — `v2.0.0`: major modernization release.
-  - Qt6-friendly build fixes and dark/light theme support
-  - `.a` archive browsing
-  - Capstone-backed disassembly view
-  - deeper relocation / ObjC / Swift / modern dyld decoding
-  - parser hardening + fuzz/regression infrastructure
-- 2018-11-21 — `v1.0 Alpha`
-- 2017-11-05 — `v0.4.0 Alpha`
+- 2026-03-09 — `v2.0.0`: consolidated v2 major release (all v2.x improvements included).
+  - Platform/build modernization: Qt6-friendly build flow, theme system (`Follow System` / `Light` / `Dark`), and release packaging scripts.
+  - Format coverage: stronger Mach-O / Fat / `.a` archive parsing, deeper relocation display, ObjC metadata tree improvements, and richer Swift metadata (`__swift5_*`) semantic graphing.
+  - Disassembly and xref: Capstone-backed `__TEXT,__text` browsing, function-level call graph summary, and deeper ARM64/x86 indirect call/jump data-flow tracking.
+  - Dyld shared cache: cache image listing/extraction tools, JSON modes, dry-run/batch options, GUI extract-and-open workflow, and double-click drill-in from image tables.
+  - Process analysis: attach-by-PID workflows on macOS (path and memory snapshot modes where supported).
+  - Usability upgrades: live table filter (debounced), clear/reset controls, CSV export, row copy and copy-all-visible shortcuts, keyboard navigation sync, sorting, and better status feedback.
+  - Update experience: startup update check via GitHub releases, `Check for Updates` menu, remind options (`7 days` / `30 days`), and one-click release download guidance.
+  - Stability/security: stricter parser boundary checks (archive/dyld), safer extraction lifecycle (async/cancel/timeout/temp cleanup/output validation), expanded malformed-input crash regression suite, and fuzz/regression tooling.
 
 ## Contributing
 Issues and PRs are welcome:
