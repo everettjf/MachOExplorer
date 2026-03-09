@@ -74,19 +74,22 @@ void Archive::Parse(void *offset, std::size_t file_size) {
     if (!IsArchiveMagic(offset, file_size)) {
         throw NodeException("Not an archive file");
     }
+    if (file_size < 8 + sizeof(ArHeaderRaw)) {
+        throw NodeException("Malformed archive file: truncated after global magic");
+    }
 
     std::string strtab;
     uint64_t cur = 8; // Skip global archive magic.
     while (cur + sizeof(ArHeaderRaw) <= file_size) {
         auto *hdr = reinterpret_cast<ArHeaderRaw *>((char *)offset + cur);
         if (hdr->fmag[0] != '`' || hdr->fmag[1] != '\n') {
-            break;
+            throw NodeException("Malformed archive file: invalid member header trailer");
         }
 
         const uint64_t file_size_member = ParseSize(hdr);
         uint64_t data_offset = cur + sizeof(ArHeaderRaw);
         if (data_offset + file_size_member > file_size) {
-            break;
+            throw NodeException("Malformed archive file: member payload out of range");
         }
 
         std::string name = ParseName(hdr, strtab);
@@ -128,6 +131,9 @@ void Archive::Parse(void *offset, std::size_t file_size) {
         if ((cur & 1ULL) != 0ULL) {
             ++cur;
         }
+    }
+    if (members_.empty()) {
+        throw NodeException("Malformed archive file: no valid members");
     }
 }
 
