@@ -25,6 +25,13 @@ printf '!<arch>\n' > "${TMP_DIR}/broken_archive.a"
 # dyld magic prefix but too short.
 printf 'dyld_v1   arm64e' > "${TMP_DIR}/truncated_dyld.cache"
 
+# dyld header with unreasonable mapping/images count.
+# magic[16] + mappingOffset(4)=0x40 + mappingCount(4)=0xFFFFFFFF
+# imagesOffset(4)=0x80 + imagesCount(4)=0xFFFFFFFF, then zero padding.
+printf '\x64\x79\x6c\x64\x5f\x76\x31\x20\x20\x20\x61\x72\x6d\x36\x34\x65' > "${TMP_DIR}/huge_count_dyld.cache"
+printf '\x40\x00\x00\x00\xff\xff\xff\xff\x80\x00\x00\x00\xff\xff\xff\xff' >> "${TMP_DIR}/huge_count_dyld.cache"
+dd if=/dev/zero bs=1 count=160 >> "${TMP_DIR}/huge_count_dyld.cache" 2>/dev/null
+
 FAIL=0
 for f in "${TMP_DIR}"/*; do
   set +e
