@@ -35,12 +35,25 @@ void FatHeaderViewNode::InitViewDatas(){
         t->AddSeparator();
 
         for(auto & arch : d_->archs()){
-            const qv_fat_arch * a = arch->offset();
-            t->AddRow(a->cputype,"CPU Type",arch->GetCpuTypeString());
-            t->AddRow(a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
-            t->AddRow(a->offset,"Offset",AsString(arch->data().offset));
-            t->AddRow(a->size,"Size",AsString(arch->data().size));
-            t->AddRow(a->align,"Align",AsString(1 << arch->data().align)); // why 1<<
+            if (arch->IsFat64()) {
+                const qv_fat_arch_64 *a = arch->offset64();
+                t->AddRow(a->cputype,"CPU Type",arch->GetCpuTypeString());
+                t->AddRow(a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
+                t->AddRow(a->offset,"Offset",AsShortHexString(arch->offset_value()));
+                t->AddRow(a->size,"Size",AsShortHexString(arch->size_value()));
+                const uint32_t align = arch->align_value();
+                const uint64_t align_value = (align < 63) ? (1ULL << align) : 0;
+                t->AddRow(a->align,"Align",align_value == 0 ? AsString(align) : AsString(align_value));
+            } else {
+                const qv_fat_arch *a = arch->offset32();
+                t->AddRow(a->cputype,"CPU Type",arch->GetCpuTypeString());
+                t->AddRow(a->cpusubtype,"CPU SubType",arch->GetCpuSubTypeString());
+                t->AddRow(a->offset,"Offset",AsShortHexString(arch->offset_value()));
+                t->AddRow(a->size,"Size",AsShortHexString(arch->size_value()));
+                const uint32_t align = arch->align_value();
+                const uint64_t align_value = (align < 63) ? (1ULL << align) : 0;
+                t->AddRow(a->align,"Align",align_value == 0 ? AsString(align) : AsString(align_value));
+            }
 
             t->AddSeparator();
         }
@@ -52,7 +65,7 @@ void FatHeaderViewNode::InitViewDatas(){
         b->offset = (char*)d_->offset();
         b->size = d_->DATA_SIZE();
         for(auto & arch: d_->archs()){
-            b->size += arch->DATA_SIZE();
+            b->size += arch->EntrySize();
         }
         b->start_value = (uint64_t)b->offset - (uint64_t)d_->ctx()->file_start;
     }
