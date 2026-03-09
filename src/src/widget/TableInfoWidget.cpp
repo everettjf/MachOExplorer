@@ -139,8 +139,7 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
         QGuiApplication::clipboard()->setText(vals.join('\t'));
     });
 
-    auto *copyAllVisibleShortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+C")), this);
-    connect(copyAllVisibleShortcut, &QShortcut::activated, this, [this]() {
+    auto copyAllVisible = [this]() {
         if (proxyModel == nullptr) return;
         const int cols = proxyModel->columnCount();
         const int rows = proxyModel->rowCount();
@@ -163,7 +162,11 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
             lines << vals.join('\t');
         }
         QGuiApplication::clipboard()->setText(lines.join('\n'));
-    });
+    };
+    auto *copyAllVisibleShortcutCtrl = new QShortcut(QKeySequence("Ctrl+Shift+C"), this);
+    connect(copyAllVisibleShortcutCtrl, &QShortcut::activated, this, copyAllVisible);
+    auto *copyAllVisibleShortcutMeta = new QShortcut(QKeySequence("Meta+Shift+C"), this);
+    connect(copyAllVisibleShortcutMeta, &QShortcut::activated, this, copyAllVisible);
 
     connect(exportButton, &QPushButton::clicked, this, [this]() {
         if (proxyModel == nullptr || proxyModel->sourceModel() == nullptr) return;
