@@ -23,6 +23,12 @@ Run all regression checks:
 tests/regression/run_all.sh
 ```
 
+Run app CLI smoke test:
+
+```bash
+tests/regression/run_cli_smoke.sh
+```
+
 Run dyld cache tools smoke test:
 
 ```bash
