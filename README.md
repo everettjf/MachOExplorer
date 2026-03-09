@@ -1,6 +1,6 @@
 # MachOExplorer
 
-> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.1.0`.
+> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.2.0`.
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
@@ -122,6 +122,11 @@ cmake --build build-fuzz -j8
 - `image/`: screenshots/icons for docs
 
 ## Version Notes
+- 2026-03-09 — `v2.2.0`: stability and usability release milestone.
+  - Parser hardening: stricter archive header/size validation and stronger dyld cache mapping/path bounds checks.
+  - Regression expansion: malformed archive/dyld crash-regression cases and clearer crash-run summary counters.
+  - Extraction workflow stability: async lifecycle logging with elapsed time, temp-file cleanup on failure/cancel, and safer output validation.
+  - Table usability upgrades: debounced filter, clear button, richer status text, keyboard-sync detail updates, row copy and copy-all-visible shortcuts.
 - 2026-03-08 — `v2.1.1` (in-progress): deep xref + Swift semantic + dyld cache drill-in + crash-regression hardening.
   - Xref: x86 register/memory indirect flows and ARM64 `movz/movk` constant-chain tracking.
   - Swift Semantic Graph: typed relation edges and `__swift5_fieldmd` field-record decoding.
