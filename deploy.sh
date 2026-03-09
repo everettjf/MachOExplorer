@@ -6,6 +6,7 @@ VER_FILE="${ROOT_DIR}/src/libmoex/ver.h"
 BUILD_DIR="${ROOT_DIR}/build"
 APP_DIR="${ROOT_DIR}/dist/macos/MachOExplorer.app"
 DMG_PATH="${ROOT_DIR}/dist/macos/MachOExplorer.dmg"
+ICON_PATH="${ROOT_DIR}/src/MachOExplorer.icns"
 
 NO_HOMEBREW=0
 NO_RELEASE=0
@@ -83,6 +84,9 @@ fi
 rm -rf "${APP_DIR}"
 mkdir -p "${APP_DIR}/Contents/MacOS" "${APP_DIR}/Contents/Resources"
 cp "${BUILD_DIR}/MachOExplorer" "${APP_DIR}/Contents/MacOS/MachOExplorer"
+if [[ -f "${ICON_PATH}" ]]; then
+  cp "${ICON_PATH}" "${APP_DIR}/Contents/Resources/MachOExplorer.icns"
+fi
 cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -92,6 +96,7 @@ cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
   <key>CFBundleExecutable</key><string>MachOExplorer</string>
   <key>CFBundleIdentifier</key><string>com.everettjf.machoexplorer</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+  <key>CFBundleIconFile</key><string>MachOExplorer.icns</string>
   <key>CFBundleName</key><string>MachOExplorer</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>${new_version}</string>
