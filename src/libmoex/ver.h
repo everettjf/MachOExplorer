@@ -5,6 +5,6 @@
 #ifndef LIBMOEX_VER_H
 #define LIBMOEX_VER_H
 
-#define LIBMOEX_VERSION "2.0.6"
+#define LIBMOEX_VERSION "2.0.7"
 
 #endif // VER_H
