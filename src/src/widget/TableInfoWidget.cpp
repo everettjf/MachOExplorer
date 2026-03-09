@@ -209,6 +209,12 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     tableView->setModel(proxyModel);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tableView->sortByColumn(0, Qt::AscendingOrder);
+    if (tableView->selectionModel() != nullptr) {
+        connect(tableView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+                this, [this](const QModelIndex &current, const QModelIndex &) {
+            if (current.isValid()) clicked(current);
+        });
+    }
 
     for(uint32_t idx = 0; idx < node->widths.size(); ++idx){
         tableView->setColumnWidth(idx,node->widths.at(idx));
