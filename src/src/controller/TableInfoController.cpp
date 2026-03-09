@@ -35,10 +35,14 @@ QVariant TableInfoModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid())
         return QVariant();
+    if (!data_) return QVariant();
 
     if(role == Qt::DisplayRole){
         int row = index.row();
         int col = index.column();
+        if (row < 0 || col < 0) return QVariant();
+        if (row >= static_cast<int>(data_->rows.size())) return QVariant();
+        if (col >= static_cast<int>(data_->rows[row]->items.size())) return QVariant();
         std::string val = data_->rows[row]->items[col]->data;
         return QVariant(val.c_str());
     }
@@ -48,6 +52,8 @@ QVariant TableInfoModel::data(const QModelIndex &index, int role) const
 QVariant TableInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(role == Qt::DisplayRole && orientation == Qt::Horizontal){
+        if (!data_) return QVariant();
+        if (section < 0 || section >= static_cast<int>(data_->headers.size())) return QVariant();
         std::string val = data_->headers[section]->data;
         return QVariant(val.c_str());
     }
