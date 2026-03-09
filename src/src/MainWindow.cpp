@@ -30,6 +30,9 @@
 #include <QProgressDialog>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QMessageBox>
+#include <QNetworkReply>
+#include <QRegularExpression>
 #include <climits>
 #include <algorithm>
 #include <cstring>
@@ -286,6 +289,46 @@ static void StopProcessSync(QProcess *proc)
         proc->waitForFinished(2000);
     }
 }
+
+static std::vector<int> ParseVersionParts(const QString &v)
+{
+    std::vector<int> parts;
+    QRegularExpression re("(\\d+)");
+    QRegularExpressionMatchIterator it = re.globalMatch(v);
+    while (it.hasNext()) {
+        const auto m = it.next();
+        bool ok = false;
+        const int n = m.captured(1).toInt(&ok);
+        if (ok) parts.push_back(n);
+    }
+    if (parts.empty()) parts.push_back(0);
+    return parts;
+}
+
+static int CompareVersionString(const QString &a, const QString &b)
+{
+    auto pa = ParseVersionParts(a);
+    auto pb = ParseVersionParts(b);
+    const std::size_t n = std::max(pa.size(), pb.size());
+    pa.resize(n, 0);
+    pb.resize(n, 0);
+    for (std::size_t i = 0; i < n; ++i) {
+        if (pa[i] < pb[i]) return -1;
+        if (pa[i] > pb[i]) return 1;
+    }
+    return 0;
+}
+
+static QString NormalizeVersion(const QString &v)
+{
+    QString out = v.trimmed();
+    if (out.startsWith('v', Qt::CaseInsensitive)) out.remove(0, 1);
+    return out;
+}
+
+static constexpr const char *kUpdateRemindUntil = "update/remind_until_utc";
+static constexpr const char *kReleaseApiUrl = "https://api.github.com/repos/everettjf/MachOExplorer/releases/latest";
+static constexpr const char *kReleasePageUrl = "https://github.com/everettjf/MachOExplorer/releases";
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
@@ -298,10 +341,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     action = new MainWindowAction();
 
     setWindowTitle(tr("MachOExplorer"));
+    updateNetworkManager_ = new QNetworkAccessManager(this);
     createUI();
     createActions();
     createStatusBar();
     setThemeMode(loadThemeMode(), false);
+    initUpdateCheckOnStartup();
 }
 
 MainWindow::~MainWindow()
@@ -737,11 +782,11 @@ void MainWindow::createActions()
         util::openURL("https://github.com/everettjf/MachOExplorer/issues");
     });
 
-    action->checkUpdate = new QAction(tr("Check Update"));
+    action->checkUpdate = new QAction(tr("Check for Updates"));
     menu->help->addAction(action->checkUpdate);
     connect(action->checkUpdate,&QAction::triggered,this,[this](bool checked){
-        CheckUpdateDialog dlg(this);
-        dlg.exec();
+        Q_UNUSED(checked)
+        checkForUpdates(true);
     });
 
     action->about = new QAction(tr("About"));
@@ -749,6 +794,107 @@ void MainWindow::createActions()
     connect(action->about,&QAction::triggered,this,[this](bool checked){
         AboutDialog dlg(this);
         dlg.exec();
+    });
+}
+
+void MainWindow::initUpdateCheckOnStartup()
+{
+    QTimer::singleShot(1500, this, [this]() {
+        QSettings settings;
+        const qint64 remindUntil = settings.value(kUpdateRemindUntil, 0).toLongLong();
+        const qint64 nowUtc = QDateTime::currentDateTimeUtc().toSecsSinceEpoch();
+        if (remindUntil > nowUtc) return;
+        checkForUpdates(false);
+    });
+}
+
+void MainWindow::checkForUpdates(bool interactive)
+{
+    if (updateCheckInProgress_) {
+        if (interactive) {
+            statusBar()->showMessage(tr("Update check is already in progress."), 3000);
+        }
+        return;
+    }
+    if (updateNetworkManager_ == nullptr) return;
+
+    updateCheckInProgress_ = true;
+    if (interactive) {
+        statusBar()->showMessage(tr("Checking for updates..."), 3000);
+    }
+
+    QNetworkRequest req;
+    req.setUrl(QUrl(kReleaseApiUrl));
+    req.setRawHeader("User-Agent", "MachOExplorer-UpdateChecker");
+    req.setRawHeader("Accept", "application/vnd.github+json");
+
+    QNetworkReply *reply = updateNetworkManager_->get(req);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, interactive]() {
+        updateCheckInProgress_ = false;
+        const bool ok = (reply->error() == QNetworkReply::NoError);
+        if (!ok) {
+            const QString err = reply->errorString();
+            WS()->addLog(tr("[update] check failed: %1").arg(err));
+            if (interactive) {
+                util::showError(this, tr("Failed to check updates:\n%1").arg(err));
+            }
+            reply->deleteLater();
+            return;
+        }
+
+        QJsonParseError pe{};
+        const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll(), &pe);
+        if (pe.error != QJsonParseError::NoError || !doc.isObject()) {
+            WS()->addLog("[update] invalid release api response");
+            if (interactive) {
+                util::showError(this, tr("Failed to parse update response."));
+            }
+            reply->deleteLater();
+            return;
+        }
+
+        const QJsonObject o = doc.object();
+        const QString latestTag = o.value("tag_name").toString().trimmed();
+        const QString latestVersion = NormalizeVersion(latestTag);
+        const QString releaseUrl = o.value("html_url").toString().trimmed().isEmpty()
+                ? QString::fromLatin1(kReleasePageUrl)
+                : o.value("html_url").toString().trimmed();
+        const QString curVersion = NormalizeVersion(AppInfo::Instance().GetAppVersion());
+        const int cmp = CompareVersionString(curVersion, latestVersion);
+
+        if (cmp >= 0) {
+            WS()->addLog(tr("[update] no update, current=%1 latest=%2").arg(curVersion, latestVersion));
+            if (interactive) {
+                util::showInfo(this, tr("You're on the latest version: v%1").arg(curVersion));
+            }
+            reply->deleteLater();
+            return;
+        }
+
+        WS()->addLog(tr("[update] new version available current=%1 latest=%2").arg(curVersion, latestVersion));
+        QMessageBox msg(this);
+        msg.setWindowTitle(tr("Update Available"));
+        msg.setIcon(QMessageBox::Information);
+        msg.setText(tr("A new version is available.\nCurrent: v%1\nLatest: v%2").arg(curVersion, latestVersion));
+        QPushButton *downloadBtn = msg.addButton(tr("Download"), QMessageBox::AcceptRole);
+        QPushButton *remind7Btn = msg.addButton(tr("Remind in 7 days"), QMessageBox::ActionRole);
+        QPushButton *remind30Btn = msg.addButton(tr("Remind in 30 days"), QMessageBox::ActionRole);
+        QPushButton *laterBtn = msg.addButton(tr("Later"), QMessageBox::RejectRole);
+        msg.exec();
+
+        QSettings settings;
+        if (msg.clickedButton() == downloadBtn) {
+            util::openURL(releaseUrl);
+            settings.setValue(kUpdateRemindUntil, 0);
+        } else if (msg.clickedButton() == remind7Btn) {
+            settings.setValue(kUpdateRemindUntil, QDateTime::currentDateTimeUtc().addDays(7).toSecsSinceEpoch());
+        } else if (msg.clickedButton() == remind30Btn) {
+            settings.setValue(kUpdateRemindUntil, QDateTime::currentDateTimeUtc().addDays(30).toSecsSinceEpoch());
+        } else if (msg.clickedButton() == laterBtn) {
+            // keep existing remind schedule unchanged
+        }
+
+        reply->deleteLater();
     });
 }
 

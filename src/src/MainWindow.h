@@ -11,6 +11,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QCloseEvent>
+#include <QNetworkAccessManager>
 #include "src/dialog/OpenFileDialog.h"
 
 #include "src/controller/Workspace.h"
@@ -64,6 +65,8 @@ private:
     ThemeMode themeMode = ThemeMode::System;
     bool dyldExtractInProgress_ = false;
     QPointer<QProcess> dyldExtractProcess_;
+    QNetworkAccessManager *updateNetworkManager_ = nullptr;
+    bool updateCheckInProgress_ = false;
 
     OpenFileDialog *openFileDialog = nullptr;
 
@@ -86,6 +89,8 @@ protected:
     ThemeMode loadThemeMode() const;
     bool isDarkMode() const;
     void updateThemeActionChecks();
+    void initUpdateCheckOnStartup();
+    void checkForUpdates(bool interactive);
 
 };
 
