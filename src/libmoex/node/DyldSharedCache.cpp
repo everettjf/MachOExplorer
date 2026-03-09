@@ -90,9 +90,14 @@ std::string DyldSharedCache::ReadPathByOffset(uint32_t file_offset) const
     if (file_offset >= ctx_->file_size) return "";
     const char *s = reinterpret_cast<const char *>(ctx_->file_start) + file_offset;
     const uint64_t remain = ctx_->file_size - file_offset;
+    const uint64_t max_scan = std::min<uint64_t>(remain, 4096);
     uint64_t len = 0;
-    while (len < remain && s[len] != '\0') ++len;
-    if (len == remain) return "";
+    while (len < max_scan && s[len] != '\0') ++len;
+    if (len == max_scan) return "";
+    for (uint64_t i = 0; i < len; ++i) {
+        const unsigned char c = static_cast<unsigned char>(s[i]);
+        if (c < 0x20 || c == 0x7f) return "";
+    }
     return std::string(s, static_cast<size_t>(len));
 }
 
