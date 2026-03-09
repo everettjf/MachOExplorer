@@ -984,11 +984,11 @@ void MainWindow::applyVisualRefresh()
 
     const QString style = isDarkMode() ? R"(
 QMainWindow {
-    background: #0b1020;
+    background: #15171b;
 }
 QMenuBar {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #1a1d22;
+    color: #e6e7ea;
     padding: 4px;
 }
 QMenuBar::item {
@@ -997,19 +997,19 @@ QMenuBar::item {
     border-radius: 6px;
 }
 QMenuBar::item:selected {
-    background: #1e293b;
+    background: #2a2f37;
 }
 QMenu {
-    background: #111827;
-    color: #e5e7eb;
-    border: 1px solid #334155;
+    background: #1f232a;
+    color: #e7e9ed;
+    border: 1px solid #353b45;
 }
 QMenu::item:selected {
-    background: #1f2937;
+    background: #343b46;
 }
 QStatusBar {
-    background: #020617;
-    color: #cbd5e1;
+    background: #181b20;
+    color: #cfd3da;
 }
 QDockWidget {
     titlebar-close-icon: none;
@@ -1018,48 +1018,48 @@ QDockWidget {
 }
 QDockWidget::title {
     text-align: left;
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #22262d;
+    color: #e8eaee;
     padding: 6px 10px;
 }
 QTableView, QTreeView, QTextEdit {
-    background: #0f172a;
-    alternate-background-color: #111827;
-    color: #e2e8f0;
-    gridline-color: #334155;
-    selection-background-color: #0284c7;
+    background: #161a21;
+    alternate-background-color: #1b2028;
+    color: #e5e9f0;
+    gridline-color: #333a44;
+    selection-background-color: #3f7d6a;
     selection-color: #ffffff;
-    border: 1px solid #334155;
+    border: 1px solid #353c47;
 }
 QHeaderView::section {
-    background: #1e293b;
-    color: #e2e8f0;
+    background: #262c35;
+    color: #e8ebf0;
     border: 0;
-    border-right: 1px solid #334155;
-    border-bottom: 1px solid #334155;
+    border-right: 1px solid #363d47;
+    border-bottom: 1px solid #363d47;
     padding: 6px;
     font-weight: 600;
 }
 QScrollBar:vertical, QScrollBar:horizontal {
-    background: #0b1220;
+    background: #181d24;
 }
 QTabBar::tab {
-    background: #1e293b;
-    color: #cbd5e1;
+    background: #2a3038;
+    color: #d6dbe3;
     padding: 6px 12px;
     margin-right: 2px;
 }
 QTabBar::tab:selected {
-    background: #0284c7;
+    background: #3f7d6a;
     color: #ffffff;
 }
 )" : R"(
 QMainWindow {
-    background: #f4f6f8;
+    background: #f2f3f5;
 }
 QMenuBar {
-    background: #111827;
-    color: #f8fafc;
+    background: #242830;
+    color: #f4f5f7;
     padding: 4px;
 }
 QMenuBar::item {
@@ -1068,19 +1068,19 @@ QMenuBar::item {
     border-radius: 6px;
 }
 QMenuBar::item:selected {
-    background: #1f2937;
+    background: #3a404b;
 }
 QMenu {
     background: #ffffff;
-    color: #111827;
-    border: 1px solid #d1d5db;
+    color: #1f232a;
+    border: 1px solid #d4d8de;
 }
 QMenu::item:selected {
-    background: #e5e7eb;
+    background: #e7eaee;
 }
 QStatusBar {
-    background: #111827;
-    color: #cbd5e1;
+    background: #242830;
+    color: #d5d8de;
 }
 QDockWidget {
     titlebar-close-icon: none;
@@ -1089,39 +1089,39 @@ QDockWidget {
 }
 QDockWidget::title {
     text-align: left;
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #2b313a;
+    color: #eef1f5;
     padding: 6px 10px;
 }
 QTableView, QTreeView, QTextEdit {
     background: #ffffff;
-    alternate-background-color: #f8fafc;
-    color: #0f172a;
-    gridline-color: #e2e8f0;
-    selection-background-color: #0ea5e9;
+    alternate-background-color: #f7f8fa;
+    color: #20242b;
+    gridline-color: #dfe3e8;
+    selection-background-color: #5f8f7f;
     selection-color: #ffffff;
-    border: 1px solid #dbe3ea;
+    border: 1px solid #d9dde3;
 }
 QHeaderView::section {
-    background: #e2e8f0;
-    color: #0f172a;
+    background: #e8ebef;
+    color: #1f242c;
     border: 0;
-    border-right: 1px solid #cbd5e1;
-    border-bottom: 1px solid #cbd5e1;
+    border-right: 1px solid #d0d5dc;
+    border-bottom: 1px solid #d0d5dc;
     padding: 6px;
     font-weight: 600;
 }
 QScrollBar:vertical, QScrollBar:horizontal {
-    background: #f1f5f9;
+    background: #eef1f4;
 }
 QTabBar::tab {
-    background: #cbd5e1;
-    color: #0f172a;
+    background: #d6dbe2;
+    color: #1f242b;
     padding: 6px 12px;
     margin-right: 2px;
 }
 QTabBar::tab:selected {
-    background: #0ea5e9;
+    background: #5f8f7f;
     color: #ffffff;
 }
 )";

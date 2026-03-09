@@ -84,7 +84,7 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
 
     tableView->setSelectionBehavior(QTableView::SelectRows);
     tableView->setSelectionMode(QTableView::SingleSelection);
-    tableView->setSortingEnabled(true);
+    tableView->setSortingEnabled(false);
 
     connect(tableView,&QTableView::clicked,this,&TableInfoWidget::clicked);
     connect(tableView, &QTableView::doubleClicked, this, [this](const QModelIndex &index) {
@@ -243,7 +243,6 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     tableView->setModel(proxyModel);
     tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tableView->sortByColumn(0, Qt::AscendingOrder);
     if (tableView->selectionModel() != nullptr) {
         connect(tableView->selectionModel(), &QItemSelectionModel::currentRowChanged,
                 this, [this](const QModelIndex &current, const QModelIndex &) {
