@@ -21,12 +21,20 @@ fi
 "${APP_BIN}" --cli --max-rows 8 "${SAMPLE_FILE}" >"${OUT_TEXT}"
 "${APP_BIN}" --cli --format json --max-rows 8 "${SAMPLE_FILE}" >"${OUT_JSON}"
 
-if ! rg -q "^file:" "${OUT_TEXT}"; then
+if command -v rg >/dev/null 2>&1; then
+  text_header_cmd=(rg -q "^file:")
+  json_field_cmd=(rg -q '"analysis"')
+else
+  text_header_cmd=(grep -qE "^file:")
+  json_field_cmd=(grep -qE '"analysis"')
+fi
+
+if ! "${text_header_cmd[@]}" "${OUT_TEXT}"; then
   echo "cli-smoke: missing text output header"
   exit 1
 fi
 
-if ! rg -q '"analysis"' "${OUT_JSON}"; then
+if ! "${json_field_cmd[@]}" "${OUT_JSON}"; then
   echo "cli-smoke: missing json analysis field"
   exit 1
 fi
