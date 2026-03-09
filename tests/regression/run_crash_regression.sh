@@ -33,7 +33,11 @@ printf '\x40\x00\x00\x00\xff\xff\xff\xff\x80\x00\x00\x00\xff\xff\xff\xff' >> "${
 dd if=/dev/zero bs=1 count=160 >> "${TMP_DIR}/huge_count_dyld.cache" 2>/dev/null
 
 FAIL=0
+TOTAL=0
+REJECTED=0
+ACCEPTED=0
 for f in "${TMP_DIR}"/*; do
+  TOTAL=$((TOTAL + 1))
   set +e
   "${PARSER_BIN}" "${f}" >/dev/null 2>&1
   rc=$?
@@ -46,8 +50,10 @@ for f in "${TMP_DIR}"/*; do
   fi
 
   if [[ "${rc}" -eq 0 ]]; then
+    ACCEPTED=$((ACCEPTED + 1))
     echo "[ok] malformed-ish input handled safely (accepted): $(basename "${f}")"
   else
+    REJECTED=$((REJECTED + 1))
     echo "[ok] malformed input rejected safely: $(basename "${f}")"
   fi
 done
@@ -57,4 +63,4 @@ if [[ "${FAIL}" -ne 0 ]]; then
   exit 1
 fi
 
-echo "crash-regression: passed"
+echo "crash-regression: passed (total=${TOTAL} rejected=${REJECTED} accepted=${ACCEPTED})"
