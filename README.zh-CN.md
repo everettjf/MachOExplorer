@@ -1,6 +1,6 @@
 # MachOExplorer
 
-> 一个使用 Qt 开发的 Mach-O 与 Archive (`.a`) 结构分析工具。当前发布版本：`v2.0.1`。
+> 一个使用 Qt 开发的 Mach-O 与 Archive (`.a`) 结构分析工具。
 >
 > 语言：简体中文 | [English](README.md)
 
@@ -13,10 +13,9 @@
 ### macOS
 - Release 下载：<https://github.com/everettjf/MachOExplorer/releases/tag/v2.0.1>
 - Homebrew 安装：
-  ```bash
-  brew tap everettjf/homebrew-tap
-  brew install --cask machoexplorer
-  ```
+```bash
+brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplorer
+```
 
 ### Windows
 - 推荐使用 Inno Setup 生成“下一步安装”安装包。

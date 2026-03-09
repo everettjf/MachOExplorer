@@ -1,6 +1,6 @@
 # MachOExplorer
 
-> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.0.1`.
+> A modern Mach-O and Archive (`.a`) explorer built with Qt.
 >
 > Language: **English** | [简体中文](README.zh-CN.md)
 
@@ -13,10 +13,9 @@
 ### macOS
 - GitHub Release: https://github.com/everettjf/MachOExplorer/releases/tag/v2.0.1
 - Homebrew:
-  ```bash
-  brew tap everettjf/homebrew-tap
-  brew install --cask machoexplorer
-  ```
+```bash
+brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplorer
+```
 
 ### Windows
 - Build an installer with Inno Setup (step-by-step in `docs/release_packaging.md`).
