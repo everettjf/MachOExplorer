@@ -31,3 +31,4 @@ src/build/
 src/.qtcreator/
 
 dist/
+tmp/
