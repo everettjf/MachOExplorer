@@ -1,6 +1,6 @@
 # MachOExplorer
 
-> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.2.0`.
+> A modern Mach-O and Archive (`.a`) explorer built with Qt. Current major release: `v2.0.0`.
 
 ![MachOExplorer Icon](image/machoexplorer-small.png)
 
