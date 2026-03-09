@@ -54,6 +54,9 @@ cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:/Qt/6.x.
 cmake --build build --config Release
 ```
 
+### Packaging
+- macOS/Homebrew cask + Windows installer notes: `docs/release_packaging.md`
+
 ### Optional: Capstone Disassembly Backend
 Capstone is optional. If detected by CMake, `__TEXT,__text` disassembly is enabled automatically.
 
