@@ -270,6 +270,10 @@ static bool DumpProcessMainImageToFile(pid_t pid, QString &snapshot_path, QStrin
     return true;
 }
 
+}
+#endif
+
+namespace {
 static void StopProcessSync(QProcess *proc)
 {
     if (proc == nullptr) return;
@@ -280,9 +284,7 @@ static void StopProcessSync(QProcess *proc)
         proc->waitForFinished(2000);
     }
 }
-
 }
-#endif
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
