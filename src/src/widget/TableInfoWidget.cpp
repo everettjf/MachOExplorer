@@ -98,7 +98,11 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
                                                                   QRegularExpression::CaseInsensitiveOption));
         const int visible = proxyModel->rowCount();
         const int total = proxyModel->sourceModel() ? proxyModel->sourceModel()->rowCount() : visible;
-        filterStatus->setText(QString("%1/%2").arg(visible).arg(total));
+        if (text.isEmpty()) {
+            filterStatus->setText(QString("%1 rows").arg(total));
+        } else {
+            filterStatus->setText(QString("%1/%2 filtered").arg(visible).arg(total));
+        }
     });
 
     auto *focusSearchShortcut = new QShortcut(QKeySequence::Find, this);
@@ -211,7 +215,7 @@ void TableInfoWidget::showViewData(moex::TableViewData *data)
     }
     filterEdit->clear();
     filterDebounceTimer->stop();
-    filterStatus->setText(QString("%1/%1").arg(node->rows.size()));
+    filterStatus->setText(QString("%1 rows").arg(node->rows.size()));
 
     if (proxyModel->rowCount() > 0 && proxyModel->columnCount() > 0) {
         const QModelIndex first = proxyModel->index(0, 0);
