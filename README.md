@@ -53,6 +53,7 @@ Common options:
 ## Docs
 - Developer guide (build/test/release): [DEVELOP.md](DEVELOP.md)
 - Packaging notes: [docs/release_packaging.md](docs/release_packaging.md)
+- CLI guide: [CLI.md](CLI.md)
 
 ## Contributing
 Issues and PRs are welcome:

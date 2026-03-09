@@ -53,6 +53,7 @@ brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplo
 ## 文档
 - 开发文档（构建/测试/发布）：[DEVELOP.md](DEVELOP.md)
 - 打包说明：[docs/release_packaging.md](docs/release_packaging.md)
+- CLI 文档：[CLI.zh-CN.md](CLI.zh-CN.md)
 
 ## 贡献
 欢迎提交 Issue 和 PR：
