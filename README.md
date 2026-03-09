@@ -17,7 +17,7 @@
 - Attach by PID on macOS (path-based workflow) to inspect the target executable.
 - Extract dyld shared cache images and open directly (menu workflow + double-click from `Images` table).
 - Switch theme mode: `Follow System`, `Light`, `Dark`.
-- Table workflow enhancements: auto-select first row, `Cmd/Ctrl+F` filter, `Esc` or `Clear` to reset filter, `Cmd/Ctrl+C` copy selected row.
+- Table workflow enhancements: auto-select first row, `Cmd/Ctrl+F` filter, `Esc` or `Clear` to reset filter, `Cmd/Ctrl+C` copy selected row, `Cmd/Ctrl+Shift+C` copy all visible rows.
 
 ## Screenshot
 ![MachOExplorer Screenshot](image/screenshot.png)
