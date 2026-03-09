@@ -60,10 +60,13 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     topBar->setSpacing(6);
     filterEdit = new QLineEdit(this);
     filterEdit->setPlaceholderText(tr("Filter rows (all columns)..."));
+    filterEdit->setToolTip(tr("Filter rows by keyword across all columns (Cmd/Ctrl+F to focus)."));
     filterStatus = new QLabel(this);
     filterStatus->setMinimumWidth(120);
     clearFilterButton = new QPushButton(tr("Clear"), this);
+    clearFilterButton->setToolTip(tr("Clear current filter text (same as Esc)."));
     exportButton = new QPushButton(tr("Export CSV"), this);
+    exportButton->setToolTip(tr("Export currently visible rows to CSV."));
     topBar->addWidget(filterEdit, 1);
     topBar->addWidget(filterStatus);
     topBar->addWidget(clearFilterButton);
@@ -71,6 +74,7 @@ TableInfoWidget::TableInfoWidget(QWidget *parent) : QWidget(parent)
     layout->addLayout(topBar);
 
     tableView = new QTableView(this);
+    tableView->setToolTip(tr("Use Up/Down to navigate rows; Cmd/Ctrl+C copies current row."));
     layout->addWidget(tableView);
 
     QHeaderView *verticalHeader = tableView->verticalHeader();
