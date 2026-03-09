@@ -35,9 +35,25 @@ brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplo
 2. 打开示例文件（`sample/simple` 或 `sample/complex`）或你自己的 Mach-O。
 3. 在左侧 Layout 树中进入 section/symbol/disassembly 等视图。
 
+## CLI 分析模式（无界面）
+可直接以命令行方式执行完整分析，并输出到终端或文件：
+
+```bash
+./build/MachOExplorer --cli sample/simple
+./build/MachOExplorer --cli --format json --output /tmp/simple-analysis.json sample/simple
+```
+
+常用参数：
+- `--format text|json` 输出格式（默认 `text`）
+- `--output <path>` 输出到文件
+- `--max-rows <N>` 每个表最多输出 N 行（`0` 表示不限制）
+- `--max-depth <N>` 限制分析树深度（`0` 表示不限制）
+- `--include-empty` 包含空节点
+
 ## 文档
 - 开发文档（构建/测试/发布）：[DEVELOP.md](DEVELOP.md)
 - 打包说明：[docs/release_packaging.md](docs/release_packaging.md)
+- CLI 文档：[CLI.zh-CN.md](CLI.zh-CN.md)
 
 ## 贡献
 欢迎提交 Issue 和 PR：

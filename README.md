@@ -35,9 +35,25 @@ brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplo
 2. Open a sample binary (`sample/simple` or `sample/complex`) or your own Mach-O file.
 3. Navigate from `Layout` tree to sections/symbols/disassembly views.
 
+## CLI Analysis Mode (No GUI)
+Run full analysis in command-line mode and output to stdout or file:
+
+```bash
+./build/MachOExplorer --cli sample/simple
+./build/MachOExplorer --cli --format json --output /tmp/simple-analysis.json sample/simple
+```
+
+Common options:
+- `--format text|json` output format (default `text`)
+- `--output <path>` write analysis output to file
+- `--max-rows <N>` limit rows per table (`0` means unlimited)
+- `--max-depth <N>` limit tree depth (`0` means unlimited)
+- `--include-empty` include empty nodes
+
 ## Docs
 - Developer guide (build/test/release): [DEVELOP.md](DEVELOP.md)
 - Packaging notes: [docs/release_packaging.md](docs/release_packaging.md)
+- CLI guide: [CLI.md](CLI.md)
 
 ## Contributing
 Issues and PRs are welcome:
