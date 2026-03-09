@@ -36,6 +36,7 @@ class TableInfoController
 {
 public:
     TableInfoController();
+    ~TableInfoController();
 
     void InitModel(moex::TableViewData *data);
 

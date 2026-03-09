@@ -62,6 +62,14 @@ TableInfoController::TableInfoController()
 
 }
 
+TableInfoController::~TableInfoController()
+{
+    if (model_) {
+        delete model_;
+        model_ = nullptr;
+    }
+}
+
 void TableInfoController::InitModel(moex::TableViewData *data)
 {
     if(model_) delete model_;

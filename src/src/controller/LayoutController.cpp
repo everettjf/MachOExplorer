@@ -10,6 +10,14 @@ LayoutController::LayoutController()
     model_ = nullptr;
 }
 
+LayoutController::~LayoutController()
+{
+    if (model_) {
+        delete model_;
+        model_ = nullptr;
+    }
+}
+
 bool LayoutController::initModel(QString & error)
 {
     if(filePath_.length() == 0){

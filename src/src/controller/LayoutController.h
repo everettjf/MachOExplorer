@@ -14,6 +14,7 @@ class LayoutController
 {
 public:
     LayoutController();
+    ~LayoutController();
 
     void setFilePath(const QString & filePath){ filePath_ = filePath;}
 
