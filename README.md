@@ -11,7 +11,7 @@
 ## Install
 
 ### macOS
-- GitHub Release: https://github.com/everettjf/MachOExplorer/releases/tag/v2.0.1
+- GitHub Release: https://github.com/everettjf/MachOExplorer/releases/latest
 - Homebrew:
 ```bash
 brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplorer

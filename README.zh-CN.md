@@ -11,7 +11,7 @@
 ## 安装
 
 ### macOS
-- Release 下载：<https://github.com/everettjf/MachOExplorer/releases/tag/v2.0.1>
+- Release 下载：<https://github.com/everettjf/MachOExplorer/releases/latest>
 - Homebrew 安装：
 ```bash
 brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplorer
