@@ -38,6 +38,15 @@ printf '\x64\x79\x6c\x64\x5f\x76\x31\x20\x20\x20\x61\x72\x6d\x36\x34\x65' > "${T
 printf '\x40\x00\x00\x00\xff\xff\xff\xff\x80\x00\x00\x00\xff\xff\xff\xff' >> "${TMP_DIR}/huge_count_dyld.cache"
 dd if=/dev/zero bs=1 count=160 >> "${TMP_DIR}/huge_count_dyld.cache" 2>/dev/null
 
+# dyld header with one mapping entry whose file range is out of bounds.
+bad_map="${TMP_DIR}/bad_mapping_range_dyld.cache"
+truncate -s 192 "${bad_map}"
+printf '\x64\x79\x6c\x64\x5f\x76\x31\x20\x20\x20\x61\x72\x6d\x36\x34\x65' | dd of="${bad_map}" bs=1 seek=0 conv=notrunc 2>/dev/null
+printf '\x60\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | dd of="${bad_map}" bs=1 seek=16 conv=notrunc 2>/dev/null
+# mapping: address=0 size=0x2000 fileOffset=0x100000 maxProt=0 initProt=0
+printf '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
+  | dd of="${bad_map}" bs=1 seek=96 conv=notrunc 2>/dev/null
+
 FAIL=0
 TOTAL=0
 REJECTED=0
