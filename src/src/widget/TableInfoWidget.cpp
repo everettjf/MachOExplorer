@@ -338,12 +338,14 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         progress->deleteLater();
 
         if (canceled) {
+            QFile::remove(outPath);
             WS()->addLog("[extract-row] finished with canceled state");
             proc->deleteLater();
             return;
         }
 
         if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+            QFile::remove(outPath);
             const QString details = (stderrText + "\n" + stdoutText).trimmed();
             WS()->addLog(tr("[extract-row] failed exit=%1 status=%2 details=%3")
                                  .arg(exitCode)
@@ -355,6 +357,7 @@ void TableInfoWidget::openDyldCacheImageFromRow(const QModelIndex &sourceIndex)
         }
         const QFileInfo outInfo(outPath);
         if (!outInfo.exists() || outInfo.size() <= 0) {
+            QFile::remove(outPath);
             WS()->addLog(tr("[extract-row] failed output missing/empty: %1").arg(outPath));
             util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outPath));
             proc->deleteLater();

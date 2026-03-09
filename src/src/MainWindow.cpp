@@ -643,12 +643,14 @@ void MainWindow::createActions()
             progress->deleteLater();
 
             if (canceled) {
+                QFile::remove(outputPath);
                 WS()->addLog("[extract] finished with canceled state");
                 proc->deleteLater();
                 return;
             }
 
             if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+                QFile::remove(outputPath);
                 const QString details = (stderrText + "\n" + stdoutText).trimmed();
                 WS()->addLog(tr("[extract] failed exit=%1 status=%2 details=%3")
                                      .arg(exitCode)
@@ -660,6 +662,7 @@ void MainWindow::createActions()
             }
             const QFileInfo outInfo(outputPath);
             if (!outInfo.exists() || outInfo.size() <= 0) {
+                QFile::remove(outputPath);
                 WS()->addLog(tr("[extract] failed output missing/empty: %1").arg(outputPath));
                 util::showError(this, tr("Extraction completed but output is missing or empty:\n%1").arg(outputPath));
                 proc->deleteLater();
