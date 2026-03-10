@@ -111,6 +111,7 @@ require_cmd git
 require_cmd cmake
 require_cmd hdiutil
 require_cmd gh
+require_cmd codesign
 
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "working tree is not clean; commit or stash first" >&2
@@ -186,6 +187,11 @@ else
 fi
 
 "${MACDEPLOYQT}" "${APP_DIR}" -verbose=0
+if [[ -n "${CODE_SIGN_IDENTITY:-}" ]]; then
+  codesign --force --deep --options runtime --timestamp --sign "${CODE_SIGN_IDENTITY}" "${APP_DIR}"
+else
+  codesign --force --deep --sign - "${APP_DIR}"
+fi
 mkdir -p "${ROOT_DIR}/dist/macos"
 hdiutil create -volname "MachOExplorer" -srcfolder "${APP_DIR}" -ov -format UDZO "${DMG_PATH}"
 

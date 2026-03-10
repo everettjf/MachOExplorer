@@ -28,6 +28,11 @@ set(SOURCE_FILES
     ${MOEX_SOURCE}
     ${MOEX_HEADER}
     MachOExplorer.qrc
+    MachOExplorer.icns
+)
+
+set_source_files_properties(MachOExplorer.icns PROPERTIES
+    MACOSX_PACKAGE_LOCATION Resources
 )
 
 add_executable(MachOExplorer ${SOURCE_FILES})
@@ -52,6 +57,7 @@ if(APPLE)
         MACOSX_BUNDLE_BUNDLE_NAME "MachOExplorer"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.everettjf.machoexplorer"
         MACOSX_BUNDLE_BUNDLE_VERSION "${MOEX_APP_VERSION}"
+        MACOSX_BUNDLE_ICON_FILE "MachOExplorer.icns"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${MOEX_APP_VERSION}"
         MACOSX_BUNDLE_INFO_STRING "MachOExplorer ${MOEX_APP_VERSION}"
     )
