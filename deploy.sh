@@ -10,6 +10,11 @@ BUILD_APP_FLAT_BIN="${BUILD_DIR}/MachOExplorer"
 APP_DIR="${ROOT_DIR}/dist/macos/MachOExplorer.app"
 DMG_PATH="${ROOT_DIR}/dist/macos/MachOExplorer.dmg"
 ICON_PATH="${ROOT_DIR}/src/MachOExplorer.icns"
+CODE_SIGN_IDENTITY="${CODE_SIGN_IDENTITY:-Developer ID Application: Feng Zhu (YPV49M8592)}"
+NOTARYTOOL_PROFILE="${NOTARYTOOL_PROFILE:-}"
+APPLE_ID="${APPLE_ID:-}"
+APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"
+APPLE_APP_SPECIFIC_PASSWORD="${APPLE_APP_SPECIFIC_PASSWORD:-${APPLE_PASSWORD:-${APP_SPECIFIC_PASSWORD:-}}}"
 
 NO_HOMEBREW=0
 NO_RELEASE=0
@@ -23,10 +28,17 @@ Usage: $0 [--no-homebrew] [--no-release] [--no-tag] [--no-push]
 Default behavior:
   1) bump patch version
   2) build app + dmg
-  3) commit + push
-  4) create git tag + push tag
-  5) create/update GitHub release + upload dmg
-  6) update Homebrew cask
+  3) sign app with Developer ID
+  4) notarize dmg + staple ticket
+  5) commit + push
+  6) create git tag + push tag
+  7) create/update GitHub release + upload dmg
+  8) update Homebrew cask
+
+Required env for macOS release:
+  CODE_SIGN_IDENTITY              default: Developer ID Application: Feng Zhu (YPV49M8592)
+  NOTARYTOOL_PROFILE              preferred keychain profile for xcrun notarytool
+  or APPLE_ID + APPLE_TEAM_ID + APPLE_APP_SPECIFIC_PASSWORD
 EOF
 }
 
@@ -112,6 +124,9 @@ require_cmd cmake
 require_cmd hdiutil
 require_cmd gh
 require_cmd codesign
+require_cmd security
+require_cmd xcrun
+require_cmd spctl
 
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "working tree is not clean; commit or stash first" >&2
@@ -120,6 +135,27 @@ fi
 
 if ! gh auth status >/dev/null 2>&1; then
   echo "gh not authenticated. run: gh auth login" >&2
+  exit 1
+fi
+
+if ! security find-identity -v -p codesigning | grep -Fq "\"${CODE_SIGN_IDENTITY}\""; then
+  cat >&2 <<EOF
+Signing identity not available in keychain:
+  ${CODE_SIGN_IDENTITY}
+
+Available code signing identities:
+$(security find-identity -v -p codesigning | sed 's/^/  /')
+EOF
+  exit 1
+fi
+
+if [[ -z "${NOTARYTOOL_PROFILE}" ]] && { [[ -z "${APPLE_ID}" ]] || [[ -z "${APPLE_TEAM_ID}" ]] || [[ -z "${APPLE_APP_SPECIFIC_PASSWORD}" ]]; }; then
+  cat >&2 <<EOF
+Notarization credentials missing.
+Set one of:
+  1) NOTARYTOOL_PROFILE=<keychain-profile-name>
+  2) APPLE_ID + APPLE_TEAM_ID + APPLE_APP_SPECIFIC_PASSWORD
+EOF
   exit 1
 fi
 
@@ -187,13 +223,26 @@ else
 fi
 
 "${MACDEPLOYQT}" "${APP_DIR}" -verbose=0
-if [[ -n "${CODE_SIGN_IDENTITY:-}" ]]; then
-  codesign --force --deep --options runtime --timestamp --sign "${CODE_SIGN_IDENTITY}" "${APP_DIR}"
-else
-  codesign --force --deep --sign - "${APP_DIR}"
-fi
 mkdir -p "${ROOT_DIR}/dist/macos"
+codesign --force --deep --options runtime --timestamp --sign "${CODE_SIGN_IDENTITY}" "${APP_DIR}"
+codesign --verify --deep --strict --verbose=2 "${APP_DIR}"
+spctl --assess -vv "${APP_DIR}"
 hdiutil create -volname "MachOExplorer" -srcfolder "${APP_DIR}" -ov -format UDZO "${DMG_PATH}"
+
+echo "Submitting DMG for notarization..."
+if [[ -n "${NOTARYTOOL_PROFILE}" ]]; then
+  xcrun notarytool submit "${DMG_PATH}" --keychain-profile "${NOTARYTOOL_PROFILE}" --wait
+else
+  xcrun notarytool submit "${DMG_PATH}" \
+    --apple-id "${APPLE_ID}" \
+    --team-id "${APPLE_TEAM_ID}" \
+    --password "${APPLE_APP_SPECIFIC_PASSWORD}" \
+    --wait
+fi
+
+echo "Stapling notarization ticket..."
+xcrun stapler staple "${DMG_PATH}"
+xcrun stapler validate "${DMG_PATH}"
 
 git add "${VER_FILE}" "${ROOT_DIR}/README.md" "${ROOT_DIR}/README.zh-CN.md"
 git commit -m "release: bump to ${tag}"

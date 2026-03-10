@@ -61,11 +61,17 @@ Default behavior:
 1. bump patch
 2. configure/build
 3. run `tests/regression/run_all.sh`
-4. package `.app` + `.dmg`
-5. commit + push
-6. tag + push tag
-7. GitHub release upload
-8. Homebrew cask update
+4. sign `.app` with `Developer ID Application`
+5. package `.dmg`
+6. notarize `.dmg` + staple
+7. commit + push
+8. tag + push tag
+9. GitHub release upload
+10. Homebrew cask update
+
+macOS release env:
+- `CODE_SIGN_IDENTITY`
+- `NOTARYTOOL_PROFILE` preferred, or `APPLE_ID` + `APPLE_TEAM_ID` + `APPLE_APP_SPECIFIC_PASSWORD`
 
 Flags:
 - `--no-homebrew`

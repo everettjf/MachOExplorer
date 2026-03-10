@@ -2,6 +2,48 @@
 
 ## macOS Homebrew (Cask)
 
+## macOS Signed + Notarized Release
+
+`deploy.sh` now assumes a real macOS distribution flow:
+
+1. build `MachOExplorer.app`
+2. run `macdeployqt`
+3. sign the `.app` with `Developer ID Application`
+4. create the `.dmg`
+5. submit the `.dmg` to Apple notarization
+6. staple the notarization ticket
+7. verify with `codesign`, `spctl`, and `stapler`
+
+Required environment variables:
+
+```bash
+export CODE_SIGN_IDENTITY="Developer ID Application: Feng Zhu (YPV49M8592)"
+export NOTARYTOOL_PROFILE="<keychain-profile>"
+```
+
+Or use direct Apple credentials instead of `NOTARYTOOL_PROFILE`:
+
+```bash
+export APPLE_ID="<apple-id>"
+export APPLE_TEAM_ID="<team-id>"
+export APPLE_APP_SPECIFIC_PASSWORD="<app-specific-password>"
+```
+
+Recommended notarization credential setup:
+
+```bash
+xcrun notarytool store-credentials "<profile-name>" \
+  --apple-id "<apple-id>" \
+  --team-id "<team-id>" \
+  --password "<app-specific-password>"
+```
+
+Then run:
+
+```bash
+NOTARYTOOL_PROFILE="<profile-name>" ./deploy.sh
+```
+
 Use:
 
 ```bash
