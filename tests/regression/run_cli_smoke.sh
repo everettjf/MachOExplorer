@@ -21,13 +21,20 @@ fi
 
 "${APP_BIN}" --cli --max-rows 8 "${SAMPLE_FILE}" >"${OUT_TEXT}"
 "${APP_BIN}" --cli --format json --max-rows 8 "${SAMPLE_FILE}" >"${OUT_JSON}"
+"${APP_BIN}" --cli --format json --name-filter "Mach Header" --table-mode summary "${SAMPLE_FILE}" >"${OUT_JSON}.filtered"
 
 if command -v rg >/dev/null 2>&1; then
   text_header_cmd=(rg -q "^file:")
   json_field_cmd=(rg -q '"analysis"')
+  schema_field_cmd=(rg -q '"schemaVersion"')
+  path_field_cmd=(rg -q '"path"')
+  summary_mode_cmd=(rg -q '"tableMode": "summary"')
 else
   text_header_cmd=(grep -qE "^file:")
   json_field_cmd=(grep -qE '"analysis"')
+  schema_field_cmd=(grep -qE '"schemaVersion"')
+  path_field_cmd=(grep -qE '"path"')
+  summary_mode_cmd=(grep -qE '"tableMode": "summary"')
 fi
 
 if ! "${text_header_cmd[@]}" "${OUT_TEXT}"; then
@@ -40,9 +47,24 @@ if ! "${json_field_cmd[@]}" "${OUT_JSON}"; then
   exit 1
 fi
 
+if ! "${schema_field_cmd[@]}" "${OUT_JSON}"; then
+  echo "cli-smoke: missing schemaVersion field"
+  exit 1
+fi
+
+if ! "${path_field_cmd[@]}" "${OUT_JSON}"; then
+  echo "cli-smoke: missing node path field"
+  exit 1
+fi
+
 "${APP_BIN}" --cli --format json --max-rows=4 --output "${OUT_JSON}" "${SAMPLE_FILE}" >/dev/null
 if [[ ! -s "${OUT_JSON}" ]]; then
   echo "cli-smoke: output file not written"
+  exit 1
+fi
+
+if ! "${summary_mode_cmd[@]}" "${OUT_JSON}.filtered"; then
+  echo "cli-smoke: filtered summary output missing tableMode"
   exit 1
 fi
 

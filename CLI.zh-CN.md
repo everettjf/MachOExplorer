@@ -37,6 +37,12 @@ MachOExplorer 现在有两类 CLI 用法：
   每个表最多输出 N 行，`0` 表示不限制。
 - `--max-depth <N>`
   限制分析树深度，`0` 表示不限制。
+- `--root-path <path>`
+  只导出匹配路径的分析子树，例如 `File/Mach Header (x86_64)`。
+- `--name-filter <text>`
+  仅保留名称包含指定文本的节点，适合快速收窄输出范围。
+- `--table-mode <full|headers|summary>`
+  控制表格导出粒度：完整行、仅表头、或仅行数摘要。
 - `--include-empty`
   包含无表格/无二进制载荷的空节点。
 - `-h` / `--help`
@@ -47,6 +53,8 @@ MachOExplorer 现在有两类 CLI 用法：
 - 默认输出到 `stdout`。
 - 参数错误或分析失败输出到 `stderr`。
 - JSON 输出为可读缩进格式。
+- JSON 顶层包含 `schemaVersion`、`summary`、`options` 等稳定元信息。
+- 节点包含 `path`、`depth`、`kind`、`childIndex`；表格行包含 `rowIndex` 与 `cells`。
 
 ### 退出码
 
@@ -101,6 +109,18 @@ MachOExplorer 现在有两类 CLI 用法：
 
 ```bash
 ./build/MachOExplorer --cli --format json --include-empty sample/simple
+```
+
+#### 仅导出某个子树
+
+```bash
+./build/MachOExplorer --cli --format json --root-path "File/Mach Header (x86_64)" sample/simple
+```
+
+#### 仅关注指定节点并输出表格摘要
+
+```bash
+./build/MachOExplorer --cli --format json --name-filter Xref --table-mode summary sample/simple
 ```
 
 #### 与 jq 联用
