@@ -190,6 +190,7 @@ static Json TableToJson(const TableViewDataPtr &table, const ViewNodeDumpOptions
     for (size_t i = 0; i < limit; ++i) {
         const auto &row = table->rows[i];
         Json r;
+        r["rowIndex"] = i;
         r["values"] = Json::array();
         r["cells"] = Json::object();
         for (const auto &item : row->items) {
@@ -246,13 +247,15 @@ static void DumpNodeText(ViewNode *node,
 static Json NodeToJson(ViewNode *node,
                        const ViewNodeDumpOptions &options,
                        size_t depth,
-                       const std::vector<std::string> &path_segments) {
+                       const std::vector<std::string> &path_segments,
+                       size_t child_index = 0) {
     node->Init();
     Json j;
     j["name"] = node->GetDisplayName();
     j["depth"] = depth;
     j["path"] = JoinPath(path_segments);
     j["kind"] = ClassifyNodeKind(node);
+    j["childIndex"] = child_index;
 
     const auto &table = node->table();
     if (table && !table->rows.empty()) {
@@ -270,14 +273,15 @@ static Json NodeToJson(ViewNode *node,
     j["children"] = Json::array();
     if (options.max_depth == 0 || depth < options.max_depth) {
         auto children = CollectChildren(node);
-        for (auto *child : children) {
+        for (size_t i = 0; i < children.size(); ++i) {
+            auto *child = children[i];
             child->Init();
             if (!NodeShouldAppear(child, options, depth + 1)) {
                 continue;
             }
             auto child_path = path_segments;
             child_path.push_back(child->GetDisplayName());
-            j["children"].push_back(NodeToJson(child, options, depth + 1, child_path));
+            j["children"].push_back(NodeToJson(child, options, depth + 1, child_path, i));
         }
     }
 
