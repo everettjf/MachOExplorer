@@ -93,12 +93,17 @@ static const char *ClassifyNodeKind(ViewNode *node) {
     return "group";
 }
 
-static bool NodeShouldAppear(ViewNode *node, const ViewNodeDumpOptions &options, size_t depth) {
-    if (options.include_empty_nodes) {
+static bool NodeNameMatches(ViewNode *node, const ViewNodeDumpOptions &options) {
+    if (options.name_filter.empty()) {
         return true;
     }
+    return node->GetDisplayName().find(options.name_filter) != std::string::npos;
+}
 
-    if (NodeHasImmediateContent(node)) {
+static bool NodeShouldAppear(ViewNode *node, const ViewNodeDumpOptions &options, size_t depth) {
+    const bool has_content = options.include_empty_nodes || NodeHasImmediateContent(node);
+    const bool matches_name = NodeNameMatches(node, options);
+    if (matches_name && has_content) {
         return true;
     }
 
@@ -363,7 +368,8 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
             {"includeEmptyNodes", options.include_empty_nodes},
             {"maxRowsPerTable", options.max_rows_per_table},
             {"maxDepth", options.max_depth},
-            {"rootPath", options.root_path}
+            {"rootPath", options.root_path},
+            {"nameFilter", options.name_filter}
         };
         payload["summary"] = {
             {"nodes", summary.nodes},
@@ -377,6 +383,9 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
         out << "file: " << filepath << "\n";
         if (!options.root_path.empty()) {
             out << "root-path: " << options.root_path << "\n";
+        }
+        if (!options.name_filter.empty()) {
+            out << "name-filter: " << options.name_filter << "\n";
         }
         DumpNodeText(root, options, 0, out);
     }

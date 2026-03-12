@@ -13,6 +13,7 @@ struct ViewNodeDumpOptions {
     size_t max_depth = 0;
     std::string format_version = "1.1";
     std::string root_path;
+    std::string name_filter;
 };
 
 class ViewNodeDumper {

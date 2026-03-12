@@ -21,6 +21,7 @@ struct CliOptions {
     std::string input_file;
     std::string output_file;
     std::string root_path;
+    std::string name_filter;
 };
 
 static void PrintCliUsage(const char *program) {
@@ -36,6 +37,7 @@ static void PrintCliUsage(const char *program) {
         << "  --max-rows <N>         Limit rows printed per table (0 means all)\n"
         << "  --max-depth <N>        Limit analysis tree depth (0 means all)\n"
         << "  --root-path <path>     Dump only the matching node subtree\n"
+        << "  --name-filter <text>   Keep only nodes whose names match text\n"
         << "  --include-empty        Include empty nodes in output\n"
         << "  -h, --help             Show this help\n";
 }
@@ -144,6 +146,18 @@ static bool ParseCliOptions(int argc, char *argv[], CliOptions &options, std::st
             options.root_path = arg.substr(12);
             continue;
         }
+        if (arg == "--name-filter") {
+            if (i + 1 >= argc) {
+                error = "missing value for --name-filter";
+                return false;
+            }
+            options.name_filter = argv[++i];
+            continue;
+        }
+        if (arg.rfind("--name-filter=", 0) == 0) {
+            options.name_filter = arg.substr(14);
+            continue;
+        }
         if (arg == "--include-empty") {
             options.include_empty_nodes = true;
             continue;
@@ -191,6 +205,7 @@ static int RunCliMode(int argc, char *argv[]) {
     dump_options.max_rows_per_table = options.max_rows_per_table;
     dump_options.max_depth = options.max_depth;
     dump_options.root_path = options.root_path;
+    dump_options.name_filter = options.name_filter;
 
     std::ofstream fout;
     std::ostream *out = &std::cout;
