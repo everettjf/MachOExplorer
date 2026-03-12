@@ -145,8 +145,15 @@ static Json TableToJson(const TableViewDataPtr &table, const ViewNodeDumpOptions
         const auto &row = table->rows[i];
         Json r;
         r["values"] = Json::array();
+        r["cells"] = Json::object();
         for (const auto &item : row->items) {
             r["values"].push_back(item->data);
+        }
+        for (size_t col = 0; col < row->items.size(); ++col) {
+            const std::string key = col < table->headers.size()
+                    ? table->headers[col]->data
+                    : ("column" + std::to_string(col));
+            r["cells"][key] = row->items[col]->data;
         }
         if (row->size > 0) {
             r["byteLength"] = row->size;
