@@ -48,7 +48,12 @@ brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplo
 - `--output <path>` 输出到文件
 - `--max-rows <N>` 每个表最多输出 N 行（`0` 表示不限制）
 - `--max-depth <N>` 限制分析树深度（`0` 表示不限制）
+- `--root-path <path>` 仅导出某个分析子树
+- `--name-filter <text>` 仅保留名称匹配的节点
+- `--table-mode <full|headers|summary>` 控制表格载荷大小
 - `--include-empty` 包含空节点
+
+JSON 输出现在包含更稳定的自动化字段：`schemaVersion`、`summary`、节点级 `path` / `kind` / `childIndex`，以及表格行级 `cells` / `rowIndex`。
 
 ## 文档
 - 开发文档（构建/测试/发布）：[DEVELOP.md](DEVELOP.md)

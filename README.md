@@ -48,7 +48,12 @@ Common options:
 - `--output <path>` write analysis output to file
 - `--max-rows <N>` limit rows per table (`0` means unlimited)
 - `--max-depth <N>` limit tree depth (`0` means unlimited)
+- `--root-path <path>` export only one matching analysis subtree
+- `--name-filter <text>` keep nodes whose display names match the text
+- `--table-mode <full|headers|summary>` control table payload size
 - `--include-empty` include empty nodes
+
+The JSON output is automation-friendly and now includes stable metadata such as `schemaVersion`, `summary`, node `path` / `kind` / `childIndex`, and row `cells` / `rowIndex`.
 
 ## Docs
 - Developer guide (build/test/release): [DEVELOP.md](DEVELOP.md)
