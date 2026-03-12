@@ -46,6 +46,34 @@ static bool NodeHasImmediateContent(ViewNode *node) {
     return has_rows || has_binary;
 }
 
+static std::string JoinPath(const std::vector<std::string> &segments) {
+    std::ostringstream oss;
+    for (size_t i = 0; i < segments.size(); ++i) {
+        if (i > 0) {
+            oss << "/";
+        }
+        oss << segments[i];
+    }
+    return oss.str();
+}
+
+static const char *ClassifyNodeKind(ViewNode *node) {
+    const auto &table = node->table();
+    const auto &binary = node->binary();
+    const bool has_rows = table && !table->rows.empty();
+    const bool has_binary = binary && !binary->IsEmpty();
+    if (has_rows && has_binary) {
+        return "table+binary";
+    }
+    if (has_rows) {
+        return "table";
+    }
+    if (has_binary) {
+        return "binary";
+    }
+    return "group";
+}
+
 static bool NodeShouldAppear(ViewNode *node, const ViewNodeDumpOptions &options, size_t depth) {
     if (options.include_empty_nodes) {
         return true;
@@ -162,10 +190,16 @@ static void DumpNodeText(ViewNode *node,
     }
 }
 
-static Json NodeToJson(ViewNode *node, const ViewNodeDumpOptions &options, size_t depth) {
+static Json NodeToJson(ViewNode *node,
+                       const ViewNodeDumpOptions &options,
+                       size_t depth,
+                       const std::vector<std::string> &path_segments) {
     node->Init();
     Json j;
     j["name"] = node->GetDisplayName();
+    j["depth"] = depth;
+    j["path"] = JoinPath(path_segments);
+    j["kind"] = ClassifyNodeKind(node);
 
     const auto &table = node->table();
     if (table && !table->rows.empty()) {
@@ -188,7 +222,9 @@ static Json NodeToJson(ViewNode *node, const ViewNodeDumpOptions &options, size_
             if (!NodeShouldAppear(child, options, depth + 1)) {
                 continue;
             }
-            j["children"].push_back(NodeToJson(child, options, depth + 1));
+            auto child_path = path_segments;
+            child_path.push_back(child->GetDisplayName());
+            j["children"].push_back(NodeToJson(child, options, depth + 1, child_path));
         }
     }
 
@@ -223,7 +259,7 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
             {"maxRowsPerTable", options.max_rows_per_table},
             {"maxDepth", options.max_depth}
         };
-        payload["analysis"] = NodeToJson(root, options, 0);
+        payload["analysis"] = NodeToJson(root, options, 0, {root->GetDisplayName()});
         out << payload.dump(2) << "\n";
     } else {
         out << "file: " << filepath << "\n";
