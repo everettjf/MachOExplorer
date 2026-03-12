@@ -12,6 +12,7 @@ struct ViewNodeDumpOptions {
     size_t max_rows_per_table = 0;
     size_t max_depth = 0;
     std::string format_version = "1.1";
+    std::string root_path;
 };
 
 class ViewNodeDumper {

@@ -20,6 +20,7 @@ struct CliOptions {
     size_t max_depth = 0;
     std::string input_file;
     std::string output_file;
+    std::string root_path;
 };
 
 static void PrintCliUsage(const char *program) {
@@ -34,6 +35,7 @@ static void PrintCliUsage(const char *program) {
         << "  --output <path>        Write result to file (default: stdout)\n"
         << "  --max-rows <N>         Limit rows printed per table (0 means all)\n"
         << "  --max-depth <N>        Limit analysis tree depth (0 means all)\n"
+        << "  --root-path <path>     Dump only the matching node subtree\n"
         << "  --include-empty        Include empty nodes in output\n"
         << "  -h, --help             Show this help\n";
 }
@@ -130,6 +132,18 @@ static bool ParseCliOptions(int argc, char *argv[], CliOptions &options, std::st
             }
             continue;
         }
+        if (arg == "--root-path") {
+            if (i + 1 >= argc) {
+                error = "missing value for --root-path";
+                return false;
+            }
+            options.root_path = argv[++i];
+            continue;
+        }
+        if (arg.rfind("--root-path=", 0) == 0) {
+            options.root_path = arg.substr(12);
+            continue;
+        }
         if (arg == "--include-empty") {
             options.include_empty_nodes = true;
             continue;
@@ -176,6 +190,7 @@ static int RunCliMode(int argc, char *argv[]) {
     dump_options.include_empty_nodes = options.include_empty_nodes;
     dump_options.max_rows_per_table = options.max_rows_per_table;
     dump_options.max_depth = options.max_depth;
+    dump_options.root_path = options.root_path;
 
     std::ofstream fout;
     std::ostream *out = &std::cout;

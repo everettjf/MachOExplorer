@@ -21,6 +21,25 @@ static std::vector<ViewNode *> CollectChildren(ViewNode *node) {
     return children;
 }
 
+static std::vector<std::string> SplitPath(const std::string &path) {
+    std::vector<std::string> parts;
+    std::string current;
+    for (char c : path) {
+        if (c == '/') {
+            if (!current.empty()) {
+                parts.push_back(current);
+                current.clear();
+            }
+            continue;
+        }
+        current.push_back(c);
+    }
+    if (!current.empty()) {
+        parts.push_back(current);
+    }
+    return parts;
+}
+
 static std::string SanitizeCell(const std::string &input) {
     std::string out;
     out.reserve(input.size());
@@ -276,6 +295,30 @@ static void AccumulateSummary(ViewNode *node,
     }
 }
 
+static ViewNode *FindNodeByPath(ViewNode *node,
+                                const std::vector<std::string> &parts,
+                                size_t index) {
+    node->Init();
+    if (index >= parts.size()) {
+        return node;
+    }
+
+    if (node->GetDisplayName() != parts[index]) {
+        return nullptr;
+    }
+    if (index + 1 == parts.size()) {
+        return node;
+    }
+
+    auto children = CollectChildren(node);
+    for (auto *child : children) {
+        if (auto *found = FindNodeByPath(child, parts, index + 1)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
 
 bool ViewNodeDumper::DumpFile(const std::string &filepath,
@@ -293,6 +336,21 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
         return false;
     }
 
+    std::vector<std::string> root_path_segments{root->GetDisplayName()};
+    if (!options.root_path.empty()) {
+        const auto parts = SplitPath(options.root_path);
+        if (parts.empty()) {
+            error = "root path cannot be empty";
+            return false;
+        }
+        root = FindNodeByPath(root, parts, 0);
+        if (root == nullptr) {
+            error = "root path not found: " + options.root_path;
+            return false;
+        }
+        root_path_segments = parts;
+    }
+
     if (options.json_output) {
         DumpSummary summary;
         AccumulateSummary(root, options, 0, summary);
@@ -304,7 +362,8 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
         payload["options"] = {
             {"includeEmptyNodes", options.include_empty_nodes},
             {"maxRowsPerTable", options.max_rows_per_table},
-            {"maxDepth", options.max_depth}
+            {"maxDepth", options.max_depth},
+            {"rootPath", options.root_path}
         };
         payload["summary"] = {
             {"nodes", summary.nodes},
@@ -312,10 +371,13 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
             {"binaryNodes", summary.binary_nodes},
             {"totalRows", summary.total_rows}
         };
-        payload["analysis"] = NodeToJson(root, options, 0, {root->GetDisplayName()});
+        payload["analysis"] = NodeToJson(root, options, 0, root_path_segments);
         out << payload.dump(2) << "\n";
     } else {
         out << "file: " << filepath << "\n";
+        if (!options.root_path.empty()) {
+            out << "root-path: " << options.root_path << "\n";
+        }
         DumpNodeText(root, options, 0, out);
     }
 
