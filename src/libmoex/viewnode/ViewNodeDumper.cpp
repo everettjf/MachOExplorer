@@ -238,6 +238,44 @@ static Json NodeToJson(ViewNode *node,
     return j;
 }
 
+struct DumpSummary {
+    size_t nodes = 0;
+    size_t table_nodes = 0;
+    size_t binary_nodes = 0;
+    size_t total_rows = 0;
+};
+
+static void AccumulateSummary(ViewNode *node,
+                              const ViewNodeDumpOptions &options,
+                              size_t depth,
+                              DumpSummary &summary) {
+    node->Init();
+    if (!NodeShouldAppear(node, options, depth)) {
+        return;
+    }
+
+    ++summary.nodes;
+    const auto &table = node->table();
+    if (table && !table->rows.empty()) {
+        ++summary.table_nodes;
+        summary.total_rows += table->rows.size();
+    }
+
+    const auto &binary = node->binary();
+    if (binary && !binary->IsEmpty()) {
+        ++summary.binary_nodes;
+    }
+
+    if (options.max_depth > 0 && depth >= options.max_depth) {
+        return;
+    }
+
+    auto children = CollectChildren(node);
+    for (auto *child : children) {
+        AccumulateSummary(child, options, depth + 1, summary);
+    }
+}
+
 } // namespace
 
 bool ViewNodeDumper::DumpFile(const std::string &filepath,
@@ -256,6 +294,8 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
     }
 
     if (options.json_output) {
+        DumpSummary summary;
+        AccumulateSummary(root, options, 0, summary);
         Json payload;
         payload["schemaVersion"] = options.format_version;
         payload["generator"] = "MachOExplorer CLI";
@@ -265,6 +305,12 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
             {"includeEmptyNodes", options.include_empty_nodes},
             {"maxRowsPerTable", options.max_rows_per_table},
             {"maxDepth", options.max_depth}
+        };
+        payload["summary"] = {
+            {"nodes", summary.nodes},
+            {"tableNodes", summary.table_nodes},
+            {"binaryNodes", summary.binary_nodes},
+            {"totalRows", summary.total_rows}
         };
         payload["analysis"] = NodeToJson(root, options, 0, {root->GetDisplayName()});
         out << payload.dump(2) << "\n";
