@@ -22,6 +22,7 @@ struct CliOptions {
     std::string output_file;
     std::string root_path;
     std::string name_filter;
+    std::string table_mode = "full";
 };
 
 static void PrintCliUsage(const char *program) {
@@ -38,8 +39,13 @@ static void PrintCliUsage(const char *program) {
         << "  --max-depth <N>        Limit analysis tree depth (0 means all)\n"
         << "  --root-path <path>     Dump only the matching node subtree\n"
         << "  --name-filter <text>   Keep only nodes whose names match text\n"
+        << "  --table-mode <mode>    full|headers|summary for table export\n"
         << "  --include-empty        Include empty nodes in output\n"
         << "  -h, --help             Show this help\n";
+}
+
+static bool IsValidTableMode(const std::string &mode) {
+    return mode == "full" || mode == "headers" || mode == "summary";
 }
 
 static bool ParseSizeValue(const std::string &raw, size_t &value, std::string &error) {
@@ -158,6 +164,26 @@ static bool ParseCliOptions(int argc, char *argv[], CliOptions &options, std::st
             options.name_filter = arg.substr(14);
             continue;
         }
+        if (arg == "--table-mode") {
+            if (i + 1 >= argc) {
+                error = "missing value for --table-mode";
+                return false;
+            }
+            options.table_mode = argv[++i];
+            if (!IsValidTableMode(options.table_mode)) {
+                error = "unsupported table mode: " + options.table_mode;
+                return false;
+            }
+            continue;
+        }
+        if (arg.rfind("--table-mode=", 0) == 0) {
+            options.table_mode = arg.substr(13);
+            if (!IsValidTableMode(options.table_mode)) {
+                error = "unsupported table mode: " + options.table_mode;
+                return false;
+            }
+            continue;
+        }
         if (arg == "--include-empty") {
             options.include_empty_nodes = true;
             continue;
@@ -206,6 +232,7 @@ static int RunCliMode(int argc, char *argv[]) {
     dump_options.max_depth = options.max_depth;
     dump_options.root_path = options.root_path;
     dump_options.name_filter = options.name_filter;
+    dump_options.table_mode = options.table_mode;
 
     std::ofstream fout;
     std::ostream *out = &std::cout;

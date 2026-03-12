@@ -14,6 +14,7 @@ struct ViewNodeDumpOptions {
     std::string format_version = "1.1";
     std::string root_path;
     std::string name_filter;
+    std::string table_mode = "full";
 };
 
 class ViewNodeDumper {

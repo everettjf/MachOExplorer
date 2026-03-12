@@ -100,6 +100,14 @@ static bool NodeNameMatches(ViewNode *node, const ViewNodeDumpOptions &options) 
     return node->GetDisplayName().find(options.name_filter) != std::string::npos;
 }
 
+static bool IncludeTableRows(const ViewNodeDumpOptions &options) {
+    return options.table_mode == "full";
+}
+
+static bool IncludeTableHeaders(const ViewNodeDumpOptions &options) {
+    return options.table_mode == "full" || options.table_mode == "headers";
+}
+
 static bool NodeShouldAppear(ViewNode *node, const ViewNodeDumpOptions &options, size_t depth) {
     const bool has_content = options.include_empty_nodes || NodeHasImmediateContent(node);
     const bool matches_name = NodeNameMatches(node, options);
@@ -131,11 +139,18 @@ static void DumpTableText(ViewNode *node, const ViewNodeDumpOptions &options, st
     const size_t limit = options.max_rows_per_table == 0 ? total_rows : std::min(options.max_rows_per_table, total_rows);
 
     out << indent << "  [table headers] ";
-    for (size_t i = 0; i < table->headers.size(); ++i) {
-        if (i > 0) out << " | ";
-        out << SanitizeCell(table->headers[i]->data);
+    if (IncludeTableHeaders(options)) {
+        for (size_t i = 0; i < table->headers.size(); ++i) {
+            if (i > 0) out << " | ";
+            out << SanitizeCell(table->headers[i]->data);
+        }
     }
     out << "\n";
+
+    if (!IncludeTableRows(options)) {
+        out << indent << "  [table summary] total=" << total_rows << "\n";
+        return;
+    }
 
     for (size_t i = 0; i < limit; ++i) {
         const auto &row = table->rows[i];
@@ -154,14 +169,21 @@ static void DumpTableText(ViewNode *node, const ViewNodeDumpOptions &options, st
 
 static Json TableToJson(const TableViewDataPtr &table, const ViewNodeDumpOptions &options) {
     Json j;
-    j["headers"] = Json::array();
-    for (const auto &header : table->headers) {
-        j["headers"].push_back(header->data);
+    if (IncludeTableHeaders(options)) {
+        j["headers"] = Json::array();
+        for (const auto &header : table->headers) {
+            j["headers"].push_back(header->data);
+        }
     }
 
     const size_t total_rows = table->rows.size();
     const size_t limit = options.max_rows_per_table == 0 ? total_rows : std::min(options.max_rows_per_table, total_rows);
     j["totalRows"] = total_rows;
+    j["tableMode"] = options.table_mode;
+    if (!IncludeTableRows(options)) {
+        j["shownRows"] = 0;
+        return j;
+    }
     j["shownRows"] = limit;
     j["rows"] = Json::array();
 
@@ -369,7 +391,8 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
             {"maxRowsPerTable", options.max_rows_per_table},
             {"maxDepth", options.max_depth},
             {"rootPath", options.root_path},
-            {"nameFilter", options.name_filter}
+            {"nameFilter", options.name_filter},
+            {"tableMode", options.table_mode}
         };
         payload["summary"] = {
             {"nodes", summary.nodes},
