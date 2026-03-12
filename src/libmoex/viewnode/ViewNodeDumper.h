@@ -11,6 +11,7 @@ struct ViewNodeDumpOptions {
     bool include_empty_nodes = false;
     size_t max_rows_per_table = 0;
     size_t max_depth = 0;
+    std::string format_version = "1.1";
 };
 
 class ViewNodeDumper {

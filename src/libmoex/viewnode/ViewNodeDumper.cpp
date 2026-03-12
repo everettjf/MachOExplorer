@@ -214,7 +214,15 @@ bool ViewNodeDumper::DumpFile(const std::string &filepath,
 
     if (options.json_output) {
         Json payload;
+        payload["schemaVersion"] = options.format_version;
+        payload["generator"] = "MachOExplorer CLI";
+        payload["format"] = "viewnode-json";
         payload["file"] = filepath;
+        payload["options"] = {
+            {"includeEmptyNodes", options.include_empty_nodes},
+            {"maxRowsPerTable", options.max_rows_per_table},
+            {"maxDepth", options.max_depth}
+        };
         payload["analysis"] = NodeToJson(root, options, 0);
         out << payload.dump(2) << "\n";
     } else {
