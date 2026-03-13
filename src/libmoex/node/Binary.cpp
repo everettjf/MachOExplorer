@@ -3,8 +3,56 @@
 //
 
 #include "Binary.h"
+#include <cerrno>
+#include <cstring>
+#include <string>
+
+#if defined(_WIN32)
+#include <sys/stat.h>
+#define MOEX_STAT _stat
+#else
+#include <sys/stat.h>
+#define MOEX_STAT stat
+#endif
 
 MOEX_NAMESPACE_BEGIN
+
+namespace {
+
+static bool EndsWith(const std::string &value, const std::string &suffix) {
+    return value.size() >= suffix.size() &&
+           value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+static bool IsRegularFilePath(const std::string &filepath, bool &is_directory, std::string &error) {
+    is_directory = false;
+
+    struct MOEX_STAT st {};
+    if (MOEX_STAT(filepath.c_str(), &st) != 0) {
+        error = std::string("cannot stat path: ") + std::strerror(errno);
+        return false;
+    }
+
+#if defined(_WIN32)
+    is_directory = (st.st_mode & _S_IFDIR) != 0;
+    return (st.st_mode & _S_IFREG) != 0;
+#else
+    is_directory = S_ISDIR(st.st_mode);
+    return S_ISREG(st.st_mode);
+#endif
+}
+
+static std::string DescribeUnsupportedPath(const std::string &filepath, bool is_directory) {
+    if (is_directory && EndsWith(filepath, ".app")) {
+        return "Application bundles are directories; open the Mach-O inside .app/Contents/MacOS instead";
+    }
+    if (is_directory) {
+        return "Path is a directory, not a binary file";
+    }
+    return "Path is not a regular file";
+}
+
+} // namespace
 
 
 Binary::Binary(const std::string & filepath)
@@ -12,6 +60,15 @@ Binary::Binary(const std::string & filepath)
 
     if(filepath_.length() == 0){
         throw NodeException("invalid file path");
+    }
+
+    bool is_directory = false;
+    std::string stat_error;
+    if (!IsRegularFilePath(filepath_, is_directory, stat_error)) {
+        if (!stat_error.empty() && !is_directory) {
+            throw NodeException(stat_error);
+        }
+        throw NodeException(DescribeUnsupportedPath(filepath_, is_directory));
     }
 
     // Mapping file
@@ -23,8 +80,16 @@ Binary::Binary(const std::string & filepath)
         throw NodeException("Can not open file");
     }
 
+    if (!map_ || !map_->is_open() || map_->data() == nullptr || map_->data() == MAP_FAILED) {
+        throw NodeException("Can not map file");
+    }
+
     void *addr = (void*)map_->data();
     std::size_t size = map_->size();
+
+    if (size == 0) {
+        throw NodeException("File is empty");
+    }
 
     // Set member
     memory_ = addr;

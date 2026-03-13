@@ -5,12 +5,18 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="${ROOT_DIR}/build"
 APP_BUNDLE_BIN="${BUILD_DIR}/MachOExplorer.app/Contents/MacOS/MachOExplorer"
 APP_BIN="${APP_BUNDLE_BIN}"
+APP_BUNDLE_DIR="${BUILD_DIR}/MachOExplorer.app"
 SAMPLE_FILE="${ROOT_DIR}/sample/simple"
 OUT_TEXT="/tmp/moex-cli-smoke.txt"
 OUT_JSON="/tmp/moex-cli-smoke.json"
 
 if [[ ! -x "${APP_BIN}" ]]; then
   echo "cli-smoke: missing app binary: ${APP_BIN}; build first"
+  exit 2
+fi
+
+if [[ ! -d "${APP_BUNDLE_DIR}" ]]; then
+  echo "cli-smoke: missing app bundle dir: ${APP_BUNDLE_DIR}; build first"
   exit 2
 fi
 
@@ -65,6 +71,22 @@ fi
 
 if ! "${summary_mode_cmd[@]}" "${OUT_JSON}.filtered"; then
   echo "cli-smoke: filtered summary output missing tableMode"
+  exit 1
+fi
+
+if "${APP_BIN}" --cli "${APP_BUNDLE_DIR}" >/tmp/moex-cli-bundle.out 2>/tmp/moex-cli-bundle.err; then
+  echo "cli-smoke: app bundle path should fail gracefully"
+  exit 1
+fi
+
+if ! (
+  if command -v rg >/dev/null 2>&1; then
+    rg -q "Application bundles are directories|Path is a directory" /tmp/moex-cli-bundle.err
+  else
+    grep -qE "Application bundles are directories|Path is a directory" /tmp/moex-cli-bundle.err
+  fi
+); then
+  echo "cli-smoke: app bundle rejection message missing"
   exit 1
 fi
 
