@@ -21,6 +21,7 @@ This guide describes how autonomous contributors should work in this repository 
   - `inc_patch_version.sh` patch version bump helper
   - `release_homebrew.sh` Homebrew cask updater
   - `build_windows_installer.ps1` Windows installer pipeline helper
+  - `build_windows_release.ps1` Windows build + release asset uploader
 - `packaging/windows/MachOExplorer.iss`: Inno Setup installer script
 - `deploy.sh`: one-command release pipeline (bump/build/test/tag/release/homebrew)
 
@@ -87,6 +88,11 @@ powershell -ExecutionPolicy Bypass -File scripts/build_windows_installer.ps1 `
   -QtBin "C:\Qt\6.9.3\msvc2022_64\bin" `
   -BuildDir "build-win" `
   -Config "Release"
+```
+- Build + upload to existing GitHub release:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
+  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
 ```
 
 ## Coding Expectations

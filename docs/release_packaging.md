@@ -72,9 +72,24 @@ This repo includes:
 
 - Inno Setup script: `packaging/windows/MachOExplorer.iss`
 - Build helper: `scripts/build_windows_installer.ps1`
+- Release helper: `scripts/build_windows_release.ps1`
 
 Windows packaging flow:
 
 1. Build `MachOExplorer.exe` with CMake.
 2. Run `windeployqt` to stage Qt runtime files.
 3. Run `iscc` to generate installer executable.
+4. Optionally upload the installer + portable zip to the existing GitHub release tag.
+
+Example on Windows after the macOS release is already published:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
+  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
+```
+
+Notes:
+
+- The script reads `src/libmoex/ver.h` and uploads to `v<version>` by default.
+- It uploads two assets: a portable zip and the Inno Setup installer.
+- Use `-SkipUpload` to build/package without touching GitHub release assets.

@@ -38,10 +38,25 @@ Includes:
 - `deploy.sh`: one-command release pipeline (bump/build/test/tag/release/homebrew)
 - `scripts/release_homebrew.sh`: update Homebrew cask (supports `--dry-run`)
 - `scripts/build_windows_installer.ps1`: Windows installer helper
+- `scripts/build_windows_release.ps1`: Windows build + installer + GitHub release asset upload
 
 ## Packaging
 - Windows Inno Setup script: `packaging/windows/MachOExplorer.iss`
 - Packaging notes: `docs/release_packaging.md`
+
+## Windows Release Upload
+After the macOS release/tag is already published, run this on a Windows machine:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
+  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
+```
+
+Requirements:
+- `cmake`
+- `windeployqt`
+- `iscc`
+- `gh` authenticated with release upload access
 
 ## Full Release (macOS)
 ```bash

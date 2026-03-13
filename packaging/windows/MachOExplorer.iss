@@ -2,8 +2,12 @@
 ; Build installer:
 ;   iscc packaging/windows/MachOExplorer.iss
 
-#define MyAppName "MachOExplorer"
-#define MyAppVersion "2.0.0"
+#ifndef MyAppName
+  #define MyAppName "MachOExplorer"
+#endif
+#ifndef MyAppVersion
+  #define MyAppVersion "2.0.0"
+#endif
 #define MyAppPublisher "everettjf"
 #define MyAppURL "https://github.com/everettjf/MachOExplorer"
 #define MyAppExeName "MachOExplorer.exe"
