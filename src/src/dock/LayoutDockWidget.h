@@ -23,6 +23,7 @@ private:
 
 private:
     void showViewNode(moex::ViewNode * node);
+    void showTreeIndex(const QModelIndex &index);
 public:
     explicit LayoutDockWidget(QWidget *parent = 0);
 
@@ -32,6 +33,7 @@ signals:
 
 public slots:
     void clickedTreeNode(QModelIndex index);
+    void currentTreeNodeChanged(const QModelIndex &current, const QModelIndex &previous);
 };
 
 #endif // LAYOUTVIEW_H
