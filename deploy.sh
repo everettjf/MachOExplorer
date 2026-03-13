@@ -174,7 +174,7 @@ if [[ -z "${QT_PREFIX}" ]]; then
 fi
 echo "using Qt prefix: ${QT_PREFIX}"
 
-cmake -S "${ROOT_DIR}/src" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${QT_PREFIX}"
+cmake -S "${ROOT_DIR}/src" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${QT_PREFIX}" -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
 cmake --build "${BUILD_DIR}" -j8
 "${ROOT_DIR}/tests/regression/run_all.sh"
 
@@ -211,7 +211,7 @@ elif [[ -x "${BUILD_APP_FLAT_BIN}" ]]; then
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>${new_version}</string>
   <key>CFBundleVersion</key><string>${new_version}</string>
-  <key>LSMinimumSystemVersion</key><string>11.0</string>
+  <key>LSMinimumSystemVersion</key><string>12.0</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSRequiresAquaSystemAppearance</key><false/>
 </dict>
