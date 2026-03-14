@@ -7,7 +7,11 @@ MoexApplication::MoexApplication(int argc,char *argv[]) : QApplication(argc,argv
     setOrganizationName("everettjf");
     setOrganizationDomain("everettjf.com");
     setApplicationVersion(AppInfo::Instance().GetAppVersion());
-    setWindowIcon(QIcon(":MachOExplorer.icns"));
+#ifdef Q_OS_WIN
+    setWindowIcon(QIcon(":/MachOExplorer.ico"));
+#else
+    setWindowIcon(QIcon(":/MachOExplorer.icns"));
+#endif
 
     QCommandLineParser cmd_parser;
     cmd_parser.setApplicationDescription(QObject::tr("MachO Explorer"));

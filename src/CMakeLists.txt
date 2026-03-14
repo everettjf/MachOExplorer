@@ -39,6 +39,10 @@ set(SOURCE_FILES
     MachOExplorer.icns
 )
 
+if(WIN32)
+    list(APPEND SOURCE_FILES MachOExplorer.rc)
+endif()
+
 set_source_files_properties(MachOExplorer.icns PROPERTIES
     MACOSX_PACKAGE_LOCATION Resources
 )

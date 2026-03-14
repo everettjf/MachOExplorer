@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>MachOExplorer.icns</file>
+        <file alias="MachOExplorer.ico">../image/favicon.ico</file>
         <file>res/machoexplorer.png</file>
         <file>res/fonts/Inconsolata-Regular.ttf</file>
         <file>res/fonts/Anonymous Pro.ttf</file>
