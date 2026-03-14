@@ -49,14 +49,17 @@ After the macOS release/tag is already published, run this on a Windows machine:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
-  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
+  -QtBin "D:\Qt\6.10.2\msvc2022_64\bin"
 ```
 
 Requirements:
-- `cmake`
+- Qt for MSVC, for example `D:\Qt\6.10.2\msvc2022_64\bin`
 - `windeployqt`
-- `iscc`
 - `gh` authenticated with release upload access
+
+Notes:
+- `scripts/build_windows_installer.ps1` auto-detects `cmake` and Inno Setup from common install locations when they are not on `PATH`.
+- The staged Windows app bundle now includes the MSVC CRT DLLs so the generated installer is self-contained.
 
 ## Full Release (macOS)
 ```bash

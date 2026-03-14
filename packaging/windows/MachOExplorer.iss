@@ -11,7 +11,9 @@
 #define MyAppPublisher "everettjf"
 #define MyAppURL "https://github.com/everettjf/MachOExplorer"
 #define MyAppExeName "MachOExplorer.exe"
-#define SourceRoot "..\\..\\dist\\windows\\MachOExplorer"
+#ifndef MyAppSourceRoot
+  #define MyAppSourceRoot "..\\..\\dist\\windows\\MachOExplorer"
+#endif
 
 [Setup]
 AppId={{D9D5FF2C-7BEA-4FC0-A00A-2A80B849FA63}
@@ -37,7 +39,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#SourceRoot}\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "{#MyAppSourceRoot}\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

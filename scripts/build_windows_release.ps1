@@ -1,11 +1,13 @@
 Param(
-    [string]$QtBin = "C:\Qt\6.9.3\msvc2022_64\bin",
+    [string]$QtBin = "",
     [string]$QtPrefix = "",
     [string]$BuildDir = "build-win",
     [string]$Config = "Release",
     [string]$Version = "",
     [string]$Tag = "",
     [string]$Repo = "",
+    [string]$CMakePath = "",
+    [string]$ISCCPath = "",
     [switch]$SkipUpload,
     [switch]$NoClobber
 )
@@ -42,9 +44,6 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 if ([string]::IsNullOrWhiteSpace($Tag)) {
     $Tag = "v$Version"
 }
-if ([string]::IsNullOrWhiteSpace($QtPrefix)) {
-    $QtPrefix = Split-Path -Parent $QtBin
-}
 
 if ($Repo) {
     $repoArgs = @("--repo", $Repo)
@@ -55,12 +54,25 @@ if ($Repo) {
 gh auth status | Out-Null
 gh release view $Tag @repoArgs | Out-Null
 
-& (Join-Path $PSScriptRoot "build_windows_installer.ps1") `
-    -QtBin $QtBin `
-    -QtPrefix $QtPrefix `
-    -BuildDir $BuildDir `
-    -Config $Config `
-    -Version $Version
+$installerArgs = @(
+    "-BuildDir", $BuildDir,
+    "-Config", $Config,
+    "-Version", $Version
+)
+if (-not [string]::IsNullOrWhiteSpace($QtBin)) {
+    $installerArgs += @("-QtBin", $QtBin)
+}
+if (-not [string]::IsNullOrWhiteSpace($QtPrefix)) {
+    $installerArgs += @("-QtPrefix", $QtPrefix)
+}
+if (-not [string]::IsNullOrWhiteSpace($CMakePath)) {
+    $installerArgs += @("-CMakePath", $CMakePath)
+}
+if (-not [string]::IsNullOrWhiteSpace($ISCCPath)) {
+    $installerArgs += @("-ISCCPath", $ISCCPath)
+}
+
+& (Join-Path $PSScriptRoot "build_windows_installer.ps1") @installerArgs
 
 $portableZip = Join-Path $root ("dist/windows/MachOExplorer-{0}-windows-x64-portable.zip" -f $Version)
 $installerExe = Join-Path $installerDir ("MachOExplorer-Setup-{0}.exe" -f $Version)

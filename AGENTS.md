@@ -85,15 +85,16 @@ Flags:
 - Build helper:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build_windows_installer.ps1 `
-  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin" `
+  -QtBin "D:\Qt\6.10.2\msvc2022_64\bin" `
   -BuildDir "build-win" `
   -Config "Release"
 ```
 - Build + upload to existing GitHub release:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
-  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
+  -QtBin "D:\Qt\6.10.2\msvc2022_64\bin"
 ```
+- The installer helper auto-detects `cmake` and `ISCC` from common Windows install paths and copies the MSVC runtime DLLs into the staged app bundle.
 
 ## Coding Expectations
 - Preserve existing code style and architecture boundaries:

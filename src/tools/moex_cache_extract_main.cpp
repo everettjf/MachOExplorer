@@ -8,6 +8,10 @@
 #include <unordered_map>
 #include <vector>
 
+#if defined(_WIN32)
+#include <direct.h>
+#endif
+
 namespace {
 
 struct SegmentCopyPlan {
@@ -162,7 +166,11 @@ static bool EnsureDirectory(const std::string &path, std::string &error) {
         }
         return true;
     }
+#if defined(_WIN32)
+    if (_mkdir(path.c_str()) == 0) {
+#else
     if (::mkdir(path.c_str(), 0755) == 0) {
+#endif
         return true;
     }
     error = "cannot create output directory: " + path;

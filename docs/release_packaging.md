@@ -85,7 +85,7 @@ Example on Windows after the macOS release is already published:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build_windows_release.ps1 `
-  -QtBin "C:\Qt\6.9.3\msvc2022_64\bin"
+  -QtBin "D:\Qt\6.10.2\msvc2022_64\bin"
 ```
 
 Notes:
@@ -93,3 +93,5 @@ Notes:
 - The script reads `src/libmoex/ver.h` and uploads to `v<version>` by default.
 - It uploads two assets: a portable zip and the Inno Setup installer.
 - Use `-SkipUpload` to build/package without touching GitHub release assets.
+- `scripts/build_windows_installer.ps1` auto-detects `cmake` and `iscc` from common Windows install paths when possible.
+- The Windows staging directory now includes the MSVC runtime DLLs in addition to the Qt runtime files.
