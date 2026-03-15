@@ -47,7 +47,11 @@ set_source_files_properties(MachOExplorer.icns PROPERTIES
     MACOSX_PACKAGE_LOCATION Resources
 )
 
-add_executable(MachOExplorer ${SOURCE_FILES})
+if(WIN32)
+    add_executable(MachOExplorer WIN32 ${SOURCE_FILES})
+else()
+    add_executable(MachOExplorer ${SOURCE_FILES})
+endif()
 target_include_directories(MachOExplorer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(MachOExplorer PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
