@@ -99,8 +99,9 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
     bool done = false;
     char * begin = header()->header_start() + cmd()->rebase_off;
     uint32_t size = cmd()->rebase_size;
+    char * end = begin + size;
     char * cur = begin;
-    while(cur < begin + size && !done){
+    while(cur < end && !done){
         // read and move next
         ctx.pbyte = (uint8_t*)cur;
         cur += sizeof(uint8_t);
@@ -132,15 +133,17 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 code->segment_index = ctx.immediate;
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 if(header()->Is64()){
-                    assert(code->segment_index < header()->GetSegments64().size());
-                    ctx.address = header()->GetSegments64().at(code->segment_index)->cmd()->vmaddr;
+                    auto &segs = header()->GetSegments64();
+                    if(code->segment_index < segs.size())
+                        ctx.address = segs.at(code->segment_index)->cmd()->vmaddr;
                 }else{
-                    assert(code->segment_index < header()->GetSegments().size());
-                    ctx.address = header()->GetSegments().at(code->segment_index)->cmd()->vmaddr + code->offset;
+                    auto &segs = header()->GetSegments();
+                    if(code->segment_index < segs.size())
+                        ctx.address = segs.at(code->segment_index)->cmd()->vmaddr + code->offset;
                 }
 
                 callback(&ctx,code.get());
@@ -150,7 +153,7 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 auto code = std::make_shared<Wrap_REBASE_OPCODE_ADD_ADDR_ULEB>();
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 callback(&ctx,code.get());
@@ -184,7 +187,7 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 uint64_t start_next_rebase = (uint64_t)cur;
 
                 code->count_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->count,code->count_size);
+                moex::util::readUnsignedLeb128(cur,end,code->count,code->count_size);
                 cur+=code->count_size;
 
                 callback(&ctx,code.get());
@@ -203,7 +206,7 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 uint64_t start_next_rebase = (uint64_t)cur;
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 callback(&ctx,code.get());
@@ -219,11 +222,11 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
                 uint64_t start_next_rebase = (uint64_t)cur;
 
                 code->count_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->count,code->count_size);
+                moex::util::readUnsignedLeb128(cur,end,code->count,code->count_size);
                 cur+=code->count_size;
 
                 code->skip_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->skip,code->skip_size);
+                moex::util::readUnsignedLeb128(cur,end,code->skip,code->skip_size);
                 cur+=code->skip_size;
 
                 callback(&ctx,code.get());
@@ -252,8 +255,9 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
     bool done = false;
     char * begin = header()->header_start() + bind_off;
     uint32_t size = bind_size;
+    char * end = begin + size;
     char * cur = begin;
-    while(cur < begin + size && !done) {
+    while(cur < end && !done) {
         // read and move next
         ctx.pbyte = (uint8_t *) cur;
         cur += sizeof(uint8_t);
@@ -284,7 +288,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
             case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB:{
                 auto code = std::make_shared<Wrap_BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB >();
                 code->lib_oridinal_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->lib_oridinal,code->lib_oridinal_size);
+                moex::util::readUnsignedLeb128(cur,end,code->lib_oridinal,code->lib_oridinal_size);
                 cur+=code->lib_oridinal_size;
 
                 callback(&ctx,code.get());
@@ -309,8 +313,13 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 code->symbol_flags = ctx.immediate;
 
                 char * name = (char*)cur;
-                int len = strlen(name);
-                code->symbol_name = std::string(name);
+                const char *name_end = (const char*)memchr(name, '\0', (size_t)(end - cur));
+                if(name_end == nullptr){
+                    done = true;
+                    break;
+                }
+                int len = (int)(name_end - name);
+                code->symbol_name = std::string(name, (size_t)len);
                 code->symbol_name_addr = (uint8_t*)name;
                 code->symbol_name_size = len + 1;
 
@@ -332,7 +341,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_SET_ADDEND_SLEB>();
 
                 code->addend_addr = (uint8_t*)cur;
-                moex::util::readSignedLeb128(cur,code->addend,code->addend_size);
+                moex::util::readSignedLeb128(cur,end,code->addend,code->addend_size);
                 cur+=code->addend_size;
 
                 callback(&ctx,code.get());
@@ -344,15 +353,17 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 code->segment_index = ctx.immediate;
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 if(header()->Is64()){
-                    assert(code->segment_index < header()->GetSegments64().size());
-                    ctx.address = header()->GetSegments64().at(code->segment_index)->cmd()->vmaddr;
+                    auto &segs = header()->GetSegments64();
+                    if(code->segment_index < segs.size())
+                        ctx.address = segs.at(code->segment_index)->cmd()->vmaddr;
                 }else{
-                    assert(code->segment_index < header()->GetSegments().size());
-                    ctx.address = header()->GetSegments().at(code->segment_index)->cmd()->vmaddr + code->offset;
+                    auto &segs = header()->GetSegments();
+                    if(code->segment_index < segs.size())
+                        ctx.address = segs.at(code->segment_index)->cmd()->vmaddr + code->offset;
                 }
 
                 callback(&ctx,code.get());
@@ -363,7 +374,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 auto code = std::make_shared<Wrap_BIND_OPCODE_ADD_ADDR_ULEB>();
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 ctx.address += code->offset;
@@ -387,7 +398,7 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 uint64_t start_next_rebase = (uint64_t)cur;
 
                 code->offset_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->offset,code->offset_size);
+                moex::util::readUnsignedLeb128(cur,end,code->offset,code->offset_size);
                 cur+=code->offset_size;
 
                 callback(&ctx,code.get());
@@ -411,11 +422,11 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
                 uint64_t start_next_rebase = (uint64_t)cur;
 
                 code->count_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->count,code->count_size);
+                moex::util::readUnsignedLeb128(cur,end,code->count,code->count_size);
                 cur+=code->count_size;
 
                 code->skip_addr = (uint8_t*)cur;
-                moex::util::readUnsignedLeb128(cur,code->skip,code->skip_size);
+                moex::util::readUnsignedLeb128(cur,end,code->skip,code->skip_size);
                 cur+=code->skip_size;
 
                 callback(&ctx,code.get());
@@ -471,12 +482,12 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
 
         if(item.terminal_size > 0){
             item.flags_addr = (uint8_t*)cur;
-            const char *next = moex::util::readUnsignedLeb128(cur,item.flags,item.flags_size);
+            const char *next = moex::util::readUnsignedLeb128(cur,end,item.flags,item.flags_size);
             if (next == nullptr || next > end) continue;
             cur+= item.flags_size;
 
             item.offset_addr = (uint8_t*)cur;
-            next = moex::util::readUnsignedLeb128(cur,item.offset,item.offset_size);
+            next = moex::util::readUnsignedLeb128(cur,end,item.offset,item.offset_size);
             if (next == nullptr || next > end) continue;
             cur+= item.offset_size;
         }
@@ -503,7 +514,7 @@ void LoadCommand_DYLD_INFO::ForEachExportItem(std::function<void(const ExportCon
             if (cur > end) break;
 
             child.skip_addr = (uint8_t*)cur;
-            const char *next = moex::util::readUnsignedLeb128(cur,child.skip,child.skip_size);
+            const char *next = moex::util::readUnsignedLeb128(cur,end,child.skip,child.skip_size);
             if (next == nullptr || next > end) break;
             cur+= child.skip_size;
 
