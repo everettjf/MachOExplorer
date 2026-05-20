@@ -3,7 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "AboutDialog.h"
-#include "ui_aboutdialog.h"
+#include "ui_AboutDialog.h"
 #include "src/base/AppInfo.h"
 #include "src/utility/Utility.h"
 
