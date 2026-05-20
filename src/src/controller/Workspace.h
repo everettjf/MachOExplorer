@@ -42,6 +42,8 @@ public:
     QString currentFilePath() const { return currentFilePath_; }
     void addLog(const QString & log);
     void showNode(moex::ViewNode *node);
+    // Display an already-initialized node (GUI thread only; performs no parsing).
+    void displayNode(moex::ViewNode *node);
     void selectHexRange(void *data,uint64_t size);
     void clearHexSelection();
     void setInformation(const QString & info);

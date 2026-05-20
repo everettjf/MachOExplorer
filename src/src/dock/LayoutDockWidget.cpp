@@ -108,8 +108,44 @@ void LayoutDockWidget::showViewNode(moex::ViewNode *node)
     if(!node)
         return;
 
-    qDebug() << QString::fromStdString(node->GetDisplayName());
-    WS()->showNode(node);
+    // Record the latest selection so it always wins over in-flight builds.
+    pendingNode_ = node;
+
+    // A build is already running; its completion handler will pick up the
+    // latest pendingNode_.
+    if(nodeBuilding_)
+        return;
+
+    // Already parsed: display immediately on the GUI thread.
+    if(node->inited()){
+        WS()->displayNode(node);
+        return;
+    }
+
+    buildAndShowNode(node);
+}
+
+void LayoutDockWidget::buildAndShowNode(moex::ViewNode *node)
+{
+    nodeBuilding_ = true;
+    auto *watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher](){
+        watcher->deleteLater();
+        nodeBuilding_ = false;
+
+        moex::ViewNode *latest = pendingNode_;
+        if(latest == nullptr)
+            return;
+
+        // If the latest selection still needs parsing, build it; otherwise it
+        // is ready to display now.
+        if(!latest->inited()){
+            buildAndShowNode(latest);
+        } else {
+            WS()->displayNode(latest);
+        }
+    });
+    watcher->setFuture(QtConcurrent::run([node](){ node->Init(); }));
 }
 
 void LayoutDockWidget::clickedTreeNode(QModelIndex index)

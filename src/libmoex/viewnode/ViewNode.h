@@ -150,6 +150,8 @@ public:
     void SetViewData(BinaryViewDataPtr data){binary_ = data;}
     void SetViewData(TableViewDataPtr data){table_ = data;}
 
+    bool inited() const { return inited_; }
+
     void Init(){
         if(!inited_){
             inited_ = true;

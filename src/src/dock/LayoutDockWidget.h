@@ -21,11 +21,14 @@ private:
     LayoutTreeView *treeView;
     LayoutController *controller;
     bool parsing_ = false;
+    bool nodeBuilding_ = false;
+    moex::ViewNode *pendingNode_ = nullptr;
 
 private:
     void showViewNode(moex::ViewNode * node);
     void showTreeIndex(const QModelIndex &index);
     void populateTree();
+    void buildAndShowNode(moex::ViewNode *node);
 public:
     explicit LayoutDockWidget(QWidget *parent = 0);
 
