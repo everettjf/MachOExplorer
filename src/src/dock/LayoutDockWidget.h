@@ -20,10 +20,12 @@ class LayoutDockWidget : public QDockWidget
 private:
     LayoutTreeView *treeView;
     LayoutController *controller;
+    bool parsing_ = false;
 
 private:
     void showViewNode(moex::ViewNode * node);
     void showTreeIndex(const QModelIndex &index);
+    void populateTree();
 public:
     explicit LayoutDockWidget(QWidget *parent = 0);
 

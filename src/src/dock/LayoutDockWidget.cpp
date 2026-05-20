@@ -10,6 +10,8 @@
 #include <QHBoxLayout>
 #include <QAbstractItemView>
 #include <QItemSelectionModel>
+#include <QtConcurrent>
+#include <QFutureWatcher>
 
 LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 {
@@ -38,16 +40,53 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 
 void LayoutDockWidget::openFile(const QString &filePath)
 {
-    if(controller) delete controller;
-    controller = new LayoutController();
-
-    controller->setFilePath(filePath);
-    QString error;
-    if(!controller->initModel(error)){
-        util::showError(this,error);
+    if(parsing_){
+        WS()->addLog("Still parsing the previous file; please wait...");
         return;
     }
 
+    if(controller) delete controller;
+    controller = new LayoutController();
+    controller->setFilePath(filePath);
+
+    // Clear the current tree while the new file parses in the background so the
+    // UI thread stays responsive on large binaries / dyld shared caches.
+    treeView->setModel(nullptr);
+    parsing_ = true;
+    WS()->addLog("Start parsing " + filePath);
+
+    LayoutController *ctrl = controller;
+    auto *watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher, ctrl](){
+        watcher->deleteLater();
+        parsing_ = false;
+
+        // Bail if the controller was replaced while we were parsing.
+        if(ctrl != controller){
+            return;
+        }
+
+        if(!watcher->result()){
+            util::showError(this, controller->lastError());
+            WS()->addLog(controller->lastError());
+            return;
+        }
+
+        WS()->addLog("Parse succeed");
+        controller->buildModel();
+        populateTree();
+    });
+
+    watcher->setFuture(QtConcurrent::run([ctrl]() -> bool {
+        QString error;
+        bool ok = ctrl->parse(error);
+        ctrl->setLastError(error);
+        return ok;
+    }));
+}
+
+void LayoutDockWidget::populateTree()
+{
     treeView->setModel(controller->model());
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setColumnWidth(0,300);
