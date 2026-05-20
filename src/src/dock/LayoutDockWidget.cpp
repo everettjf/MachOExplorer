@@ -6,6 +6,7 @@
 #include "src/utility/Utility.h"
 #include "src/controller/Workspace.h"
 #include "src/controller/LayoutController.h"
+#include "src/controller/LayoutFilterProxyModel.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -14,7 +15,6 @@
 #include <QtConcurrent>
 #include <QFutureWatcher>
 #include <QLineEdit>
-#include <QSortFilterProxyModel>
 
 LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 {
@@ -22,13 +22,10 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 
     controller = nullptr;
 
-    proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setRecursiveFilteringEnabled(true);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    proxyModel->setFilterKeyColumn(0);
+    proxyModel = new LayoutFilterProxyModel(this);
 
     searchEdit = new QLineEdit(this);
-    searchEdit->setPlaceholderText(tr("Search layout..."));
+    searchEdit->setPlaceholderText(tr("Search layout and opened tables..."));
     searchEdit->setClearButtonEnabled(true);
 
     treeView = new LayoutTreeView(this);
@@ -130,7 +127,7 @@ void LayoutDockWidget::onSearchTextChanged(const QString &text)
     if(!proxyModel)
         return;
 
-    proxyModel->setFilterFixedString(text);
+    proxyModel->setPattern(text);
 
     if(!text.isEmpty()){
         // Expand everything so matches deep in the tree become visible.

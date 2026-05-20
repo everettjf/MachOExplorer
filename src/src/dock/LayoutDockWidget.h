@@ -12,8 +12,8 @@
 #include "../widget/LayoutTreeView.h"
 
 class LayoutController;
+class LayoutFilterProxyModel;
 class QLineEdit;
-class QSortFilterProxyModel;
 
 
 class LayoutDockWidget : public QDockWidget
@@ -23,7 +23,7 @@ private:
     LayoutTreeView *treeView;
     LayoutController *controller;
     QLineEdit *searchEdit;
-    QSortFilterProxyModel *proxyModel;
+    LayoutFilterProxyModel *proxyModel;
     bool parsing_ = false;
     bool nodeBuilding_ = false;
     moex::ViewNode *pendingNode_ = nullptr;
