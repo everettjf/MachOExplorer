@@ -26,7 +26,7 @@ void FatHeaderViewNode::InitViewDatas(){
 
     // Table
     {
-        auto t = CreateTableView();
+        auto t = CreateTableView(d_.get());
         const qv_fat_header * h = d_->offset();
 
         t->AddRow(h->magic,"Magic Number",d_->GetMagicString());

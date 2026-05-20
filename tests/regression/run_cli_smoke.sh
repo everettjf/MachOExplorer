@@ -7,8 +7,10 @@ APP_BUNDLE_BIN="${BUILD_DIR}/MachOExplorer.app/Contents/MacOS/MachOExplorer"
 APP_BIN="${APP_BUNDLE_BIN}"
 APP_BUNDLE_DIR="${BUILD_DIR}/MachOExplorer.app"
 SAMPLE_FILE="${ROOT_DIR}/sample/simple"
+FAT_SAMPLE_FILE="${ROOT_DIR}/sample/complex"
 OUT_TEXT="/tmp/moex-cli-smoke.txt"
 OUT_JSON="/tmp/moex-cli-smoke.json"
+OUT_FAT="/tmp/moex-cli-smoke-fat.txt"
 
 if [[ ! -x "${APP_BIN}" ]]; then
   echo "cli-smoke: missing app binary: ${APP_BIN}; build first"
@@ -88,6 +90,19 @@ if ! (
 ); then
   echo "cli-smoke: app bundle rejection message missing"
   exit 1
+fi
+
+# Fat binaries exercise FatHeaderViewNode, which must produce a table without
+# crashing on an unset GetRAW callback.
+if [[ -f "${FAT_SAMPLE_FILE}" ]]; then
+  if ! "${APP_BIN}" --cli "${FAT_SAMPLE_FILE}" >"${OUT_FAT}" 2>/dev/null; then
+    echo "cli-smoke: fat binary analysis failed"
+    exit 1
+  fi
+  if [[ ! -s "${OUT_FAT}" ]]; then
+    echo "cli-smoke: fat binary produced no output"
+    exit 1
+  fi
 fi
 
 echo "cli-smoke: passed"

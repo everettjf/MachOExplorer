@@ -109,7 +109,7 @@ template <typename T>
 void TableViewData::AddRow(T& field,const char *desc,const std::string &val){
     AddRow((void*)&(field),
            (uint64_t)sizeof(field),
-           GetRAW(&(field)),
+           GetRAW ? GetRAW(&(field)) : 0,
            desc,
            val);
 }
