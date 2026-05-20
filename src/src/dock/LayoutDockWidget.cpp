@@ -8,16 +8,28 @@
 #include "src/controller/LayoutController.h"
 
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QAbstractItemView>
 #include <QItemSelectionModel>
 #include <QtConcurrent>
 #include <QFutureWatcher>
+#include <QLineEdit>
+#include <QSortFilterProxyModel>
 
 LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 {
     setWindowTitle(tr("Layout"));
 
     controller = nullptr;
+
+    proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setRecursiveFilteringEnabled(true);
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel->setFilterKeyColumn(0);
+
+    searchEdit = new QLineEdit(this);
+    searchEdit->setPlaceholderText(tr("Search layout..."));
+    searchEdit->setClearButtonEnabled(true);
 
     treeView = new LayoutTreeView(this);
     treeView->setMinimumWidth(200);
@@ -28,8 +40,17 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
     treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     treeView->setAllColumnsShowFocus(true);
     treeView->setUniformRowHeights(true);
-    setWidget(treeView);
 
+    QWidget *container = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    layout->setContentsMargins(2, 2, 2, 2);
+    layout->setSpacing(2);
+    layout->addWidget(searchEdit);
+    layout->addWidget(treeView);
+    setWidget(container);
+
+    connect(searchEdit, &QLineEdit::textChanged,
+            this, &LayoutDockWidget::onSearchTextChanged);
     connect(treeView, &QTreeView::clicked,
             this, &LayoutDockWidget::clickedTreeNode);
     connect(treeView, &QTreeView::activated,
@@ -51,6 +72,7 @@ void LayoutDockWidget::openFile(const QString &filePath)
 
     // Clear the current tree while the new file parses in the background so the
     // UI thread stays responsive on large binaries / dyld shared caches.
+    searchEdit->clear();
     treeView->setModel(nullptr);
     parsing_ = true;
     WS()->addLog("Start parsing " + filePath);
@@ -87,7 +109,8 @@ void LayoutDockWidget::openFile(const QString &filePath)
 
 void LayoutDockWidget::populateTree()
 {
-    treeView->setModel(controller->model());
+    proxyModel->setSourceModel(controller->model());
+    treeView->setModel(proxyModel);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     treeView->setColumnWidth(0,300);
 
@@ -96,10 +119,27 @@ void LayoutDockWidget::populateTree()
 
     treeView->expandToDepth(controller->getExpandDepth());
 
-    QModelIndex rootIndex = controller->model()->index(0, 0);
+    QModelIndex rootIndex = proxyModel->mapFromSource(controller->model()->index(0, 0));
     treeView->setCurrentIndex(rootIndex);
     treeView->scrollTo(rootIndex, QAbstractItemView::PositionAtTop);
     treeView->setFocus(Qt::OtherFocusReason);
+}
+
+void LayoutDockWidget::onSearchTextChanged(const QString &text)
+{
+    if(!proxyModel)
+        return;
+
+    proxyModel->setFilterFixedString(text);
+
+    if(!text.isEmpty()){
+        // Expand everything so matches deep in the tree become visible.
+        treeView->expandAll();
+    } else {
+        treeView->collapseAll();
+        if(controller)
+            treeView->expandToDepth(controller->getExpandDepth());
+    }
 }
 
 
@@ -158,7 +198,8 @@ void LayoutDockWidget::showTreeIndex(const QModelIndex &index)
     if(!controller || !index.isValid())
         return;
 
-    QStandardItem *item = controller->model()->itemFromIndex(index);
+    const QModelIndex sourceIndex = proxyModel->mapToSource(index);
+    QStandardItem *item = controller->model()->itemFromIndex(sourceIndex);
     if(!item)
         return;
 
