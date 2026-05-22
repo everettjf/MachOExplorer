@@ -8,6 +8,7 @@
 #include "libmoex/node/LoadCommand.h"
 #include "libmoex/node/Common.h"
 #include "libmoex/node/MachHeader.h"
+#include <cstring>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -95,9 +96,34 @@ public:
     }
 
     std::string GetStringByStrX(uint32_t strx){
-        char * stroffset = (char*)GetStringTableOffsetAddress();
-        std::string name(stroffset + strx);
-        return name;
+        char * table = (char*)GetStringTableOffsetAddress();
+        const uint32_t strsize = cmd_->strsize;
+        if (strx >= strsize) {
+            return std::string();
+        }
+        const char * start = table + strx;
+
+        // Never read past the string table extent or the mapped file: a
+        // truncated or crafted string table may lack a terminating NUL.
+        std::size_t max_len = static_cast<std::size_t>(strsize - strx);
+        auto ctx = header_->ctx();
+        if (ctx) {
+            const char * file_start = static_cast<const char*>(ctx->file_start);
+            const char * file_end = file_start + ctx->file_size;
+            if (start < file_start || start >= file_end) {
+                return std::string();
+            }
+            const std::size_t max_in_file = static_cast<std::size_t>(file_end - start);
+            if (max_in_file < max_len) {
+                max_len = max_in_file;
+            }
+        }
+
+        const char * nul = static_cast<const char*>(memchr(start, '\0', max_len));
+        if (nul != nullptr) {
+            return std::string(start, nul);
+        }
+        return std::string(start, start + max_len);
     }
 
 public:
