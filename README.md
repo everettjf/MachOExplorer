@@ -69,4 +69,4 @@ Issues and PRs are welcome:
 MIT. See [LICENSE](LICENSE).
 
 ## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer&type=Date)](https://star-history.com/#everettjf/MachOExplorer&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer)](https://star-history.com/#everettjf/MachOExplorer)
