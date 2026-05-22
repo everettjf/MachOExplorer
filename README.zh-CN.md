@@ -69,4 +69,4 @@ JSON 输出现在包含更稳定的自动化字段：`schemaVersion`、`summary`
 MIT，详见 [LICENSE](LICENSE)。
 
 ## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer&type=Date)](https://star-history.com/#everettjf/MachOExplorer&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=everettjf/MachOExplorer)](https://star-history.com/#everettjf/MachOExplorer)
