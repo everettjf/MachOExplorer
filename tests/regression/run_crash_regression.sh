@@ -10,6 +10,19 @@ if [[ ! -x "${PARSER_BIN}" ]]; then
   exit 2
 fi
 
+# Optional full app binary. When present we also run the complete view-node
+# dumper (--cli) over the malformed corpus, which exercises the rich parsing
+# layer (load commands, code signature, ObjC/Swift metadata, dyld info, ...)
+# that moex-parse alone does not reach.
+APP_BUNDLE_BIN="${ROOT_DIR}/build/MachOExplorer.app/Contents/MacOS/MachOExplorer"
+PLAIN_APP_BIN="${ROOT_DIR}/build/MachOExplorer"
+APP_BIN=""
+if [[ -x "${APP_BUNDLE_BIN}" ]]; then
+  APP_BIN="${APP_BUNDLE_BIN}"
+elif [[ -x "${PLAIN_APP_BIN}" ]]; then
+  APP_BIN="${PLAIN_APP_BIN}"
+fi
+
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/moex-crash-reg.XXXXXX")"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
@@ -117,9 +130,31 @@ else
   echo "[ok] valid FAT64 parsed successfully: $(basename "${valid_fat64}")"
 fi
 
+# Deep pass: run the full view-node dumper over the same corpus so the rich
+# parsing layer is also crash-tested against malformed input.
+CLI_TOTAL=0
+if [[ -n "${APP_BIN}" ]]; then
+  for f in "${TMP_DIR}"/*; do
+    for fmt in text json; do
+      CLI_TOTAL=$((CLI_TOTAL + 1))
+      set +e
+      "${APP_BIN}" --cli --format "${fmt}" "${f}" >/dev/null 2>&1
+      cli_rc=$?
+      set -e
+      if [[ "${cli_rc}" -ge 128 ]]; then
+        echo "[fail] view-node dumper crashed (signal exit=${cli_rc}, format=${fmt}) for: ${f}"
+        FAIL=1
+      fi
+    done
+  done
+  echo "[ok] view-node dumper handled corpus safely (runs=${CLI_TOTAL})"
+else
+  echo "[skip] full app binary not built; view-node dumper crash pass skipped"
+fi
+
 if [[ "${FAIL}" -ne 0 ]]; then
   echo "crash-regression: failed"
   exit 1
 fi
 
-echo "crash-regression: passed (total=${TOTAL} rejected=${REJECTED} accepted=${ACCEPTED})"
+echo "crash-regression: passed (total=${TOTAL} rejected=${REJECTED} accepted=${ACCEPTED} cli-runs=${CLI_TOTAL})"
