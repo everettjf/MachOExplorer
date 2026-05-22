@@ -38,6 +38,14 @@ void Workspace::showNode(moex::ViewNode *node)
     // Lazy init
     node->Init();
 
+    displayNode(node);
+}
+
+void Workspace::displayNode(moex::ViewNode *node)
+{
+    if(!node)
+        return;
+
     // central widget
     ui_->main->showTableViewData(node->table().get());
 

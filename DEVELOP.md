@@ -4,8 +4,9 @@ This document is for contributors and maintainers.
 
 ## Prerequisites
 - CMake >= 3.16
-- Qt 6 (recommended)
+- Qt 6 (recommended), components: Core, Gui, Widgets, Network, Concurrent
 - C++14 compiler
+- Optional: Capstone (`libcapstone-dev`) for `__TEXT,__text` disassembly
 - macOS release tooling: `macdeployqt`, `hdiutil`, `gh`
 
 ## Build
@@ -16,6 +17,16 @@ cmake -S src -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/Users/eev
 cmake --build build -j8
 ./build/MachOExplorer
 ```
+
+### Linux
+```bash
+# Debian/Ubuntu deps: sudo apt-get install qt6-base-dev libgl1-mesa-dev
+#   (optional disassembly: libcapstone-dev)
+./build_linux.sh            # or: cmake -S src -B build && cmake --build build -j$(nproc)
+./build/MachOExplorer
+```
+On Linux the binary is `build/MachOExplorer` (no `.app` bundle). The CLI mode
+(`--cli`) runs without a display, so it works in headless/CI environments.
 
 ### Windows
 ```powershell

@@ -4,19 +4,23 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="${ROOT_DIR}/build"
 APP_BUNDLE_BIN="${BUILD_DIR}/MachOExplorer.app/Contents/MacOS/MachOExplorer"
-APP_BIN="${APP_BUNDLE_BIN}"
-APP_BUNDLE_DIR="${BUILD_DIR}/MachOExplorer.app"
+PLAIN_BIN="${BUILD_DIR}/MachOExplorer"
 SAMPLE_FILE="${ROOT_DIR}/sample/simple"
+FAT_SAMPLE_FILE="${ROOT_DIR}/sample/complex"
 OUT_TEXT="/tmp/moex-cli-smoke.txt"
 OUT_JSON="/tmp/moex-cli-smoke.json"
+OUT_FAT="/tmp/moex-cli-smoke-fat.txt"
 
-if [[ ! -x "${APP_BIN}" ]]; then
-  echo "cli-smoke: missing app binary: ${APP_BIN}; build first"
-  exit 2
-fi
-
-if [[ ! -d "${APP_BUNDLE_DIR}" ]]; then
-  echo "cli-smoke: missing app bundle dir: ${APP_BUNDLE_DIR}; build first"
+# Prefer the macOS .app bundle; fall back to the plain binary (Linux/Windows).
+# DIR_CASE is a directory used to verify the parser rejects directory paths.
+if [[ -x "${APP_BUNDLE_BIN}" ]]; then
+  APP_BIN="${APP_BUNDLE_BIN}"
+  DIR_CASE="${BUILD_DIR}/MachOExplorer.app"
+elif [[ -x "${PLAIN_BIN}" ]]; then
+  APP_BIN="${PLAIN_BIN}"
+  DIR_CASE="${BUILD_DIR}"
+else
+  echo "cli-smoke: missing app binary in ${BUILD_DIR}; build first"
   exit 2
 fi
 
@@ -74,7 +78,7 @@ if ! "${summary_mode_cmd[@]}" "${OUT_JSON}.filtered"; then
   exit 1
 fi
 
-if "${APP_BIN}" --cli "${APP_BUNDLE_DIR}" >/tmp/moex-cli-bundle.out 2>/tmp/moex-cli-bundle.err; then
+if "${APP_BIN}" --cli "${DIR_CASE}" >/tmp/moex-cli-bundle.out 2>/tmp/moex-cli-bundle.err; then
   echo "cli-smoke: app bundle path should fail gracefully"
   exit 1
 fi
@@ -88,6 +92,19 @@ if ! (
 ); then
   echo "cli-smoke: app bundle rejection message missing"
   exit 1
+fi
+
+# Fat binaries exercise FatHeaderViewNode, which must produce a table without
+# crashing on an unset GetRAW callback.
+if [[ -f "${FAT_SAMPLE_FILE}" ]]; then
+  if ! "${APP_BIN}" --cli "${FAT_SAMPLE_FILE}" >"${OUT_FAT}" 2>/dev/null; then
+    echo "cli-smoke: fat binary analysis failed"
+    exit 1
+  fi
+  if [[ ! -s "${OUT_FAT}" ]]; then
+    echo "cli-smoke: fat binary produced no output"
+    exit 1
+  fi
 fi
 
 echo "cli-smoke: passed"

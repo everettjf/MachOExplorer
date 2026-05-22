@@ -421,20 +421,27 @@ namespace util {
     }
 
     // return next offset
-    const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size) {
+    const char * readUnsignedLeb128(const char *cur_offset,const char *end,uint64_t & data,uint32_t & occupy_size) {
         const uint8_t* p = (const uint8_t*)cur_offset;
+        const uint8_t* pend = (const uint8_t*)end;
 
         uint64_t result = 0;
         int bit = 0;
 
         do {
+            if (p >= pend){
+                // truncated / out of bounds
+                data = 0;
+                occupy_size = 0;
+                return nullptr;
+            }
             uint64_t slice = *p & 0x7f;
 
             if (bit >= 64 || slice << bit >> bit != slice){
                 // error
                 data = 0;
                 occupy_size = 0;
-                return 0;
+                return nullptr;
             } else {
                 result |= (slice << bit);
                 bit += 7;
@@ -443,30 +450,37 @@ namespace util {
         while (*p++ & 0x80);
 
         data = result;
-        occupy_size = p - (const uint8_t*)cur_offset;
+        occupy_size = (uint32_t)(p - (const uint8_t*)cur_offset);
         return (const char *)p;
     }
-    const char * readSignedLeb128(const char *cur_offset,int64_t & data,uint32_t & occupy_size){
+    const char * readSignedLeb128(const char *cur_offset,const char *end,int64_t & data,uint32_t & occupy_size){
         const uint8_t* p = (const uint8_t*)cur_offset;
+        const uint8_t* pend = (const uint8_t*)end;
 
         int64_t result = 0;
         int bit = 0;
         uint8_t byte=0;
 
         do {
+            if (p >= pend || bit >= 64){
+                // truncated / out of bounds
+                data = 0;
+                occupy_size = 0;
+                return nullptr;
+            }
             byte = *p++;
-            result |= ((byte & 0x7f) << bit);
+            result |= ((int64_t)(byte & 0x7f) << bit);
             bit += 7;
         } while (byte & 0x80);
 
         // sign extend negative numbers
-        if ( (byte & 0x40) != 0 )
+        if ( (byte & 0x40) != 0 && bit < 64 )
         {
             result |= (-1LL) << bit;
         }
 
         data = result;
-        occupy_size = p - (const uint8_t*)cur_offset;
+        occupy_size = (uint32_t)(p - (const uint8_t*)cur_offset);
         return (const char *)p;
     }
 

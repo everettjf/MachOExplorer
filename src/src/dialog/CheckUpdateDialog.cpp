@@ -3,7 +3,7 @@
 //  Copyright © 2017 everettjf. All rights reserved.
 //
 #include "CheckUpdateDialog.h"
-#include "ui_checkupdatedialog.h"
+#include "ui_CheckUpdateDialog.h"
 #include <QNetworkReply>
 #include "src/base/AppInfo.h"
 #include "src/utility/Utility.h"

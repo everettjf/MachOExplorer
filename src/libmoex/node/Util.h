@@ -90,8 +90,11 @@ std::vector<std::tuple<qv_vm_prot_t,std::string>> ParseProts(qv_vm_prot_t prot);
 std::string FormatTimeStamp(uint32_t timestamp);
 std::string FormatVersion(uint32_t ver);
 
-const char * readUnsignedLeb128(const char *cur_offset,uint64_t & data,uint32_t & occupy_size);
-const char * readSignedLeb128(const char *cur_offset,int64_t & data,uint32_t & occupy_size);
+// Decode (un)signed LEB128. `end` is one-past-the-last readable byte; if the
+// encoding would read at/past it (truncated/malformed input) the functions
+// return nullptr with data=0 and occupy_size=0 instead of reading out of bounds.
+const char * readUnsignedLeb128(const char *cur_offset,const char *end,uint64_t & data,uint32_t & occupy_size);
+const char * readSignedLeb128(const char *cur_offset,const char *end,int64_t & data,uint32_t & occupy_size);
 
 std::vector<char*> ParseStringLiteral(char * offset,uint32_t size);
 

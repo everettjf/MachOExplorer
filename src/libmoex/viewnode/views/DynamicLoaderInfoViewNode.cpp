@@ -675,7 +675,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
 
         uint64_t terminal_size = 0;
         uint32_t ts_size = 0;
-        const char *p = util::readUnsignedLeb128(cur.node, terminal_size, ts_size);
+        const char *p = util::readUnsignedLeb128(cur.node, blob_end, terminal_size, ts_size);
         if (p == nullptr || p > blob_end) continue;
 
         t->AddRow({AsAddress(dataoff + node_off), "node", cur.prefix.empty() ? "<root>" : cur.prefix,
@@ -685,7 +685,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
         if (terminal_end <= blob_end && terminal_size > 0) {
             uint64_t flags = 0;
             uint32_t flags_size = 0;
-            const char *q = util::readUnsignedLeb128(p, flags, flags_size);
+            const char *q = util::readUnsignedLeb128(p, blob_end, flags, flags_size);
             if (q != nullptr && q <= terminal_end) {
                 std::string flag_kind = "regular";
                 const uint64_t kind = flags & EXPORT_SYMBOL_FLAGS_KIND_MASK;
@@ -699,7 +699,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
 
                 uint64_t value = 0;
                 uint32_t value_size = 0;
-                const char *r = util::readUnsignedLeb128(q, value, value_size);
+                const char *r = util::readUnsignedLeb128(q, blob_end, value, value_size);
                 if (r != nullptr && r <= terminal_end) {
                     t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(q - blob_begin)),
                                "terminal.value",
@@ -709,7 +709,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
                     if (flags & EXPORT_SYMBOL_FLAGS_REEXPORT) {
                         uint64_t import_name_off = 0;
                         uint32_t import_name_size = 0;
-                        const char *import_name_ptr = util::readUnsignedLeb128(r, import_name_off, import_name_size);
+                        const char *import_name_ptr = util::readUnsignedLeb128(r, blob_end, import_name_off, import_name_size);
                         if (import_name_ptr != nullptr && import_name_ptr <= terminal_end) {
                             const char *name_end = static_cast<const char *>(memchr(import_name_ptr, '\0', static_cast<size_t>(terminal_end - import_name_ptr)));
                             std::string import_name = "<none>";
@@ -725,7 +725,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
                     } else if (flags & EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER) {
                         uint64_t resolver = 0;
                         uint32_t resolver_size = 0;
-                        const char *resolver_ptr = util::readUnsignedLeb128(r, resolver, resolver_size);
+                        const char *resolver_ptr = util::readUnsignedLeb128(r, blob_end, resolver, resolver_size);
                         if (resolver_ptr != nullptr && resolver_ptr <= terminal_end) {
                             t->AddRow({AsAddress(dataoff + static_cast<uint64_t>(resolver_ptr - blob_begin)),
                                        "terminal.resolver",
@@ -760,7 +760,7 @@ void ModernExportsTrieViewNode::InitViewDatas()
 
             uint64_t child_delta = 0;
             uint32_t child_size = 0;
-            const char *after = util::readUnsignedLeb128(children_ptr, child_delta, child_size);
+            const char *after = util::readUnsignedLeb128(children_ptr, blob_end, child_delta, child_size);
             if (after == nullptr || after > blob_end) break;
             children_ptr = after;
 

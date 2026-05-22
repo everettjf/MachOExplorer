@@ -18,15 +18,24 @@ LayoutController::~LayoutController()
     }
 }
 
-bool LayoutController::initModel(QString & error)
+bool LayoutController::parse(QString & error)
 {
     if(filePath_.length() == 0){
         error = "File path is empty";
         return false;
     }
 
-    WS()->addLog("Start parsing " + filePath_);
+    std::string filepath = filePath_.toStdString();
+    std::string init_error;
+    if(!vnm_.Init(filepath,init_error)){
+        error = QString("Exception : %1").arg(init_error.c_str());
+        return false;
+    }
+    return true;
+}
 
+void LayoutController::buildModel()
+{
     // Init model
     if(model_) delete model_;
     model_ = new QStandardItemModel();
@@ -34,16 +43,6 @@ bool LayoutController::initModel(QString & error)
                 QStringList()
                 << QStringLiteral("name")
                 );
-
-    // Parse file
-    std::string filepath = filePath_.toStdString();
-    std::string init_error;
-    if(!vnm_.Init(filepath,init_error)){
-        error = QString("Exception : %1").arg(init_error.c_str());
-        WS()->addLog(error);
-        return false;
-    }
-    WS()->addLog("Parse succeed");
 
     // Root item
     moex::ViewNode *root = vnm_.GetRootNode();
@@ -53,8 +52,6 @@ bool LayoutController::initModel(QString & error)
 
     // Children
     initChildren(root,item);
-
-    return true;
 }
 
 void LayoutController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem){

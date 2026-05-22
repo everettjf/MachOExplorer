@@ -63,6 +63,20 @@ printf '\x00\x00\x00\x0c\x00\x00\x00\x00' \
 printf '\xcf\xfa\xed\xfe\x07\x00\x00\x01\x03\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' \
   | dd of="${valid_fat64}" bs=1 seek=4096 conv=notrunc 2>/dev/null
 
+# Truncated copies of real sample binaries. These carry LC_DYLD_INFO /
+# LC_FUNCTION_STARTS payloads, so cutting them mid-stream exercises the LEB128
+# and trie-walk bounds checks against genuine (not synthetic) data.
+for sample in simple complex; do
+  src_bin="${ROOT_DIR}/sample/${sample}"
+  [[ -f "${src_bin}" ]] || continue
+  total_bytes="$(wc -c < "${src_bin}")"
+  for frac in 60 75 90; do
+    cut_bytes=$(( total_bytes * frac / 100 ))
+    [[ "${cut_bytes}" -gt 0 ]] || continue
+    head -c "${cut_bytes}" "${src_bin}" > "${TMP_DIR}/trunc_${sample}_${frac}.bin"
+  done
+done
+
 FAIL=0
 TOTAL=0
 REJECTED=0

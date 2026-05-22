@@ -194,8 +194,8 @@ void XrefViewNode::InitViewDatas()
                 }
 
                 if (arch == CS_ARCH_ARM64) {
-                    uint8_t regs_read[36] = {0};
-                    uint8_t regs_write[36] = {0};
+                    uint16_t regs_read[64] = {0};
+                    uint16_t regs_write[64] = {0};
                     uint8_t read_count = 0;
                     uint8_t write_count = 0;
                     if (cs_regs_access(handle, &ci, regs_read, &read_count, regs_write, &write_count) == 0) {
@@ -272,7 +272,7 @@ void XrefViewNode::InitViewDatas()
                         if (hit != arm64_reg_targets.end()) {
                             const uint64_t mem_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(hit->second) + arm.operands[1].mem.disp);
                             uint64_t pointed = 0;
-                            if (ReadPointerAtVm(mh_, mem_vmaddr, true, pointed) && pointed != 0) {
+                            if (ReadPointerAtVm(mh_.get(),mem_vmaddr, true, pointed) && pointed != 0) {
                                 arm64_reg_targets[arm.operands[0].reg] = pointed;
                             }
                         }
@@ -282,15 +282,15 @@ void XrefViewNode::InitViewDatas()
                                arm.operands[1].type == ARM64_OP_IMM) {
                         const uint64_t mem_vmaddr = static_cast<uint64_t>(arm.operands[1].imm);
                         uint64_t pointed = 0;
-                        if (ReadPointerAtVm(mh_, mem_vmaddr, true, pointed) && pointed != 0) {
+                        if (ReadPointerAtVm(mh_.get(),mem_vmaddr, true, pointed) && pointed != 0) {
                             arm64_reg_targets[arm.operands[0].reg] = pointed;
                         }
                     }
                 }
 
                 if (arch == CS_ARCH_X86) {
-                    uint8_t regs_read[36] = {0};
-                    uint8_t regs_write[36] = {0};
+                    uint16_t regs_read[64] = {0};
+                    uint16_t regs_write[64] = {0};
                     uint8_t read_count = 0;
                     uint8_t write_count = 0;
                     if (cs_regs_access(handle, &ci, regs_read, &read_count, regs_write, &write_count) == 0) {
@@ -328,7 +328,7 @@ void XrefViewNode::InitViewDatas()
                                    (x.operands[1].mem.base == X86_REG_RIP || x.operands[1].mem.base == X86_REG_EIP)) {
                             const uint64_t mem_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + x.operands[1].mem.disp);
                             uint64_t pointed = 0;
-                            if (ReadPointerAtVm(mh_, mem_vmaddr, is64, pointed) && pointed != 0) {
+                            if (ReadPointerAtVm(mh_.get(),mem_vmaddr, is64, pointed) && pointed != 0) {
                                 x86_reg_targets[x.operands[0].reg] = pointed;
                             }
                         }
@@ -367,7 +367,7 @@ void XrefViewNode::InitViewDatas()
                             const uint64_t mem_vmaddr = static_cast<uint64_t>(static_cast<int64_t>(ci.address) + ci.size + op.mem.disp);
                             uint64_t target = 0;
                             const bool is64ptr = (mode == CS_MODE_64);
-                            if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
+                            if (ReadPointerAtVm(mh_.get(),mem_vmaddr, is64ptr, target) && target != 0) {
                                 add_ref(target, {"__TEXT/__text", is_call ? "call-ripmem" : "jump-ripmem",
                                                  sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                             }
@@ -378,7 +378,7 @@ void XrefViewNode::InitViewDatas()
                                         static_cast<int64_t>(hit->second) + op.mem.disp);
                                 uint64_t target = 0;
                                 const bool is64ptr = (mode == CS_MODE_64);
-                                if (ReadPointerAtVm(mh_, mem_vmaddr, is64ptr, target) && target != 0) {
+                                if (ReadPointerAtVm(mh_.get(),mem_vmaddr, is64ptr, target) && target != 0) {
                                     add_ref(target, {"__TEXT/__text", is_call ? "call-regmem" : "jump-regmem",
                                                      sect->GetRAW(sect->GetOffset() + (ci.address - base)), ci.address});
                                 }

@@ -18,9 +18,16 @@ public:
 
     void setFilePath(const QString & filePath){ filePath_ = filePath;}
 
-    bool initModel(QString & error);
+    // Heavy parsing step. Safe to call off the GUI thread: it only touches
+    // libmoex data and never creates Qt UI objects.
+    bool parse(QString & error);
+    // Builds the tree model from the parsed result. GUI thread only.
+    void buildModel();
     void initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem);
     int getExpandDepth();
+
+    QString lastError() const { return lastError_; }
+    void setLastError(const QString & e){ lastError_ = e; }
 
     QStandardItemModel* model(){return model_;}
 
@@ -29,6 +36,7 @@ public:
 private:
     QStandardItemModel *model_;
     QString filePath_;
+    QString lastError_;
     moex::ViewNodeManager vnm_;
 };
 

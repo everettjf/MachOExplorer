@@ -21,7 +21,7 @@ public:
 #ifdef __APPLE__
     const char* what() const _NOEXCEPT override  { return error_.c_str();}
 #else
-    const char* what() const override { return error_.c_str();}
+    const char* what() const noexcept override { return error_.c_str();}
 #endif
 };
 
@@ -33,6 +33,16 @@ struct NodeContext{
     std::size_t file_size;
 };
 using NodeContextPtr = std::shared_ptr<NodeContext>;
+
+// True when [addr, addr+size) lies entirely within the mapped file.
+static inline bool NodeInFile(const NodeContextPtr &ctx, const void *addr, std::size_t size){
+    if(!ctx || ctx->file_start == nullptr) return false;
+    const char *p = static_cast<const char*>(addr);
+    const char *start = static_cast<const char*>(ctx->file_start);
+    const char *end = start + ctx->file_size;
+    if(p < start || p > end) return false;
+    return size <= static_cast<std::size_t>(end - p);
+}
 
 // Base class for each MachO element
 class Node{
@@ -88,6 +98,9 @@ public:
     // Init function which should be called in every child class's Init function
     void Init(void *offset,NodeContextPtr & ctx){
         NodeOffset<T>::Init(offset,ctx);
+        if(!NodeInFile(ctx, offset, NodeOffset<T>::DATA_SIZE())){
+            throw NodeException("Malformed file: struct read out of bounds");
+        }
         memcpy(&data_,offset,NodeOffset<T>::DATA_SIZE());
     }
 };

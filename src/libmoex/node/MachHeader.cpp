@@ -64,6 +64,7 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
         throw NodeException("Malformed Mach-O: load commands exceed file size");
     }
 
+    const uint32_t cmd_align = is64_ ? 8 : 4;
     qv_load_command *first_cmd = reinterpret_cast<qv_load_command*>((char*)offset + cur_datasize);
     qv_load_command *cur_cmd = first_cmd;
     uint64_t parsed_size = 0;
@@ -71,10 +72,17 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
         if (parsed_size + sizeof(qv_load_command) > sizeofcmds) {
             throw NodeException("Malformed Mach-O: truncated load command");
         }
-        if (cur_cmd->cmdsize < sizeof(qv_load_command)) {
+        // Load commands may sit at a misaligned address in a crafted file, so
+        // read the header through an aligned copy instead of dereferencing.
+        qv_load_command lc_head{};
+        memcpy(&lc_head, cur_cmd, sizeof(qv_load_command));
+        if (lc_head.cmdsize < sizeof(qv_load_command)) {
             throw NodeException("Malformed Mach-O: invalid load command size");
         }
-        if (parsed_size + cur_cmd->cmdsize > sizeofcmds) {
+        if (lc_head.cmdsize % cmd_align != 0) {
+            throw NodeException("Malformed Mach-O: misaligned load command size");
+        }
+        if (parsed_size + lc_head.cmdsize > sizeofcmds) {
             throw NodeException("Malformed Mach-O: load command size overflow");
         }
 
@@ -83,8 +91,8 @@ void MachHeader::Parse(void *offset,NodeContextPtr& ctx) {
         loadcmds_.push_back(cmd);
 
         // next
-        parsed_size += cur_cmd->cmdsize;
-        cur_cmd = reinterpret_cast<qv_load_command*>((char*)cur_cmd + cur_cmd->cmdsize);
+        parsed_size += lc_head.cmdsize;
+        cur_cmd = reinterpret_cast<qv_load_command*>((char*)cur_cmd + lc_head.cmdsize);
     }
 }
 

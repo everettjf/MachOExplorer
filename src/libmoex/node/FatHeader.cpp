@@ -38,6 +38,13 @@ void FatArch::Init(void *offset, NodeContextPtr &ctx) {
     if (object_size < sizeof(uint32_t)) {
         throw NodeException("Malformed Fat Mach-O: arch payload too small");
     }
+    // Slices are required to be at least pointer-aligned; real fat binaries
+    // page-align them. Reject under-aligned offsets so the embedded Mach-O
+    // header and its load commands are not dereferenced at misaligned
+    // addresses (undefined behaviour).
+    if (object_offset % 8 != 0) {
+        throw NodeException("Malformed Fat Mach-O: arch offset is misaligned");
+    }
 
     void *mach_offset = reinterpret_cast<char *>(ctx_->file_start) + object_offset;
     mh_ = std::make_shared<MachHeader>();

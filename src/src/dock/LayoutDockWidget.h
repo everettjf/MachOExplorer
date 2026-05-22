@@ -12,6 +12,8 @@
 #include "../widget/LayoutTreeView.h"
 
 class LayoutController;
+class LayoutFilterProxyModel;
+class QLineEdit;
 
 
 class LayoutDockWidget : public QDockWidget
@@ -20,10 +22,17 @@ class LayoutDockWidget : public QDockWidget
 private:
     LayoutTreeView *treeView;
     LayoutController *controller;
+    QLineEdit *searchEdit;
+    LayoutFilterProxyModel *proxyModel;
+    bool parsing_ = false;
+    bool nodeBuilding_ = false;
+    moex::ViewNode *pendingNode_ = nullptr;
 
 private:
     void showViewNode(moex::ViewNode * node);
     void showTreeIndex(const QModelIndex &index);
+    void populateTree();
+    void buildAndShowNode(moex::ViewNode *node);
 public:
     explicit LayoutDockWidget(QWidget *parent = 0);
 
@@ -34,6 +43,7 @@ signals:
 public slots:
     void clickedTreeNode(QModelIndex index);
     void currentTreeNodeChanged(const QModelIndex &current, const QModelIndex &previous);
+    void onSearchTextChanged(const QString &text);
 };
 
 #endif // LAYOUTVIEW_H
