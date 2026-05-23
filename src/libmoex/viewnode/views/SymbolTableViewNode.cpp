@@ -3,6 +3,7 @@
 //
 
 #include "SymbolTableViewNode.h"
+#include "libmoex/base/demangle/Demangle.h"
 
 MOEX_NAMESPACE_BEGIN
 
@@ -16,7 +17,13 @@ void SymbolTableViewNode::InitViewDatas() {
         return;
 
     for(auto & item : seg->nlists_ref()){
-        t->AddRow(item->n_strx(),"String Table Index",seg->GetStringByStrX(item->n_strx()));
+        const std::string name = seg->GetStringByStrX(item->n_strx());
+        t->AddRow(item->n_strx(),"String Table Index",name);
+
+        const std::string demangled = moex::demangle::DemangleCxx(name);
+        if(!demangled.empty()){
+            t->AddRow(item->n_strx(),"Demangled",demangled);
+        }
 
         t->AddRow(item->n_type(),"Type",AsShortHexString((uint32_t )item->n_type()));
         // foreach
