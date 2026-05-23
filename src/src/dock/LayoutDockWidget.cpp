@@ -28,6 +28,10 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
     searchEdit->setPlaceholderText(tr("Search layout and opened tables..."));
     searchEdit->setClearButtonEnabled(true);
 
+    gotoEdit = new QLineEdit(this);
+    gotoEdit->setPlaceholderText(tr("Go to file offset (e.g. 0x4000)"));
+    gotoEdit->setClearButtonEnabled(true);
+
     treeView = new LayoutTreeView(this);
     treeView->setMinimumWidth(200);
     treeView->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Expanding);
@@ -43,6 +47,7 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
     layout->setContentsMargins(2, 2, 2, 2);
     layout->setSpacing(2);
     layout->addWidget(searchEdit);
+    layout->addWidget(gotoEdit);
     layout->addWidget(treeView);
     setWidget(container);
 
@@ -50,6 +55,8 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
             this, &LayoutDockWidget::onSearchTextChanged);
     connect(searchEdit, &QLineEdit::returnPressed,
             this, &LayoutDockWidget::goToNextMatch);
+    connect(gotoEdit, &QLineEdit::returnPressed,
+            this, &LayoutDockWidget::goToOffset);
     connect(treeView, &QTreeView::clicked,
             this, &LayoutDockWidget::clickedTreeNode);
     connect(treeView, &QTreeView::activated,
@@ -72,6 +79,7 @@ void LayoutDockWidget::openFile(const QString &filePath)
     // Clear the current tree while the new file parses in the background so the
     // UI thread stays responsive on large binaries / dyld shared caches.
     searchEdit->clear();
+    gotoEdit->clear();
     treeView->setModel(nullptr);
     parsing_ = true;
     WS()->addLog("Start parsing " + filePath);
@@ -160,6 +168,92 @@ void LayoutDockWidget::goToNextMatch()
     const QModelIndex target = matches[next];
     treeView->setCurrentIndex(target);
     treeView->scrollTo(target, QAbstractItemView::PositionAtCenter);
+}
+
+moex::ViewNode *LayoutDockWidget::findNodeContainingOffset(moex::ViewNode *node, uint64_t offset, int &budget) const
+{
+    if (node == nullptr || budget <= 0)
+        return nullptr;
+    --budget;
+
+    node->Init();
+
+    moex::ViewNode *best = nullptr;
+    uint64_t best_size = 0;
+    const auto &bin = node->binary();
+    if (bin && !bin->IsEmpty() && bin->size > 0 &&
+        offset >= bin->start_value && offset < bin->start_value + bin->size) {
+        best = node;
+        best_size = bin->size;
+    }
+
+    node->ForEachChild([&](moex::ViewNode *child) {
+        moex::ViewNode *hit = findNodeContainingOffset(child, offset, budget);
+        if (hit != nullptr) {
+            const auto &cbin = hit->binary();
+            const uint64_t csize = cbin ? cbin->size : 0;
+            // Prefer the most specific (smallest) containing range.
+            if (best == nullptr || (csize > 0 && csize <= best_size)) {
+                best = hit;
+                best_size = csize;
+            }
+        }
+    });
+
+    return best;
+}
+
+QModelIndex LayoutDockWidget::findSourceIndexForNode(const QModelIndex &parent, moex::ViewNode *node) const
+{
+    QStandardItemModel *model = controller->model();
+    const int rows = model->rowCount(parent);
+    for (int i = 0; i < rows; ++i) {
+        const QModelIndex idx = model->index(i, 0, parent);
+        QStandardItem *item = model->itemFromIndex(idx);
+        if (item != nullptr &&
+            static_cast<moex::ViewNode *>(item->data().value<void *>()) == node) {
+            return idx;
+        }
+        const QModelIndex child = findSourceIndexForNode(idx, node);
+        if (child.isValid())
+            return child;
+    }
+    return QModelIndex();
+}
+
+void LayoutDockWidget::goToOffset()
+{
+    if (!controller)
+        return;
+
+    const QString text = gotoEdit->text().trimmed();
+    if (text.isEmpty())
+        return;
+
+    bool ok = false;
+    // base 0 auto-detects the 0x prefix; fall back to hex for bare digits.
+    qulonglong offset = text.toULongLong(&ok, 0);
+    if (!ok)
+        offset = text.toULongLong(&ok, 16);
+    if (!ok)
+        return;
+
+    int budget = 200000; // guard against pathological trees (e.g. dyld cache)
+    moex::ViewNode *target = findNodeContainingOffset(controller->rootNode(),
+                                                      static_cast<uint64_t>(offset), budget);
+    if (target == nullptr)
+        return;
+
+    const QModelIndex source = findSourceIndexForNode(QModelIndex(), target);
+    if (!source.isValid())
+        return;
+
+    const QModelIndex proxyIdx = proxyModel->mapFromSource(source);
+    if (!proxyIdx.isValid())
+        return;
+
+    treeView->setCurrentIndex(proxyIdx);
+    treeView->scrollTo(proxyIdx, QAbstractItemView::PositionAtCenter);
 }
 
 void LayoutDockWidget::onSearchTextChanged(const QString &text)
