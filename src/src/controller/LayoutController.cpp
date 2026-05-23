@@ -54,14 +54,17 @@ void LayoutController::buildModel()
     initChildren(root,item);
 }
 
-void LayoutController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem){
+void LayoutController::initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem,int depth){
+    // Guard against a pathologically deep / cyclic node tree from malformed input.
+    if(depth >= 256)
+        return;
     parentNode->ForEachChild([&](moex::ViewNode* node){
         QStandardItem *subItem = new QStandardItem(QString::fromStdString(node->GetDisplayName()));
         parentItem->appendRow(subItem);
         subItem->setData(QVariant::fromValue((void*)node));
 
         // Loop
-        initChildren(node,subItem);
+        initChildren(node,subItem,depth + 1);
     });
 }
 

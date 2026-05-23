@@ -23,7 +23,7 @@ public:
     bool parse(QString & error);
     // Builds the tree model from the parsed result. GUI thread only.
     void buildModel();
-    void initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem);
+    void initChildren(moex::ViewNode *parentNode,QStandardItem *parentItem,int depth = 0);
     int getExpandDepth();
 
     QString lastError() const { return lastError_; }

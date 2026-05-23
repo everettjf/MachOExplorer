@@ -490,7 +490,7 @@ void RebaseInfoViewNode::InitViewDatas()
                     break;
                 }
                 case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:{
-                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_ADD_ADDR_ULEB*>(codebase);
+                    auto code = static_cast<moex::Wrap_REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB*>(codebase);
 
                     print_->AddRow({ToHexString(info->header()->GetRAW(ctx->pbyte)),ToHexString((int)ctx->byte),
                                     "REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB",

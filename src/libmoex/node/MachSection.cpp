@@ -31,8 +31,23 @@ char *MachSection::GetOffset(){
     return offset;
 }
 uint32_t MachSection::GetSize() {
-    uint32_t size = (uint32_t) sect().size_both();
-    return size;
+    uint64_t size = sect().size_both();
+    // Clamp the section data size to the mapped file so the data readers
+    // (string/literal/pointer parsing) cannot run past a truncated section.
+    auto c = ctx();
+    if(c && c->file_start != nullptr){
+        const char *off = GetOffset();
+        const char *fstart = static_cast<const char*>(c->file_start);
+        if(off < fstart)
+            return 0;
+        const uint64_t off_in_file = static_cast<uint64_t>(off - fstart);
+        if(off_in_file >= c->file_size)
+            return 0;
+        const uint64_t avail = c->file_size - off_in_file;
+        if(size > avail)
+            size = avail;
+    }
+    return (uint32_t)size;
 }
 
 void MachSection::ForEachAs_S_CSTRING_LITERALS(std::function<void(char* str)> callback){

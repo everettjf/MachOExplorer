@@ -100,6 +100,17 @@ void LoadCommand_DYLD_INFO::ForEachRebaseOpcode(std::function<void(const RebaseO
     char * begin = header()->header_start() + cmd()->rebase_off;
     uint32_t size = cmd()->rebase_size;
     char * end = begin + size;
+    // Clamp to the mapped file: a truncated/crafted rebase_off/size can run the
+    // opcode walk past the end of the file.
+    {
+        auto fc = header()->ctx();
+        if(fc && fc->file_start != nullptr){
+            char *fstart = (char*)fc->file_start;
+            char *fend = fstart + fc->file_size;
+            if(begin < fstart || begin > fend) end = begin;
+            else if(end > fend) end = fend;
+        }
+    }
     char * cur = begin;
     while(cur < end && !done){
         // read and move next
@@ -256,6 +267,17 @@ void LoadCommand_DYLD_INFO::ForEachBindingOpcode(BindNodeType node_type,uint32_t
     char * begin = header()->header_start() + bind_off;
     uint32_t size = bind_size;
     char * end = begin + size;
+    // Clamp to the mapped file: a truncated/crafted bind_off/size can run the
+    // opcode walk past the end of the file.
+    {
+        auto fc = header()->ctx();
+        if(fc && fc->file_start != nullptr){
+            char *fstart = (char*)fc->file_start;
+            char *fend = fstart + fc->file_size;
+            if(begin < fstart || begin > fend) end = begin;
+            else if(end > fend) end = fend;
+        }
+    }
     char * cur = begin;
     while(cur < end && !done) {
         // read and move next

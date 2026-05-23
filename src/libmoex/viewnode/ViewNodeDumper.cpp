@@ -11,6 +11,11 @@ namespace {
 
 using Json = nlohmann::json;
 
+// Hard cap on view-tree recursion depth. A real Mach-O view tree is only a
+// handful of levels deep; this guards against stack overflow if malformed input
+// ever yields a pathologically deep or cyclic node tree.
+static const size_t kMaxDumpDepth = 256;
+
 static std::vector<ViewNode *> CollectChildren(ViewNode *node) {
     std::vector<ViewNode *> children;
     node->ForEachChild([&](ViewNode *child) {
@@ -278,6 +283,9 @@ static void DumpNodeText(ViewNode *node,
     if (options.max_depth > 0 && depth >= options.max_depth) {
         return;
     }
+    if (depth >= kMaxDumpDepth) {
+        return;
+    }
 
     auto children = CollectChildren(node);
     for (auto *child : children) {
@@ -312,7 +320,7 @@ static Json NodeToJson(ViewNode *node,
     }
 
     j["children"] = Json::array();
-    if (options.max_depth == 0 || depth < options.max_depth) {
+    if ((options.max_depth == 0 || depth < options.max_depth) && depth < kMaxDumpDepth) {
         auto children = CollectChildren(node);
         for (size_t i = 0; i < children.size(); ++i) {
             auto *child = children[i];
@@ -358,6 +366,9 @@ static void AccumulateSummary(ViewNode *node,
     }
 
     if (options.max_depth > 0 && depth >= options.max_depth) {
+        return;
+    }
+    if (depth >= kMaxDumpDepth) {
         return;
     }
 

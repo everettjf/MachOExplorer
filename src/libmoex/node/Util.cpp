@@ -473,10 +473,11 @@ namespace util {
             bit += 7;
         } while (byte & 0x80);
 
-        // sign extend negative numbers
+        // sign extend negative numbers (shift unsigned to avoid UB on a
+        // negative left shift, then reinterpret).
         if ( (byte & 0x40) != 0 && bit < 64 )
         {
-            result |= (-1LL) << bit;
+            result |= static_cast<int64_t>(~0ULL << bit);
         }
 
         data = result;
@@ -499,9 +500,17 @@ namespace util {
                 ++cur;
                 continue;
             }
-            results.push_back(cur);
+            char *str_start = cur;
             while (cur < end && *cur != 0) {
                 ++cur;
+            }
+            // Only return strings that are NUL-terminated within the region, so
+            // callers can safely treat the pointer as a C string.
+            if(cur < end){
+                results.push_back(str_start);
+                ++cur; // skip terminator
+            }else{
+                break; // unterminated trailing bytes (truncated/crafted input)
             }
         }
 

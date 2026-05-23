@@ -25,14 +25,30 @@ std::vector<DataInCodeEntryPtr> &LoadCommand_LC_DATA_IN_CODE::GetDices(){
     }
 
     char* cur_offset = (char*)this->header_->header_start() + cmd_->dataoff;
-    uint32_t cur_size = 0;
-    while(cur_size < cmd_->datasize){
+    uint64_t datasize = cmd_->datasize;
+    // Clamp the table to the mapped file so a truncated/crafted datasize cannot
+    // create entries that point past the end of the file.
+    auto fc = this->ctx();
+    if(fc && fc->file_start != nullptr){
+        const char* fstart = static_cast<const char*>(fc->file_start);
+        const char* fend = fstart + fc->file_size;
+        if(cur_offset < fstart || cur_offset > fend){
+            return dices_;
+        }
+        const uint64_t avail = static_cast<uint64_t>(fend - cur_offset);
+        if(datasize > avail) datasize = avail;
+    }
+
+    uint64_t cur_size = 0;
+    while(true){
         DataInCodeEntryPtr entry = std::make_shared<DataInCodeEntry>();
+        const uint64_t esz = entry->DATA_SIZE();
+        if(esz == 0 || cur_size + esz > datasize) break;
         entry->Init(cur_offset,ctx_);
         dices_.push_back(entry);
 
-        cur_offset += entry->DATA_SIZE();
-        cur_size += entry->DATA_SIZE();
+        cur_offset += esz;
+        cur_size += esz;
     }
 
     return dices_;
@@ -45,6 +61,17 @@ std::vector<Uleb128Data> &LoadCommand_LC_FUNCTION_STARTS::GetFunctions(){
 
     const char* start = (char*)this->header_->header_start() + cmd_->dataoff;
     const char* end = start + cmd_->datasize;
+    // Clamp the data range to the mapped file: a truncated/crafted command can
+    // claim a datasize that runs past the end of the file.
+    auto fctx = this->ctx();
+    if(fctx && fctx->file_start != nullptr){
+        const char* fstart = static_cast<const char*>(fctx->file_start);
+        const char* fend = fstart + fctx->file_size;
+        if(start < fstart || start > fend){
+            return functions_;
+        }
+        if(end > fend) end = fend;
+    }
     const char* cur_offset = start;
     while(cur_offset < end){
         Uleb128Data data;

@@ -32,9 +32,21 @@ void StringTableViewNode::InitViewDatas()
 
 
     char * stroffset = (char*)seg->GetStringTableOffsetAddress();
-    uint32_t strsize = seg->GetStringTableSize();
+    uint64_t strsize = seg->GetStringTableSize();
 
-    auto string_results = util::ParseStringLiteral(stroffset,strsize);
+    // Clamp the string table to the mapped file (truncated/crafted strsize).
+    auto sctx = mh_->ctx();
+    if(sctx && sctx->file_start != nullptr){
+        const char *fstart = static_cast<const char*>(sctx->file_start);
+        if(stroffset < fstart || static_cast<uint64_t>(stroffset - fstart) >= sctx->file_size){
+            strsize = 0;
+        }else{
+            const uint64_t avail = sctx->file_size - static_cast<uint64_t>(stroffset - fstart);
+            if(strsize > avail) strsize = avail;
+        }
+    }
+
+    auto string_results = util::ParseStringLiteral(stroffset,(uint32_t)strsize);
 
     int lineno = 0;
     for(char * cur : string_results){
