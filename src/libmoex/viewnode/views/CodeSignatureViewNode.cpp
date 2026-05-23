@@ -3,6 +3,7 @@
 //
 
 #include "CodeSignatureViewNode.h"
+#include <cstring>
 
 MOEX_NAMESPACE_BEGIN
 
@@ -27,6 +28,52 @@ uint32_t ReadBE32(const uint8_t *p) {
            (static_cast<uint32_t>(p[1]) << 16) |
            (static_cast<uint32_t>(p[2]) << 8)  |
            static_cast<uint32_t>(p[3]);
+}
+
+std::string HashTypeName(uint8_t type) {
+    switch (type) {
+        case 0:  return "none";
+        case 1:  return "SHA-1";
+        case 2:  return "SHA-256";
+        case 3:  return "SHA-256 (truncated)";
+        case 4:  return "SHA-384";
+        case 5:  return "SHA-512";
+        default: return "unknown";
+    }
+}
+
+std::string CodeDirectoryFlags(uint32_t flags) {
+    // Subset of CS_* flags that are useful to surface.
+    struct { uint32_t bit; const char *name; } table[] = {
+        {0x00000001, "host"},
+        {0x00000002, "adhoc"},
+        {0x00000004, "force-hard"},
+        {0x00000008, "force-kill"},
+        {0x00000100, "installer"},
+        {0x00000200, "dyld-platform"},
+        {0x00000400, "hard"},
+        {0x00000800, "kill"},
+        {0x00010000, "runtime"},
+        {0x00020000, "linker-signed"},
+    };
+    std::string out;
+    for (const auto &e : table) {
+        if (flags & e.bit) {
+            if (!out.empty()) out += " | ";
+            out += e.name;
+        }
+    }
+    return out.empty() ? "(none)" : out;
+}
+
+// Read a NUL-terminated string starting at base+off, bounded by datasize.
+std::string ReadBlobCString(const uint8_t *base, uint32_t datasize, uint32_t off) {
+    if (off == 0 || off >= datasize) return std::string();
+    const uint8_t *start = base + off;
+    const char *cstart = reinterpret_cast<const char *>(start);
+    const char *nul = static_cast<const char *>(memchr(start, '\0', datasize - off));
+    if (nul == nullptr) return std::string(cstart, static_cast<std::size_t>(datasize - off));
+    return std::string(cstart, nul);
 }
 
 std::string MagicName(uint32_t magic) {
@@ -109,6 +156,8 @@ void CodeSignatureViewNode::InitViewDatas() {
 
     uint32_t entitlements_off = 0;
     bool has_entitlements = false;
+    uint32_t cd_off = 0;
+    bool has_cd = false;
 
     for (uint32_t i = 0; i < count; ++i) {
         const uint8_t *idx = base + 12 + static_cast<uint64_t>(i) * 8;
@@ -127,12 +176,59 @@ void CodeSignatureViewNode::InitViewDatas() {
                 entitlements_off = blob_off;
                 has_entitlements = true;
             }
+            if (bmagic == kCSMagicCodeDirectory && !has_cd) {
+                cd_off = blob_off;
+                has_cd = true;
+            }
         }
 
         t->AddRow({AsAddress(base_off + 12 + static_cast<uint64_t>(i) * 8),
                    fmt::format("[{}] {}", i, SlotName(slot_type)),
                    fmt::format("offset={} magic={} length={}",
                                blob_off, magic_desc, len_desc)});
+    }
+
+    // Decode the Code Directory: identity, hash type, slot counts, flags.
+    if (has_cd && cd_off + 44 <= datasize) {
+        const uint8_t *cd = base + cd_off;
+        const uint32_t cd_version = ReadBE32(cd + 8);
+        const uint32_t cd_flags   = ReadBE32(cd + 12);
+        const uint32_t ident_off  = ReadBE32(cd + 20);
+        const uint32_t n_special  = ReadBE32(cd + 24);
+        const uint32_t n_code     = ReadBE32(cd + 28);
+        const uint32_t code_limit = ReadBE32(cd + 32);
+        const uint8_t  hash_size  = cd[36];
+        const uint8_t  hash_type  = cd[37];
+        const uint8_t  page_log2  = cd[39];
+
+        t->AddSeparator();
+        t->AddRow({AsAddress(base_off + cd_off), "Code Directory",
+                   fmt::format("version=0x{}", AsShortHexString(cd_version))});
+
+        const std::string identifier =
+                ReadBlobCString(cd, datasize - cd_off, ident_off);
+        if (!identifier.empty()) {
+            t->AddRow({AsAddress(base_off + cd_off + ident_off), "Identifier", identifier});
+        }
+
+        // Team identifier was added in version 0x20200.
+        if (cd_version >= 0x20200 && cd_off + 52 <= datasize) {
+            const uint32_t team_off = ReadBE32(cd + 48);
+            const std::string team = ReadBlobCString(cd, datasize - cd_off, team_off);
+            if (!team.empty()) {
+                t->AddRow({AsAddress(base_off + cd_off + team_off), "Team Identifier", team});
+            }
+        }
+
+        t->AddRow({AsAddress(base_off + cd_off + 37), "Hash Type",
+                   fmt::format("{} ({}, {} bytes)", hash_type, HashTypeName(hash_type), hash_size)});
+        t->AddRow({AsAddress(base_off + cd_off + 12), "Flags",
+                   fmt::format("0x{} ({})", AsShortHexString(cd_flags), CodeDirectoryFlags(cd_flags))});
+        t->AddRow({AsAddress(base_off + cd_off + 28), "Code Slots",
+                   fmt::format("{} (page size {} bytes)", n_code,
+                               page_log2 < 31 ? (1u << page_log2) : 0u)});
+        t->AddRow({AsAddress(base_off + cd_off + 24), "Special Slots", AsString(n_special)});
+        t->AddRow({AsAddress(base_off + cd_off + 32), "Code Limit", AsString(code_limit)});
     }
 
     if (!has_entitlements)
