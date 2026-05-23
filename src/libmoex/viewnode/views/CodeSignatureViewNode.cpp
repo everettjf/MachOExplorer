@@ -3,6 +3,7 @@
 //
 
 #include "CodeSignatureViewNode.h"
+#include "libmoex/base/digest/Sha.h"
 #include <cstring>
 
 MOEX_NAMESPACE_BEGIN
@@ -204,6 +205,23 @@ void CodeSignatureViewNode::InitViewDatas() {
         t->AddSeparator();
         t->AddRow({AsAddress(base_off + cd_off), "Code Directory",
                    fmt::format("version=0x{}", AsShortHexString(cd_version))});
+
+        // cdhash: the digest of the whole Code Directory blob (per its hash
+        // type), truncated to the canonical 20 bytes.
+        const uint32_t cd_len = ReadBE32(cd + 4);
+        if (cd_len >= 8 && static_cast<uint64_t>(cd_off) + cd_len <= datasize) {
+            std::vector<uint8_t> digest;
+            if (hash_type == 1) {
+                digest = moex::digest::Sha1(cd, cd_len);
+            } else if (hash_type == 2 || hash_type == 3) {
+                digest = moex::digest::Sha256(cd, cd_len);
+            }
+            if (!digest.empty()) {
+                if (digest.size() > 20) digest.resize(20);
+                t->AddRow({AsAddress(base_off + cd_off), "CD Hash (cdhash)",
+                           moex::digest::ToHex(digest)});
+            }
+        }
 
         const std::string identifier =
                 ReadBlobCString(cd, datasize - cd_off, ident_off);
