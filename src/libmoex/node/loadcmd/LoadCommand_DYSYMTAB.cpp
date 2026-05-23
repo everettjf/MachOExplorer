@@ -7,8 +7,22 @@
 
 MOEX_NAMESPACE_BEGIN
 
-
-
+namespace {
+// Clamp [offset, offset+size) to the mapped file so a truncated or crafted
+// table cannot make the iterators below dereference past the end.
+uint64_t ClampSizeToFile(const NodeContextPtr &ctx, const char *offset, uint64_t size){
+    if(!ctx || ctx->file_start == nullptr)
+        return size;
+    const char *fstart = static_cast<const char*>(ctx->file_start);
+    if(offset < fstart)
+        return 0;
+    const uint64_t off = static_cast<uint64_t>(offset - fstart);
+    if(off >= ctx->file_size)
+        return 0;
+    const uint64_t avail = ctx->file_size - off;
+    return size < avail ? size : avail;
+}
+} // namespace
 
 std::tuple<bool, uint32_t, uint32_t> LoadCommand_LC_DYSYMTAB::GetDataRange()
 {
@@ -33,8 +47,9 @@ std::tuple<bool, uint32_t, uint32_t> LoadCommand_LC_DYSYMTAB::GetDataRange()
 
 void LoadCommand_LC_DYSYMTAB::ForEachIndirectSymbols(std::function<void(uint32_t* indirect_index)> callback){
     char * offset = (char*)header_->header_start() + cmd_->indirectsymoff;
-    uint32_t size = cmd_->nindirectsyms * sizeof(uint32_t);
-    auto array = util::ParseDataAsSize(offset,size,sizeof(uint32_t));
+    uint64_t size = static_cast<uint64_t>(cmd_->nindirectsyms) * sizeof(uint32_t);
+    size = ClampSizeToFile(ctx(), offset, size);
+    auto array = util::ParseDataAsSize(offset,(uint32_t)size,sizeof(uint32_t));
     for(char *cur : array){
         callback((uint32_t*)(void*)cur);
     }
@@ -45,8 +60,10 @@ void LoadCommand_LC_DYSYMTAB::ForEachExternalRelocations(std::function<void(char
 
     char *offset = (char*)header_->header_start() + cmd_->extreloff;
     const uint32_t entry_size = sizeof(struct qv_relocation_info);
-    for(uint32_t i = 0; i < cmd_->nextrel; ++i){
-        callback(offset + i * entry_size, i);
+    const uint64_t avail = ClampSizeToFile(ctx(), offset, static_cast<uint64_t>(cmd_->nextrel) * entry_size);
+    const uint64_t count = avail / entry_size;
+    for(uint64_t i = 0; i < count; ++i){
+        callback(offset + i * entry_size, (uint32_t)i);
     }
 }
 
@@ -55,8 +72,10 @@ void LoadCommand_LC_DYSYMTAB::ForEachLocalRelocations(std::function<void(char *e
 
     char *offset = (char*)header_->header_start() + cmd_->locreloff;
     const uint32_t entry_size = sizeof(struct qv_relocation_info);
-    for(uint32_t i = 0; i < cmd_->nlocrel; ++i){
-        callback(offset + i * entry_size, i);
+    const uint64_t avail = ClampSizeToFile(ctx(), offset, static_cast<uint64_t>(cmd_->nlocrel) * entry_size);
+    const uint64_t count = avail / entry_size;
+    for(uint64_t i = 0; i < count; ++i){
+        callback(offset + i * entry_size, (uint32_t)i);
     }
 }
 

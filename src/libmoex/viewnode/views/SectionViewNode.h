@@ -26,8 +26,24 @@ public:
         return offset;
     }
     uint32_t GetSize(){
-        uint32_t size = (uint32_t)d_->sect().size_both();
-        return size;
+        uint64_t size = d_->sect().size_both();
+        // Clamp the section data size to what is actually present in the mapped
+        // file: a truncated or crafted section can claim more bytes than exist,
+        // and the data readers below would otherwise run off the end.
+        auto ctx = d_->ctx();
+        if(ctx && ctx->file_start != nullptr){
+            const char *off = GetOffset();
+            const char *fstart = static_cast<const char*>(ctx->file_start);
+            if(off < fstart)
+                return 0;
+            const uint64_t off_in_file = static_cast<uint64_t>(off - fstart);
+            if(off_in_file >= ctx->file_size)
+                return 0;
+            const uint64_t avail = ctx->file_size - off_in_file;
+            if(size > avail)
+                size = avail;
+        }
+        return (uint32_t)size;
     }
 
     void InitViewDatas()override {
@@ -56,8 +72,24 @@ public:
         return offset;
     }
     uint32_t GetSize(){
-        uint32_t size = (uint32_t)d_->sect().size_both();
-        return size;
+        uint64_t size = d_->sect().size_both();
+        // Clamp the section data size to what is actually present in the mapped
+        // file: a truncated or crafted section can claim more bytes than exist,
+        // and the data readers below would otherwise run off the end.
+        auto ctx = d_->ctx();
+        if(ctx && ctx->file_start != nullptr){
+            const char *off = GetOffset();
+            const char *fstart = static_cast<const char*>(ctx->file_start);
+            if(off < fstart)
+                return 0;
+            const uint64_t off_in_file = static_cast<uint64_t>(off - fstart);
+            if(off_in_file >= ctx->file_size)
+                return 0;
+            const uint64_t avail = ctx->file_size - off_in_file;
+            if(size > avail)
+                size = avail;
+        }
+        return (uint32_t)size;
     }
 
     void InitViewDatas()override;
