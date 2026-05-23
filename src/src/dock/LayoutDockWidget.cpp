@@ -48,6 +48,8 @@ LayoutDockWidget::LayoutDockWidget(QWidget *parent) : QDockWidget(parent)
 
     connect(searchEdit, &QLineEdit::textChanged,
             this, &LayoutDockWidget::onSearchTextChanged);
+    connect(searchEdit, &QLineEdit::returnPressed,
+            this, &LayoutDockWidget::goToNextMatch);
     connect(treeView, &QTreeView::clicked,
             this, &LayoutDockWidget::clickedTreeNode);
     connect(treeView, &QTreeView::activated,
@@ -120,6 +122,44 @@ void LayoutDockWidget::populateTree()
     treeView->setCurrentIndex(rootIndex);
     treeView->scrollTo(rootIndex, QAbstractItemView::PositionAtTop);
     treeView->setFocus(Qt::OtherFocusReason);
+}
+
+void LayoutDockWidget::collectMatches(const QModelIndex &proxyParent, QModelIndexList &out) const
+{
+    const int rows = proxyModel->rowCount(proxyParent);
+    for (int i = 0; i < rows; ++i) {
+        const QModelIndex proxyIdx = proxyModel->index(i, 0, proxyParent);
+        const QModelIndex sourceIdx = proxyModel->mapToSource(proxyIdx);
+        if (proxyModel->nodeMatches(sourceIdx)) {
+            out.push_back(proxyIdx);
+        }
+        collectMatches(proxyIdx, out);
+    }
+}
+
+void LayoutDockWidget::goToNextMatch()
+{
+    if (!controller || !proxyModel->hasPattern())
+        return;
+
+    QModelIndexList matches;
+    collectMatches(QModelIndex(), matches);
+    if (matches.isEmpty())
+        return;
+
+    // Advance to the first match after the current selection, wrapping around.
+    const QModelIndex current = treeView->currentIndex();
+    int next = 0;
+    for (int i = 0; i < matches.size(); ++i) {
+        if (matches[i] == current) {
+            next = (i + 1) % matches.size();
+            break;
+        }
+    }
+
+    const QModelIndex target = matches[next];
+    treeView->setCurrentIndex(target);
+    treeView->scrollTo(target, QAbstractItemView::PositionAtCenter);
 }
 
 void LayoutDockWidget::onSearchTextChanged(const QString &text)

@@ -33,6 +33,8 @@ private:
     void showTreeIndex(const QModelIndex &index);
     void populateTree();
     void buildAndShowNode(moex::ViewNode *node);
+    void collectMatches(const QModelIndex &proxyParent, QModelIndexList &out) const;
+    void goToNextMatch();
 public:
     explicit LayoutDockWidget(QWidget *parent = 0);
 

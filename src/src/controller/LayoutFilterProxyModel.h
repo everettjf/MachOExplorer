@@ -32,25 +32,19 @@ public:
         invalidateFilter();
     }
 
-protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override {
-        if (pattern_.isEmpty())
-            return true;
+    bool hasPattern() const { return !pattern_.isEmpty(); }
 
-        QAbstractItemModel *src = sourceModel();
-        if (!src)
-            return true;
-
-        const QModelIndex idx = src->index(source_row, 0, source_parent);
-        if (!idx.isValid())
+    // True when the node at sourceIndex is a direct match (by name, or by the
+    // contents of its already-built table) — i.e. not merely a kept ancestor.
+    bool nodeMatches(const QModelIndex &sourceIndex) const {
+        if (pattern_.isEmpty() || !sourceIndex.isValid())
             return false;
 
-        const QString name = src->data(idx, Qt::DisplayRole).toString();
+        const QString name = sourceIndex.data(Qt::DisplayRole).toString();
         if (name.contains(pattern_, Qt::CaseInsensitive))
             return true;
 
-        // Content search for nodes that have already been parsed.
-        const QVariant v = src->data(idx, Qt::UserRole + 1);
+        const QVariant v = sourceIndex.data(Qt::UserRole + 1);
         auto *node = reinterpret_cast<moex::ViewNode *>(v.value<void *>());
         if (node != nullptr && node->inited() && node->table()) {
             const std::string needle = pattern_.toLower().toStdString();
@@ -63,6 +57,19 @@ protected:
             }
         }
         return false;
+    }
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override {
+        if (pattern_.isEmpty())
+            return true;
+
+        QAbstractItemModel *src = sourceModel();
+        if (!src)
+            return true;
+
+        const QModelIndex idx = src->index(source_row, 0, source_parent);
+        return nodeMatches(idx);
     }
 
 private:
