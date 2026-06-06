@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MachOExplorer — Desktop explorer for Mach-O, archives & dyld shared cache</title>
+<meta name="description" content="A focused desktop explorer for Mach-O binaries, Fat binaries, .a archives, and dyld shared cache. Sections, symbols, disassembly, ObjC/Swift metadata, and a scriptable CLI." />
+<meta name="color-scheme" content="dark" />
+<link rel="icon" href="assets/favicon.ico" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="MachOExplorer" />
+<meta property="og:description" content="A focused desktop explorer for Mach-O binaries, archives, and dyld shared cache." />
+<meta property="og:image" content="assets/screenshot.png" />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Spline+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:        #0a0c10;
+    --bg-2:      #0e1117;
+    --panel:     #12151c;
+    --panel-2:   #161a22;
+    --line:      #232936;
+    --line-soft: #1a1f29;
+    --ink:       #e8edf5;
+    --ink-soft:  #aeb8c8;
+    --ink-dim:   #6b7689;
+    --amber:     #ffae57;
+    --amber-2:   #ff8c42;
+    --cyan:      #56d4dd;
+    --green:     #7ee787;
+    --violet:    #b39dff;
+    --red:       #ff7b72;
+    --radius:    14px;
+    --maxw:      1180px;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "Spline Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --display: "Bricolage Grotesque", var(--sans);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Byte-grid atmosphere */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 70%);
+    opacity: .5;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(60rem 40rem at 80% -10%, rgba(255,140,66,.10), transparent 60%),
+      radial-gradient(50rem 40rem at 0% 10%, rgba(86,212,221,.07), transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: rgba(255,174,87,.3); color: #fff; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  .mono { font-family: var(--mono); }
+  .accent { color: var(--amber); }
+
+  /* ---------- NAV ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(10,12,16,.72);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--display); font-weight: 700; font-size: 1.06rem; letter-spacing: -.01em; }
+  .brand img { width: 26px; height: 26px; border-radius: 7px; }
+  .brand .x { color: var(--amber); }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; font-size: .92rem; color: var(--ink-soft); }
+  .nav-links a { transition: color .2s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: .82rem; font-weight: 500;
+    padding: 8px 14px; border: 1px solid var(--line);
+    border-radius: 9px; color: var(--ink); transition: all .2s; background: var(--panel);
+  }
+  .nav-cta:hover { border-color: var(--amber); color: var(--amber); }
+  @media (max-width: 720px){ .nav-links { display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 86px 0 64px; position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  @media (max-width: 940px){ .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: .76rem; letter-spacing: .04em;
+    color: var(--amber); padding: 6px 12px;
+    border: 1px solid rgba(255,174,87,.25); border-radius: 100px;
+    background: rgba(255,174,87,.06);
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 9px var(--green); }
+
+  h1.title {
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(2.7rem, 6.4vw, 4.5rem);
+    line-height: .98; letter-spacing: -.035em;
+    margin: 22px 0 0;
+  }
+  h1.title .glow { background: linear-gradient(120deg, var(--amber) 0%, var(--amber-2) 60%, var(--cyan) 130%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .lede { font-size: 1.16rem; color: var(--ink-soft); max-width: 30em; margin: 22px 0 0; }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: .96rem; padding: 13px 22px;
+    border-radius: 11px; transition: all .22s; border: 1px solid transparent;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--amber), var(--amber-2)); color: #1a1206; box-shadow: 0 8px 30px -8px rgba(255,140,66,.55); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px -8px rgba(255,140,66,.7); }
+  .btn-ghost { border-color: var(--line); background: var(--panel); color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--ink-dim); transform: translateY(-2px); }
+  .btn svg { width: 18px; height: 18px; }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 30px; font-family: var(--mono); font-size: .78rem; color: var(--ink-dim); }
+  .badges span { display: inline-flex; align-items: center; gap: 7px; }
+  .badges b { color: var(--ink-soft); font-weight: 500; }
+
+  /* terminal hex card */
+  .hexcard {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--panel), var(--bg-2));
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.8);
+    overflow: hidden; position: relative;
+  }
+  .hexcard::before { content:""; position:absolute; inset:0; background: radial-gradient(40rem 20rem at 90% -20%, rgba(255,140,66,.08), transparent 60%); pointer-events:none; }
+  .term-bar { display: flex; align-items: center; gap: 8px; padding: 12px 15px; border-bottom: 1px solid var(--line-soft); background: var(--panel-2); }
+  .term-bar .d { width: 11px; height: 11px; border-radius: 50%; }
+  .term-bar .d.r { background: #ff5f56; } .term-bar .d.y { background: #ffbd2e; } .term-bar .d.g { background: #27c93f; }
+  .term-bar .fn { margin-left: 10px; font-family: var(--mono); font-size: .76rem; color: var(--ink-dim); }
+  .hexdump { font-family: var(--mono); font-size: .72rem; line-height: 1.85; padding: 16px 14px; overflow-x: auto; }
+  .hexdump .row { white-space: nowrap; }
+  .hexdump .off { color: var(--ink-dim); }
+  .hexdump .by { color: var(--cyan); }
+  .hexdump .as { color: var(--ink-soft); }
+  .hexdump .hl { color: var(--amber); }
+  .hexdump .cm { color: var(--green); }
+
+  /* ---------- FORMATS STRIP ---------- */
+  .formats { border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); background: rgba(18,21,28,.5); }
+  .formats .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; }
+  @media (max-width: 760px){ .formats .wrap { grid-template-columns: repeat(2,1fr); } }
+  .fmt { padding: 26px 8px 26px 0; }
+  .fmt .k { font-family: var(--mono); font-size: .74rem; color: var(--amber); letter-spacing: .05em; }
+  .fmt .v { font-family: var(--display); font-weight: 700; font-size: 1.18rem; margin-top: 4px; letter-spacing: -.01em; }
+  .fmt .s { font-size: .84rem; color: var(--ink-dim); margin-top: 2px; }
+
+  /* ---------- SECTION SHELL ---------- */
+  section.block { padding: 92px 0; position: relative; }
+  .sec-head { max-width: 38em; margin-bottom: 50px; }
+  .sec-tag { font-family: var(--mono); font-size: .78rem; color: var(--amber); letter-spacing: .08em; text-transform: uppercase; }
+  .sec-title { font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 3.6vw, 2.7rem); letter-spacing: -.025em; line-height: 1.08; margin-top: 14px; }
+  .sec-sub { color: var(--ink-soft); font-size: 1.05rem; margin-top: 14px; }
+
+  /* ---------- FEATURES ---------- */
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 920px){ .feat-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 600px){ .feat-grid { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--line-soft); border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--panel), var(--bg-2));
+    padding: 26px 24px 28px; transition: all .25s; position: relative; overflow: hidden;
+  }
+  .card::after { content:""; position:absolute; left:0; top:0; height:2px; width:0; background: linear-gradient(90deg,var(--amber),var(--cyan)); transition: width .35s ease; }
+  .card:hover { transform: translateY(-4px); border-color: var(--line); box-shadow: 0 24px 50px -28px rgba(0,0,0,.85); }
+  .card:hover::after { width: 100%; }
+  .card .ico { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,174,87,.09); border: 1px solid rgba(255,174,87,.18); color: var(--amber); margin-bottom: 16px; }
+  .card .ico svg { width: 22px; height: 22px; }
+  .card h3 { font-family: var(--display); font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; }
+  .card p { color: var(--ink-soft); font-size: .95rem; margin-top: 8px; }
+  .card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .card .tags i { font-family: var(--mono); font-style: normal; font-size: .72rem; color: var(--ink-dim); border: 1px solid var(--line-soft); border-radius: 6px; padding: 2px 8px; }
+
+  /* ---------- SHOWCASE ---------- */
+  .shot-frame {
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    background: var(--panel-2); box-shadow: 0 40px 90px -40px rgba(0,0,0,.9);
+    position: relative;
+  }
+  .shot-frame .term-bar { border-radius: 0; }
+  .shot-frame img { width: 100%; display: block; }
+  .shot-callouts { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 26px; }
+  @media (max-width: 720px){ .shot-callouts { grid-template-columns: 1fr; } }
+  .callout { border-left: 2px solid var(--amber); padding: 4px 0 4px 16px; }
+  .callout .n { font-family: var(--mono); font-size: .74rem; color: var(--amber); }
+  .callout p { color: var(--ink-soft); font-size: .92rem; margin-top: 3px; }
+
+  /* ---------- CLI ---------- */
+  .cli-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 40px; align-items: start; }
+  @media (max-width: 900px){ .cli-grid { grid-template-columns: 1fr; } }
+  .cli-points { list-style: none; }
+  .cli-points li { display: flex; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+  .cli-points li:last-child { border-bottom: none; }
+  .cli-points .m { font-family: var(--mono); color: var(--cyan); font-size: .8rem; flex-shrink: 0; margin-top: 3px; }
+  .cli-points b { font-family: var(--display); font-weight: 600; display: block; }
+  .cli-points span { color: var(--ink-soft); font-size: .92rem; }
+
+  .codewin { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--bg-2); }
+  .tabs { display: flex; gap: 2px; background: var(--panel-2); border-bottom: 1px solid var(--line-soft); padding: 0 8px; }
+  .tab {
+    font-family: var(--mono); font-size: .8rem; color: var(--ink-dim);
+    padding: 12px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: all .18s;
+  }
+  .tab:hover { color: var(--ink-soft); }
+  .tab.on { color: var(--amber); border-bottom-color: var(--amber); }
+  .code { display: none; padding: 20px 20px 22px; font-family: var(--mono); font-size: .84rem; line-height: 1.85; overflow-x: auto; }
+  .code.on { display: block; }
+  .code .p { color: var(--green); } /* prompt */
+  .code .c { color: var(--ink-dim); } /* comment */
+  .code .f { color: var(--amber); } /* flag */
+  .code .s { color: var(--cyan); } /* string/path */
+  .code .o { color: var(--ink); }  /* output */
+  .copy { float: right; font-family: var(--mono); font-size: .7rem; color: var(--ink-dim); cursor: pointer; border: 1px solid var(--line-soft); border-radius: 6px; padding: 3px 9px; transition: all .18s; }
+  .copy:hover { color: var(--amber); border-color: var(--amber); }
+
+  /* ---------- INSTALL ---------- */
+  .install-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 760px){ .install-grid { grid-template-columns: 1fr; } }
+  .inst-card { border: 1px solid var(--line-soft); border-radius: var(--radius); background: linear-gradient(180deg,var(--panel),var(--bg-2)); padding: 28px; }
+  .inst-card h3 { font-family: var(--display); font-size: 1.25rem; display: flex; align-items: center; gap: 10px; }
+  .inst-card h3 .badge { font-family: var(--mono); font-size: .68rem; font-weight: 500; color: var(--green); border: 1px solid rgba(126,231,135,.3); background: rgba(126,231,135,.07); padding: 2px 8px; border-radius: 100px; }
+  .inst-card p { color: var(--ink-soft); font-size: .94rem; margin: 8px 0 16px; }
+  .snippet { background: var(--bg); border: 1px solid var(--line-soft); border-radius: 10px; padding: 14px 16px; font-family: var(--mono); font-size: .82rem; color: var(--ink); position: relative; overflow-x: auto; }
+  .snippet .p { color: var(--amber); }
+
+  .steps { counter-reset: s; margin-top: 16px; }
+  .steps li { list-style: none; counter-increment: s; display: flex; gap: 14px; padding: 10px 0; color: var(--ink-soft); }
+  .steps li::before { content: counter(s); font-family: var(--mono); font-size: .8rem; color: var(--amber); border: 1px solid rgba(255,174,87,.3); border-radius: 7px; width: 26px; height: 26px; display: grid; place-items: center; flex-shrink: 0; }
+  .steps b { color: var(--ink); }
+
+  /* ---------- CTA BANNER ---------- */
+  .banner { border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg, rgba(255,140,66,.10), rgba(86,212,221,.06)), var(--panel); padding: 56px 40px; text-align: center; position: relative; overflow: hidden; }
+  .banner::before { content:""; position:absolute; inset:0; background-image: linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px); background-size: 36px 36px; mask-image: radial-gradient(circle at 50% 50%, #000, transparent 75%); opacity:.4; }
+  .banner > * { position: relative; }
+  .banner h2 { font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem,4vw,2.6rem); letter-spacing: -.03em; }
+  .banner p { color: var(--ink-soft); margin: 12px auto 26px; max-width: 32em; }
+
+  /* ---------- FOOTER ---------- */
+  footer { border-top: 1px solid var(--line-soft); padding: 50px 0 60px; margin-top: 40px; }
+  .foot { display: flex; flex-wrap: wrap; gap: 30px; justify-content: space-between; align-items: flex-start; }
+  .foot .brand { font-size: 1rem; }
+  .foot-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+  .foot-col h4 { font-family: var(--mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim); margin-bottom: 12px; }
+  .foot-col a { display: block; color: var(--ink-soft); font-size: .92rem; padding: 4px 0; transition: color .18s; }
+  .foot-col a:hover { color: var(--amber); }
+  .foot-bottom { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: var(--mono); font-size: .78rem; color: var(--ink-dim); }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce){ .reveal { opacity:1; transform:none; transition:none; } html { scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top"><img src="assets/logo.png" alt="" />Mach<span class="x">O</span>Explorer</a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#screenshot">Screenshot</a>
+      <a href="#cli">CLI</a>
+      <a href="#install">Install</a>
+    </nav>
+    <a class="nav-cta" href="https://github.com/everettjf/MachOExplorer" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>v2.0.16 · macOS &amp; Windows · MIT</span>
+      <h1 class="title">Read any<br><span class="glow">Mach-O</span> binary.</h1>
+      <p class="lede">A focused desktop explorer for <b>Mach-O</b>, <b>Fat binaries</b>, <b>.a archives</b>, and the <b>dyld shared cache</b>. Drill from structure to code — sections, symbols, disassembly, ObjC &amp; Swift metadata — in one fast UI.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/everettjf/MachOExplorer/releases/latest" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download latest
+        </a>
+        <a class="btn btn-ghost" href="#install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Install via Homebrew
+        </a>
+      </div>
+      <div class="badges">
+        <span><b>●</b> Hardened parser checks</span>
+        <span><b>●</b> Capstone disassembly</span>
+        <span><b>●</b> Scriptable CLI + JSON</span>
+      </div>
+    </div>
+
+    <div class="hexcard reveal">
+      <div class="term-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="fn mono">__TEXT,__text · arm64</span></div>
+      <div class="hexdump" aria-hidden="true">
+        <div class="row"><span class="off">00000000</span>  <span class="by">cf fa ed fe 0c 00 00 01</span>  <span class="hl">MH_MAGIC_64</span></div>
+        <div class="row"><span class="off">00000008</span>  <span class="by">00 00 00 02 80 00 00 00</span>  <span class="as">cputype  ARM64</span></div>
+        <div class="row"><span class="off">00000010</span>  <span class="by">19 00 00 00 a8 0a 00 00</span>  <span class="as">ncmds    25</span></div>
+        <div class="row"><span class="cm">; LC_SEGMENT_64  __TEXT</span></div>
+        <div class="row"><span class="off">00000020</span>  <span class="by">5f 5f 54 45 58 54 00 00</span>  <span class="hl">"__TEXT"</span></div>
+        <div class="row"><span class="off">00000028</span>  <span class="by">5f 5f 73 74 75 62 73 00</span>  <span class="as">"__stubs"</span></div>
+        <div class="row"><span class="cm">; __cstring literals</span></div>
+        <div class="row"><span class="off">00004af8</span>  <span class="by">54 40 22 55 49 56 69 65</span>  <span class="hl">"T@\"UIView\""</span></div>
+        <div class="row"><span class="off">00004b10</span>  <span class="by">5f 5f 73 77 69 66 74 35</span>  <span class="as">__swift5_types</span></div>
+        <div class="row"><span class="off">00004b28</span>  <span class="by">73 79 6d 62 6f 6c 5f 73</span>  <span class="as">symbol stub  ✓</span></div>
+        <div class="row"><span class="cm">; parse succeeded — 0 warnings</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS -->
+<div class="formats">
+  <div class="wrap">
+    <div class="fmt"><div class="k">FORMAT 01</div><div class="v">Mach-O</div><div class="s">thin executables, dylibs, bundles</div></div>
+    <div class="fmt"><div class="k">FORMAT 02</div><div class="v">Fat / Universal</div><div class="s">multi-arch slices</div></div>
+    <div class="fmt"><div class="k">FORMAT 03</div><div class="v">.a Archive</div><div class="s">static library members</div></div>
+    <div class="fmt"><div class="k">FORMAT 04</div><div class="v">dyld cache</div><div class="s">list + extract images</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Capabilities</div>
+      <h2 class="sec-title">Everything you need to take a binary apart.</h2>
+      <p class="sec-sub">From load commands down to a single disassembled instruction — and the modern Apple metadata most tools skip.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/></svg></div>
+        <h3>Structural views</h3>
+        <p>Load commands, sections, symbols, relocations, and strings — laid out in a navigable layout tree mirroring the file on disk.</p>
+        <div class="tags"><i>Load commands</i><i>Sections</i><i>Relocations</i></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6L3 12l5 6M16 6l5 6-5 6M14 4l-4 16" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Capstone disassembly</h3>
+        <p>Optional inline disassembly of <span class="mono accent">__TEXT,__text</span> so you can read the actual instructions without leaving the explorer.</p>
+        <div class="tags"><i>arm64</i><i>x86_64</i><i>inline</i></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><path d="M6 8.4v3.6a2 2 0 002 2h2.2M18 8.4v3.6a2 2 0 01-2 2h-2.2" stroke-linecap="round"/></svg></div>
+        <h3>Swift &amp; ObjC metadata</h3>
+        <p>Browse <span class="mono accent">__swift5_*</span> semantic graphs and Objective-C class/metadata structures decoded into readable rows.</p>
+        <div class="tags"><i>__swift5_types</i><i>ObjC classes</i><i>protocols</i></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01" stroke-linecap="round"/></svg></div>
+        <h3>dyld shared cache</h3>
+        <p>List every image inside a dyld shared cache, filter it, and extract single or batch images — then drill straight back in.</p>
+        <div class="tags"><i>list</i><i>extract</i><i>drill-in</i></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Hardened parsing</h3>
+        <p>Defensive parser checks plus a fuzz &amp; regression suite mean you can poke at suspicious or malformed files safely.</p>
+        <div class="tags"><i>fuzzed</i><i>regression</i><i>safe</i></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg></div>
+        <h3>Productive table UX</h3>
+        <p>Filter rows, copy single rows or selections, export CSV, and move fully from the keyboard. A built-in update check keeps you current.</p>
+        <div class="tags"><i>filter</i><i>CSV export</i><i>keyboard</i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENSHOT -->
+<section class="block" id="screenshot" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">The interface</div>
+      <h2 class="sec-title">One window, the whole binary.</h2>
+    </div>
+    <div class="shot-frame reveal">
+      <div class="term-bar"><span class="d r"></span><span class="d y"></span><span class="d g"></span><span class="fn mono">MachOExplorer — demoapp</span></div>
+      <img src="assets/screenshot.png" alt="MachOExplorer showing the layout tree, a C string literals table, and the parse log" loading="lazy" />
+    </div>
+    <div class="shot-callouts">
+      <div class="callout reveal"><div class="n">01 · Layout tree</div><p>Mach header, load commands, sections, symbol &amp; string tables, dynamic loader info — all in one navigable hierarchy.</p></div>
+      <div class="callout reveal"><div class="n">02 · Data tables</div><p>Each node opens a filterable table with C string literals, properties, and a raw binary view.</p></div>
+      <div class="callout reveal"><div class="n">03 · Parse log</div><p>Clear feedback on what was parsed and any warnings — so malformed files never fail silently.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CLI -->
+<section class="block" id="cli" style="padding-top:0">
+  <div class="wrap cli-grid">
+    <div>
+      <div class="sec-head reveal" style="margin-bottom:28px">
+        <div class="sec-tag">Headless mode</div>
+        <h2 class="sec-title">A CLI that speaks JSON.</h2>
+        <p class="sec-sub">Run the same analysis tree without the GUI — perfect for CI, batch jobs, and piping into <span class="mono accent">jq</span>.</p>
+      </div>
+      <ul class="cli-points">
+        <li class="reveal"><span class="m">--format</span><div><b>text or JSON</b><span>Automation-friendly output with stable <span class="mono">schemaVersion</span>, summary &amp; node paths.</span></div></li>
+        <li class="reveal"><span class="m">--max-rows</span><div><b>Bounded output</b><span>Cap rows and tree depth for huge binaries; root-path &amp; name filters to scope a subtree.</span></div></li>
+        <li class="reveal"><span class="m">moex-*</span><div><b>Helper tools</b><span>Dedicated <span class="mono">parse</span>, <span class="mono">diff</span>, <span class="mono">cache-list</span> &amp; <span class="mono">cache-extract</span> binaries.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="codewin reveal">
+      <div class="tabs">
+        <div class="tab on" data-tab="t1">analyze.sh</div>
+        <div class="tab" data-tab="t2">json + jq</div>
+        <div class="tab" data-tab="t3">dyld cache</div>
+      </div>
+
+      <div class="code on" id="t1">
+        <span class="copy" data-copy="./build/MachOExplorer --cli sample/simple">copy</span>
+        <div><span class="c"># full analysis to your terminal</span></div>
+        <div><span class="p">$</span> ./build/MachOExplorer <span class="f">--cli</span> <span class="s">sample/simple</span></div>
+        <div>&nbsp;</div>
+        <div><span class="o">File kind .... Mach-O (ARM64)</span></div>
+        <div><span class="o">Mach Header .. 25 load commands</span></div>
+        <div><span class="o">Sections ..... __TEXT __DATA __LINKEDIT</span></div>
+        <div><span class="o">Symbols ...... 412 entries</span></div>
+        <div><span class="green o" style="color:var(--green)">Parse succeeded ✓</span></div>
+      </div>
+
+      <div class="code" id="t2">
+        <span class="copy" data-copy="./build/MachOExplorer --cli --format json sample/simple | jq '.analysis.name'">copy</span>
+        <div><span class="c"># JSON, then query it with jq</span></div>
+        <div><span class="p">$</span> ./build/MachOExplorer <span class="f">--cli --format</span> <span class="s">json</span> <span class="s">sample/simple</span> \</div>
+        <div>&nbsp;&nbsp;&nbsp;| jq <span class="s">'.analysis.name'</span></div>
+        <div>&nbsp;</div>
+        <div><span class="s o" style="color:var(--cyan)">"sample/simple"</span></div>
+        <div>&nbsp;</div>
+        <div><span class="c"># write to a file instead</span></div>
+        <div><span class="p">$</span> ... <span class="f">--output</span> <span class="s">/tmp/analysis.json</span></div>
+      </div>
+
+      <div class="code" id="t3">
+        <span class="copy" data-copy="./build/moex-cache-list --json /path/to/dyld_shared_cache_arm64e UIKit">copy</span>
+        <div><span class="c"># list images in a dyld shared cache</span></div>
+        <div><span class="p">$</span> ./build/moex-cache-list <span class="f">--json</span> \</div>
+        <div>&nbsp;&nbsp;&nbsp;<span class="s">dyld_shared_cache_arm64e</span> <span class="s">UIKit</span></div>
+        <div>&nbsp;</div>
+        <div><span class="c"># extract one image back to a Mach-O</span></div>
+        <div><span class="p">$</span> ./build/moex-cache-extract <span class="f">--compact</span> \</div>
+        <div>&nbsp;&nbsp;&nbsp;<span class="s">dyld_shared_cache_arm64e</span> UIKit <span class="s">./UIKit.bin</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="block" id="install" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Get started</div>
+      <h2 class="sec-title">Up and running in a minute.</h2>
+    </div>
+
+    <div class="install-grid">
+      <div class="inst-card reveal">
+        <h3>Homebrew <span class="badge">recommended</span></h3>
+        <p>The fastest way on macOS — installs the cask straight from the tap.</p>
+        <div class="snippet">
+          <span class="copy" data-copy="brew update && brew tap everettjf/homebrew-tap && brew install --cask machoexplorer">copy</span>
+          <span class="p">$</span> brew tap everettjf/homebrew-tap<br>
+          <span class="p">$</span> brew install --cask machoexplorer
+        </div>
+      </div>
+
+      <div class="inst-card reveal">
+        <h3>Direct download</h3>
+        <p>Grab the latest signed build for macOS or Windows from GitHub Releases.</p>
+        <div class="snippet" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <span><span class="p">↗</span> github.com/everettjf/MachOExplorer/releases</span>
+          <a class="btn btn-primary" style="padding:9px 16px;font-size:.86rem" href="https://github.com/everettjf/MachOExplorer/releases/latest" target="_blank" rel="noopener">Releases →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="inst-card reveal" style="margin-top:18px">
+      <h3>Quick start</h3>
+      <ol class="steps">
+        <li><b>Launch MachOExplorer</b> and drop in a file — or open a bundled sample.</li>
+        <li>Pick <b><span class="mono">sample/simple</span></b> or <b><span class="mono">sample/complex</span></b>, or any Mach-O of your own.</li>
+        <li>Navigate from the <b>Layout</b> tree into sections, symbols &amp; disassembly views.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="banner reveal">
+      <h2>Open a binary. See everything.</h2>
+      <p>Free and open source under the MIT license. Built with Qt for macOS &amp; Windows.</p>
+      <div class="cta-row" style="justify-content:center">
+        <a class="btn btn-primary" href="https://github.com/everettjf/MachOExplorer/releases/latest" target="_blank" rel="noopener">Download latest</a>
+        <a class="btn btn-ghost" href="https://github.com/everettjf/MachOExplorer" target="_blank" rel="noopener">View source</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="#top"><img src="assets/logo.png" alt="" />Mach<span class="x">O</span>Explorer</a>
+      <p style="color:var(--ink-dim);font-size:.9rem;margin-top:12px;max-width:24em">A focused desktop explorer for Mach-O binaries, archives, and dyld shared cache.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h4>Project</h4>
+        <a href="https://github.com/everettjf/MachOExplorer" target="_blank" rel="noopener">Repository</a>
+        <a href="https://github.com/everettjf/MachOExplorer/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/everettjf/MachOExplorer/issues" target="_blank" rel="noopener">Issues</a>
+      </div>
+      <div class="foot-col">
+        <h4>Docs</h4>
+        <a href="https://github.com/everettjf/MachOExplorer/blob/master/CLI.md" target="_blank" rel="noopener">CLI guide</a>
+        <a href="https://github.com/everettjf/MachOExplorer/blob/master/DEVELOP.md" target="_blank" rel="noopener">Developer guide</a>
+        <a href="https://github.com/everettjf/MachOExplorer/blob/master/README.zh-CN.md" target="_blank" rel="noopener">简体中文</a>
+      </div>
+      <div class="foot-col">
+        <h4>Install</h4>
+        <a href="#install">Homebrew</a>
+        <a href="https://github.com/everettjf/MachOExplorer/releases/latest" target="_blank" rel="noopener">Download</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">
+    <span>MIT License · © everettjf</span>
+    <span>cf fa ed fe — MH_MAGIC_64</span>
+  </div>
+</footer>
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+      document.querySelectorAll('.code').forEach(x => x.classList.remove('on'));
+      t.classList.add('on');
+      document.getElementById(t.dataset.tab).classList.add('on');
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(b => {
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy);
+        const old = b.textContent; b.textContent = 'copied ✓';
+        setTimeout(() => b.textContent = old, 1400);
+      } catch (e) {}
+    });
+  });
+
+  // Reveal on scroll (staggered within a container)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.transitionDelay = (Math.min(i, 4) * 70) + 'ms';
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
